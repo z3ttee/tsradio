@@ -18,7 +18,7 @@ data class Channel(
     var shuffle: Boolean = true,
     var loop: Boolean = true,
     var genres: ArrayList<String> = ArrayList()
-): Thread("thread-$channelName") {
+): Thread("channel-${channelName.toLowerCase()}") {
 
     @Exclude private val logger: Logger = LoggerFactory.getLogger(Channel::class.java)
     @Exclude var interruped: Boolean = false
