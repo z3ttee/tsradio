@@ -11,9 +11,46 @@ object ChannelHandler {
     val configuredChannels: HashMap<String, Channel> = HashMap()
     val activeChannels: HashMap<String, Channel> = HashMap()
 
-    fun startChannel(channel: Channel) {
-        channel.start()
-        activeChannels[channel.channelName] = channel
+    fun startChannel(channel: Channel?) {
+        if(channel == null) {
+            logger.warn("Cannot start non-existent channel")
+            return
+        }
+
+        if(activeChannels.size < Filesystem.preferences.channels.max) {
+            channel.start()
+            activeChannels[channel.channelName] = channel
+        }
+    }
+    fun startChannel(channel: String) {
+        startChannel(configuredChannels[channel])
+    }
+    private fun stopChannel(channel: Channel?) {
+        if(channel == null) {
+            logger.warn("Cannot stop non-existent channel")
+            return
+        }
+
+        channel.interrupt()
+        channel.join()
+    }
+    fun stopChannel(channel: String) {
+        stopChannel(activeChannels[channel])
+    }
+    fun restartChannel(channel: String) {
+        stopChannel(channel)
+        startChannel(channel)
+    }
+    private fun reloadChannel(channel: Channel?) {
+        if(channel == null) {
+            logger.warn("Cannot reload non-existent channel")
+            return
+        }
+
+        channel.reload()
+    }
+    fun reloadChannel(channel: String) {
+        reloadChannel(activeChannels[channel])
     }
 
     fun createChannel(channel: Channel){
@@ -32,10 +69,11 @@ object ChannelHandler {
                 channel.interrupt()
                 channel.join()
                 activeChannels.remove(channel.channelName)
-                configuredChannels.remove(channel.channelName)
+
             }
 
-            Filesystem.getChannelCollection().whereEqualTo("channelName", channel.channelName).get().get().documents[0].reference.delete().get()
+            configuredChannels.remove(channel.channelName)
+            Filesystem.getChannelCollection().whereEqualTo("nodeID", Filesystem.preferences.node.nodeID).whereEqualTo("channelName", channel.channelName).get().get().documents[0].reference.delete().get()
             logger.info("Channel '${channel.channelName}' deleted.")
         } catch (ex: Exception) {
             logger.info("Deleting channel '${channel.channelName}' failed: ${ex.message}")
@@ -44,7 +82,7 @@ object ChannelHandler {
 
     fun editChannel(channelName: String, channel: Channel) {
         try {
-            Filesystem.getChannelCollection().whereEqualTo("channelName", channelName).get().get().documents[0].reference.set(channel.toPOJO(), SetOptions.merge())
+            Filesystem.getChannelCollection().whereEqualTo("nodeID", Filesystem.preferences.node.nodeID).whereEqualTo("channelName", channelName).get().get().documents[0].reference.set(channel.toPOJO(), SetOptions.merge())
             logger.info("Channel '$channelName' edited.")
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -70,14 +108,21 @@ object ChannelHandler {
     }
     fun getChannelByName(channelName: String): Channel {
         return configuredChannels.getOrElse(channelName,  {
-            return@getOrElse Filesystem.getChannelCollection().whereEqualTo("channelName", channelName).get().get().documents[0].toObject(Channel::class.java)
+            return@getOrElse Filesystem.getChannelCollection().whereEqualTo("nodeID", Filesystem.preferences.node.nodeID).whereEqualTo("channelName", channelName).get().get().documents[0].toObject(Channel.ChannelPOJO::class.java).toChannel()
         })
     }
     fun getChannelByMount(mountpoint: String): Channel {
         configuredChannels.values.forEach { if(it.mountpoint == mountpoint) return it }
-        return Filesystem.getChannelCollection().whereEqualTo("mountpoint", mountpoint).get().get().documents[0].toObject(Channel::class.java)
+        return Filesystem.getChannelCollection().whereEqualTo("nodeID", Filesystem.preferences.node.nodeID).whereEqualTo("mountpoint", mountpoint).get().get().documents[0].toObject(Channel.ChannelPOJO::class.java).toChannel()
     }
     fun isChannelActiveByName(channelName: String): Boolean {
         return activeChannels.containsKey(channelName)
+    }
+    fun notifyPlaylistReceived(playlistName: String){
+        for(channel in activeChannels.values){
+            if(channel.playlistID == playlistName){
+                channel.reload()
+            }
+        }
     }
 }

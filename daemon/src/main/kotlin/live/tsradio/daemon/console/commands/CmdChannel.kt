@@ -9,7 +9,7 @@ import live.tsradio.daemon.files.Filesystem
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restart|stop>", "Manage channels") {
+class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start|restart|stop>", "Manage channels") {
     private val logger: Logger = LoggerFactory.getLogger(CommandHandler::class.java)
 
     override fun execute(name: String, args: ArrayList<String>) {
@@ -22,10 +22,11 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             logger.info("Attribute help: ")
             logger.info("[-n] Name of the channel")
             logger.info("[-d] Description of the channel")
+            logger.info("[-c] Creator of the channel")
             logger.info("[-m] Mount of the channel")
             logger.info("[-s | -!s] Activate shuffle")
             logger.info("[-l | -!l] Activate loop")
-            logger.info("[-pl] Bind a playlistUUID")
+            logger.info("[-p] Bind a playlistUUID")
             logger.info("[-r] Restart/Start after edited/created")
             return
         }
@@ -36,7 +37,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             val channelName = inputFinder.findValue("n") ?: "unknown"
             val description = inputFinder.findTillNext("d") ?: "No description"
             val mount = inputFinder.findValue("m")
-            val playlistID = inputFinder.findValue("pl") ?: ""
+            val playlistID = inputFinder.findValue("p") ?: ""
             val creator = inputFinder.findTillNext("c") ?: "SYSTEM"
             val shuffle = !inputFinder.findExists("s") || !inputFinder.findExists("!s")
             val loop = !inputFinder.findExists("l") || !inputFinder.findExists("!l")
@@ -83,7 +84,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name> [params: See 'channel help']")
                 return
             }
-            var channelName = args[1]
+            val channelName = args[1]
 
             if(!ChannelHandler.channelExistsByName(channelName)) {
                 logger.warn("Channel '$channelName' does not exist.")
@@ -91,17 +92,20 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             }
 
             val channel = ChannelHandler.getChannelByName(channelName)
-
             val inputFinder = CMDInputFinder(args)
-            channelName = inputFinder.findValue("n") ?: channel.channelName
+
+            if(inputFinder.findExists("n")) {
+                logger.warn("Cannot edit the name of a channel")
+                return
+            }
+
             val description = inputFinder.findTillNext("d") ?: channel.description
             val mount = inputFinder.findValue("m") ?: channel.mountpoint
-            val playlistID = inputFinder.findValue("pl") ?: channel.playlistID
+            val playlistID = inputFinder.findValue("p") ?: channel.playlistID
             val creator = inputFinder.findTillNext("c") ?: channel.creator
             val shuffle = !inputFinder.findExists("s") || !inputFinder.findExists("!s")
             val loop = !inputFinder.findExists("l") || !inputFinder.findExists("!l")
 
-            channel.channelName = channelName
             channel.description = description
             channel.mountpoint = mount
             channel.playlistID = playlistID
@@ -113,7 +117,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             return
         }
 
-        /*if(args[0].equals("list",true)) {
+        if(args[0].equals("list",true)) {
             logger.info("[]========= Active Channels =========[]")
 
             if(ChannelHandler.activeChannels.isEmpty()){
@@ -127,19 +131,19 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             logger.info(" ")
             logger.info("[]========= Inactive Channels =========[]")
 
-            if(FileSystem.channels.isEmpty()){
+            if(ChannelHandler.configuredChannels.isEmpty()){
                 logger.info("No channels currently inactive or nothing found.")
             } else {
-                for(channel in FileSystem.channels.values){
+                for(channel in ChannelHandler.configuredChannels.values){
                     if(!ChannelHandler.activeChannels.containsKey(channel.name)) {
                         logger.info(">> ${channel.name} - ${channel.description} ")
                     }
                 }
             }
 
-            logger.info(" ")
+            /*logger.info(" ")
             logger.info("[]========= Remotely configured ========[]")
-            for(doc in Firestore.getAllChannels().get().documents) {
+            for(doc in ChannelHandler.get.getAllChannels().get().documents) {
                 val json = FileSystem.gson.toJson(doc.data)
                 val channel = FileSystem.gson.fromJson(json, JsonChannel::class.java).toChannel()
                 if(!FileSystem.channels.containsKey(channel.name)) {
@@ -149,19 +153,31 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
                         }
                     })")
                 }
-            }
+            }*/
             return
-        }*/
+        }
 
-        /*if(args[0].equals("start",true)) {
+        if(args[0].equals("start",true)) {
             if(args.size != 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")
+                return
+            }
+
+            if(ChannelHandler.activeChannels.size >= Filesystem.preferences.channels.max) {
+                logger.warn("The limit of active channels simultaneously is reached! [max: ${Filesystem.preferences.channels.max}]")
                 return
             }
             ChannelHandler.startChannel(args[1])
             return
         }
-
+        if(args[0].equals("reload",true)) {
+            if(args.size != 2) {
+                sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")
+                return
+            }
+            ChannelHandler.reloadChannel(args[1])
+            return
+        }
         if(args[0].equals("restart",true)) {
             if(args.size != 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")
@@ -177,7 +193,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             }
             ChannelHandler.stopChannel(args[1])
             return
-        }*/
+        }
 
         logger.warn("Could not handle argument '${args[0]}'")
     }

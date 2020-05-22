@@ -22,7 +22,7 @@ dependencies {
     // Cloud Firestore
     implementation 'com.google.firebase:firebase-admin:6.13.0'
 
-
+    implementation "com.github.kevinsawicki:http-request:6.0"
     // Apache Commons IO
     // implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 }

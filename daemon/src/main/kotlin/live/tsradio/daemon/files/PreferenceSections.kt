@@ -16,6 +16,7 @@ class PreferenceSections {
 
     class ChannelSettings(
         val max: Int = 4,
+        val waitForQueue: Boolean = true,
         val autostart: Boolean = true,
         val autorestart: Boolean = true,
         val restartTries: Int = 3,

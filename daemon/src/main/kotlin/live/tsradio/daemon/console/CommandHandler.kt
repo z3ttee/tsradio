@@ -2,6 +2,7 @@ package live.tsradio.daemon.console
 
 import live.tsradio.daemon.console.commands.CmdChannel
 import live.tsradio.daemon.console.commands.CmdHelp
+import live.tsradio.daemon.console.commands.CmdPlaylist
 import live.tsradio.daemon.console.commands.CmdReload
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,6 +16,7 @@ object CommandHandler {
         commands["help"] = CmdHelp()
         commands["channel"] = CmdChannel()
         commands["reload"] = CmdReload()
+        commands["playlist"] = CmdPlaylist()
     }
 
     fun handle(input: String){

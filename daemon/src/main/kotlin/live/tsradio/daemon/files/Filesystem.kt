@@ -8,8 +8,10 @@ import com.google.firebase.cloud.FirestoreClient
 import com.google.gson.GsonBuilder
 import live.tsradio.daemon.channel.Channel
 import live.tsradio.daemon.channel.ChannelHandler
+import live.tsradio.daemon.channel.PlaylistHandler
 import live.tsradio.daemon.exception.CannotLoadConfigException
 import live.tsradio.daemon.exception.MissingFileException
+import live.tsradio.daemon.sound.Playlist
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
@@ -88,14 +90,19 @@ object Filesystem {
             if(value != null){
                 for(doc in value.documents) {
                     val channelPOJO = doc.toObject(Channel.ChannelPOJO::class.java)
-                    val channel = channelPOJO.toChannel()
+                    val data = channelPOJO.toChannel()
 
-                    if(ChannelHandler.isChannelActiveByName(channel.channelName)) {
+                    if(!ChannelHandler.configuredChannels.containsKey(channelPOJO.channelName)) {
+                        ChannelHandler.configuredChannels[channelPOJO.channelName] = data
+                        ChannelHandler.startChannel(channelPOJO.channelName)
+                        logger.info("Received channel '${channelPOJO.channelName}' from database.")
+                    } else if(ChannelHandler.isChannelActiveByName(channelPOJO.channelName)) {
                         logger.info("Received update for channel '${channelPOJO.channelName}' from database. Updating...")
-                        channel.liveUpdate(channel)
+                        val channel = ChannelHandler.configuredChannels[channelPOJO.channelName]!!
+                        channel.liveUpdate(data)
                     } else {
                         logger.info("Received update for channel '${channelPOJO.channelName}' from database.")
-                        ChannelHandler.startChannel(channel)
+                        ChannelHandler.startChannel(data)
                     }
                 }
             }
@@ -106,7 +113,23 @@ object Filesystem {
 
     private class PlaylistChangeListener: EventListener<QuerySnapshot> {
         override fun onEvent(value: QuerySnapshot?, error: FirestoreException?) {
-            logger.info("onEvent(): Received playlist data from firestore.")
+            if(value != null){
+                for(doc in value.documents) {
+                    val playlistPOJO = doc.toObject(Playlist.PlaylistPOJO::class.java)
+                    val data = playlistPOJO.toPlaylist()
+
+                    logger.info("Received update for playlist '${playlistPOJO.name}' from database.")
+                    if(!PlaylistHandler.configuredPlaylists.containsKey(playlistPOJO.name)) {
+                        PlaylistHandler.configuredPlaylists[playlistPOJO.name] = data
+                        ChannelHandler.notifyPlaylistReceived(playlistPOJO.name)
+                    } else {
+                        val playlist = PlaylistHandler.configuredPlaylists[playlistPOJO.name]!!
+                        playlist.liveUpdate(data)
+                    }
+                }
+            }
+
+            error?.printStackTrace()
         }
     }
 
