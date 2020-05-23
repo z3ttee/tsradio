@@ -1,5 +1,9 @@
 <? 
+require '../vendor/autoload.php';
 require_once 'src/functions/autoload.php';
+
+putenv("GOOGLE_APPLICATION_CREDENTIALS=../serviceAccount.json");
+
 header('Content-Type: application/json');
 
 define('APP_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
@@ -16,7 +20,10 @@ set_exception_handler(function($exception){
     $response['meta']['status'] = 400;
     $response['meta']['message'] = $exception->getMessage();
     
-    if($exception instanceof EndpointNotFoundException){
+    if($exception instanceof EndpointNotFoundException) {
+        $response['meta']['status'] = 404;
+    }
+    if($exception instanceof NotFoundException) {
         $response['meta']['status'] = 404;
     }
 
@@ -41,3 +48,5 @@ if($m === 'POST') {
 }
 
 $request = new Request($m, APP_QUERY, $q);
+
+$database = new Google\Cloud\Firestore\FirestoreClient();
