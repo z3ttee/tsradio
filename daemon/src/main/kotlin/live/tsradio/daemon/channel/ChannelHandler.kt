@@ -50,8 +50,14 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         val channel = getChannelByNameLocally(channelName)?: return
         stopChannel(activeChannels[channel.channelUUID],forceStop)
     }
-    fun restartChannel(channel: String) {
+    fun restartChannel(channelName: String) {
+        val channel = getChannelByNameLocally(channelName)?: return
+
         stopChannel(channel, true)
+        while (activeChannels.containsKey(channel.channelUUID)){
+            // Wait
+            Thread.sleep(1000)
+        }
         startChannel(channel)
     }
     private fun reloadChannel(channel: Channel?) {
@@ -154,7 +160,7 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     }
 
     override fun onChannelStop(channel: Channel, reason: Int) {
-        activeChannels.remove(channel.channelName)
+        activeChannels.remove(channel.channelUUID)
         Thread.sleep(10)
 
         if(reason == REASON_CHANNEL_EXCEPTION && Filesystem.preferences.channels.autorestart) {

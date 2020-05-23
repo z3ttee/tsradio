@@ -163,7 +163,6 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
             ChannelHandler.reloadChannel(args[1])
             return
         }
-        // TODO: Review if errors occur
         if(args[0].equals("restart",true)) {
             if(args.size != 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")

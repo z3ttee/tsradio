@@ -2,6 +2,8 @@ package live.tsradio.daemon.channel
 
 import com.google.cloud.firestore.annotation.Exclude
 import com.mpatric.mp3agic.Mp3File
+import io.grpc.netty.shaded.io.netty.handler.codec.http2.Http2Exception
+import live.tsradio.daemon.exception.StreamException
 import live.tsradio.daemon.files.Filesystem
 import live.tsradio.daemon.listener.ChannelEventListener
 import live.tsradio.daemon.listener.IcecastConnectionListener
@@ -78,10 +80,14 @@ data class Channel(
             icecastClient.closeConnection()
             channelEventListener?.onChannelStop(this)
         } catch (ex: Exception){
-            if(ex is ConnectException || ex is SocketException ) {
+            if(ex is ConnectException || ex is SocketException) {
                 // Do nothing
             } else {
-                ex.printStackTrace()
+                if(ex is StreamException) {
+                    logger.error("An error occured: ${ex.message}")
+                } else {
+                    ex.printStackTrace()
+                }
             }
 
             icecastClient.closeConnection()
