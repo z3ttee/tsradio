@@ -27,7 +27,4 @@ class Request {
     function getMethodFile(){
         return $this->_methodFile;
     }
-    function getMethodType(){
-        return $this->_method;
-    }
 }

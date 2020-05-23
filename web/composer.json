@@ -1,0 +1,12 @@
+{
+    "name": "tsradio/api",
+    "authors": [
+        {
+            "name": "z3ttee",
+            "email": "cedric.zitzmann@gmail.com"
+        }
+    ],
+    "require": {
+        "google/cloud-firestore": "^1.12"
+    }
+}
