@@ -25,9 +25,11 @@ hs_err_pid*
 # Exluded json
 serviceAccount.json
 config.json
+composer.lock
 
 # Directories
 .gradle/
 .idea/
 build/
 out/
+vendor/
