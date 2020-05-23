@@ -36,7 +36,7 @@ set_error_handler(function($errorCode, $errorText, $errorFile, $errorLine){
     $response['meta']['message'] = $errorText;
     echo json_encode($response);
     die;
-});
+}, E_ALL ^ E_USER_DEPRECATED);
 
 $q = array(); 
 $m = $_SERVER['REQUEST_METHOD'];
