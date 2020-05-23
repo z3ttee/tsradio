@@ -58,7 +58,7 @@ object Filesystem {
         }
     }
 
-    private fun loadConfig(){
+    fun loadConfig(){
         preferencesFile.setReadable(true)
         preferencesFile.setWritable(true)
 
@@ -92,17 +92,17 @@ object Filesystem {
                     val channelPOJO = doc.toObject(Channel.ChannelPOJO::class.java)
                     val data = channelPOJO.toChannel()
 
-                    if(!ChannelHandler.configuredChannels.containsKey(channelPOJO.channelName)) {
-                        ChannelHandler.configuredChannels[channelPOJO.channelName] = data
-                        ChannelHandler.startChannel(channelPOJO.channelName)
+                    if(!ChannelHandler.configuredChannels.containsKey(channelPOJO.channelUUID)) {
+                        ChannelHandler.configuredChannels[channelPOJO.channelUUID] = data
+                        if(preferences.channels.autostart) ChannelHandler.startChannel(channelPOJO.channelName)
                         logger.info("Received channel '${channelPOJO.channelName}' from database.")
-                    } else if(ChannelHandler.isChannelActiveByName(channelPOJO.channelName)) {
+                    } else if(ChannelHandler.isChannelActiveByUUID(channelPOJO.channelUUID)) {
                         logger.info("Received update for channel '${channelPOJO.channelName}' from database. Updating...")
-                        val channel = ChannelHandler.configuredChannels[channelPOJO.channelName]!!
+                        val channel = ChannelHandler.configuredChannels[channelPOJO.channelUUID]!!
                         channel.liveUpdate(data)
                     } else {
                         logger.info("Received update for channel '${channelPOJO.channelName}' from database.")
-                        ChannelHandler.startChannel(data)
+                        if(preferences.channels.autostart) ChannelHandler.startChannel(data)
                     }
                 }
             }
@@ -118,13 +118,15 @@ object Filesystem {
                     val playlistPOJO = doc.toObject(Playlist.PlaylistPOJO::class.java)
                     val data = playlistPOJO.toPlaylist()
 
-                    logger.info("Received update for playlist '${playlistPOJO.name}' from database.")
+
                     if(!PlaylistHandler.configuredPlaylists.containsKey(playlistPOJO.name)) {
                         PlaylistHandler.configuredPlaylists[playlistPOJO.name] = data
                         ChannelHandler.notifyPlaylistReceived(playlistPOJO.name)
+                        logger.info("Received playlist '${playlistPOJO.name}' from database.")
                     } else {
                         val playlist = PlaylistHandler.configuredPlaylists[playlistPOJO.name]!!
                         playlist.liveUpdate(data)
+                        logger.info("Received update for playlist '${playlistPOJO.name}' from database.")
                     }
                 }
             }

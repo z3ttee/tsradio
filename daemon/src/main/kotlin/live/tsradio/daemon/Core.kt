@@ -26,11 +26,6 @@ class Core {
             CommandHandler
             ConsoleHandler().start()
 
-            // Autostart channels
-            for(channel in ChannelHandler.configuredChannels.values){
-
-            }
-
             Thread.currentThread().join()
             logger.info("Daemon shut down.")
         } catch (ex: Exception){

@@ -20,10 +20,11 @@ class PreferenceSections {
         val autostart: Boolean = true,
         val autorestart: Boolean = true,
         val restartTries: Int = 3,
-        val restartDelayBetween: Long = 20)
+        val restartDelay: Int = 20)
 
     class FirestoreSettings(
         val channelCollection: String = "channels",
         val playlistCollection: String = "playlists",
-        val genreCollection: String = "genres")
+        val genreCollection: String = "genres",
+        val realtimeInfoCollection: String = "realtimeInfo")
 }
