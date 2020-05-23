@@ -47,6 +47,5 @@ if($m === 'POST') {
     $q = $_GET;
 }
 
-$request = new Request($m, APP_QUERY, $q);
-
 $database = new Google\Cloud\Firestore\FirestoreClient();
+$request = new Request($m, APP_QUERY, $q, $database);
