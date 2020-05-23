@@ -107,6 +107,7 @@ class IcecastClient(
 
     fun closeConnection(){
         socket?.close()
+        outputStream?.close()
         connectionListener.onConnectionLost()
     }
 
