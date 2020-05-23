@@ -1,4 +1,8 @@
 <?php
+if(!$request->isAuthenticated()){
+    throw new InvalidAccessTokenException();
+}
+
 if($request->getMethodType() != 'GET') {
     throw new WrongMethodTypeException('GET');
 }

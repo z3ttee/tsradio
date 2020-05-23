@@ -4,9 +4,10 @@ class Request {
             $_endpoint = 'ping',
             $_method = 'GET',
             $_query = array(),
-            $_methodFile = null;
+            $_methodFile = null,
+            $_authenticated = false;
 
-    public function __construct(string $method = '', array $queryURL, array $params = array()){
+    public function __construct(string $method = '', array $queryURL, array $params = array(), $database){
         if(!isset($queryURL[0])) throw new VersionRequiredException();
         if(!isset($queryURL[1])) $queryURL[1] = 'ping';
 
@@ -22,6 +23,17 @@ class Request {
         if(!file_exists($this->_methodFile)){
             throw new EndpointNotFoundException();
         }
+
+        if(isset($_GET["access_token"])){
+            $accessToken = $_GET["access_token"];
+            $docs = $database->collection("apiTokens")->where("token", "=", $accessToken)->where("type", "=", "access")->documents();
+
+            foreach($docs as $doc) {
+                $this->_authenticated = $doc->exists();
+                break;
+            }
+        }
+    
     }
 
     function getMethodFile(){
@@ -29,5 +41,8 @@ class Request {
     }
     function getMethodType(){
         return $this->_method;
+    }
+    function isAuthenticated(){
+        return $this->_authenticated;
     }
 }
