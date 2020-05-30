@@ -26,6 +26,8 @@ hs_err_pid*
 serviceAccount.json
 config.json
 composer.lock
+firebase.json
+.firebaserc
 
 # Directories
 .gradle/
@@ -33,3 +35,7 @@ composer.lock
 build/
 out/
 vendor/
+/node_modules
+.firebase
+api_old/
+*_old/
