@@ -18,9 +18,9 @@ import java.net.Socket
 
 class IcecastClient(
         val channel: Channel,
-        val icecastSettings: PreferenceSections.IcecastSettings,
-        val connectionListener: IcecastConnectionListener,
-        val trackEventListener: TrackEventListener
+        private val icecastSettings: PreferenceSections.IcecastSettings,
+        private val connectionListener: IcecastConnectionListener,
+        private val trackEventListener: TrackEventListener
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(IcecastClient::class.java)
@@ -67,19 +67,14 @@ class IcecastClient(
     }
 
     fun streamTrack(track: AudioTrack) {
-        val bufferSize = (track.mp3File.length.toDouble() / track.mp3File.lengthInSeconds).toLong().toInt() + 1
+        val bufferSize = (track.mp3File!!.length.toDouble() / track.mp3File.lengthInSeconds).toLong().toInt() + 1
         val buffer = ByteArray(bufferSize)
-        val inputStream = FileInputStream(track.file)
+        val inputStream = FileInputStream(track.file!!)
 
         try {
             // mainloop, write every specified size, reduce syscall
             trackEventListener.onTrackStart(track)
             while (!channel.forceShutdown) {
-                //TODO: Test if errors occur without that code
-                /*if(!isConnected()) {
-                    connect()
-                    Thread.sleep(1000*Filesystem.preferences.channels.restartDelayBetween)
-                }*/
 
                 val read = inputStream.read(buffer, 0, bufferSize)
                 // EOF
@@ -91,7 +86,8 @@ class IcecastClient(
                 }
 
                 try {
-                    Thread.sleep(1000)
+                    // TODO: Test
+                    // Thread.sleep(1000)
                 } catch (e: InterruptedException) {
                     // skip
                 }

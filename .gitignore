@@ -39,3 +39,4 @@ vendor/
 .firebase
 api_old/
 *_old/
+master/

@@ -1,16 +1,16 @@
 package live.tsradio.daemon.channel
 
-import com.google.cloud.firestore.SetOptions
-import live.tsradio.daemon.files.Filesystem
 import live.tsradio.daemon.sound.Playlist
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+// TODO: New mysql system
 object PlaylistHandler {
     private val logger: Logger = LoggerFactory.getLogger(PlaylistHandler::class.java)
 
     val configuredPlaylists: HashMap<String, Playlist> = HashMap()
 
+    /*
     fun createPlaylist(playlist: Playlist){
         try {
             Filesystem.getPlaylistCollection().document().set(playlist.toPOJO(), SetOptions.merge()).get()
@@ -52,5 +52,5 @@ object PlaylistHandler {
         return configuredPlaylists.getOrElse(name,  {
             return@getOrElse Filesystem.getPlaylistCollection().whereEqualTo("nodeID", Filesystem.preferences.node.nodeID).whereEqualTo("name", name).get().get().documents[0].toObject(Playlist.PlaylistPOJO::class.java).toPlaylist()
         })
-    }
+    }*/
 }

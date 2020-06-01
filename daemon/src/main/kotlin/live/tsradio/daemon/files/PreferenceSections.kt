@@ -5,8 +5,7 @@ import java.util.*
 class PreferenceSections {
 
     class GeneralSettings(
-        val configVersion: Int = 1,
-        val nodeID: String = UUID.randomUUID().toString())
+        val nodeID: String = UUID.randomUUID().toString().replace("-", ""))
 
     class IcecastSettings(
         val host: String = "localhost",
@@ -22,9 +21,18 @@ class PreferenceSections {
         val restartTries: Int = 3,
         val restartDelay: Int = 20)
 
-    class FirestoreSettings(
-        val channelCollection: String = "channels",
-        val playlistCollection: String = "playlists",
-        val genreCollection: String = "genres",
-        val realtimeInfoCollection: String = "realtimeInfo")
+    class MySQLSettings(
+            val apiVersion: Int = 1,
+            val host: String = "localhost",
+            val port: Int = 3306,
+            val database: String = "dbname",
+            val username: String = "user",
+            val password: String = "pass",
+            val prefix: String = "tsr_")
+
+    class RedisSettings(
+            val channelCollection: String = "channels",
+            val playlistCollection: String = "playlists",
+            val genreCollection: String = "genres",
+            val channelInfoCollection: String = "channelInfo")
 }

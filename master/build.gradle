@@ -19,9 +19,8 @@ dependencies {
     implementation "com.mpatric:mp3agic:0.9.1"
     implementation "com.google.guava:guava:29.0-jre"
 
-    implementation "mysql:mysql-connector-java:8.0.20"
-
-    implementation "com.github.kevinsawicki:http-request:6.0"
+    implementation group: 'redis.clients', name: 'jedis', version: '3.3.0'
+    implementation "org.java-websocket:Java-WebSocket:1.5.1"
 }
 
 compileKotlin {

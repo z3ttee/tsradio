@@ -1,8 +1,8 @@
 package live.tsradio.daemon
 
-import live.tsradio.daemon.channel.ChannelHandler
 import live.tsradio.daemon.console.CommandHandler
 import live.tsradio.daemon.console.ConsoleHandler
+import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.exception.ExceptionHandler
 import live.tsradio.daemon.files.Filesystem
 import org.slf4j.Logger
@@ -24,14 +24,15 @@ class Core {
             // Init handlers
             Filesystem
             CommandHandler
+            MySQL
             ConsoleHandler().start()
 
             Thread.currentThread().join()
             logger.info("Daemon shut down.")
-        } catch (ex: Exception){
-            ExceptionHandler(ex).handle()
         } catch (ex: ExceptionInInitializerError) {
             ExceptionHandler(ex.exception).handle()
+        } catch (ex: Exception){
+            ExceptionHandler(ex).handle()
         }
     }
 }

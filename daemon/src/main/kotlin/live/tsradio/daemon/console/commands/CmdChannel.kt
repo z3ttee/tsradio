@@ -77,7 +77,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
                 return
             }
 
-            ChannelHandler.deleteChannel(ChannelHandler.getChannelByName(channelName))
+            ChannelHandler.deleteChannel(ChannelHandler.getChannelOnNodeByName(channelName)!!)
             return
         }
 
@@ -93,14 +93,14 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
                 return
             }
 
-            val channel = ChannelHandler.getChannelByName(channelName)
+            val channel = ChannelHandler.getChannelOnNodeByName(channelName)!!
             val inputFinder = CMDInputFinder(args)
 
             val channelNameNew = inputFinder.findValue("n") ?: channelName
             val description = inputFinder.findTillNext("d") ?: channel.description
             val mount = inputFinder.findValue("m") ?: channel.mountpoint
             val playlistID = inputFinder.findValue("p") ?: channel.playlistID
-            val creator = inputFinder.findTillNext("c") ?: channel.creator
+            val creator = inputFinder.findTillNext("c") ?: channel.creatorID
             val shuffle = !inputFinder.findExists("s") || !inputFinder.findExists("!s")
             val loop = !inputFinder.findExists("l") || !inputFinder.findExists("!l")
 
@@ -108,11 +108,11 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
             channel.description = description
             channel.mountpoint = mount
             channel.playlistID = playlistID
-            channel.creator = creator
+            channel.creatorID = creator
             channel.shuffle = shuffle
             channel.loop = loop
 
-            ChannelHandler.editChannel(channelName, channel.channelUUID, channel)
+            ChannelHandler.editChannel(channelName, channel.channelID, channel)
             return
         }
 
@@ -134,7 +134,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
                 logger.info("No channels currently inactive or nothing found.")
             } else {
                 for(channel in ChannelHandler.configuredChannels.values){
-                    if(!ChannelHandler.activeChannels.containsKey(channel.channelUUID)) {
+                    if(!ChannelHandler.activeChannels.containsKey(channel.channelID)) {
                         logger.info(">> ${channel.channelName} - ${channel.description} ")
                     }
                 }

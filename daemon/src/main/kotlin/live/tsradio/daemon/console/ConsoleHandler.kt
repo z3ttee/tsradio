@@ -9,15 +9,8 @@ class ConsoleHandler: Thread("console-input") {
     override fun run() {
         try {
             while(true) {
-                val input = readLine()
-
-                try {
-                    CommandHandler.handle(input!!)
-                } catch (ex: Exception){
-                    ex.printStackTrace()
-                    logger.error("An exception occured when executing a command.")
-                }
-
+                val input = readLine() ?: throw Exception("")
+                CommandHandler.handle(input)
             }
         } catch (ignored: Exception){
             logger.warn("An exception occured in console handler. That means, command input through a console may not be available.")

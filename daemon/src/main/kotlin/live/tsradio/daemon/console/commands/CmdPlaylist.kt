@@ -9,6 +9,7 @@ import live.tsradio.daemon.sound.Playlist
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+// TODO: New mysql system
 class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage playlists") {
     private val logger: Logger = LoggerFactory.getLogger(CommandHandler::class.java)
 
@@ -26,7 +27,7 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
             return
         }
 
-        if(args[0].equals("create",true)) {
+        /*if(args[0].equals("create",true)) {
             val inputFinder = CMDInputFinder(args)
 
             val playlistName = inputFinder.findValue("n") ?: "unknown"
@@ -46,9 +47,9 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
 
             PlaylistHandler.createPlaylist(playlist)
             return
-        }
+        }*/
 
-        if(args[0].equals("delete",true)) {
+        /*if(args[0].equals("delete",true)) {
             if(args.size < 1) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <playlist_name>")
                 return
@@ -63,9 +64,9 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
 
             PlaylistHandler.deletePlaylist(PlaylistHandler.getPlaylistByName(playlistName))
             return
-        }
+        }*/
 
-        if(args[0].equals("edit",true)) {
+        /*if(args[0].equals("edit",true)) {
             if(args.size < 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <playlist_name> [params: See 'playlist help']")
                 return
@@ -93,7 +94,7 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
 
             PlaylistHandler.editPlaylist(playlistName, playlist)
             return
-        }
+        }*/
 
         if(args[0].equals("list",true)) {
             logger.info("[]========= Playlists on this node =========[]")
