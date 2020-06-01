@@ -32,7 +32,7 @@ data class ChannelInfo(
                 MySQL.delete(MySQL.tableInfo, "id = '${channel.channelID}'")
             } else {
                 // Update info
-                if(MySQL.exists(MySQL.tableInfo, "id", "id = '${channel.channelID}'")) {
+                if(MySQL.exists(MySQL.tableInfo, "id = '${channel.channelID}'")) {
                     MySQL.update(MySQL.tableInfo, "id = '${channel.channelID}'", toContentValues())
                 } else {
                     MySQL.insert(MySQL.tableInfo, toContentValues())
@@ -55,7 +55,7 @@ data class ChannelInfo(
                 0 -> ""
                 else -> ","
             }
-            historyJson += "$separator{\"date\": {\"title\": \"${entry.value.title}\", \"artist\": \"${entry.value.artist}\"}}"
+            historyJson += "$separator{\"${System.currentTimeMillis()}\": {\"title\": \"${entry.value.title}\", \"artist\": \"${entry.value.artist}\"}}"
         }
 
         historyJson += "]"

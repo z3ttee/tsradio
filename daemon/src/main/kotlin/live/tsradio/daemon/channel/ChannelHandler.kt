@@ -99,7 +99,8 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
                 activeChannels.remove(channel.channelID)
             }
             configuredChannels.remove(channel.channelID)
-            MySQL.delete(MySQL.tableChannels, "nodeID=${Filesystem.preferences.node.nodeID} AND id=${channel.channelID}")
+            MySQL.delete(MySQL.tableChannels, "nodeID = '${Filesystem.preferences.node.nodeID}' AND id = '${channel.channelID}'")
+            notifyChannelRemoved(channel.channelID)
             logger.info("Channel '${channel.channelName}' deleted.")
         } catch (ex: Exception) {
             logger.info("Deleting channel '${channel.channelName}' failed: ${ex.message}")
@@ -108,9 +109,9 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
 
     fun editChannel(channelName: String, channelUUID: String, channel: Channel) {
         try {
-            MySQL.update(MySQL.tableChannels, "nodeID=${Filesystem.preferences.node.nodeID} AND id=$channelUUID", channel.toContentValues())
-            logger.info("Channel '$channelName' edited.")
+            MySQL.update(MySQL.tableChannels, "nodeID = '${Filesystem.preferences.node.nodeID}' AND id = '$channelUUID'", channel.toContentValues())
             notifyChannelUpdated(channel)
+            logger.info("Channel '$channelName' edited.")
         } catch (ex: Exception) {
             logger.info("Editing channel '$channelName' failed: ${ex.message}")
         }
@@ -119,15 +120,16 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     fun channelExistsByName(channelName: String): Boolean {
         configuredChannels.values.forEach { if(it.channelName == channelName) return true }
         return try {
-            MySQL.exists(MySQL.tableChannels, "id", "name=$channelName")
+            MySQL.exists(MySQL.tableChannels, "name = '$channelName'")
         } catch (ignored: Exception) {
+            ignored.printStackTrace()
             false
         }
     }
     fun channelExistsByMount(mountpoint: String): Boolean {
         configuredChannels.values.forEach { if(it.mountpoint == mountpoint) return true }
         return try {
-            MySQL.exists(MySQL.tableChannels, "id", "mountpoint=$mountpoint")
+            MySQL.exists(MySQL.tableChannels, "mountpoint = '$mountpoint'")
         } catch (ignored: Exception) {
             false
         }
@@ -147,9 +149,9 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         )
     }
     fun getChannelOnNodeByName(channelName: String): Channel? {
-        val result = MySQL.get(MySQL.tableChannels, "nodeID=${Filesystem.preferences.node.nodeID} AND name=$channelName", ArrayList(listOf("*")))
+        val result = MySQL.get(MySQL.tableChannels, "nodeID = '${Filesystem.preferences.node.nodeID}' AND name = '$channelName'", ArrayList(listOf("*")))
 
-        return if(result != null) {
+        return if(result != null && result.next()) {
             mysqlResultToChannel(result)
         } else {
             null
@@ -168,24 +170,7 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     fun isChannelActiveByID(channelID: String): Boolean {
         return activeChannels.containsKey(channelID)
     }
-    fun notifyPlaylistReceived(playlistName: String){
-        for(channel in activeChannels.values){
-            if(channel.playlistID == playlistName){
-                channel.reload()
-            }
-        }
-    }
-    fun notifyChannelUpdated(channel: Channel){
-        if(!configuredChannels.containsKey(channel.channelID)) {
-            configuredChannels[channel.channelID]
-        } else {
-            configuredChannels[channel.channelID]!!.liveUpdate(channel)
 
-            if(activeChannels.containsKey(channel.channelID)) {
-                activeChannels[channel.channelID]!!.liveUpdate(channel)
-            }
-        }
-    }
 
     override fun onChannelReady(channel: Channel) {
         logger.info("Channel '${channel.channelName}' is ready")
@@ -236,5 +221,30 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
 
     override fun newThread(r: Runnable): Thread {
         return Thread(r, "channel-thread-${activeChannels.size+1}")
+    }
+
+
+
+    fun notifyChannelUpdated(channel: Channel){
+        if(!configuredChannels.containsKey(channel.channelID)) {
+            configuredChannels[channel.channelID] = channel
+
+            if(Filesystem.preferences.channels.autostart) {
+                startChannel(channel)
+            }
+            return
+        }
+
+        configuredChannels[channel.channelID]!!.liveUpdate(channel)
+        if(activeChannels.containsKey(channel.channelID)) {
+            activeChannels[channel.channelID]!!.liveUpdate(channel)
+        }
+    }
+
+    fun notifyChannelRemoved(channelID: String){
+        if(configuredChannels.containsKey(channelID)) configuredChannels.remove(channelID)
+        if(activeChannels.containsKey(channelID)) {
+            stopChannel(channelID, true)
+        }
     }
 }

@@ -20,16 +20,18 @@ object CommandHandler {
     }
 
     fun handle(input: String){
-        var parts = input.split(" ")
-        val name = parts[0].toLowerCase()
-        parts = parts.subList(1, parts.size)
+        Thread(Runnable {
+            var parts = input.split(" ")
+            val name = parts[0].toLowerCase()
+            parts = parts.subList(1, parts.size)
 
-        try {
-            val command: Command = commands[name]!!
-            command.execute(name, ArrayList(parts))
-        } catch (ignored: NullPointerException){
-            logger.warn("Could not find command '$name'. Typing 'help' will give you an overview of all commands")
-        }
+            try {
+                val command: Command = commands[name]!!
+                command.execute(name, ArrayList(parts))
+            } catch (ignored: NullPointerException){
+                logger.warn("Could not find command '$name'. Typing 'help' will give you an overview of all commands")
+            }
+        }).start()
     }
 
 }

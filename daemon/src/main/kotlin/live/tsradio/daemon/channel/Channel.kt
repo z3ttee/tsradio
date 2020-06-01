@@ -7,6 +7,7 @@ import live.tsradio.daemon.files.Filesystem
 import live.tsradio.daemon.listener.*
 import live.tsradio.daemon.protocol.IcecastClient
 import live.tsradio.daemon.sound.AudioTrack
+import live.tsradio.daemon.sound.PlaylistHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
@@ -59,17 +60,20 @@ data class Channel(
                     if(queue.isEmpty()) {
                         if (Filesystem.preferences.channels.waitForQueue) {
                             logger.warn("Waiting till queue gets populated...")
-                            while (queue.isEmpty()) {
+                            while (queue.isEmpty() && !shutdown) {
                                 sleep(1000 * 5) // Scan every 5 sec, if queue was populated
                             }
                         }
                     }
                 }
 
-                try {
-                    val track = queue.random()
-                    icecastClient.streamTrack(track)
-                } catch (ignored: NullPointerException) {  }
+                if(!shutdown) {
+                    try {
+                        val track = queue.random()
+                        icecastClient.streamTrack(track)
+                    } catch (ignored: NullPointerException) {
+                    }
+                }
             }
 
             channelEventListener?.onChannelDone(this)
@@ -120,8 +124,10 @@ data class Channel(
         }
 
         if(!playlist.directoryAsFile.exists() || !playlist.directoryAsFile.isDirectory) {
-            if(withLogEntries) logger.error("Playlist directory '${playlist.directoryAsFile.absolutePath}' is not a directory or not found")
-            return
+            if(!playlist.directoryAsFile.mkdirs()) {
+                if (withLogEntries) logger.error("Playlist directory '${playlist.directoryAsFile.absolutePath}' is not a directory or not found")
+                return
+            }
         }
 
         playlist.directoryAsFile.listFiles { _, name -> name.endsWith(".mp3") }!!.forEach { file ->
@@ -155,6 +161,11 @@ data class Channel(
     }
 
     fun liveUpdate(channel: Channel){
+        if(playlistID != channel.playlistID) {
+            // Playlist updated -> reload
+            loadPlaylist(false)
+        }
+
         nodeID = channel.nodeID
         channelName = channel.channelName
         description = channel.description
@@ -164,6 +175,8 @@ data class Channel(
         shuffle = channel.shuffle
         loop = channel.loop
         genres = channel.genres
+
+        logger.info("live updated.")
     }
 
     fun toContentValues(): ContentValues {

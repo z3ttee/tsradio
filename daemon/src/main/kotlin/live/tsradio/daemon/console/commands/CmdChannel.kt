@@ -5,7 +5,10 @@ import live.tsradio.daemon.console.Command
 import live.tsradio.daemon.console.CommandHandler
 import live.tsradio.daemon.channel.ChannelHandler
 import live.tsradio.daemon.console.CMDInputFinder
+import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.files.Filesystem
+import live.tsradio.daemon.sound.Playlist
+import live.tsradio.daemon.sound.PlaylistHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -39,13 +42,31 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
             val channelName = inputFinder.findValue("n") ?: "unknown"
             val description = inputFinder.findTillNext("d") ?: "No description"
             val mount = inputFinder.findValue("m")
-            val playlistID = inputFinder.findValue("p") ?: ""
-            val creator = inputFinder.findTillNext("c") ?: "SYSTEM"
+            val playlistName = inputFinder.findValue("p") ?: ""
+            val creator = inputFinder.findTillNext("c") ?: "System"
             val shuffle = !inputFinder.findExists("s") || !inputFinder.findExists("!s")
             val loop = !inputFinder.findExists("l") || !inputFinder.findExists("!l")
 
             if(mount.isNullOrEmpty()) {
                 logger.warn("Mountpoint required in order to create channel.")
+                return
+            }
+
+            var playlistID = ""
+            if(!PlaylistHandler.playlistExistsByName(playlistName)) {
+                logger.info("The specified playlist does not exist. Creating it...")
+                val pID = UUID.randomUUID().toString()
+                PlaylistHandler.createPlaylist(Playlist(playlistName, pID, creator, ArrayList()))
+                playlistID = pID
+            } else {
+                val result = MySQL.get(MySQL.tablePlaylists, "name = '$playlistName'", ArrayList(listOf("id")))
+                if(result != null && result.next()) {
+                    playlistID = result.getString("id")
+                }
+            }
+
+            if(playlistID.isEmpty()) {
+                logger.error("Error occured: Playlist does not exist")
                 return
             }
 
@@ -99,10 +120,18 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
             val channelNameNew = inputFinder.findValue("n") ?: channelName
             val description = inputFinder.findTillNext("d") ?: channel.description
             val mount = inputFinder.findValue("m") ?: channel.mountpoint
-            val playlistID = inputFinder.findValue("p") ?: channel.playlistID
+            val playlistName = inputFinder.findValue("p")
             val creator = inputFinder.findTillNext("c") ?: channel.creatorID
             val shuffle = !inputFinder.findExists("s") || !inputFinder.findExists("!s")
             val loop = !inputFinder.findExists("l") || !inputFinder.findExists("!l")
+
+            var playlistID = channel.playlistID
+            if(!playlistName.isNullOrEmpty()) {
+                val result = MySQL.get(MySQL.tablePlaylists, "name = '$playlistName'", ArrayList(listOf("id")))
+                if(result != null && result.next()) {
+                    playlistID = result.getString("id")
+                }
+            }
 
             channel.channelName = channelNameNew
             channel.description = description

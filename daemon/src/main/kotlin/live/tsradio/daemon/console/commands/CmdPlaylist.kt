@@ -1,13 +1,15 @@
 package live.tsradio.daemon.console.commands
 
+import live.tsradio.daemon.console.CMDInputFinder
 import live.tsradio.daemon.console.Command
 import live.tsradio.daemon.console.CommandHandler
-import live.tsradio.daemon.channel.PlaylistHandler
-import live.tsradio.daemon.console.CMDInputFinder
 import live.tsradio.daemon.files.Filesystem
 import live.tsradio.daemon.sound.Playlist
+import live.tsradio.daemon.sound.PlaylistHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
+import kotlin.collections.ArrayList
 
 // TODO: New mysql system
 class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage playlists") {
@@ -23,23 +25,21 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
             logger.info("Attribute help: ")
             logger.info("[-n] Name of the playlist")
             logger.info("[-c] Creator of the playlist")
-            logger.info("[-d] Directory of the playlist on node (Always in /playlists/...)")
             return
         }
 
-        /*if(args[0].equals("create",true)) {
+        if(args[0].equals("create",true)) {
             val inputFinder = CMDInputFinder(args)
 
-            val playlistName = inputFinder.findValue("n") ?: "unknown"
-            val creator = inputFinder.findTillNext("c") ?: "SYSTEM"
-            val directory = inputFinder.findTillNext("d")
+            val playlistName = inputFinder.findValue("n")
+            val creator = inputFinder.findTillNext("c") ?: "System"
 
-            if(directory.isNullOrEmpty()) {
-                logger.warn("Directory required in order to create channel.")
+            if(playlistName.isNullOrEmpty()) {
+                logger.warn("Name required in order to create channel.")
                 return
             }
 
-            val playlist = Playlist(Filesystem.preferences.node.nodeID, playlistName, creator, directory.removePrefix("/"), ArrayList())
+            val playlist = Playlist(playlistName, UUID.randomUUID().toString(), creator, ArrayList())
             if(PlaylistHandler.playlistExistsByName(playlistName)){
                 logger.warn("Playlist '${playlistName}' already exists.")
                 return
@@ -47,9 +47,9 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
 
             PlaylistHandler.createPlaylist(playlist)
             return
-        }*/
+        }
 
-        /*if(args[0].equals("delete",true)) {
+        if(args[0].equals("delete",true)) {
             if(args.size < 1) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <playlist_name>")
                 return
@@ -62,11 +62,11 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
                 return
             }
 
-            PlaylistHandler.deletePlaylist(PlaylistHandler.getPlaylistByName(playlistName))
+            PlaylistHandler.deletePlaylist(PlaylistHandler.getPlaylistOnNodeByName(playlistName)!!)
             return
-        }*/
+        }
 
-        /*if(args[0].equals("edit",true)) {
+        if(args[0].equals("edit",true)) {
             if(args.size < 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <playlist_name> [params: See 'playlist help']")
                 return
@@ -78,23 +78,20 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
                 return
             }
 
-            val playlist = PlaylistHandler.getPlaylistByName(playlistName)
+            val playlist = PlaylistHandler.getPlaylistOnNodeByName(playlistName)
             val inputFinder = CMDInputFinder(args)
 
-            if(inputFinder.findExists("n")) {
-                logger.warn("Cannot edit the name of a playlist")
-                return
+            if(playlist != null) {
+                val creator = inputFinder.findValue("c") ?: playlist.creatorID
+                val directory = inputFinder.findValue("n") ?: playlist.name
+
+                playlist.creatorID = creator
+                playlist.name = directory.removePrefix("/")
+
+                PlaylistHandler.editPlaylist(playlistName, playlist)
             }
-
-            val creator = inputFinder.findTillNext("c") ?: playlist.creator
-            val directory = inputFinder.findTillNext("d") ?: playlist.directory
-
-            playlist.creator = creator
-            playlist.directory = directory.removePrefix("/")
-
-            PlaylistHandler.editPlaylist(playlistName, playlist)
             return
-        }*/
+        }
 
         if(args[0].equals("list",true)) {
             logger.info("[]========= Playlists on this node =========[]")

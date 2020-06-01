@@ -6,6 +6,7 @@ import live.tsradio.daemon.channel.ChannelHandler
 import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.exception.CannotLoadConfigException
 import live.tsradio.daemon.exception.MissingFileException
+import live.tsradio.daemon.sound.PlaylistHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
@@ -30,6 +31,7 @@ object Filesystem {
 
         // Load config
         loadConfig()
+        loadPlaylists()
         loadChannels()
     }
 
@@ -55,7 +57,7 @@ object Filesystem {
             if(cursor != null) {
                 while (cursor.next()) {
                     val channel = ChannelHandler.mysqlResultToChannel(cursor)
-                    ChannelHandler.configuredChannels[channel.channelID] = channel
+                    ChannelHandler.notifyChannelUpdated(channel)
                 }
                 cursor.close()
             }
@@ -63,7 +65,14 @@ object Filesystem {
     }
     fun loadPlaylists(){
         Thread(Runnable {
-
+            val cursor = MySQL.get(MySQL.tablePlaylists, "", ArrayList(listOf("*")), 0)
+            if(cursor != null) {
+                while (cursor.next()) {
+                    val playlist = PlaylistHandler.mysqlResultToPlaylist(cursor)
+                    PlaylistHandler.notifyPlaylistUpdated(playlist)
+                }
+                cursor.close()
+            }
         }).start()
     }
 }

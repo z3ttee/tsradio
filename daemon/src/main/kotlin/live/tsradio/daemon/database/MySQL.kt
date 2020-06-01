@@ -38,9 +38,9 @@ object MySQL {
         if(hasConnection()){
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableNodes`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(32) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(32) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(32), playlistShuffle BOOLEAN NOT NULL DEFAULT TRUE, playlistLoop BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, path VARCHAR(256) NOT NULL, creatorID VARCHAR(32) DEFAULT 'System', genres TEXT);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, creatorID VARCHAR(32) DEFAULT 'System', genres TEXT);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableGenres`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableInfo`(id VARCHAR(32) NOT NULL UNIQUE, title VARCHAR(256) NOT NULL, artist VARCHAR(256) NOT NULL, history TEXT);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableInfo`(id VARCHAR(32) NOT NULL UNIQUE, title VARCHAR(256) NOT NULL, artist VARCHAR(256) NOT NULL, history TEXT, lastUpdate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);")
         } else {
             logger.info("Could not process onCreate(): No connection to mysql database")
         }
@@ -54,7 +54,7 @@ object MySQL {
     private fun connect(){
         logger.info("Connecting to mysql...")
 
-        val additionalParams = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+        val additionalParams = "?autoReconnect=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
         connection = DriverManager.getConnection("jdbc:mysql://${Filesystem.preferences.mySQL.host}:${Filesystem.preferences.mySQL.port}/${Filesystem.preferences.mySQL.database}$additionalParams", Filesystem.preferences.mySQL.username, Filesystem.preferences.mySQL.password)
         logger.info("Connected to mysql")
     }
@@ -68,8 +68,9 @@ object MySQL {
         }
     }
 
-    fun exists(table: String, field: String, whereClause: String): Boolean {
-        return count(table, field, whereClause) != 0
+    fun exists(table: String, whereClause: String): Boolean {
+        val count = count(table, whereClause)
+        return count != 0
     }
 
     fun rawUpdate(sql: String): Int {
@@ -91,8 +92,12 @@ object MySQL {
 
     fun get(table: String, whereClause: String, selection: ArrayList<String>, maxResults: Int = 1): ResultSet? {
         return if(hasConnection()) {
+            val where: String = when(whereClause.isEmpty()){
+                true -> ""
+                else -> " WHERE $whereClause"
+            }
             val pps = when(maxResults){
-                0 -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table WHERE $whereClause;")
+                0 -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table$where;")
                 else -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table WHERE $whereClause LIMIT $maxResults;")
             }
             pps.executeQuery()
@@ -102,11 +107,17 @@ object MySQL {
         }
     }
 
-    fun count(table: String, field: String, whereClause: String): Int {
+    fun count(table: String, whereClause: String): Int {
         return if(hasConnection()) {
-            val pps = connection!!.prepareStatement("SELECT COUNT($field) AS `amount` FROM `$table` WHERE $whereClause;")
+            val pps = connection!!.prepareStatement("SELECT COUNT(*) FROM `$table` WHERE $whereClause;")
 
-            pps.executeQuery().getInt("amount")
+            val result = pps.executeQuery()
+            if(result.next()) {
+                result.getInt(1)
+            } else {
+                0
+            }
+
         } else {
             logger.error("Could not execute mysql query: No connection to mysql database.")
             0
@@ -128,9 +139,7 @@ object MySQL {
                 }
             }
 
-            logger.info("INSERT INTO `$table`($keys) VALUES ($values);")
             val pps = connection!!.prepareStatement("INSERT INTO `$table`($keys) VALUES ($values);")
-
             pps.execute()
         } else {
             logger.error("Could not execute mysql query: No connection to mysql database.")
@@ -143,11 +152,11 @@ object MySQL {
             var joined = ""
 
             for((index, entry) in fields.entries.withIndex()) {
-                logger.info("$index:$entry")
+                // logger.info("$index:$entry")
                 if(index == 0){
-                    joined = "${entry.key}=${entry.value}"
+                    joined = "${entry.key} = '${entry.value}'"
                 } else {
-                    joined += ",${entry.key}=${entry.value}"
+                    joined += ",${entry.key} = '${entry.value}'"
                 }
             }
 

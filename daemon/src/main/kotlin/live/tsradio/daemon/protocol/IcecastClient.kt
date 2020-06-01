@@ -86,8 +86,7 @@ class IcecastClient(
                 }
 
                 try {
-                    // TODO: Test
-                    // Thread.sleep(1000)
+                    Thread.sleep(1000)
                 } catch (e: InterruptedException) {
                     // skip
                 }
