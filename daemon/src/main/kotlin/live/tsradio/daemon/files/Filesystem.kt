@@ -50,6 +50,7 @@ object Filesystem {
         }
 
         this.preferences = GsonBuilder().create().fromJson(FileReader(preferencesFile), Preferences::class.java)
+        preferences.node.nodeID = preferences.node.nodeID.replace("-", "")
     }
     fun loadChannels(){
         Thread(Runnable { 
