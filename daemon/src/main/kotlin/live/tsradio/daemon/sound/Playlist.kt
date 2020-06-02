@@ -9,16 +9,16 @@ import kotlin.collections.ArrayList
 
 data class Playlist(
         var name: String,
-        var id: String = UUID.randomUUID().toString(),
+        var id: String = UUID.randomUUID().toString().replace("-", ""),
         var creatorID: String = "System",
         var genres: ArrayList<String> = ArrayList()
 ) {
-    var directoryAsFile: File = File(Filesystem.playlistDirectory.absolutePath+File.separator+(id+"-"+name.toLowerCase()).removePrefix("/").removeSuffix("/").replace("/", File.separator).replace("\\", "")+File.separator)
+    var directoryAsFile: File = File(Filesystem.playlistDirectory.absolutePath+File.separator+(id.replace("-", "")+"-"+name.toLowerCase()).removePrefix("/").removeSuffix("/").replace("/", File.separator).replace("\\", "")+File.separator)
 
     fun liveUpdate(playlist: Playlist){
         // Update directory name if exists
         if(name != playlist.name) {
-            val newDir = File(Filesystem.playlistDirectory.absolutePath+File.separator+(playlist.id+"-"+playlist.name.toLowerCase()).removePrefix("/").removeSuffix("/").replace("/", File.separator).replace("\\", "")+File.separator)
+            val newDir = File(Filesystem.playlistDirectory.absolutePath+File.separator+(playlist.id.replace("-", "")+"-"+playlist.name.toLowerCase()).removePrefix("/").removeSuffix("/").replace("/", File.separator).replace("\\", "")+File.separator)
 
             newDir.setWritable(true)
             newDir.setReadable(true)
@@ -30,7 +30,7 @@ data class Playlist(
         }
 
         this.name = playlist.name
-        this.id = playlist.id
+        this.id = playlist.id.replace("-", "")
         this.creatorID = playlist.creatorID
         this.genres = playlist.genres
     }
