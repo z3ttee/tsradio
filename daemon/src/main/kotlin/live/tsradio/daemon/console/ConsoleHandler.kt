@@ -2,6 +2,7 @@ package live.tsradio.daemon.console
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class ConsoleHandler: Thread("console-input") {
     private val logger: Logger = LoggerFactory.getLogger(ConsoleHandler::class.java)
@@ -9,7 +10,7 @@ class ConsoleHandler: Thread("console-input") {
     override fun run() {
         try {
             while(true) {
-                val input = readLine() ?: throw Exception("")
+                val input = readLine()?: return
                 CommandHandler.handle(input)
             }
         } catch (ignored: Exception){

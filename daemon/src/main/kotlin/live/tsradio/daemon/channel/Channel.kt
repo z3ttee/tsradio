@@ -55,13 +55,12 @@ data class Channel(
                 // Play
                 if(queue.isEmpty()){
                     if(loop) loadPlaylist()
-                    else logger.warn("Queue of channel '$channelName' is empty!")
 
                     if(queue.isEmpty()) {
                         if (Filesystem.preferences.channels.waitForQueue) {
                             logger.warn("Waiting till queue gets populated...")
                             while (queue.isEmpty() && !shutdown) {
-                                sleep(1000 * 5) // Scan every 5 sec, if queue was populated
+                                sleep(1000 * 1) // Check every sec, if queue was populated
                             }
                         }
                     }
@@ -80,6 +79,8 @@ data class Channel(
             icecastClient.closeConnection()
             channelEventListener?.onChannelStop(this)
         } catch (ex: Exception){
+            channelEventListener?.onChannelDone(this)
+
             if(ex is ConnectException || ex is SocketException) {
                 // Do nothing
                 return
@@ -92,7 +93,6 @@ data class Channel(
 
                 onConnectionError(ex)
             }
-
 
             icecastClient.closeConnection()
             channelEventListener?.onChannelStop(this, REASON_CHANNEL_EXCEPTION)
@@ -206,7 +206,7 @@ data class Channel(
     }
 
     override fun onConnectionError(exception: Exception) {
-        var message = ""
+        val message: String
 
         when (exception) {
             is ConnectException -> message = "Connection refused"

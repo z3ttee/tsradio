@@ -5,7 +5,7 @@ import java.util.*
 class PreferenceSections {
 
     class GeneralSettings(
-        val nodeID: String = UUID.randomUUID().toString().replace("-", ""))
+            var nodeID: String = UUID.randomUUID().toString().replace("-", ""))
 
     class IcecastSettings(
         val host: String = "localhost",
