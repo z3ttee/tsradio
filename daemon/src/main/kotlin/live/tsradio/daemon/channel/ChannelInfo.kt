@@ -1,8 +1,13 @@
 package live.tsradio.daemon.channel
 
+import com.google.common.annotations.Beta
+import com.google.common.escape.CharEscaper
+import com.google.common.escape.Escaper
+import com.google.common.escape.Escapers
 import live.tsradio.daemon.database.ContentValues
 import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.sound.AudioTrack
+import live.tsradio.daemon.utils.SQLEscaper
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -41,11 +46,12 @@ data class ChannelInfo(
             }
         }).start()
     }
+
     fun toContentValues(): ContentValues {
         val values = ContentValues()
         values["id"] = channel.channelID.replace("-", "")
-        values["title"] = Regex.escape(currentTrack.title)
-        values["artist"] = Regex.escape(currentTrack.artist)
+        values["title"] = SQLEscaper.escape(currentTrack.title)
+        values["artist"] = SQLEscaper.escape(currentTrack.artist)
 
         val sortedHistory = sortedHistory()
         var historyJson = "["
@@ -60,7 +66,7 @@ data class ChannelInfo(
 
         historyJson += "]"
 
-        values["history"] = historyJson
+        values["history"] = SQLEscaper.escape(historyJson)
         return values
     }
 
