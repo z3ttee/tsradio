@@ -7,33 +7,38 @@ if($request->getMethodType() != 'GET') {
     throw new WrongMethodTypeException('GET');
 }
 
-$docRef = $database->collection('channels');
-$documents = $docRef->documents();
+$database = Database::getInstance();
+if(!$database->hasConnection()){
+    throw new Exception("No database connection");
+}
 
+$channels = $database->get("channels")->results();
 $channelList = array();
+foreach($channels as $channel) {
+    $id = $channel->id;
 
+    $channelInfo = $database->get("info", array("id", "=", $id))->first();
 
-foreach ($documents as $document){
-    if($document->exists()){
-        $docData = $document->data();
-        $uuid = $docData["channelUUID"];
-
-        $channelActivity = $database->collection('channelInfo')->document($uuid)->snapshot();
-        $isChannelActive = $channelActivity->exists();
-        $channelList[$uuid] = array(
-            "channelUUID" => $uuid,
-            "channelName" => $docData["channelName"],
-            "creator" => $docData["creator"],
-            "description" => $docData["description"],
-            "mountpoint" => $docData["mountpoint"],
-            "genres" => $docData["genres"],
-            "isActive" => $isChannelActive
-        );
-
-        if($isChannelActive) {
-            $channelList[$uuid]["activity"] = $channelActivity->data();
-        }
+    $lastUpdateMillis = strtotime($channelInfo->lastUpdate)*1000;
+    $currentMillis = (int) microtime(true)*1000;
+    $differenceMillis = (int) ($currentMillis - $lastUpdateMillis);
+    $maxDifferenceAllowed = 1000*60*10; #Max 10 minutes before considered as INACTIVE channel
+    
+    if($differenceMillis < $maxDifferenceAllowed) {
+        $channel->isActive = true;
+        $channel->info = get_object_vars($channelInfo);
+    } else {
+        $channel->isActive = false;
     }
+
+    $history = json_decode($channelInfo->history);
+    $channelInfo->history = $history;
+
+    unset($channel->playlistLoop);
+    unset($channel->playlistShuffle);
+    unset($channel->playlistID);
+    
+    $channelList[$channel->id] = get_object_vars($channel);
 }
 
 $response['payload'] = $channelList;

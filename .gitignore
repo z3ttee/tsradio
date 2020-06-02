@@ -40,3 +40,4 @@ vendor/
 api_old/
 *_old/
 master/
+config.dev.php

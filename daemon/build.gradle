@@ -15,15 +15,14 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
     implementation "ch.qos.logback:logback-classic:1.2.3"
-    implementation 'com.google.code.gson:gson:2.7'
+    implementation "com.google.code.gson:gson:2.7"
     implementation "com.mpatric:mp3agic:0.9.1"
     implementation "com.google.guava:guava:29.0-jre"
 
     implementation "mysql:mysql-connector-java:8.0.20"
 
     implementation "com.github.kevinsawicki:http-request:6.0"
-    implementation group: 'commons-io', name: 'commons-io', version: '2.7'
-
+    implementation group: "commons-io", name: "commons-io", version: "2.7"
 }
 
 compileKotlin {

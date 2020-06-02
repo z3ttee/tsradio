@@ -1,20 +1,23 @@
 package live.tsradio.daemon.utils
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 object SQLEscaper {
+    private val logger: Logger = LoggerFactory.getLogger(SQLEscaper::class.java)
 
     private val chars = HashMap<String, String>(
         mapOf(
             Pair("'", "&#39;"),
-            Pair("(", "&#040;"),
-            Pair(")", "&#041;"),
             Pair("`", "&#096;")
         )
     )
 
     fun escape(literal: String): String{
+        var escaped = literal
         for(pair in chars) {
-            literal.replace(pair.key, pair.value)
+            escaped = escaped.replace(pair.key, pair.value)
         }
-        return literal
+        return escaped
     }
 }

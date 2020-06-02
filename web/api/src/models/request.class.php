@@ -7,7 +7,7 @@ class Request {
             $_methodFile = null,
             $_authenticated = false;
 
-    public function __construct(string $method = '', array $queryURL, array $params = array(), $database){
+    public function __construct(string $method = '', array $queryURL, array $params = array()){
         if(!isset($queryURL[0])) throw new VersionRequiredException();
         if(!isset($queryURL[1])) $queryURL[1] = 'ping';
 
@@ -26,14 +26,12 @@ class Request {
 
         if(isset($_GET["access_token"])){
             $accessToken = $_GET["access_token"];
-            $docs = $database->collection("apiTokens")->where("token", "=", $accessToken)->where("type", "=", "access")->documents();
+            // Include access token check
 
-            foreach($docs as $doc) {
-                $this->_authenticated = $doc->exists();
-                break;
-            }
+            
         }
     
+        $this->_authenticated = true;
     }
 
     function getMethodFile(){
