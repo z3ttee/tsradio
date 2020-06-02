@@ -66,19 +66,6 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         }
         startChannel(channel)
     }
-    private fun reloadChannel(channel: Channel?) {
-        if(channel == null) {
-            logger.warn("Cannot reload non-existent channel")
-            return
-        }
-
-        channel.reload()
-        logger.info("Channel '${channel.channelName}' reloaded.")
-    }
-    fun reloadChannel(channelName: String) {
-        val channel = getChannelByNameLocally(channelName)?: return
-        reloadChannel(activeChannels[channel.channelID])
-    }
 
     fun createChannel(channel: Channel){
         try {

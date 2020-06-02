@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start|restart|stop|forcestop>", "Manage channels") {
+class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restart|stop|forcestop>", "Manage channels") {
     private val logger: Logger = LoggerFactory.getLogger(CommandHandler::class.java)
 
     override fun execute(name: String, args: ArrayList<String>) {
@@ -182,14 +182,6 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|reload|start
                 return
             }
             ChannelHandler.startChannel(args[1])
-            return
-        }
-        if(args[0].equals("reload",true)) {
-            if(args.size != 2) {
-                sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")
-                return
-            }
-            ChannelHandler.reloadChannel(args[1])
             return
         }
         if(args[0].equals("restart",true)) {
