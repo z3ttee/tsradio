@@ -47,6 +47,7 @@ data class Channel(
 
             // Connect to icecast
             icecastClient.connect()
+
             channelEventListener?.onChannelReady(this)
 
             // Start playing
@@ -70,6 +71,7 @@ data class Channel(
                     try {
                         val track = queue.random()
                         icecastClient.streamTrack(track)
+                        ChannelHandler.resetRestartTries(this)
                     } catch (ignored: NullPointerException) {
                     }
                 }
@@ -79,11 +81,8 @@ data class Channel(
             icecastClient.closeConnection()
             channelEventListener?.onChannelStop(this)
         } catch (ex: Exception){
-            channelEventListener?.onChannelDone(this)
-
             if(ex is ConnectException || ex is SocketException) {
                 // Do nothing
-                return
             } else {
                 if(ex is StreamException) {
                     logger.error("An error occured: ${ex.message}")

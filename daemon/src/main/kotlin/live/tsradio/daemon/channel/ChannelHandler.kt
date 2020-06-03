@@ -164,9 +164,14 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     }
 
     override fun onChannelDone(channel: Channel) {
-        // logger.info("Channel '${channel.channelName}' done playing.")
-        if(restartTries.containsKey(channel.channelName)) {
-            restartTries.remove(channel.channelName)
+        if(restartTries.containsKey(channel.channelID)) {
+            restartTries.remove(channel.channelID)
+        }
+    }
+
+    fun resetRestartTries(channel: Channel){
+        if(restartTries.containsKey(channel.channelID)) {
+            restartTries.remove(channel.channelID)
         }
     }
 
