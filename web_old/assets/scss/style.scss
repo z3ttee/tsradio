@@ -1,0 +1,442 @@
+@import 'colors';
+
+@font-face {
+    font-family: 'BebasKai';
+    src: url(../fonts/bebas_kai/bebas_kai.ttf);
+}
+@font-face {
+    font-family: 'Poppins';
+    font-weight: 300;
+    src: url(../fonts/poppins/poppins_light.ttf);
+}
+@font-face {
+    font-family: 'Poppins';
+    font-weight: 400;
+    src: url(../fonts/poppins/poppins_medium.ttf);
+}
+@font-face {
+    font-family: 'Poppins';
+    font-weight: 500;
+    src: url(../fonts/poppins/poppins_semibold.ttf);
+}
+
+/*
+[]========== GENERAL ==========[]
+*/
+* {
+    margin: 0 auto;
+    box-sizing: border-box;
+    font-size: 1em;
+    z-index: 10;
+    font-family: 'Poppins';
+    color: $colorWhite;
+    
+}
+html, body {
+    height: 100%;
+    width: 100%;
+}
+noscript {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: $colorAccent;
+    z-index: 100000;
+    text-align: center;
+    padding: 1em;
+    font-weight: 300;
+    font-size: 0.9em;
+}
+#wrapper {
+    height: 100%;
+    width: 100%;
+    display: block;
+    position: relative;
+    background-color: $colorPrimaryDark;
+
+    overflow-x: hidden;
+    padding-bottom: 8em;
+}
+#background {
+    position: absolute;
+    display: block;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 600px;
+
+    /* Safari does not support .webp */
+    // background-image: url("../img/background/background_header.webp");
+
+    background-image: 
+        linear-gradient(180deg, rgba($colorPrimaryDark, 0.5) 0%, rgba($colorPrimaryDark, 1) 90%, rgba($colorPrimaryDark, 1) 100%), 
+        url("../img/background/background_header.webp");
+    
+    background-size: cover;
+    background-position: top;
+
+    z-index: -1;
+}
+.content-container {
+    display: block;
+    width: 1100px;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+.clearfix {
+    display: block;
+    width: 100%;
+    clear: both;
+    border: 1px solid red;
+}
+.hidden {
+    opacity: 0;
+}
+
+/*
+[]========== Links ==========[]
+*/
+a {
+    text-decoration: inherit;
+    color: inherit;
+    font-style: italic;
+
+    &:focus {
+        outline: $colorAccent;
+    }
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+/*
+[]========== Attributes ==========[]
+*/
+.not_transparent {
+    background-color: $colorPrimaryDark;
+}
+
+/*
+[]========== Headlines ==========[]
+*/
+h1,h2,h3 {
+    font-family: 'Poppins';
+    font-weight: 700;
+
+    span {
+        display: inline-block;
+        width: 100%;
+        color: $colorAccent;
+        font-weight: 300;
+        font-size: 0.55em;
+    }
+}
+h1 {
+    font-size: 2.1em;
+}
+h2 {
+    font-size: 1.9em;
+}
+h3 {
+    font-size: 1.5em;
+}
+
+/*
+[]========== Sections ==========[]
+*/
+$headerHeight: 100px;
+
+section {
+    margin-top: 4em;
+
+    &:first-of-type {
+        margin-top: ($headerHeight*2);
+    }
+}
+
+/*
+[]========== Header ==========[]
+*/
+.header {
+    position: fixed;
+    margin-top: 2.5em;
+    height: $headerHeight;
+    display: block;
+    width: 100%;
+    line-height: $headerHeight;
+    transition: all 0.1s ease;
+    z-index: 1000;
+
+    img {
+        display: inline-block;
+        height: $headerHeight;
+        vertical-align: middle;
+        pointer-events: none;
+        padding: 1em;
+
+        &#menuIcon {
+            float: right;
+            width: 0;
+        }
+    }
+
+    a {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        font-style: normal;
+        line-height: initial;
+
+        &.active:after {
+            position: absolute;
+            content: "";
+            background-color: $colorAccent;
+            width: 2em;
+            height: 4px;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            z-index: -1;
+        }
+    }
+
+    ul {
+        float: right;
+        list-style: none;
+        list-style-type: none;
+        padding: 0;
+
+        li {
+            display: inline-block;
+            padding-left: 2em;
+            font-size: 0.9em;
+            opacity: 0.8;
+
+            &#menuItem {
+                display: none;
+            }
+        }
+    }
+
+    &.ui_scrolling {
+        $headerHeight: 80px;
+        height: $headerHeight;
+        line-height: $headerHeight;
+        background-color: $colorPrimary;
+        margin-top: 0em;
+        box-shadow: 3px 3px 2px rgba($color: $colorShadow, $alpha: 0.5);
+
+        img {
+            height: $headerHeight;
+        }
+    }
+}
+
+/*
+[]========== Footer ==========[]
+*/
+.footer {
+    position: fixed;
+    display: inline-block;
+    height: 100px;
+    width: 100%;
+    bottom: 0;
+    z-index: 1000;
+    background-color: $colorPrimary;
+    box-shadow: 0px -2px 4px rgba($color: $colorShadow, $alpha: 0.8);
+}
+
+/*
+[]========== Mobile navigation ==========[]
+*/
+.sidebarnav {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 0%;
+    opacity: 0;
+    // width: 90%;
+    background-color: $colorPrimaryDark;
+
+    transition: all 0.3s ease-in-out;
+}
+
+/*
+[]========== Loader ==========[]
+*/
+#loader_wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    height: 100%;
+    width: 100%;
+
+    background-color: $colorPrimaryDark;
+    z-index: 10000;
+
+    transition: all 0.5s cubic-bezier(.48,.02,.12,.99);
+
+    &.ui_loaded {
+        top: -100%;
+    }
+
+    .loader_container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+    }
+
+    .loader_content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: block;
+        width: 360px;
+        text-align: center;
+
+        
+    }
+
+    .loader_icon {
+        height: 6em;
+        width: 6em;
+        background-image: url(../img/branding/ts_logo_svg.svg);
+        background-size: cover;
+    }
+
+    #loading_animation {
+        margin-top: 3em;
+        height: 38px;
+        width: 38px;
+    }
+}
+
+/*
+[]========== Media queries ==========[]
+*/
+@media screen and (max-width: 1100px){
+    /*
+    []========== General ==========[]
+    */
+    * {
+        font-size: 0.97em;
+    }
+    .content-container {
+        width: 730px;
+    }
+    section {
+        margin-top: 2.5em;
+        &:first-of-type {
+            margin-top: 150px;
+        }
+    }
+
+    /*
+    []========== Header ==========[]
+    */
+    .header {
+        margin-top: 1.8em;
+        height: 75px;
+        line-height: 75px;
+
+        img {
+            height: 75px;
+        }
+
+        &.ui_scrolling {
+            $headerHeight: 55px;
+            height: $headerHeight;
+            line-height: $headerHeight;
+    
+            img {
+                height: $headerHeight;
+            }
+        }
+    }
+    
+    /*
+    []========== Footer ==========[]
+    */
+    .footer {
+        height: 75px;
+    }
+}
+
+@media screen and (max-width: 730px){
+    /*
+    []========== General ==========[]
+    */
+    * {
+        font-size: 0.94em;
+    }
+    .content-container {
+        width: 100%;
+    }
+    section {
+        margin-top: 1.5em;
+
+        &:first-of-type {
+            margin-top: 90px;
+        }
+    }
+
+    /*
+    []========== Header ==========[]
+    */
+    .header {
+        margin-top: 1em;
+        height: 54px;
+        line-height: 54px;
+
+        img {
+            height: 54px;
+        }
+
+        #mainNavbar {
+            li {
+                display: none;
+                &#menuItem {
+                    display: inline-block;
+                }
+            }
+        }
+
+        &.ui_scrolling {
+            $headerHeight: 45px;
+            height: $headerHeight;
+            line-height: $headerHeight;
+    
+            img {
+                height: $headerHeight;
+            }
+        }
+    }
+
+    /*
+    []========== Footer ==========[]
+    */
+    .footer {
+        height: 60px;
+    }
+
+    /*
+    []========== Mobile navigation ==========[]
+    */
+    .sidebarnav {
+        width: 0%;
+        // width: 20%;
+        opacity: 1;
+        z-index: 10000;
+    }
+    
+}
