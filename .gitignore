@@ -37,7 +37,7 @@ package-lock.json
 build/
 out/
 vendor/
-/node_modules
+node_modules/
 .firebase
 api_old/
 *_old/
