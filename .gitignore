@@ -28,6 +28,8 @@ config.json
 composer.lock
 firebase.json
 .firebaserc
+package-lock.json
+
 
 # Directories
 .gradle/
