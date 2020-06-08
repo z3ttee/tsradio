@@ -19,6 +19,10 @@ require 'init.php';
 </head>
 
 <body>
+    <noscript>
+        <h4>Javascript wird benötigt, um diese Seite nutzen zu können.</h4>
+        <p>Die Seite arbeitet mit Javascript, um Inhalte dynamisch zu laden. Das verbessert die Performance der Seite und sorgt für eine bessere Nutzererfahrung.</p>
+    </noscript>
     <?php include('shared/loader.php'); ?>
 
     <div id="wrapper">
@@ -30,7 +34,7 @@ require 'init.php';
 
                 <ul id="mainNavbar">
                     <li><a href="#" class="active">Channels</a></li>
-                    <li><a href="#">Dashboard</a></li>
+                    <!--<li><a href="#">Dashboard</a></li>-->
                     <li id="menuItem">Menü<img src="assets/img/icons/menu.svg" width="50px" /></li>
                 </ul>
             </div>
@@ -46,99 +50,58 @@ require 'init.php';
         <section id="featured">
             <?php include('shared/marqueeTest.php'); ?>
 
-
             <div class="content-container"><h1>Featured</h1></div>
             <div class="content-container">
                 
-                <div class="ui_box ui_box_table ui_listitem_wrapper ui_listitem_large">
+                <div class="ui_box ui_box_table ui_listitem_wrapper ui_listitem_large" v-for="channel in channels" v-if="channel.isActive" @click="channelClicked" :data-id="channel.id" :data-position="channel.posInArray">
                     <div class="ui_box_col ui_listitem_cover">
-                        <img class="cover" src="assets/img/covers/tsr_original_dance.png" />
+                        <img class="cover" :src="channel.cover" onerror="loadDefault(this)" />
                         <img class="play" src="assets/img/icons/play.svg" />
                     </div>
                     <div class="ui_box_col ui_listitem_content">
-                        <h3><span>AutoDJ</span>TSR Dance</h3>
-                        <p>DESIGN OF CARD NEEDS TO BE REWORKED</p>
+                        <h3><span>AutoDJ</span>{{ channel.name }}</h3>
+                        <p v-if="channel.isActive" v-html="channel.info.title + ' - ' + channel.info.artist"></p>
                     </div>
                 </div>
             </div>
-            
         </section>
 
-        <section id="allchannels">
-            <div class="content-container"><h1>Alle Channels</h1></div>
+        <section id="inactive">
+            <div class="content-container"><h1>Inaktive Channels</h1></div>
             <div class="content-container">
-                <br />
-                <h3>TSR Dance</h3>
-                <audio controls id="dance_audio" src="">
-                    <source src="" />
-                </audio>
-                <br />
-                <h3>Wipfrawelle</h3>
-                <audio controls id="wipfrawelle_audio" src="">
-                    <source src="" />
-                </audio>
-                <br />
-                <h3>Soundtracks Radio</h3>
-                <audio controls id="soundtracks_audio" src="">
-                    <source src="" />
-                </audio>
-                <br />
-                <h3>Radio Spiegelpark</h3>
-                <audio controls id="mirrorpark_audio" src="">
-                    <source src="" />
-                </audio>
-                <br />
-                <h3>Nostalgia Radio</h3>
-                <audio controls id="nostalgia_audio" src="">
-                    <source src="" />
-                </audio>
+                <div class="ui_box ui_box_table ui_listitem_wrapper ui_listitem_large clickableChannel" v-for="channel in channels" v-if="!channel.isActive" @click="channelClicked" :data-id="channel.id" :data-position="channel.posInArray">
+                    <div class="ui_box_col ui_listitem_cover">
+                        <img class="cover" :src="channel.cover" onerror="loadDefault(this)" />
+                        <img class="play" src="assets/img/icons/play.svg" />
+                    </div>
+                    <div class="ui_box_col ui_listitem_content">
+                        <h3><span>AutoDJ</span>{{ channel.name }}</h3>
+                        <p v-if="channel.isActive" v-html="channel.info.title + ' - ' + channel.info.artist"></p>
+                    </div>
+                </div>
             </div>
-        </section>
-
-        <section id="bycreator-<creator>">
-            <div class="content-container"><h1>Created by <emphasize>{{ creator.name }}</emphasize></h1></div>
         </section>
 
         <div class="footer">
             <div class="content-container">
-                <div class="ui_box ui_box_table ui_listitem_wrapper ui_audioplayer_wrapper">
-                    <div class="ui_box_col ui_listitem_cover"><img class="play" src="assets/img/icons/play.svg" /></div>
-                    <div class="ui_box_col ui_listitem_content">
-                        <p>Du hörst auf <span>Wipfrawelle</span>:</p>
-                        <p>Ich bin Default - Jan Cas</p>
+                <div id="audioplayer" class="ui_box ui_box_table ui_listitem_wrapper ui_audioplayer_wrapper">
+                    <div class="ui_box_col ui_listitem_cover">
+                        <img class="play" src="assets/img/icons/play.svg" />
+                        <lottie-player id="player_loader" class="hidden" src="assets/img/animated/loader.json"  background="rgba(0, 0, 0, 0)"  speed="1"  loop autoplay></lottie-player> 
+                    </div>
+                    <div class="ui_box_col ui_listitem_content" >
+                        <p v-if="currentChannel">Du hörst auf <span>{{ currentChannel.name }}</span>:</p>
+                        <p v-if="currentChannel && currentChannel.info" v-html="currentChannel.info.title + ' - ' + currentChannel.info.artist"></p>
                     </div>
                 </div>
+
+                <audio id="audioplayersrc" style="visibility: hidden;"></audio>
             </div>
         </div>
+
     </div>
     <script>
-        window.onload = function(){
-            var audio = document.getElementById("soundtracks_audio");
-            audio.volume = 0.1;
-            audio.src = 'https://streams.tsradio.live/soundtracks';
-
-            var dance = document.getElementById("dance_audio");
-            dance.volume = 0.1;
-            dance.src = 'https://streams.tsradio.live/dance';
-
-            var wipfra = document.getElementById("wipfrawelle_audio");
-            wipfra.volume = 0.1;
-            wipfra.src = 'https://streams.tsradio.live/wipfrawelle';
-
-            var mirror = document.getElementById("mirrorpark_audio");
-            mirror.volume = 0.1;
-            mirror.src = 'https://streams.tsradio.live/mirrorpark';
-
-            var nostalgia = document.getElementById("nostalgia_audio");
-            nostalgia.volume = 0.1;
-            nostalgia.src = 'https://streams.tsradio.live/nostalgia';
-
-            console.log('Radio loaded');
-        }
-        
         $(document).ready(function(){
-            console.log('DOM ready.')
-
             $('#loader_wrapper').delay(400).queue(function(){
                 $(this).addClass('ui_loaded');
             });
@@ -151,6 +114,85 @@ require 'init.php';
                 }
             });
         });
+
+        function loadDefault(img) {
+            img.src = "https://tsradio.live/assets/img/covers/tsr_dance.png";
+        }
+
+        var vm = new Vue({
+                el: '#wrapper',
+                data: {
+                    channels: [],
+                    currentChannel: null
+                },
+                methods: {
+                    channelClicked: function(event){
+                        var pos = event.target.getAttribute("data-position");
+                        var channel = this.channels[pos];
+                        this.currentChannel = channel;
+                        this.play();
+                    },
+                    play: function(){
+                        var audioPlayerSrc = document.getElementById("audioplayersrc")
+                        var audioPlayer = document.getElementById("audioplayer")
+
+                        var playerLoader = document.getElementById("player_loader");
+                        playerLoader.classList.remove("hidden");
+                
+                        var streamSrc = "https://streams.tsradio.live"+this.currentChannel.mountpoint;
+                
+                        audioPlayerSrc.setAttribute("src", streamSrc);
+                        audioPlayerSrc.load();
+                
+                        function startPlaying() {
+                            audioPlayerSrc.play();
+                            audioPlayerSrc.volume = 0.1;
+                            playerLoader.classList.add("hidden");
+                        }
+
+                        audioPlayerSrc.oncanplay = function(){
+                            startPlaying();
+                        }
+                
+                        if (audioPlayerSrc.readyState && audioPlayerSrc.readyState > 3) {
+                            startPlaying();
+                        }
+                    }
+                }
+            });
+
+            getChannelData()
+            setInterval(getChannelData, 1000*10); // Every 15 seconds
+
+            function getChannelData() {
+                console.log("getting channel data...");
+                $.get("https://tsradio.live/api/v1/getchannels").done(function(response){
+                    var status = response.meta.status;
+
+                    if(status == 200){
+                        var channels = [];
+                        for(id in response.payload) {
+                            var channel = response.payload[id];
+
+                            var coverPath = 'https://tsradio.live/assets/img/covers/'+channel.name.replace(" ", "_").toLowerCase()+'.png';
+                            console.log(coverPath);
+
+                            channel.cover = coverPath;
+                            channel.posInArray = channels.length;
+                            channels.push(channel);
+
+                            if(vm.currentChannel && vm.currentChannel.id == channel.id) {
+                                vm.currentChannel = channel
+                            }
+                        } 
+
+                        vm.channels = channels;
+                    } else {
+                        console.log(response.meta);
+                    }
+                });
+            }
     </script>
+    <script src="assets/js/radio.js"></script>
 </body>
 </html>

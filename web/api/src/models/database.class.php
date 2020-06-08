@@ -25,6 +25,7 @@ class Database {
     private function setup() {
         if(!$this->hasConnection()) return;
 
+        #$this->query("CREATE TABLE IF NOT EXISTS `".Config::get("mysql/prefix")."users`");
         #$this->query("CREATE TABLE IF NOT EXISTS `".Config::get('mysql/prefix')."accounts` ( `id` INT NOT NULL AUTO_INCREMENT, `uid` INT(4) NOT NULL , `name` VARCHAR(32) NOT NULL , `realID` VARCHAR(50) NOT NULL , `email` VARCHAR(254) NOT NULL , `password` VARCHAR(256) NOT NULL , `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `roleID` INT NOT NULL DEFAULT 0, `avatar` TEXT , PRIMARY KEY (`id`), UNIQUE (`name`, `realID`, `uid`, `email`)) ENGINE = InnoDB;");
     }
 

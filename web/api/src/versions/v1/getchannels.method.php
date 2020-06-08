@@ -17,26 +17,33 @@ $channelList = array();
 foreach($channels as $channel) {
     $id = $channel->id;
 
-    $channelInfo = $database->get("info", array("id", "=", $id))->first();
+    $activity = $database->get("info", array("id", "=", $id));
+    if($activity->count() != 0) {
+        $channelInfo = $activity->first();
 
-    $lastUpdateMillis = strtotime($channelInfo->lastUpdate)*1000;
-    $currentMillis = (int) microtime(true)*1000;
-    $differenceMillis = (int) ($currentMillis - $lastUpdateMillis);
-    $maxDifferenceAllowed = 1000*60*10; #Max 10 minutes before considered as INACTIVE channel
-    
-    if($differenceMillis < $maxDifferenceAllowed) {
-        $channel->isActive = true;
-        $channel->info = get_object_vars($channelInfo);
+        $lastUpdateMillis = strtotime($channelInfo->lastUpdate)*1000;
+        $currentMillis = (int) microtime(true)*1000;
+        $differenceMillis = (int) ($currentMillis - $lastUpdateMillis);
+        $maxDifferenceAllowed = 1000*60*10; #Max 10 minutes before considered as INACTIVE channel
+        
+        if($differenceMillis < $maxDifferenceAllowed) {
+            $channel->isActive = true;
+            $channel->info = get_object_vars($channelInfo);
+        }
+
+        $history = json_decode($channelInfo->history);
+        $channelInfo->history = $history;
+
+        unset($channel->info["id"]);
+        unset($channel->info["lastUpdate"]);
     } else {
         $channel->isActive = false;
     }
 
-    $history = json_decode($channelInfo->history);
-    $channelInfo->history = $history;
-
     unset($channel->playlistLoop);
     unset($channel->playlistShuffle);
     unset($channel->playlistID);
+    unset($channel->nodeID);
     
     $channelList[$channel->id] = get_object_vars($channel);
 }

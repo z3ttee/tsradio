@@ -30,8 +30,7 @@ set_exception_handler(function($exception){
     }
 
     echo json_encode($response);
-    throw $exception;
-    //die;
+    die;
 });
 
 set_error_handler(function($errorCode, $errorText, $errorFile, $errorLine){
@@ -40,7 +39,7 @@ set_error_handler(function($errorCode, $errorText, $errorFile, $errorLine){
     $response['meta']['file'] = $errorFile;
     $response['meta']['line'] = $errorLine;
     echo json_encode($response);
-    //die;
+    die;
 }, E_ALL ^ E_USER_DEPRECATED);
 
 $q = array(); 

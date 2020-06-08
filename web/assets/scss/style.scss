@@ -36,6 +36,18 @@ html, body {
     height: 100%;
     width: 100%;
 }
+noscript {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: $colorAccent;
+    z-index: 100000;
+    text-align: center;
+    padding: 1em;
+    font-weight: 300;
+    font-size: 0.9em;
+}
 #wrapper {
     height: 100%;
     width: 100%;
@@ -80,8 +92,8 @@ html, body {
     clear: both;
     border: 1px solid red;
 }
-emphasize {
-    color: $colorAccent;
+.hidden {
+    opacity: 0;
 }
 
 /*

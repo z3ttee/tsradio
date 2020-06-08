@@ -61,7 +61,6 @@ data class ChannelInfo(
 
         val sortedHistory = sortedHistory()
 
-
         var historyJson = "["
 
         for(entry in sortedHistory) {
