@@ -1,13 +1,18 @@
 <template>
-    <tsr-layout></tsr-layout>
+    <div>
+        <tsr-layout v-if="$route.meta.group == 'default'"></tsr-layout>
+        <tsr-dash-layout v-else></tsr-dash-layout>
+    </div>
 </template>
 
 <script>
-import Layout from './views/Layout.vue';
+import DefaultLayout from './views/layouts/Layout.vue';
+import DashboardLayout from './views/layouts/DashboardLayout.vue';
 
 export default {
     components: {
-        tsrLayout: Layout
+        tsrLayout: DefaultLayout,
+        tsrDashLayout: DashboardLayout
     }
 }
 </script>

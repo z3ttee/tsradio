@@ -20,9 +20,8 @@ const router = new VueRouter({
     }
 });
 
-router.beforeEach((to, from, next) => {
+router.afterEach((to) => {
     document.title = to.meta.title
-    next();
 });
 
 export default router;
