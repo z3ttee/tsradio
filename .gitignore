@@ -40,6 +40,6 @@ vendor/
 node_modules/
 .firebase
 api_old/
-old/
+*_old/
 master/
 config.dev.php
