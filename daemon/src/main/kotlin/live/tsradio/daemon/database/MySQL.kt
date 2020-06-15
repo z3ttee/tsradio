@@ -37,7 +37,7 @@ object MySQL {
     private fun onCreate(){
         if(hasConnection()){
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableNodes`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(32) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(32) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(32), playlistShuffle BOOLEAN NOT NULL DEFAULT TRUE, playlistLoop BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(32) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(32) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(32), playlistShuffle BOOLEAN NOT NULL DEFAULT TRUE, playlistLoop BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT, featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, creatorID VARCHAR(32) DEFAULT 'System', genres TEXT);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableGenres`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableInfo`(id VARCHAR(32) NOT NULL UNIQUE, title VARCHAR(256) NOT NULL, artist VARCHAR(256) NOT NULL, history TEXT, lastUpdate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);")
