@@ -1,0 +1,109 @@
+@import '_variables';
+
+/*
+[]=========== Fonts ===========[]
+*/
+@font-face {
+    font-family: 'Poppins';
+    font-weight: 300;
+    src: url(/assets/fonts/poppins/poppins_light.ttf);
+}
+@font-face {
+    font-family: 'Poppins';
+    font-weight: 400;
+    src: url(/assets/fonts/poppins/poppins_medium.ttf);
+}
+@font-face {
+    font-family: 'Poppins';
+    font-weight: 700;
+    src: url(/assets/fonts/poppins/poppins_semibold.ttf);
+}
+@font-face {
+    font-family: 'BebasKai';
+    font-weight: 400;
+    src: url('/assets/fonts/bebaskai/bebas_kai.ttf');
+}
+
+/*
+[]=========== General ===========[]
+*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins';
+    font-size: 1em;
+}
+html, body {
+    height: 100%;
+    width: 100%;
+
+    background-color: #222831;
+}
+#wrapper {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.content-container {
+    margin: 0 auto;
+    width: 1000px;
+}
+
+/*
+[]=========== Headlines ===========[]
+*/
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Poppins';
+    font-weight: 800;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+h2 {
+    font-size: 2em;
+}
+
+/*
+[]=========== Paragraphs ===========[]
+*/
+p {
+    font-size: 0.95em;
+    line-height: 1.8em;
+    margin: 1em 0em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+
+/*
+[]=========== Shared Boxes ===========[]
+*/
+.tsr_actionbox {
+    display: inline-block;
+    background-color: $colorPrimary;
+    border-radius: $borderRadSmall;
+    padding: 0.7em;
+    font-size: 0.9em;
+    border: 2px solid rgba($color: $colorPlaceholder, $alpha: 0.4);
+    box-shadow: $shadowNormal;
+
+    font-family: 'Poppins';
+    font-weight: 800;
+
+    color: $colorWhite;
+
+    &.light {
+        background-color: $colorPlaceholder;
+    }
+    &.large {
+        padding: 0.7em 2em;
+    }
+    &.small {
+        font-size: 0.7em;
+        
+        letter-spacing: 0px;
+    }
+}
