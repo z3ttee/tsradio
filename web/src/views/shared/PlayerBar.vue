@@ -17,8 +17,8 @@
                         </transition>
                     </div>
                     <div id="div" class="player_col playerbar_info" v-if="currentChannel.info">
-                        <p id="p" v-if="currentChannel.info.title"><marquee>{{ currentChannel.info.title }}</marquee></p>
-                        <p v-if="currentChannel.info.artist">{{ currentChannel.info.artist }}</p>
+                        <p id="p" v-if="currentChannel.info.title" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;'+ currentChannel.info.title"></p>
+                        <p v-if="currentChannel.info.artist" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+currentChannel.info.artist"></p>
                     </div>
                     <div class="player_col playerbar_controls">
                         <img src="/assets/images/icons/speaker.svg" >
@@ -163,9 +163,6 @@ export default {
 
             .playerbar_info {
                 position: relative;
-                //border: 1px solid red;
-                //padding-left: 1em;
-                //padding-right: 1em;
                 overflow: hidden;
 
                 &::before, &::after {
@@ -191,6 +188,8 @@ export default {
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     font-weight: 800;
+                    line-height: initial;
+                    margin: 0em;
 
                     &:first-of-type {
                         font-size: 1.3em;
@@ -231,10 +230,10 @@ export default {
         animation: scale-out $animSpeedShort*1s ease-out forwards;
     }
     .slide-enter-active {
-        animation: slide-in-up $animSpeedMedium*1s cubic-bezier(.43,.01,.32,1) forwards;
+        animation: slide-in-up $animSpeedMedium*1s $cubicNormal forwards;
     }
     .slide-leave-active {
-        animation: slide-out-down $animSpeedMedium*1s cubic-bezier(.43,.01,.32,1) forwards;
+        animation: slide-out-down $animSpeedMedium*1s $cubicNormal forwards;
     }
 
     @keyframes scale-in {

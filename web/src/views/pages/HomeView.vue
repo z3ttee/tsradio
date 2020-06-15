@@ -1,7 +1,7 @@
 <template>
     <div class="content-container">
         <div style="height: 1000px">
-            <h1 class="animate__animated animate__bounce">Home</h1>
+            <h1>Home</h1>
             <button @click="toggleChannel">Toggle channel</button>
         </div>
     </div>
@@ -17,3 +17,7 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>

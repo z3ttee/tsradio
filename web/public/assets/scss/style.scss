@@ -39,6 +39,7 @@ html, body {
     width: 100%;
 
     background-color: #222831;
+    color: $colorWhite;
 }
 #wrapper {
     display: block;
@@ -107,3 +108,14 @@ p {
         letter-spacing: 0px;
     }
 }
+
+.tsr_box {
+    background-color: $colorPlaceholder;
+    padding: 1.5em 2em;
+    border-radius: $borderRadSmall;
+    box-shadow: $shadowSpread;
+}
+
+/*
+[]=========== Shared Animations ===========[]
+*/

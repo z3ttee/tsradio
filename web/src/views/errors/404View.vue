@@ -7,7 +7,7 @@
                     <p>Sieht so aus, als könnte dein gewünschtes Ergebnis nicht gefunden werden. Hier sind ein paar Links, um dich wieder auf den richtigen Pfad zu führen:</p>
                 </div>
                 <ul>
-                    <router-link tag="li" to="/"><a class="tsr_actionbox large">Zur Startseite</a></router-link>
+                    <router-link tag="li" to="/"><a class="tsr_actionbox large ripple">Zur Startseite</a></router-link>
                     <router-link tag="li" to="/webinterface"><a class="tsr_actionbox large">Zum Webinterface</a></router-link>
                 </ul>
             </div>
@@ -33,13 +33,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .tsr_box {
-        background-color: $colorPlaceholder;
-        padding: 1.5em 2em;
-        border-radius: $borderRadSmall;
-        box-shadow: $shadowSpread;
-    }
-
     .tsr_table {
         display: table;
         width: 100%;
