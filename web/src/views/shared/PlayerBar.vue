@@ -3,7 +3,9 @@
         <div class="tsr_playerbar_wrapper" v-if="Object.keys($store.state.currentChannel).length != 0">
             <div class="content-container">
                 <div>
-                    <div class="tsr_actionbox playerbar_channelbox large">Du hörst gerade <span v-html="$store.state.currentChannel.name"></span></div>
+                    <div class="tsr_actionbox playerbar_channelbox large">
+                        Du hörst gerade <span v-html="$store.state.currentChannel.name"></span>
+                    </div>
                     <div class="tsr_actionbox playerbar_channelbox" @click="upvote"><img src="/assets/images/icons/like.svg"> Upvote</div>
                 </div>
             </div>
@@ -11,6 +13,9 @@
             <div class="tsr_playerbar">
                 <div class="content-container">
                     <div class="player_col playerbar_cover" :style="'background-image: url('+$store.state.currentChannel.coverURL+')'" @click="toggle">
+                        <transition name="scale" mode="out-in">
+                            <lottie-player id="audioLoader" class="loader" :src="loaderData" :options="{ autoplay: true, loop: true }" v-if="loading"></lottie-player>
+                        </transition>
                         <transition name="scale" mode="out-in">
                             <img src="/assets/images/icons/play.svg" v-if="paused" key="play">
                             <img src="/assets/images/icons/pause.svg" v-else key="pause">
@@ -24,7 +29,12 @@
                         <img src="/assets/images/icons/speaker.svg" >
                         <input class="tsr_slider hidden" type="range" name="" id="" max="100" min="0" v-model="volume">
                     </div>
-                    <audio id="audiosrc" hidden :src="''" :paused="paused" autoplay></audio>
+                    <audio id="audiosrc" 
+                        hidden 
+                        :src="''" 
+                        :paused="paused" 
+                        autoplay 
+                        @canplay="eventCanPlay"></audio>
                 </div>
             </div>
         </div>
@@ -33,29 +43,68 @@
 
 <script>
 //import $ from 'jquery';
+import Loader from '@/assets/animated/loader.json';
 
 export default {
     data() {
         return {
-            volume: 0,
-            paused: true
+            volume: 10,
+            paused: true,
+            loaderData: Loader,
+            loading: false
+        }
+    },
+    computed: {
+        channel() {
+            return this.$store.state.currentChannel;
         }
     },
     watch: {
         volume(val) {
             document.getElementById('audiosrc').volume = val/100;
-            console.log(val/100);
         },
-        paused() {
-            
+        channel(val) {
+            var audioElement = document.getElementById('audiosrc');
+            var streamURL = 'https://streams.tsradio.live' + val.mountpoint;
+
+            if(audioElement.src != streamURL) {
+                this.paused = false;
+                this.loading = true;
+                
+                audioElement.volume = this.volume/100;
+                
+                audioElement.setAttribute('src', streamURL);
+                audioElement.load();
+                console.log('Channel changed');
+            }
         }
     },
     methods: {
         toggle() {
             this.paused == true ? this.paused = false : this.paused = true;
+            var audioElement = document.getElementById('audiosrc');
+
+            if(!this.paused) {
+                this.loading = true;
+                audioElement.volume = this.volume/100;
+
+                var streamURL = 'https://streams.tsradio.live' + this.$store.state.currentChannel.mountpoint;
+                audioElement.setAttribute('src', streamURL);
+                audioElement.load();
+
+                // Show loader
+                // Get url and set source
+            } else {
+                this.loading = false;
+                audioElement.setAttribute('src', '');
+            }
         },
         upvote() {
 
+        },
+        eventCanPlay(event) {
+            this.loading = false;
+            console.log(event.target);
         }
     },
     mounted() {
@@ -127,8 +176,6 @@ export default {
                 display: table-cell;
                 max-width: 33%;
                 vertical-align: middle;
-
-                
             }
 
             .playerbar_cover {
@@ -151,8 +198,8 @@ export default {
 
                 img {
                     pointer-events: none;
-                    width: 24px;
-                    height: 24px;
+                    width: 20px;
+                    height: 20px;
                     vertical-align: middle;
                 }
             }
@@ -182,7 +229,7 @@ export default {
 
                 p {
                     white-space: nowrap;
-                    text-overflow: ellipsis;
+                    text-overflow: clip;
                     font-weight: 800;
                     line-height: initial;
                     margin: 0em;
@@ -217,6 +264,14 @@ export default {
                 }
             }
         }
+    }
+
+    .loader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
     }
 
     .scale-enter-active {

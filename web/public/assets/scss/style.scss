@@ -83,6 +83,12 @@ p {
     color: rgba(255, 255, 255, 0.8);
 }
 
+/*
+[]=========== Section ===========[]
+*/
+section {
+    margin-top: 2em;
+}
 
 /*
 []=========== Shared Boxes ===========[]
@@ -100,6 +106,7 @@ p {
     font-weight: 800;
 
     color: $colorWhite;
+    transition: all $animSpeedMedium*1s $cubicNormal;
 
     &.light {
         background-color: $colorPlaceholder;

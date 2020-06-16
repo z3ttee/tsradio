@@ -3,7 +3,13 @@
         <section id="featured">
             <div class="content-container">
                 <h2>Featured</h2>
-                <div class="tsr_list">
+                <!--<channel-list-item :channel="{name: 'Test', 
+                info: { 
+                    title: 'Das ist ein TitleDas ist ein TitleDas ist ein TitleDas ist ein TitleDas ist ein TitleDas ist ein TitleDas ist ein TitleDas ist ein Title',
+                    artist: 'Artist'
+                }}"></channel-list-item>-->
+
+                <div class="tsr_list tsr_layout_col">
                     <transition-group name="slide" appear>
                         <channel-list-item v-for="channel in featuredChannels" :key="channel.id" :channel="channel"></channel-list-item>
                     </transition-group>
@@ -13,19 +19,13 @@
         <section id="other">
             <div class="content-container">
                 <h2>Weitere Channel</h2>
-                <transition-group name="slide" appear>
-                    <channel-list-item v-for="channel in otherChannels" :key="channel.id" :channel="channel" @selected="selected(channel)"></channel-list-item>
-                </transition-group>
+                <div class="tsr_list tsr_layout_col">
+                    <transition-group name="slide" appear>
+                        <channel-list-item v-for="channel in otherChannels" :key="channel.id" :channel="channel"></channel-list-item>
+                    </transition-group>
+                </div>
             </div>
         </section>
-        <!--<section id="inactive">
-            <div class="content-container">
-                <h2>Inaktive Channel</h2>
-                <transition-group name="slide" appear>
-                    <channel-list-item v-for="channel in inactiveChannels" :key="channel.id" :channel="channel" @selected="selected(channel)"></channel-list-item>
-                </transition-group>
-            </div>
-        </section>-->
     </div>
 </template>
 
@@ -51,11 +51,6 @@ export default {
             return this.channels.filter((element) => {
                 if(!+element.featured && !!+element.listed && element.isActive) return element;
             });
-        },
-        inactiveChannels() {
-            return this.channels.filter((element) => {
-                if(!!+element.listed && !element.isActive) return element;
-            });
         }
     },
     methods: {
@@ -65,13 +60,18 @@ export default {
         channelRequestSuccess(data){
             var channelList = [];
 
-            for(var id in data.payload) {
-                var channel = data.payload[id];
+            for(var index in data.payload) {
+                //TODO: Optimise
+
+                var channel = data.payload[index];
                 channelList.push(channel);
+
+                if(this.$store.state.currentChannel.id == channel.id) {
+                    this.$store.state.currentChannel = channel;
+                }
             }
 
             this.channels = channelList;
-            this.$emit('channelsReceived', this.channels);
         }
     },
     mounted() {
@@ -89,6 +89,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .tsr_layout_col {
+        display: table;
+        width: 100%;
+
+        .tsr_list_item_wrapper {
+            display: table-cell;
+            width: 500px;
+            max-width: 500px;
+            
+            &:nth-child(odd){
+                padding-right: 0.5em;
+            }
+            &:nth-child(even) {
+                padding-left: 0.5em;
+            }
+        }
+    }
+
     .slide-enter {
         opacity: 0;
         transform: translateY(2em);
