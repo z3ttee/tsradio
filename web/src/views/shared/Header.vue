@@ -6,7 +6,6 @@
             <ul>
                 <div class="activeIndicator"></div>
                 <router-link tag="li" to="/"><a>Channels</a></router-link>
-                <router-link tag="li" to="/channels/"><a>Channels 1</a></router-link>
                 <router-link tag="li" to="/webinterface/"><a>Webinterface</a></router-link>
             </ul>
         </div>

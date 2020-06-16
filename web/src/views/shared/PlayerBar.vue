@@ -1,24 +1,24 @@
 <template>
     <transition name="slide">
-        <div class="tsr_playerbar_wrapper" v-if="currentChannel">
+        <div class="tsr_playerbar_wrapper" v-if="Object.keys($store.state.currentChannel).length != 0">
             <div class="content-container">
                 <div>
-                    <div class="tsr_actionbox playerbar_channelbox large">Du hörst gerade <span v-html="currentChannel.name"></span></div>
+                    <div class="tsr_actionbox playerbar_channelbox large">Du hörst gerade <span v-html="$store.state.currentChannel.name"></span></div>
                     <div class="tsr_actionbox playerbar_channelbox" @click="upvote"><img src="/assets/images/icons/like.svg"> Upvote</div>
                 </div>
             </div>
             
             <div class="tsr_playerbar">
                 <div class="content-container">
-                    <div class="player_col playerbar_cover" :style="'background-image: url('+currentChannel.coverURL+')'" @click="toggle">
+                    <div class="player_col playerbar_cover" :style="'background-image: url('+$store.state.currentChannel.coverURL+')'" @click="toggle">
                         <transition name="scale" mode="out-in">
                             <img src="/assets/images/icons/play.svg" v-if="paused" key="play">
                             <img src="/assets/images/icons/pause.svg" v-else key="pause">
                         </transition>
                     </div>
-                    <div id="div" class="player_col playerbar_info" v-if="currentChannel.info">
-                        <p id="p" v-if="currentChannel.info.title" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;'+ currentChannel.info.title"></p>
-                        <p v-if="currentChannel.info.artist" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+currentChannel.info.artist"></p>
+                    <div id="div" class="player_col playerbar_info" v-if="$store.state.currentChannel.info">
+                        <p id="p" v-if="$store.state.currentChannel.info.title" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;'+ $store.state.currentChannel.info.title"></p>
+                        <p v-if="$store.state.currentChannel.info.artist" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+$store.state.currentChannel.info.artist"></p>
                     </div>
                     <div class="player_col playerbar_controls">
                         <img src="/assets/images/icons/speaker.svg" >
@@ -35,7 +35,6 @@
 //import $ from 'jquery';
 
 export default {
-    props: ['currentChannel'],
     data() {
         return {
             volume: 0,
@@ -54,9 +53,6 @@ export default {
     methods: {
         toggle() {
             this.paused == true ? this.paused = false : this.paused = true;
-        },
-        stop() {
-            this.paused = true;
         },
         upvote() {
 

@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div id="wrapper" :class="$store.state.theme">
         <tsr-header></tsr-header>
         <div style="padding-top: 10em"></div>
-        <tsr-playerbar :currentChannel="currentChannel"></tsr-playerbar>
+        <tsr-playerbar></tsr-playerbar>
         <transition name="backPage" mode="out-in">
-            <router-view @channelToggled="channelToggled"></router-view>
+            <router-view @channelsReceived="channelsReceived"></router-view>
         </transition>
     </div>
 </template>
@@ -20,13 +20,17 @@ export default {
     },
     data(){
         return {
-            currentChannel: null
+            channels: []
         }
     },
     methods: {
-        channelToggled(){
-            this.currentChannel == null ? this.currentChannel = {coverURL: '', streamURL: 'https://streams.tsradio.live/dance', name: 'Wipfrawelle', info: {title: 'Das ist ein Titel', artist: 'Das ist ein Artist'}} : this.currentChannel = null;
-            console.log('consumed');
+        channelsReceived(channels){
+            for(var channel of channels) {
+                if(this.currentChannel && channel.id == this.currentChannel.id) {
+                    this.currentChannel = channel;
+                    break
+                }
+            }
         }
     }
 }

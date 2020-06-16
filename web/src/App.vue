@@ -1,11 +1,8 @@
 <template>
-    <div>
-        <transition name="backPage" mode="out-in">
-            <tsr-layout v-if="$route.meta.group == 'default'"></tsr-layout>
-            <tsr-dash-layout v-else></tsr-dash-layout>
-        </transition>
-        
-    </div>
+    <transition name="backPage" mode="out-in">
+        <tsr-layout v-if="$route.meta.group == 'default'"></tsr-layout>
+        <tsr-dash-layout v-else></tsr-dash-layout>
+    </transition>
 </template>
 
 <script>
