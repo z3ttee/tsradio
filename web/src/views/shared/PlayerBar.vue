@@ -1,10 +1,10 @@
 <template>
     <transition name="slide">
-        <div class="tsr_playerbar_wrapper" v-if="Object.keys($store.state.currentChannel).length != 0">
+        <div class="tsr_playerbar_wrapper" v-if="Object.keys(channel).length != 0">
             <div class="content-container">
                 <div>
                     <div class="tsr_actionbox playerbar_channelbox large">
-                        Du hörst gerade <span v-html="$store.state.currentChannel.name"></span>
+                        Du hörst gerade <span v-html="channel.name"></span>
                     </div>
                     <div class="tsr_actionbox playerbar_channelbox" @click="upvote"><img src="/assets/images/icons/like.svg"> Upvote</div>
                 </div>
@@ -12,7 +12,7 @@
             
             <div class="tsr_playerbar">
                 <div class="content-container">
-                    <div class="player_col playerbar_cover" :style="'background-image: url('+$store.state.currentChannel.coverURL+')'" @click="toggle">
+                    <div class="player_col playerbar_cover" :style="'background-image: url('+channel.coverURL+')'" @click="toggle">
                         <transition name="scale" mode="out-in">
                             <lottie-player id="audioLoader" class="loader" :src="loaderData" :options="{ autoplay: true, loop: true }" v-if="loading"></lottie-player>
                         </transition>
@@ -21,20 +21,26 @@
                             <img src="/assets/images/icons/pause.svg" v-else key="pause">
                         </transition>
                     </div>
-                    <div id="div" class="player_col playerbar_info" v-if="$store.state.currentChannel.info">
-                        <p id="p" v-if="$store.state.currentChannel.info.title" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;'+ $store.state.currentChannel.info.title"></p>
-                        <p v-if="$store.state.currentChannel.info.artist" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+$store.state.currentChannel.info.artist"></p>
-                    </div>
+                    
+                    <!--<transition name="infoSlide" mode="out-in">-->
+                        <div id="div" class="player_col playerbar_info" v-if="channel.info" :key="Math.floor(Math.random() * 100)">
+                            <p id="p" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;'+ channel.info.title"></p>
+                            <p v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.info.artist"></p>
+                        </div>
+                    <!--</transition>-->
+                    
                     <div class="player_col playerbar_controls">
-                        <img src="/assets/images/icons/speaker.svg" >
-                        <input class="tsr_slider hidden" type="range" name="" id="" max="100" min="0" v-model="volume">
+                        <img src="/assets/images/icons/speaker.svg">
+                        <input class="tsr_slider hidden" type="range" max="100" min="0" v-model="volume">
                     </div>
                     <audio id="audiosrc" 
                         hidden 
-                        :src="''" 
+                        src="" 
                         :paused="paused" 
                         autoplay 
-                        @canplay="eventCanPlay"></audio>
+                        @canplay="eventCanPlay"
+                        @ended="eventEnded"
+                        @pause="eventEnded"></audio>
                 </div>
             </div>
         </div>
@@ -61,50 +67,67 @@ export default {
     },
     watch: {
         volume(val) {
-            document.getElementById('audiosrc').volume = val/100;
+            var audioSrc = document.getElementById('audiosrc');
+            var delay = audioSrc == null ? 50 : 0;
+            
+            setTimeout(() => {
+                localStorage.setItem('tsr_volume_'+this.channel.id, val);
+                document.getElementById('audiosrc').volume = val/100;
+            }, delay);
         },
         channel(val) {
-            var audioElement = document.getElementById('audiosrc');
-            var streamURL = 'https://streams.tsradio.live' + val.mountpoint;
+            var volume = localStorage.getItem('tsr_volume_'+this.channel.id);
+            if(volume) this.volume = volume;
 
-            if(audioElement.src != streamURL) {
-                this.paused = false;
-                this.loading = true;
-                
-                audioElement.volume = this.volume/100;
-                
-                audioElement.setAttribute('src', streamURL);
-                audioElement.load();
-                console.log('Channel changed');
-            }
+            this.changeSource(val.mountpoint);
         }
     },
     methods: {
+        changeSource(mountpoint) {
+            setTimeout(() => {
+                var audioElement = document.getElementById('audiosrc');
+
+                if(mountpoint === ''){
+                    this.loading = false;
+                    audioElement.setAttribute('src', '');
+                    return;
+                }
+
+                if(mountpoint == null) {
+                    mountpoint = this.channel.mountpoint;
+                }
+                
+                var streamURL = 'https://streams.tsradio.live' + mountpoint;
+
+                if(audioElement.src != streamURL) {
+                    this.paused = false;
+                    this.loading = true;
+                    
+                    audioElement.volume = this.volume/100;
+                    
+                    audioElement.setAttribute('src', streamURL);
+                    audioElement.load();
+                }
+            }, 50);
+        },
         toggle() {
             this.paused == true ? this.paused = false : this.paused = true;
-            var audioElement = document.getElementById('audiosrc');
 
             if(!this.paused) {
-                this.loading = true;
-                audioElement.volume = this.volume/100;
-
-                var streamURL = 'https://streams.tsradio.live' + this.$store.state.currentChannel.mountpoint;
-                audioElement.setAttribute('src', streamURL);
-                audioElement.load();
-
-                // Show loader
-                // Get url and set source
+                this.changeSource(null);
             } else {
-                this.loading = false;
-                audioElement.setAttribute('src', '');
+                this.changeSource('');
             }
         },
         upvote() {
 
         },
+        eventEnded(){
+            console.log('ended');
+        },
         eventCanPlay(event) {
             this.loading = false;
-            console.log(event.target);
+            event.target.play();
         }
     },
     mounted() {
@@ -129,8 +152,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .tsr_slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 4px;
+        background: $colorPlaceholder;
+        outline: none;
+
+        &:hover {
+            opacity: 1;
+            cursor: pointer;
+
+            &::-webkit-slider-thumb {
+                transform: scale(1.15);
+            }
+        }
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: $colorAccent;
+            border: 4px solid $colorPrimary;
+            border-radius: 50%;
+            transition: all $animSpeedFast*1s $cubicNormal;
+        }
+        &::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 4px solid $colorPrimary;
+            background: $colorAccent;
+            transition: all $animSpeedFast*1s $cubicNormal;
+        }
+    }
+
     .tsr_playerbar_wrapper {
         position: fixed;
+        z-index: 1000000000;
         width: 100%;
         bottom: 0;
         color: $colorWhite;
@@ -233,6 +294,7 @@ export default {
                     font-weight: 800;
                     line-height: initial;
                     margin: 0em;
+                    color: $colorWhite;
 
                     &:first-of-type {
                         font-size: 1.3em;
@@ -287,6 +349,16 @@ export default {
         animation: slide-out-down $animSpeedMedium*1s $cubicNormal forwards;
     }
 
+    .infoSlide-enter-active {
+        animation: InfoSlideIn $animSpeedMedium*1s $cubicNormal forwards;
+    }
+    .infoSlide-leave-active {
+        animation: InfoSlideOut $animSpeedMedium*1s $cubicNormal forwards;
+    }
+
+    /*
+    Scale In
+    */
     @keyframes scale-in {
         from {
             opacity: 0;
@@ -307,6 +379,10 @@ export default {
             transform: scale(0.8);
         }
     }
+
+    /*
+    Slide In Up
+    */
     @keyframes slide-in-up {
         from {
             transform: translateY(100%);
@@ -324,6 +400,30 @@ export default {
         }
         to {
             transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    /*
+    InfoSlide
+    */
+    @keyframes InfoSlideIn {
+        from {
+            transform: translateY(0.1em);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    @keyframes InfoSlideOut {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(-0.1em);
             opacity: 0;
         }
     }

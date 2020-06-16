@@ -35,6 +35,7 @@
     font-size: 1em;
 }
 html, body {
+    position: relative;
     height: 100%;
     width: 100%;
     background-color: $colorPrimaryDark;
@@ -47,6 +48,7 @@ html, body {
 
     background-color: $colorPrimaryDark;
     color: $colorWhite;
+    background-image: url('/assets/images/background/background_blurred.png');
 
     &.light {
         background-color: $colorWhite;

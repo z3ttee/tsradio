@@ -2,21 +2,20 @@
     <div id="wrapper" :class="$store.state.theme">
         <tsr-header></tsr-header>
         <div style="padding-top: 10em"></div>
-        <tsr-playerbar></tsr-playerbar>
         <transition name="backPage" mode="out-in">
             <router-view @channelsReceived="channelsReceived"></router-view>
         </transition>
+        <div style="height: 10em;"></div>
     </div>
 </template>
 
 <script>
 import Header from '../shared/Header.vue';
-import PlayerBar from '../shared/PlayerBar.vue';
+
 
 export default {
     components: {
-        tsrHeader: Header,
-        tsrPlayerbar: PlayerBar
+        tsrHeader: Header
     },
     data(){
         return {

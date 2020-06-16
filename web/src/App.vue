@@ -1,18 +1,23 @@
 <template>
-    <transition name="backPage" mode="out-in">
-        <tsr-layout v-if="$route.meta.group == 'default'"></tsr-layout>
-        <tsr-dash-layout v-else></tsr-dash-layout>
-    </transition>
+    <div style="height: 100%; width: 100%">
+        <tsr-playerbar></tsr-playerbar>
+        <transition name="backPage" mode="out-in">
+            <tsr-layout v-if="$route.meta.group == 'default'"></tsr-layout>
+            <tsr-dash-layout v-else></tsr-dash-layout>
+        </transition>
+    </div>
 </template>
 
 <script>
 import DefaultLayout from './views/layouts/Layout.vue';
 import DashboardLayout from './views/layouts/DashboardLayout.vue';
+import PlayerBar from './views/shared/PlayerBar.vue';
 
 export default {
     components: {
         tsrLayout: DefaultLayout,
-        tsrDashLayout: DashboardLayout
+        tsrDashLayout: DashboardLayout,
+        tsrPlayerbar: PlayerBar
     }
 }
 </script>

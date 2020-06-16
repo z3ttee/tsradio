@@ -1,8 +1,10 @@
 <template>
     <div class="tsr_list_item_wrapper">
-        <div class="tsr_list_item item_inline" @click="select">
+        <div :class="'tsr_list_item item_inline '+(currentChannel.id == channel.id ? 'active' : '')" @click="select">
+            <lottie-player class="animation" :src="AudioAnimation" :options="{ autoplay: true, loop: true }" v-if="currentChannel.id == channel.id"></lottie-player>
+
             <div class="tsr_list_item_col">
-                <div class="tsr_list_cover"></div>
+                <div class="tsr_list_cover" :style="'background-image: url(\''+channel.coverURL+'\');'"></div>
             </div>
             <div class="tsr_list_item_col tsr_list_item_content">
                 <p class="name" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.name"></p>
@@ -16,17 +18,45 @@
 </template>
 
 <script>
+import AudioAnimation from '@/assets/animated/audio.json';
+
 export default {
     props: ['channel'],
+    data() {
+        return {
+            AudioAnimation
+        }
+    },
+    computed: {
+        currentChannel() {
+            return this.$store.state.currentChannel;
+        }
+    },
     methods: {
         select(){
-            this.$store.state.currentChannel = this.channel;
+            if(this.currentChannel.id == this.channel.id) {
+                this.$router.push({ path: '/channels/'+this.channel.id });
+            } else {
+                this.$store.state.currentChannel = this.channel;
+            }
         }
     }
 }
 </script>
 
 <style lang="scss" scoped>
+    .tsr_list_item_wrapper {
+        position: relative;
+    }
+
+    .animation {
+        position: absolute;
+        top: 1em;
+        right: 1em;
+        z-index: 10001;
+        width: 24px;
+    }
+
     .tsr_list_item {
         $height: 100px;
 
@@ -40,9 +70,19 @@ export default {
         box-shadow: $shadowNormal;
         border-radius: $borderRadMedium;
         overflow: hidden;
+        transition: all $animSpeedFast*1s $cubicNormal;
+        border: 2px solid transparent;
+
+        &.active {
+            border-color: $colorPlaceholder;
+        }
 
         &:hover {
             cursor: pointer;
+        }
+
+        &:active {
+            transform: scale(0.98);
         }
 
         .tsr_list_item_col {
@@ -63,6 +103,8 @@ export default {
             border-radius: $borderRadMedium;
             box-shadow: $shadowSpread;
             background-color: $colorPlaceholder;
+            background-size: cover;
+            background-position: center;
         }
 
         .tsr_list_item_content {
@@ -103,6 +145,9 @@ export default {
         &.name {
             color: $colorAccent;
             margin-bottom: 0.15em;
+        }
+        &.title {
+            font-weight: 800;
         }
         &.artist {
             font-family: 'BebasKai';

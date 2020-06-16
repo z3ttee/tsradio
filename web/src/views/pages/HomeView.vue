@@ -33,6 +33,7 @@
 import ChannelListItem from '../../components/ChannelListItem.vue';
 
 export default {
+    name: 'home',
     data() {
         return {
             channels: [],
@@ -60,18 +61,21 @@ export default {
         channelRequestSuccess(data){
             var channelList = [];
 
-            for(var index in data.payload) {
-                //TODO: Optimise
-
-                var channel = data.payload[index];
+            for(var channel of Object.values(data.payload)) {
+                channel.coverURL = '/upload/channelCovers/'+channel.id+'.png';
                 channelList.push(channel);
 
                 if(this.$store.state.currentChannel.id == channel.id) {
-                    this.$store.state.currentChannel = channel;
+                    var info = this.$store.state.currentChannel.info;
+
+                    if(channel.info.title !== info.title && channel.info.artist !== info.artist) {
+                        this.$store.state.currentChannel = channel;
+                    }
                 }
             }
 
             this.channels = channelList;
+            console.log('Channels received');
         }
     },
     mounted() {

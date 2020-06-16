@@ -32,7 +32,7 @@ export default {
 <style lang="scss" scoped>
     .tsr_header {
         position: fixed;
-        z-index: 1000;
+        z-index: 10000000;
         width: 100%;
         color: $colorWhite;
         padding: 2em 0em;
