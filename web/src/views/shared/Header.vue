@@ -3,19 +3,26 @@
         <div class="content-container">
             <img src="/assets/images/branding/ts_radio_banner.svg">
 
-            <ul>
-                <div class="activeIndicator"></div>
-                <router-link tag="li" to="/"><a>Channels</a></router-link>
-                <router-link tag="li" to="/webinterface/"><a>Webinterface</a></router-link>
-            </ul>
+            <transition mode="out-in">
+                <ul v-if="innerWidth >= 1080">
+                    <div class="activeIndicator"></div>
+                    <router-link tag="li" to="/"><a>Channels</a></router-link>
+                    <router-link tag="li" to="/webinterface/"><a>Webinterface</a></router-link>
+                </ul>
+                <ul v-else>
+                    <li @click="openSidebar">Menü<img src="/assets/images/icons/menu.svg" height="24px" width="24px" style="vertical-align: middle; margin-left: 0.25em" ></li>
+                </ul>
+            </transition>
         </div>
     </div>
 </template>
 
 <script>
 export default {
-    created(){
-        window.addEventListener('scroll', this.handlePageScroll);
+    data() {
+        return {
+            windowWidth: window.innerWidth
+        }
     },
     methods: {
         handlePageScroll() {
@@ -24,6 +31,22 @@ export default {
             } else {
                 document.getElementById('tsr_header').classList.remove('scrolling');
             }
+        },
+        openSidebar() {
+            this.$emit('openSidebar');
+        }
+    },
+    computed: {
+        innerWidth() {
+            return this.$store.state.display.width;
+        }
+    },
+    created(){
+        window.addEventListener('scroll', this.handlePageScroll);
+    },
+    mounted() {
+        window.onresize = () => {
+            this.windowWidth = window.innerWidth;
         }
     }
 }
@@ -74,6 +97,7 @@ export default {
 
         &.scrolling {
             background-color: $colorPrimary;
+            box-shadow: $shadowSpread;
             padding-top: 1em;
             padding-bottom: 1em;
 
@@ -86,5 +110,12 @@ export default {
     a {
         color: inherit;
         text-decoration: none;
+    }
+
+
+    @media screen and (max-width: 730px) {
+        img {
+            height: 45px !important;
+        }
     }
 </style>

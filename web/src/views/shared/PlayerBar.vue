@@ -4,9 +4,10 @@
             <div class="content-container">
                 <div>
                     <div class="tsr_actionbox playerbar_channelbox large">
-                        Du hörst gerade <span v-html="channel.name"></span>
+                        Du hörst <span v-html="channel.name"></span>
                     </div>
-                    <div class="tsr_actionbox playerbar_channelbox" @click="upvote"><img src="/assets/images/icons/like.svg"> Upvote</div>
+                    <div class="tsr_actionbox playerbar_channelbox" @click="upvote"><img src="/assets/images/icons/like.svg"></div>
+                    <div class="tsr_actionbox playerbar_channelbox" @click="$router.push({ path: '/channels/'+channel.id })">Mehr anzeigen</div>
                 </div>
             </div>
             
@@ -39,8 +40,7 @@
                         :paused="paused" 
                         autoplay 
                         @canplay="eventCanPlay"
-                        @ended="eventEnded"
-                        @pause="eventEnded"></audio>
+                        @ended="eventEnded"></audio>
                 </div>
             </div>
         </div>
@@ -123,7 +123,7 @@ export default {
 
         },
         eventEnded(){
-            console.log('ended');
+            this.changeSource(null);
         },
         eventCanPlay(event) {
             this.loading = false;
@@ -164,7 +164,7 @@ export default {
             opacity: 1;
             cursor: pointer;
 
-            &::-webkit-slider-thumb {
+            &::-webkit-slider-thumb,&::-moz-range-thumb {
                 transform: scale(1.15);
             }
         }

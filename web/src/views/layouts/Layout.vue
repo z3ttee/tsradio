@@ -1,6 +1,6 @@
 <template>
     <div id="wrapper" :class="$store.state.theme">
-        <tsr-header></tsr-header>
+        <tsr-header @openSidebar="openSidebar"></tsr-header>
         <div style="padding-top: 10em"></div>
         <transition name="backPage" mode="out-in">
             <router-view @channelsReceived="channelsReceived"></router-view>
@@ -30,6 +30,9 @@ export default {
                     break
                 }
             }
+        },
+        openSidebar() {
+            console.log('TODO: Open sidebar');
         }
     }
 }

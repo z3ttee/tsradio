@@ -1,7 +1,7 @@
 <template>
     <div class="content-container">
-        <div class="tsr_table">
-            <div class="tsr_col">
+        <div class="tsr_layout_table">
+            <div class="tsr_col leftToDown">
                 <div class="tsr_box">
                     <h2>404 - Not Found</h2>
                     <p>Sieht so aus, als könnte dein gewünschtes Ergebnis nicht gefunden werden. Hier sind ein paar Links, um dich wieder auf den richtigen Pfad zu führen:</p>
@@ -11,7 +11,7 @@
                     <router-link tag="li" to="/webinterface"><a class="tsr_actionbox large">Zum Webinterface</a></router-link>
                 </ul>
             </div>
-            <div class="tsr_col tsr_animated_col">
+            <div class="tsr_col tsr_animated_col rightToUp">
                 <lottie-player :src="animationData" :options="{ autoplay: true, loop: true }"></lottie-player>
             </div>
         </div>
@@ -33,17 +33,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .tsr_table {
-        display: table;
-        width: 100%;
-    }
-
-    .tsr_col {
-        display: table-cell;
-        width: 50%;
-        vertical-align: top;
-        color: $colorWhite;
-    }
 
     ul {
         margin: 2em 0em;

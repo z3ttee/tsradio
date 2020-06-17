@@ -1,5 +1,9 @@
 <template>
     <div>
+        <div class="content-container">
+            <message-slide></message-slide>
+        </div>
+
         <section id="featured">
             <div class="content-container">
                 <h2>Featured</h2>
@@ -9,27 +13,24 @@
                     artist: 'Artist'
                 }}"></channel-list-item>-->
 
-                <div class="tsr_list tsr_layout_col">
-                    <transition-group name="slide" appear>
-                        <channel-list-item v-for="channel in featuredChannels" :key="channel.id" :channel="channel"></channel-list-item>
-                    </transition-group>
-                </div>
+                <transition-group name="slide" tag="div" class="tsr_layout_tablelist" appear>
+                    <channel-list-item v-for="channel in featuredChannels" :key="channel.id" :channel="channel"></channel-list-item>
+                </transition-group>
             </div>
         </section>
         <section id="other">
             <div class="content-container">
                 <h2>Weitere Channel</h2>
-                <div class="tsr_list tsr_layout_col">
-                    <transition-group name="slide" appear>
-                        <channel-list-item v-for="channel in otherChannels" :key="channel.id" :channel="channel"></channel-list-item>
-                    </transition-group>
-                </div>
+                <transition-group name="slide" tag="div" class="tsr_layout_tablelist" appear>
+                    <channel-list-item v-for="channel in otherChannels" :key="channel.id" :channel="channel"></channel-list-item>
+                </transition-group>
             </div>
         </section>
     </div>
 </template>
 
 <script>
+import MessageSlide from '../../components/message/MessageSlide.vue';
 import ChannelListItem from '../../components/ChannelListItem.vue';
 
 export default {
@@ -40,7 +41,8 @@ export default {
         }
     },
     components: {
-        ChannelListItem
+        ChannelListItem,
+        MessageSlide
     },
     computed: {
         featuredChannels() {
@@ -75,7 +77,6 @@ export default {
             }
 
             this.channels = channelList;
-            console.log('Channels received');
         }
     },
     mounted() {
@@ -84,33 +85,20 @@ export default {
         }, error => this.channelRequestFailure(error));
 
         setInterval(() => {
+            console.log('interval');
+
             this.$http.get('getchannels/').then(response => {
                 response.json().then(json => this.channelRequestSuccess(json));
             }, error => this.channelRequestFailure(error));
         }, 1000*12);
+    },
+    destroyed(){
+        clearInterval();
     }
 }
 </script>
 
 <style lang="scss" scoped>
-    .tsr_layout_col {
-        display: table;
-        width: 100%;
-
-        .tsr_list_item_wrapper {
-            display: table-cell;
-            width: 500px;
-            max-width: 500px;
-            
-            &:nth-child(odd){
-                padding-right: 0.5em;
-            }
-            &:nth-child(even) {
-                padding-left: 0.5em;
-            }
-        }
-    }
-
     .slide-enter {
         opacity: 0;
         transform: translateY(2em);

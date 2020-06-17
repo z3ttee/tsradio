@@ -1,6 +1,6 @@
 <template>
-    <div class="tsr_list_item_wrapper">
-        <div :class="'tsr_list_item item_inline '+(currentChannel.id == channel.id ? 'active' : '')" @click="select">
+    <div class="tsr_list_item_wrapper" @contextmenu.prevent="openContextMenu">
+        <div :class="'tsr_list_item '+(currentChannel.id == channel.id ? 'active' : '')" @click="select">
             <lottie-player class="animation" :src="AudioAnimation" :options="{ autoplay: true, loop: true }" v-if="currentChannel.id == channel.id"></lottie-player>
 
             <div class="tsr_list_item_col">
@@ -14,13 +14,15 @@
                 </div>
             </div>
         </div>
-    </div>
+   </div>
 </template>
 
 <script>
+import { contextMenuMixin } from '@/mixins/contextmenu.js';
 import AudioAnimation from '@/assets/animated/audio.json';
 
 export default {
+    mixins: [contextMenuMixin],
     props: ['channel'],
     data() {
         return {
@@ -45,19 +47,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .tsr_list_item_wrapper {
-        position: relative;
-    }
-
-    .animation {
-        position: absolute;
-        top: 1em;
-        right: 1em;
-        z-index: 10001;
-        width: 24px;
-    }
-
     .tsr_list_item {
+        position: relative;
         $height: 100px;
 
         display: table;
@@ -156,5 +147,13 @@ export default {
             opacity: 0.7;
             font-size: 1em;
         }
+    }
+
+    .animation {
+        position: absolute;
+        top: 1em;
+        right: 1em;
+        z-index: 10001;
+        width: 24px;
     }
 </style>

@@ -23,5 +23,13 @@ new Vue({
     render: h => h(App),
     created() {
         if(!this.$cookies.isKey('tsr_app_theme')) this.$store.state.theme = 'dark';
+    },
+    mounted() {
+        window.onresize = () => {
+            const innerWidth = window.innerWidth;
+
+            this.$store.state.display.width = innerWidth;
+            this.$store.state.display.mobile = (innerWidth <= 480);
+        }
     }
 });
