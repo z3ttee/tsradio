@@ -13,6 +13,7 @@
             
             <div class="tsr_playerbar">
                 <div class="content-container">
+                    
                     <div class="player_col playerbar_cover" :style="'background-image: url('+channel.coverURL+')'" @click="toggle">
                         <transition name="scale" mode="out-in">
                             <lottie-player id="audioLoader" class="loader" :src="loaderData" :options="{ autoplay: true, loop: true }" v-if="loading"></lottie-player>
@@ -25,6 +26,7 @@
                     
                     <!--<transition name="infoSlide" mode="out-in">-->
                         <div id="div" class="player_col playerbar_info" v-if="channel.info" :key="Math.floor(Math.random() * 100)">
+                            
                             <p id="p" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;'+ channel.info.title"></p>
                             <p v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.info.artist"></p>
                         </div>
@@ -34,13 +36,15 @@
                         <img src="/assets/images/icons/speaker.svg">
                         <input class="tsr_slider hidden" type="range" max="100" min="0" v-model="volume">
                     </div>
-                    <audio id="audiosrc" 
-                        hidden 
-                        src="" 
-                        :paused="paused" 
-                        autoplay 
-                        @canplay="eventCanPlay"
-                        @ended="eventEnded"></audio>
+                    
+                    <audio id="audiosrc"
+                                controls
+                                src="''" 
+                                :paused="sourcePaused" 
+                                autoplay 
+                                @canplay="eventCanPlay"
+                                @ended="eventEnded"
+                                @pause="eventPaused"></audio>
                 </div>
             </div>
         </div>
@@ -56,6 +60,7 @@ export default {
         return {
             volume: 10,
             paused: true,
+            sourcePaused: true,
             loaderData: Loader,
             loading: false
         }
@@ -66,6 +71,9 @@ export default {
         }
     },
     watch: {
+        pause(val) {
+            this.sourcePaused = val;
+        },
         volume(val) {
             var audioSrc = document.getElementById('audiosrc');
             var delay = audioSrc == null ? 50 : 0;
@@ -123,7 +131,13 @@ export default {
 
         },
         eventEnded(){
+            console.log('ended');
+            
             this.changeSource(null);
+        },
+        eventPaused(){
+            console.log('paused');
+            this.sourcePaused = false;
         },
         eventCanPlay(event) {
             this.loading = false;
