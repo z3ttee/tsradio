@@ -1,4 +1,4 @@
-package live.tsradio.dataserver.listener
+package live.tsradio.dataserver.listener.client
 
 import com.corundumstudio.socketio.AckRequest
 import com.corundumstudio.socketio.SocketIOClient

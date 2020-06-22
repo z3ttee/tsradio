@@ -1,26 +1,45 @@
-package live.tsradio.dataserver.listener
+package live.tsradio.dataserver.listener.channel
 
 import com.corundumstudio.socketio.AckRequest
 import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.listener.DataListener
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import live.tsradio.dataserver.Server
 import live.tsradio.dataserver.handler.AuthHandler
 import live.tsradio.dataserver.handler.RadioHandler
+import live.tsradio.dataserver.packets.channel.ChannelDataPacket
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class OnChannelUpdateListener: DataListener<String> {
     private val logger: Logger = LoggerFactory.getLogger(OnChannelUpdateListener::class.java)
 
     override fun onData(client: SocketIOClient?, data: String?, ackSender: AckRequest?) {
-        if(client != null && data != null && AuthHandler.isAuthenticated(client.sessionId)) {
-            val authData = AuthHandler.get(client.sessionId)
-            val json = JsonParser().parse(data).asJsonObject
+        if(client != null && data != null) {
 
+            // Unauthenticated clients or non-node-clients aren't allowed to send data
+            if(!AuthHandler.isAuthenticated(client.sessionId) || !AuthHandler.isNode(client.sessionId)) {
+                return
+            }
+
+            val json = JsonParser().parse(data).asJsonObject
             logger.info("Received update for channel '${json["name"].asString}' from node '${json["nodeID"].asString}'. Distributing to listeners...")
 
-            val oldData = RadioHandler.getChannel(UUID.fromString(json["id"].asString))
+            val oldData = RadioHandler.getChannel(json["id"].asString)
+            if(oldData != null && oldData.listed && !json["listed"].asBoolean) {
+                // Channel not listed anymore -> Trigger Unlisted event -> Send to clients
+                Server.server.broadcastOperations.sendEvent("onChannelUnlisted", "{\"id\": \"${json["id"].asString}\"}")
+            }
+
+            val dataPacket: ChannelDataPacket = GsonBuilder().create().fromJson(json, ChannelDataPacket::class.java)
+            logger.info("$dataPacket")
+
+            val clientSafeData = json
+            //clientSafeData.remove("")
+
+            Server.server.broadcastOperations.sendEvent("", GsonBuilder().create().toJson(clientSafeData))
+            RadioHandler.setChannelData(json["id"].asString, GsonBuilder().create().fromJson(json, ChannelDataPacket::class.java))
             //logger.info("Received channel update for channel ${data.id}")
 
             /*val oldData = RadioHandler.getChannel(UUID.fromString(data.id))

@@ -1,4 +1,4 @@
-package live.tsradio.dataserver.listener
+package live.tsradio.dataserver.listener.client
 
 import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.listener.ConnectListener
@@ -9,8 +9,8 @@ import live.tsradio.dataserver.handler.ClientConnectionHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class OnConnectListener: ConnectListener {
-    private val logger: Logger = LoggerFactory.getLogger(OnConnectListener::class.java)
+class OnClientConnectListener: ConnectListener {
+    private val logger: Logger = LoggerFactory.getLogger(OnClientConnectListener::class.java)
 
     override fun onConnect(client: SocketIOClient?) {
         if(client != null) {
@@ -25,12 +25,13 @@ class OnConnectListener: ConnectListener {
             }
 
             if(AuthHandler.get(client.sessionId)!!.accountType == AuthHandler.AccountType.LISTENER) {
-                ClientConnectionHandler.add(client)
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Sending initial data...")
                 client.sendEvent("onInitialDataTransport", InitialDataTransport())
             } else {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as daemon node")
             }
+
+            ClientConnectionHandler.add(client)
         }
     }
 
