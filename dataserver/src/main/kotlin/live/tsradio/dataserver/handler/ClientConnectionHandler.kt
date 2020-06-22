@@ -2,6 +2,7 @@ package live.tsradio.dataserver.handler
 
 import com.corundumstudio.socketio.SocketIOClient
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object ClientConnectionHandler {
@@ -30,5 +31,9 @@ object ClientConnectionHandler {
     }
     fun has(uuid: UUID): Boolean {
         return this.connectedClients.containsKey(uuid)
+    }
+
+    fun getConnectedNodes(): ArrayList<SocketIOClient> {
+        return this.connectedClients.values.filter { AuthHandler.isNode(it.sessionId) }.toCollection(ArrayList())
     }
 }

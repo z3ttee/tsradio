@@ -39,6 +39,10 @@ object AuthHandler {
         }
     }
 
+    fun isNode(session: UUID): Boolean {
+        return this.isAuthenticated(session) && this.get(session)!!.accountType == AccountType.NODE
+    }
+
     fun get(session: UUID): AuthClient? {
         return this.authenticatedConnections.getOrDefault(session, null)
     }

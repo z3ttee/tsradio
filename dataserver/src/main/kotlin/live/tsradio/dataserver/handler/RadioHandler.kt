@@ -2,19 +2,19 @@ package live.tsradio.dataserver.handler
 
 import live.tsradio.dataserver.Server
 import live.tsradio.dataserver.api.RadioDataTypes
-import live.tsradio.dataserver.objects.Channel
+import live.tsradio.dataserver.packets.channel.ChannelDataPacket
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object RadioHandler {
 
-    private val channelData = HashMap<UUID, Channel>()
+    private val channelData = HashMap<String, ChannelDataPacket>()
     private val listeners = HashMap<UUID, UUID>() // UUID of client, Channel the user is listening to
     private val listenersPerChannel = HashMap<UUID, ArrayList<UUID>>() // UUID of channel, List of UUID of listeners
     private val subscribedData = HashMap<UUID, ArrayList<RadioDataTypes>>()
 
-    fun setChannelData(uuid: UUID, data: Channel){
+    fun setChannelData(uuid: String, data: ChannelDataPacket){
         this.channelData[uuid] = data
     }
 
@@ -114,11 +114,11 @@ object RadioHandler {
     fun getListeners(): List<UUID> {
         return this.listeners.keys.toList()
     }
-    fun getChannels(): List<Channel> {
+    fun getChannels(): List<ChannelDataPacket> {
         return this.channelData.values.toList()
     }
 
-    fun getChannel(uuid: UUID): Channel? {
+    fun getChannel(uuid: String): ChannelDataPacket? {
         return this.channelData[uuid]
     }
 }
