@@ -6,6 +6,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 data class ChannelInfoPacket(
+        val id: String,
         var title: String? = null,
         var artist: String? = null,
         var history: HashMap<Long, HashMap<String, String>> = HashMap()

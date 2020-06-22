@@ -14,5 +14,5 @@ data class ChannelDataPacket(
         var shuffled: Boolean,
         var looped: Boolean,
         var priority: Int,
-        var info: ChannelInfoPacket
+        var info: ChannelInfoPacket = ChannelInfoPacket(id)
 ): Packet("onChannelUpdate")

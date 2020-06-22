@@ -1,10 +1,13 @@
 package live.tsradio.daemon.channel
 
+import com.google.gson.JsonParser
 import live.tsradio.daemon.database.ContentValues
 import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.files.Filesystem
 import live.tsradio.daemon.listener.ChannelEventListener
 import live.tsradio.daemon.listener.REASON_CHANNEL_EXCEPTION
+import live.tsradio.daemon.protocol.packets.ChannelDataPacket
+import live.tsradio.daemon.protocol.packets.ChannelInfoPacket
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.ResultSet
@@ -31,13 +34,13 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
             channel.channelEventListener = this
             channel.shutdown = false
             channel.forceShutdown = false
-            activeChannels[channel.channelID] = channel
+            activeChannels[channel.data.id] = channel
             executorService.execute(channel)
         }
     }
     fun startChannel(channelName: String) {
         val channel = getChannelByNameLocally(channelName) ?: return
-        startChannel(configuredChannels[channel.channelID])
+        startChannel(configuredChannels[channel.data.id])
     }
 
     //TODO: Test
@@ -50,17 +53,18 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         channel.cancel(forceStop)
         channel.join()
 
-        channel.channelInfo.update()
+        // TODO: Trigger Channel Status Change
+        //channel.channelInfo.update()
     }
     fun stopChannel(channelName: String, forceStop: Boolean) {
         val channel = getChannelByNameLocally(channelName)?: return
-        stopChannel(activeChannels[channel.channelID],forceStop)
+        stopChannel(activeChannels[channel.data.id],forceStop)
     }
     fun restartChannel(channelName: String) {
         val channel = getChannelByNameLocally(channelName)?: return
 
         stopChannel(channel, true)
-        while (activeChannels.containsKey(channel.channelID)){
+        while (activeChannels.containsKey(channel.data.id)){
             // Wait
             Thread.sleep(1000)
         }
@@ -70,27 +74,27 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     fun createChannel(channel: Channel){
         try {
             MySQL.insert(MySQL.tableChannels, channel.toContentValues())
-            logger.info("Channel '${channel.channelName}' created.")
+            logger.info("Channel '${channel.data.name}' created.")
             notifyChannelUpdated(channel)
         } catch (ex: Exception) {
-            logger.info("Creating channel '${channel.channelName}' failed: ${ex.message}")
+            logger.info("Creating channel '${channel.data.name}' failed: ${ex.message}")
         }
     }
 
     fun deleteChannel(channel: Channel) {
         try {
-            if(isChannelActiveByID(channel.channelID)) {
-                logger.info("Preparing channel '${channel.channelName}' for deletion.")
+            if(isChannelActiveByID(channel.data.id)) {
+                logger.info("Preparing channel '${channel.data.name}' for deletion.")
                 channel.cancel(true)
                 channel.join()
-                activeChannels.remove(channel.channelID)
+                activeChannels.remove(channel.data.id)
             }
-            configuredChannels.remove(channel.channelID)
-            MySQL.delete(MySQL.tableChannels, "nodeID = '${Filesystem.preferences.node.nodeID}' AND id = '${channel.channelID}'")
-            notifyChannelRemoved(channel.channelID)
-            logger.info("Channel '${channel.channelName}' deleted.")
+            configuredChannels.remove(channel.data.id)
+            MySQL.delete(MySQL.tableChannels, "nodeID = '${Filesystem.preferences.node.nodeID}' AND id = '${channel.data.id}'")
+            notifyChannelRemoved(channel.data.name)
+            logger.info("Channel '${channel.data.name}' deleted.")
         } catch (ex: Exception) {
-            logger.info("Deleting channel '${channel.channelName}' failed: ${ex.message}")
+            logger.info("Deleting channel '${channel.data.name}' failed: ${ex.message}")
         }
     }
 
@@ -105,7 +109,7 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     }
 
     fun channelExistsByName(channelName: String): Boolean {
-        configuredChannels.values.forEach { if(it.channelName == channelName) return true }
+        configuredChannels.values.forEach { if(it.data.name == channelName) return true }
         return try {
             MySQL.exists(MySQL.tableChannels, "name = '$channelName'")
         } catch (ignored: Exception) {
@@ -114,7 +118,7 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         }
     }
     fun channelExistsByMount(mountpoint: String): Boolean {
-        configuredChannels.values.forEach { if(it.mountpoint == mountpoint) return true }
+        configuredChannels.values.forEach { if(it.data.mountpoint == mountpoint) return true }
         return try {
             MySQL.exists(MySQL.tableChannels, "mountpoint = '$mountpoint'")
         } catch (ignored: Exception) {
@@ -122,18 +126,31 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         }
     }
     fun mysqlResultToChannel(result: ResultSet): Channel {
-        return Channel(
-                result.getString("nodeID"),
+        val genres = ArrayList<String>()
+        val jsonArray = JsonParser().parse(result.getString("genres")).asJsonArray
+
+        jsonArray?.forEach {
+            genres.add(it.asString)
+        }
+
+        val dataPacket = ChannelDataPacket(
                 result.getString("id"),
+                result.getString("nodeID"),
                 result.getString("name"),
                 result.getString("description"),
                 result.getString("creatorID"),
                 result.getString("mountpoint"),
                 result.getString("playlistID"),
+                genres,
+                result.getBoolean("featured"),
+                result.getBoolean("listed"),
                 result.getBoolean("playlistShuffle"),
                 result.getBoolean("playlistLoop"),
-                ArrayList(result.getString("genres").split(";"))
+                result.getInt("priority"),
+                ChannelInfoPacket(result.getString("id"))
         )
+
+        return Channel(dataPacket)
     }
     fun getChannelOnNodeByName(channelName: String): Channel? {
         val result = MySQL.get(MySQL.tableChannels, "nodeID = '${Filesystem.preferences.node.nodeID}' AND name = '$channelName'", ArrayList(listOf("*")))
@@ -147,7 +164,7 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
     private fun getChannelByNameLocally(channelName: String): Channel? {
         var channel: Channel? = null
         for(chan in configuredChannels.values){
-            if(chan.channelName == channelName) {
+            if(chan.data.name == channelName) {
                 channel = chan
                 break
             }
@@ -160,54 +177,54 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
 
 
     override fun onChannelReady(channel: Channel) {
-        logger.info("Channel '${channel.channelName}' is ready")
+        logger.info("Channel '${channel.data.name}' is ready")
     }
 
     override fun onChannelDone(channel: Channel) {
-        if(restartTries.containsKey(channel.channelID)) {
-            restartTries.remove(channel.channelID)
+        if(restartTries.containsKey(channel.data.id)) {
+            restartTries.remove(channel.data.id)
         }
     }
 
     fun resetRestartTries(channel: Channel){
-        if(restartTries.containsKey(channel.channelID)) {
-            restartTries.remove(channel.channelID)
+        if(restartTries.containsKey(channel.data.id)) {
+            restartTries.remove(channel.data.id)
         }
     }
 
     override fun onChannelStop(channel: Channel, reason: Int) {
-        activeChannels.remove(channel.channelID)
+        activeChannels.remove(channel.data.id)
         Thread.sleep(10)
 
         if(reason == REASON_CHANNEL_EXCEPTION && Filesystem.preferences.channels.autorestart) {
             // Restart channel
-            var triesUsed = restartTries.getOrDefault(channel.channelID, 0)
+            var triesUsed = restartTries.getOrDefault(channel.data.id, 0)
             val delay: Long = (Filesystem.preferences.channels.restartDelay*1000).toLong()
             triesUsed += 1
 
             when {
                 triesUsed == 1 -> {
-                    logger.warn("Channel '${channel.channelName}' was shut down. Restarting it in ${delay/1000}sec [$triesUsed/${Filesystem.preferences.channels.restartTries}]")
+                    logger.warn("Channel '${channel.data.name}' was shut down. Restarting it in ${delay/1000}sec [$triesUsed/${Filesystem.preferences.channels.restartTries}]")
 
                     Thread.sleep(delay)
-                    restartTries[channel.channelID] = triesUsed
-                    startChannel(channel.channelName)
+                    restartTries[channel.data.id] = triesUsed
+                    startChannel(channel.data.name)
                 }
                 triesUsed > Filesystem.preferences.channels.restartTries -> {
-                    logger.error("Could not restart channel '${channel.channelName}' after ${triesUsed-1} tries.")
-                    restartTries.remove(channel.channelID)
+                    logger.error("Could not restart channel '${channel.data.name}' after ${triesUsed-1} tries.")
+                    restartTries.remove(channel.data.id)
                 }
                 else -> {
                     // Execute with delay
-                    logger.warn("Trying to restart channel '${channel.channelName}' in ${delay/1000}sec [$triesUsed/${Filesystem.preferences.channels.restartTries}]")
+                    logger.warn("Trying to restart channel '${channel.data.id}' in ${delay/1000}sec [$triesUsed/${Filesystem.preferences.channels.restartTries}]")
 
                     Thread.sleep(delay)
-                    restartTries[channel.channelID] = triesUsed
-                    startChannel(channel.channelName)
+                    restartTries[channel.data.id] = triesUsed
+                    startChannel(channel.data.name)
                 }
             }
         } else {
-            logger.info("Channel '${channel.channelName}' shut down.")
+            logger.info("Channel '${channel.data.name}' shut down.")
         }
     }
 
@@ -218,8 +235,8 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
 
 
     fun notifyChannelUpdated(channel: Channel){
-        if(!configuredChannels.containsKey(channel.channelID)) {
-            configuredChannels[channel.channelID] = channel
+        if(!configuredChannels.containsKey(channel.data.id)) {
+            configuredChannels[channel.data.id] = channel
 
             if(Filesystem.preferences.channels.autostart) {
                 startChannel(channel)
@@ -227,9 +244,9 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
             return
         }
 
-        configuredChannels[channel.channelID]!!.liveUpdate(channel)
-        if(activeChannels.containsKey(channel.channelID)) {
-            activeChannels[channel.channelID]!!.liveUpdate(channel)
+        configuredChannels[channel.data.id]!!.liveUpdate(channel)
+        if(activeChannels.containsKey(channel.data.id)) {
+            activeChannels[channel.data.id]!!.liveUpdate(channel)
         }
     }
 

@@ -1,11 +1,13 @@
 package live.tsradio.daemon.channel
 
+import com.google.gson.GsonBuilder
 import com.mpatric.mp3agic.Mp3File
 import live.tsradio.daemon.database.ContentValues
 import live.tsradio.daemon.exception.StreamException
 import live.tsradio.daemon.files.Filesystem
 import live.tsradio.daemon.listener.*
 import live.tsradio.daemon.protocol.IcecastClient
+import live.tsradio.daemon.protocol.packets.ChannelDataPacket
 import live.tsradio.daemon.sound.AudioTrack
 import live.tsradio.daemon.sound.PlaylistHandler
 import org.slf4j.Logger
@@ -14,36 +16,25 @@ import java.io.FileNotFoundException
 import java.net.ConnectException
 import java.net.SocketException
 import java.util.*
-import java.util.concurrent.BlockingQueue
-import java.util.concurrent.LinkedBlockingQueue
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-data class Channel(
-    var nodeID: String = Filesystem.preferences.node.nodeID,
-    var channelID: String = UUID.randomUUID().toString(),
-    var channelName: String = "unknown",
-    var description: String = "Unknown description",
-    var creatorID: String = "SYSTEM",
-    var mountpoint: String = "",
-    var playlistID: String = "",
-    var shuffle: Boolean = true,
-    var loop: Boolean = true,
-    var genres: ArrayList<String> = ArrayList()
-): Thread("channel-${channelName.toLowerCase()}-${(1..4).map { (0..9).random() }.joinToString("")}"), IcecastConnectionListener, TrackEventListener {
+class Channel(
+        var data: ChannelDataPacket
+): Thread("channel-${data.name}-${(1..4).map { (0..9).random() }.joinToString("")}"), IcecastConnectionListener, TrackEventListener {
 
     private val logger: Logger = LoggerFactory.getLogger(Channel::class.java)
+
     var shutdown: Boolean = false
     var forceShutdown: Boolean = false
-    val queue: BlockingQueue<AudioTrack> = LinkedBlockingQueue()
+    val queue: ArrayList<AudioTrack> = ArrayList()
     val icecastClient: IcecastClient = IcecastClient(this, Filesystem.preferences.icecast, this, this)
-    var channelInfo: ChannelInfo = ChannelInfo(this, AudioTrack("Nothing", "Nothing", null, null), HashMap())
     var channelEventListener: ChannelEventListener? = null
 
     override fun run() {
         try {
-            channelInfo.clearTrack()
-            logger.info("Starting channel '$channelName'")
+            data.info.clearAll()
+            logger.info("Starting channel '${data.name}'")
 
             // Connect to icecast
             icecastClient.connect()
@@ -55,7 +46,7 @@ data class Channel(
 
                 // Play
                 if(queue.isEmpty()){
-                    if(loop) loadPlaylist()
+                    if(data.looped) loadPlaylist()
 
                     if(queue.isEmpty()) {
                         if (Filesystem.preferences.channels.waitForQueue) {
@@ -69,7 +60,9 @@ data class Channel(
 
                 if(!shutdown) {
                     try {
-                        val track = queue.random()
+                        val rnd = Random().nextInt(queue.size)
+
+                        val track = queue.removeAt(rnd)
                         icecastClient.streamTrack(track)
                         ChannelHandler.resetRestartTries(this)
                     } catch (ignored: NullPointerException) {
@@ -115,10 +108,10 @@ data class Channel(
     private fun loadPlaylist(withLogEntries: Boolean = true){
         queue.clear()
 
-        val playlist = PlaylistHandler.configuredPlaylists[playlistID]
+        val playlist = PlaylistHandler.configuredPlaylists[data.playlistID]
 
         if(playlist == null) {
-            if(withLogEntries) logger.error("Could not find playlist '$playlistID' for channel '$channelName'.")
+            if(withLogEntries) logger.error("Could not find playlist '${data.playlistID}' for channel '${data.name}'.")
             return
         }
 
@@ -134,7 +127,7 @@ data class Channel(
             try {
                 mp3File = Mp3File(file)
             } catch (ex: FileNotFoundException) {
-                logger.error("'$channelName' >> Could not load file: ${ex.message}")
+                logger.error("'${data.name}' >> Could not load file: ${ex.message}")
             }
 
             if(mp3File != null) {
@@ -150,58 +143,49 @@ data class Channel(
                         artist = mp3File.id3v2Tag.artist ?: "Unknown artist"
                     }
                 } catch (ignored: IllegalStateException) {
-                    if (withLogEntries) logger.warn("'$channelName' >> Found song file with corrupted Id3v2/v1 Tags ('${file.absolutePath}')")
+                    if (withLogEntries) logger.warn("'${data.name}' >> Found song file with corrupted Id3v2/v1 Tags ('${file.absolutePath}')")
                 }
 
                 val track = AudioTrack(title, artist, file, mp3File)
-                queue.offer(track)
+                queue.add(track)
             }
         }
     }
 
     fun liveUpdate(channel: Channel){
-        if(playlistID != channel.playlistID) {
+        if(data.playlistID != channel.data.playlistID) {
             // Playlist updated -> reload
             loadPlaylist(false)
         }
 
-        nodeID = channel.nodeID
-        channelName = channel.channelName
-        description = channel.description
-        creatorID = channel.creatorID
-        mountpoint = channel.mountpoint
-        playlistID = channel.playlistID
-        shuffle = channel.shuffle
-        loop = channel.loop
-        genres = channel.genres
-
+        this.data = channel.data
         logger.info("live updated.")
     }
 
     fun toContentValues(): ContentValues {
         val values = ContentValues()
-        values["id"] = channelID.replace("-", "")
-        values["name"] = channelName
-        values["nodeID"] = nodeID.replace("-", "")
-        values["description"] = description
-        values["creatorID"] = creatorID.replace("-", "")
-        values["mountpoint"] = "/${(mountpoint.removePrefix("/").removeSuffix("/").replace("/", "").replace("\\", ""))}"
-        values["playlistID"] = playlistID.replace("-", "")
-        values["playlistShuffle"] = when(shuffle) {
+        values["id"] = data.id.replace("-", "")
+        values["name"] = data.name
+        values["nodeID"] = data.nodeID.replace("-", "")
+        values["description"] = data.description
+        values["creatorID"] = data.creatorID.replace("-", "")
+        values["mountpoint"] = "/${(data.mountpoint.removePrefix("/").removeSuffix("/").replace("/", "").replace("\\", ""))}"
+        values["playlistID"] = data.playlistID.replace("-", "")
+        values["playlistShuffle"] = when(data.shuffled) {
             true -> "1"
             else -> "0"
         }
-        values["playlistLoop"] = when(loop) {
+        values["playlistLoop"] = when(data.looped) {
             true -> "1"
             else -> "0"
         }
-        values["genres"] = genres.joinToString(";")
+        values["genres"] = "["+GsonBuilder().create().toJson(data.genres)+"]"
 
         return values
     }
 
     override fun onConnectionEstablished() {
-        logger.info("Channel '$channelName' connected to icecast2 successfully.")
+        logger.info("Channel '${data.name}' connected to icecast2 successfully.")
     }
 
     override fun onConnectionError(exception: Exception) {
@@ -215,25 +199,26 @@ data class Channel(
             }
         }
 
-        logger.error("An error occured in channel '$channelName' whilst connecting to icecast2: $message")
+        logger.error("An error occured in channel '${data.name}' whilst connecting to icecast2: $message")
         throw exception
     }
 
     override fun onConnectionLost() {
-        logger.warn("Channel '$channelName' lost connection to icecast2.")
+        logger.warn("Channel '${data.name}' lost connection to icecast2.")
     }
 
     override fun onTrackStart(track: AudioTrack) {
-        channelInfo.currentTrack = track
-        channelInfo.update()
+        data.info.title = track.title
+        data.info.artist = track.artist
+        data.info.triggerUpdate()
     }
 
     override fun onTrackEnd(track: AudioTrack, endReason: Int, exception: Exception?) {
-        channelInfo.clearTrack()
-        channelInfo.addToHistory(track)
+        data.info.addToHistory(track)
 
         if(endReason != REASON_MAY_START_NEXT || exception != null){
-            channelInfo.update()
+            data.info.clearAll()
+            data.info.triggerUpdate()
         }
 
         if(exception != null){
@@ -247,4 +232,8 @@ data class Channel(
 
         }
     }
+
+    /*fun toChannelData(): ChannelData {
+        return ChannelData(channelID, channelName, description, creatorID, mountpoint, genres, featured, listed, priority, channelInfo.toChannelInfoData())
+    }*/
 }

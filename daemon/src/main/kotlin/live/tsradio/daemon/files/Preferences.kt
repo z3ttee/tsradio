@@ -5,4 +5,4 @@ data class Preferences(
     val icecast: PreferenceSections.IcecastSettings = PreferenceSections.IcecastSettings(),
     val channels: PreferenceSections.ChannelSettings = PreferenceSections.ChannelSettings(),
     val mySQL: PreferenceSections.MySQLSettings = PreferenceSections.MySQLSettings(),
-    val redis: PreferenceSections.RedisSettings = PreferenceSections.RedisSettings())
+    val dataserver: PreferenceSections.DataserverSettings = PreferenceSections.DataserverSettings())

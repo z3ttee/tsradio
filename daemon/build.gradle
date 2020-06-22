@@ -23,6 +23,8 @@ dependencies {
 
     implementation "com.github.kevinsawicki:http-request:6.0"
     implementation group: "commons-io", name: "commons-io", version: "2.7"
+
+    implementation "io.socket:socket.io-client:1.0.0"
 }
 
 compileKotlin {

@@ -5,7 +5,8 @@ import java.util.*
 class PreferenceSections {
 
     class GeneralSettings(
-            var nodeID: String = UUID.randomUUID().toString().replace("-", ""))
+            var nodeID: String = UUID.randomUUID().toString().replace("-", ""),
+            var sessionHash: String = "")
 
     class IcecastSettings(
         val host: String = "localhost",
@@ -30,9 +31,7 @@ class PreferenceSections {
             val password: String = "pass",
             val prefix: String = "tsr_")
 
-    class RedisSettings(
-            val channelCollection: String = "channels",
-            val playlistCollection: String = "playlists",
-            val genreCollection: String = "genres",
-            val channelInfoCollection: String = "channelInfo")
+    class DataserverSettings(
+            val host: String = "localhost",
+            val port: Int = 9092)
 }

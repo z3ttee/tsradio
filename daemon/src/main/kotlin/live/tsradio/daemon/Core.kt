@@ -5,6 +5,7 @@ import live.tsradio.daemon.console.ConsoleHandler
 import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.exception.ExceptionHandler
 import live.tsradio.daemon.files.Filesystem
+import live.tsradio.daemon.protocol.SocketClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,6 +27,9 @@ class Core {
             CommandHandler
             MySQL
             ConsoleHandler().start()
+
+            logger.info("Starting SocketClient...")
+            SocketClient.start()
 
             Thread.currentThread().join()
             logger.info("Daemon shut down.")

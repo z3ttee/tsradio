@@ -17,7 +17,7 @@ object PlaylistHandler {
         configuredPlaylists[playlist.id] = playlist
 
         for(channel in ChannelHandler.activeChannels.values){
-            if(channel.playlistID == playlist.id){
+            if(channel.data.playlistID == playlist.id){
                 channel.reload()
             }
         }
@@ -26,7 +26,7 @@ object PlaylistHandler {
         if(configuredPlaylists.containsKey(playlist.id)) configuredPlaylists.remove(playlist.id)
 
         for(channel in ChannelHandler.activeChannels.values){
-            if(channel.playlistID == playlist.id){
+            if(channel.data.playlistID == playlist.id){
                 channel.reload()
             }
         }

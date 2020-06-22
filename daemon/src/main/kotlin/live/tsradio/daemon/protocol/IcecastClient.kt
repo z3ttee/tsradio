@@ -41,7 +41,7 @@ class IcecastClient(
             val inputStream = socket!!.getInputStream()
 
             // send an HTTP request to the web server
-            outWriter.println(String.format("SOURCE %s HTTP/1.0", channel.mountpoint))
+            outWriter.println(String.format("SOURCE %s HTTP/1.0", channel.data.mountpoint))
             outWriter.println(
                     String.format(
                             "Authorization: Basic %s",
@@ -50,9 +50,9 @@ class IcecastClient(
             )
             outWriter.println("User-Agent: libshout/2.3.1")
             outWriter.println(String.format("Content-Type: %s", MimeType.mp3.contentType))
-            outWriter.println(String.format("ice-name: %s", channel.channelName))
+            outWriter.println(String.format("ice-name: %s", channel.data.name))
             outWriter.println("ice-public: 0")
-            outWriter.println(String.format("ice-description: %s", channel.description))
+            outWriter.println(String.format("ice-description: %s", channel.data.name))
             outWriter.println()
             outWriter.flush()
 

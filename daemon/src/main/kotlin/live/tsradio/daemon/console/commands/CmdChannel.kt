@@ -36,7 +36,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             return
         }
 
-        if(args[0].equals("create",true)) {
+        /*if(args[0].equals("create",true)) {
             val inputFinder = CMDInputFinder(args)
 
             val channelName = inputFinder.findValue("n") ?: "unknown"
@@ -70,7 +70,18 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
                 return
             }
 
-            val channel = Channel(Filesystem.preferences.node.nodeID, UUID.randomUUID().toString(), channelName, description, creator, "/"+mount.removeSuffix("/").removePrefix("/"), playlistID, shuffle, loop, ArrayList())
+            val
+            val channel = Channel(
+                    Filesystem.preferences.node.nodeID,
+                    UUID.randomUUID().toString(),
+                    channelName,
+                    description,
+                    creator,
+                    "/"+mount.removeSuffix("/").removePrefix("/"),
+                    playlistID,
+                    shuffle,
+                    loop,
+                    ArrayList())
             if(ChannelHandler.channelExistsByName(channelName)){
                 logger.warn("Channel '${channel.channelName}' already exists.")
                 return
@@ -83,7 +94,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
 
             ChannelHandler.createChannel(channel)
             return
-        }
+        }*/
 
         if(args[0].equals("delete",true)) {
             if(args.size < 1) {
@@ -102,7 +113,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             return
         }
 
-        if(args[0].equals("edit",true)) {
+        /*if(args[0].equals("edit",true)) {
             if(args.size < 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name> [params: See 'channel help']")
                 return
@@ -143,9 +154,9 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
 
             ChannelHandler.editChannel(channelName, channel.channelID, channel)
             return
-        }
+        }*/
 
-        if(args[0].equals("list",true)) {
+        /*if(args[0].equals("list",true)) {
             logger.info("[]========= Active Channels =========[]")
 
             if(ChannelHandler.activeChannels.isEmpty()){
@@ -169,7 +180,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
                 }
             }
             return
-        }
+        }*/
 
         if(args[0].equals("start",true)) {
             if(args.size != 2) {

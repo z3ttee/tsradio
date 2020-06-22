@@ -3,6 +3,7 @@ package live.tsradio.daemon.files
 import com.google.gson.GsonBuilder
 import live.tsradio.daemon.channel.Channel
 import live.tsradio.daemon.channel.ChannelHandler
+import live.tsradio.daemon.database.ContentValues
 import live.tsradio.daemon.database.MySQL
 import live.tsradio.daemon.exception.CannotLoadConfigException
 import live.tsradio.daemon.exception.MissingFileException
@@ -42,15 +43,30 @@ object Filesystem {
         if(!preferencesFile.exists()) {
             if(!preferencesFile.createNewFile()) throw CannotLoadConfigException()
 
+            val preferences = Preferences()
+
             val gson = GsonBuilder().setPrettyPrinting().create()
             val writer = FileWriter(preferencesFile)
-            writer.write(gson.toJson(Preferences()))
+            writer.write(gson.toJson(preferences))
             writer.flush()
             writer.close()
         }
 
         this.preferences = GsonBuilder().create().fromJson(FileReader(preferencesFile), Preferences::class.java)
         preferences.node.nodeID = preferences.node.nodeID.replace("-", "")
+
+        if(MySQL.exists(MySQL.tableNodes, "id = '${preferences.node.nodeID}'")) {
+            val contentValues = ContentValues()
+            contentValues["lastLogin"] = System.currentTimeMillis().toString()
+            MySQL.update(MySQL.tableNodes, "id = '${preferences.node.nodeID}'", contentValues)
+        } else {
+            val contentValues = ContentValues()
+            contentValues["id"] = preferences.node.nodeID
+            contentValues["name"] = preferences.node.nodeID
+            contentValues["lastLogin"] = System.currentTimeMillis().toString()
+            MySQL.insert(MySQL.tableNodes, contentValues)
+        }
+
     }
     fun loadChannels(){
         Thread(Runnable { 
