@@ -35,66 +35,25 @@ import ChannelListItem from '../../components/ChannelListItem.vue';
 
 export default {
     name: 'home',
-    data() {
-        return {
-            channels: [],
-        }
-    },
     components: {
         ChannelListItem,
         MessageSlide
     },
     computed: {
+        channels() {
+            return this.$root.$data.channels;
+        },
         featuredChannels() {
-            return this.channels.filter((element) => {
-                if(!!+element.featured && !!+element.listed && element.isActive) return element;
+            return this.$store.state.channels.filter((element) => {
+                if(element.featured) return element;
             });
         },
         otherChannels() {
-            return this.channels.filter((element) => {
+            return this.$root.$data.channels.filter((element) => {
                 if(!+element.featured && !!+element.listed && element.isActive) return element;
             });
         }
     },
-    methods: {
-        channelRequestFailure(error){
-            console.log(error);
-        },
-        channelRequestSuccess(data){
-            var channelList = [];
-
-            for(var channel of Object.values(data.payload)) {
-                channel.coverURL = '/upload/channelCovers/'+channel.id+'.png';
-                channelList.push(channel);
-
-                if(this.$store.state.currentChannel.id == channel.id) {
-                    var info = this.$store.state.currentChannel.info;
-
-                    if(channel.info.title !== info.title && channel.info.artist !== info.artist) {
-                        this.$store.state.currentChannel = channel;
-                    }
-                }
-            }
-
-            this.channels = channelList;
-        }
-    },
-    mounted() {
-        this.$http.get('getchannels/').then(response => {
-            response.json().then(json => this.channelRequestSuccess(json));
-        }, error => this.channelRequestFailure(error));
-
-        setInterval(() => {
-            console.log('interval');
-
-            this.$http.get('getchannels/').then(response => {
-                response.json().then(json => this.channelRequestSuccess(json));
-            }, error => this.channelRequestFailure(error));
-        }, 1000*12);
-    },
-    destroyed(){
-        clearInterval();
-    }
 }
 </script>
 

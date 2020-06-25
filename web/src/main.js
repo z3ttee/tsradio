@@ -7,6 +7,8 @@ import router from './router/router.js'
 import store from './store'
 import LottiePlayer from 'lottie-player-vue';
 
+import { socketMixin } from '@/mixins/socketMixin.js';
+
 Vue.use(LottiePlayer);
 Vue.use(VueResource);
 Vue.use(VueCookies);
@@ -18,9 +20,18 @@ Vue.http.interceptors.push((request, next) => {
 
 new Vue({
     el: '#app',
+    data: {
+        channels: []
+    },
+    mixins: [socketMixin],
     router,
     store,
     render: h => h(App),
+    methods: {
+        getChannelByID(id) {
+            return this.channels.filter( (element) => element.id == id )[0]
+        }
+    },
     created() {
         if(!this.$cookies.isKey('tsr_app_theme')) this.$store.state.theme = 'dark';
     },

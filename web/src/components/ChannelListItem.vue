@@ -91,7 +91,8 @@ export default {
         .tsr_list_cover {
             width: $height;
             height: $height;
-            border-radius: $borderRadMedium;
+            border-top-right-radius: $borderRadMedium;
+            border-bottom-right-radius: $borderRadMedium;
             box-shadow: $shadowSpread;
             background-color: $colorPlaceholder;
             background-size: cover;
@@ -113,10 +114,10 @@ export default {
                 content: "";
             }
             &::before {
-                left: 0;
+                left: -1px;
             }
             &::after {
-                right: 0;
+                right: -1px;
                 width: 4em;
                 content: "";
                 background-image: linear-gradient(90deg, rgba($colorPrimary, 0) 0%, rgba($colorPrimary, 1) 50%);

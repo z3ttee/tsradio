@@ -9,6 +9,8 @@
 </template>
 
 <script>
+
+
 import DefaultLayout from './views/layouts/Layout.vue';
 import DashboardLayout from './views/layouts/DashboardLayout.vue';
 import PlayerBar from './views/shared/PlayerBar.vue';

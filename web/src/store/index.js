@@ -10,6 +10,7 @@ export default new Vuex.Store({
             width: 1080,
             mobile: false
         },
+        channels: [],
         currentChannel: {}
     },
     mutations: {
