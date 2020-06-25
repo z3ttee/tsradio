@@ -1,7 +1,5 @@
 package live.tsradio.dataserver.files
 
-import java.util.*
-
 class PreferenceSections {
 
     class MySQLSettings(
@@ -12,4 +10,9 @@ class PreferenceSections {
             val username: String = "user",
             val password: String = "pass",
             val prefix: String = "tsr_")
+
+    class DataserverSettings(
+            val ssl: Boolean = true,
+            val host: String = "localhost",
+            val port: Int = 9092)
 }

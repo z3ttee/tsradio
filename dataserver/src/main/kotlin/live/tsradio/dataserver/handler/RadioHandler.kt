@@ -13,6 +13,7 @@ object RadioHandler {
     private val listeners = HashMap<UUID, UUID>() // UUID of client, Channel the user is listening to
     private val listenersPerChannel = HashMap<UUID, ArrayList<UUID>>() // UUID of channel, List of UUID of listeners
     private val subscribedData = HashMap<UUID, ArrayList<RadioDataTypes>>()
+    private val casio: String? = null
 
     fun setChannelData(uuid: String, data: ChannelDataPacket){
         this.channelData[uuid] = data

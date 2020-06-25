@@ -6,6 +6,8 @@ import com.google.gson.JsonParser
 import live.tsradio.dataserver.api.InitialDataTransport
 import live.tsradio.dataserver.handler.AuthHandler
 import live.tsradio.dataserver.handler.ClientConnectionHandler
+import live.tsradio.dataserver.handler.RadioHandler
+import live.tsradio.dataserver.packets.InitialTransportPacket
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,7 +28,11 @@ class OnClientConnectListener: ConnectListener {
 
             if(AuthHandler.get(client.sessionId)!!.accountType == AuthHandler.AccountType.LISTENER) {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Sending initial data...")
-                client.sendEvent("onInitialDataTransport", InitialDataTransport())
+
+                val dataPacket = InitialTransportPacket()
+                dataPacket.channels.addAll(RadioHandler.getChannels().filter { it.listed!! })
+
+                client.sendEvent(dataPacket.eventName, dataPacket.toClientSafeJson())
             } else {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as daemon node")
             }

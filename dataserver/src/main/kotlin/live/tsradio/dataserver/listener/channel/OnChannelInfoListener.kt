@@ -9,6 +9,8 @@ import live.tsradio.dataserver.Server
 import live.tsradio.dataserver.handler.AuthHandler
 import live.tsradio.dataserver.handler.ClientConnectionHandler
 import live.tsradio.dataserver.handler.RadioHandler
+import live.tsradio.dataserver.packets.channel.ChannelDataPacket
+import live.tsradio.dataserver.packets.channel.ChannelInfoPacket
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,12 +25,15 @@ class OnChannelInfoListener: DataListener<String> {
                 return
             }
 
-            val json = JsonParser().parse(data).asJsonObject
-            val channel = RadioHandler.getChannel(json["id"].asString)
+            val dataPacket = GsonBuilder().create().fromJson(data, ChannelInfoPacket::class.java)
+            val channel = RadioHandler.getChannel(dataPacket.id)
 
-            if(channel != null) {
+            if(channel != null && channel.listed!!) {
+                channel.info = dataPacket
+                RadioHandler.setChannelData(dataPacket.id, channel)
+
                 logger.info("Received info update for channel '${channel.name}' from node '${channel.nodeID}'. Distributing to listeners...")
-                Server.server.broadcastOperations.sendEvent("onChannelInfoUpdate", client, data)
+                Server.server.broadcastOperations.sendEvent(dataPacket.eventName, client, dataPacket)
             }
         }
     }

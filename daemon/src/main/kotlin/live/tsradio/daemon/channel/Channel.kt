@@ -232,8 +232,4 @@ class Channel(
 
         }
     }
-
-    /*fun toChannelData(): ChannelData {
-        return ChannelData(channelID, channelName, description, creatorID, mountpoint, genres, featured, listed, priority, channelInfo.toChannelInfoData())
-    }*/
 }

@@ -24,7 +24,6 @@ hs_err_pid*
 
 # Exluded json
 serviceAccount.json
-config.json
 composer.lock
 firebase.json
 .firebaserc
@@ -44,3 +43,4 @@ api_old/
 master/
 config.dev.php
 *.jks
+*.dev.*

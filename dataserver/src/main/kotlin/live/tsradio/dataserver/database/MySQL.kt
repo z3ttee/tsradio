@@ -1,5 +1,6 @@
 package live.tsradio.dataserver.database
 
+import com.mysql.cj.jdbc.exceptions.CommunicationsException
 import live.tsradio.daemon.database.ContentValues
 import live.tsradio.dataserver.files.Filesystem
 import live.tsradio.dataserver.exception.ExceptionHandler
@@ -60,13 +61,18 @@ object MySQL {
     }
 
     fun exists(table: String, whereClause: String): Boolean {
-        val count = count(table, whereClause)
-        return count != 0
+        return try {
+            val count = count(table, whereClause)
+            count != 0
+        } catch (ex: CommunicationsException) {
+            connect()
+            exists(table, whereClause)
+        }
     }
 
     fun rawUpdate(sql: String): Int {
         return if(hasConnection()) {
-            return connection!!.prepareStatement(sql).executeUpdate()
+            connection!!.prepareStatement(sql).executeUpdate()
         } else {
             logger.error("Could not execute mysql query: No connection to mysql database.")
             0
@@ -74,7 +80,7 @@ object MySQL {
     }
     fun rawQuery(sql: String): ResultSet? {
         return if(hasConnection()) {
-            return connection!!.prepareStatement(sql).executeQuery()
+            connection!!.prepareStatement(sql).executeQuery()
         } else {
             logger.error("Could not execute mysql query: No connection to mysql database.")
             null
@@ -143,7 +149,6 @@ object MySQL {
             var joined = ""
 
             for((index, entry) in fields.entries.withIndex()) {
-                // logger.info("$index:$entry")
                 if(index == 0){
                     joined = "${entry.key} = '${entry.value}'"
                 } else {
