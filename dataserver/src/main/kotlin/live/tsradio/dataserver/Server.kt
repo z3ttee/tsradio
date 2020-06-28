@@ -16,6 +16,7 @@ import live.tsradio.dataserver.listener.client.OnClientConnectListener
 import live.tsradio.dataserver.listener.client.OnClientDisconnectListener
 import live.tsradio.dataserver.listener.client.OnClientMoveListener
 import live.tsradio.dataserver.utils.CMDInputFinder
+import live.tsradio.dataserver.utils.CertGenerator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -36,7 +37,15 @@ fun main(args: Array<String>) {
         val password = CMDInputFinder(args.toCollection(ArrayList())).findValue("keystorepw", true)
         config.keyStorePassword = password
 
-        val fileInput = FileInputStream(File(System.getProperty("user.dir"), "keystore.jks"))
+        val keystoreFile = File(System.getProperty("user.dir"), "keystore.jks");
+
+        if(!keystoreFile.exists()) {
+            // Start cert setup
+            val certGenerator = CertGenerator()
+            certGenerator.fetchCertificate(ArrayList(listOf("streams.tsradio.live")))
+        }
+
+        val fileInput = FileInputStream(keystoreFile)
         config.keyStore = fileInput
     }
 
