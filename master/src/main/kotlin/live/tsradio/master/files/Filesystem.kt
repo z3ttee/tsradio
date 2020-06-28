@@ -2,6 +2,7 @@ package live.tsradio.master.files
 
 import com.google.gson.GsonBuilder
 import live.tsradio.master.installer.SSLInstaller
+import org.apache.commons.lang3.SystemUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
@@ -16,12 +17,12 @@ object Filesystem {
 
     private val preferencesFile: File = File(rootDirectory.absolutePath, "preferences.json")
     val fullchainFile: File = File(sslDirectory, "fullchain.pem")
+    val privkeyFile: File = File(sslDirectory, "privkey.pem")
     var keystoreFile: File = File(sslDirectory, "keystore.jks")
 
     var preferences: Preferences = Preferences()
 
-    init {
-        // Load config
+    fun initialize(){
         loadConfig()
 
         if (preferences.dataserver.ssl) {
@@ -32,6 +33,8 @@ object Filesystem {
     private fun loadConfig(){
         preferencesFile.setReadable(true)
         preferencesFile.setWritable(true)
+
+        if(!sslDirectory.exists()) sslDirectory.mkdirs()
 
         if(!preferencesFile.exists()) {
             if(!preferencesFile.createNewFile()) throw FileNotFoundException("preferences.json not found")
@@ -55,8 +58,6 @@ object Filesystem {
     }
 
     private fun loadSSL(){
-        if(!sslDirectory.exists()) sslDirectory.mkdirs()
-
         if(keystoreFile.exists()) {
             logger.info("Keystore file found. Using certificate in it")
             return
@@ -65,6 +66,11 @@ object Filesystem {
         if(!fullchainFile.exists()) {
             logger.error("File not found. '${fullchainFile.absolutePath}' is needed in order for ssl transports to work. Disabling ssl...")
             preferences.dataserver.ssl = false
+            return
+        }
+
+        if(SystemUtils.IS_OS_WINDOWS) {
+            logger.error("Automatic ssl installation not available on windows. See github page for more info: https://github.com/z3ttee/tsradio")
             return
         }
 
