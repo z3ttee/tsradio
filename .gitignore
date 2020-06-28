@@ -28,6 +28,7 @@ composer.lock
 firebase.json
 .firebaserc
 package-lock.json
+appinfo.json
 
 
 # Directories
