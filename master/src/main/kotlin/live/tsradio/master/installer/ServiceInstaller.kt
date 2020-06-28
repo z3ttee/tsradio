@@ -1,10 +1,11 @@
-package live.tsradio.master.utils
+package live.tsradio.master.installer
 
 import live.tsradio.master.files.Filesystem
 import org.apache.commons.lang3.SystemUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.IOException
 import java.io.PrintWriter
 
 class ServiceInstaller {
@@ -93,9 +94,20 @@ class ServiceInstaller {
             Runtime.getRuntime().exec("chown "+username+" -R "+startScript.absolutePath)
             Runtime.getRuntime().exec("chown "+username+" -R "+stopScript.absolutePath)
 
-            logger.info("Installation done. Master can be started using \"service tsrm start\".")
+            logger.info("Enabling service in autostart...")
+            Runtime.getRuntime().exec("systemctl enable tsrm.service")
+
+            logger.info("Installation done. Master can be started using \"service tsrm start\". Exiting in 10s.")
+            Thread.sleep(1000*10)
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            if(ex is IOException && ex.message.equals("permission denied", true)) {
+                logger.error("Please ensure that you have executed the application with admin privileges")
+            } else {
+                ex.printStackTrace()
+            }
+
+            logger.error("Error occured. Shutting down in 20s...")
+            Thread.sleep(1000*20)
         }
     }
 

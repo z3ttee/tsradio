@@ -32,7 +32,8 @@ class PreferenceSections {
                 val prefix: String = "tsr_")
 
         class DataserverSettings(
-                val ssl: Boolean = true,
+                var ssl: Boolean = true,
+                var privateKeyPassword: String = "hackme",
                 val host: String = "localhost",
                 val port: Int = 9092)
 }
