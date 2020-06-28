@@ -40,7 +40,7 @@ node_modules/
 .firebase
 api_old/
 *_old/
-master/
 config.dev.php
 *.jks
 *.dev.*
+*.MF
