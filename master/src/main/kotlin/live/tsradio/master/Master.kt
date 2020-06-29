@@ -1,20 +1,15 @@
 package live.tsradio.master
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
-import live.tsradio.master.api.NodeServer
 import live.tsradio.master.database.MySQL
 import live.tsradio.master.files.Filesystem
 import live.tsradio.master.utils.CMDInputFinder
 import live.tsradio.master.installer.ServiceInstaller
-import live.tsradio.master.packets.NodeDataPacket
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.FileReader
 import java.io.InputStreamReader
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
@@ -51,8 +46,15 @@ class Master {
         logger.info("Initializing...")
         Filesystem.initialize()
         MySQL.setup()
+        SocketServer.start()
 
-        logger.info(NodeDataPacket(NodeServer(UUID.randomUUID(), "defsult", System.currentTimeMillis())).toJSON())
+        if(Filesystem.daemonFile.exists()) {
+            logger.info("Daemon executable detected. Starting daemon...")
+            // TODO: Start daemon
+        }
+
+        Thread.currentThread().join()
+        //logger.info(NodeDataPacket(NodeServer(UUID.randomUUID(), "defsult", System.currentTimeMillis())).toJSON())
     }
 
 }
