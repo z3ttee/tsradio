@@ -54,7 +54,6 @@ class Master {
         }
 
         Thread.currentThread().join()
-        //logger.info(NodeDataPacket(NodeServer(UUID.randomUUID(), "defsult", System.currentTimeMillis())).toJSON())
     }
 
 }

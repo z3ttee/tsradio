@@ -14,6 +14,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.lang.Exception
+import java.net.SocketException
 
 object SocketServer {
     private val logger: Logger = LoggerFactory.getLogger(SocketServer::class.java)
@@ -79,8 +80,15 @@ object SocketServer {
         }
 
         override fun exceptionCaught(ctx: ChannelHandlerContext?, e: Throwable?): Boolean {
-            if(e != null) throw e
-            return true
+            if(e != null) {
+                if(e is SocketException) {
+                    logger.warn("A Client lost connection: ${e.message}")
+                    return true
+                } else {
+                    throw e
+                }
+            }
+            return false
         }
 
     }

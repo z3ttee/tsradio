@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import java.nio.charset.Charset
 
 class SSLInstaller {
     private val logger: Logger = LoggerFactory.getLogger(SSLInstaller::class.java)
@@ -14,7 +13,7 @@ class SSLInstaller {
     fun install() {
         val pkcs12 = File(Filesystem.sslDirectory, "fullchain.pkcs12")
 
-        var proc = Runtime.getRuntime().exec("openssl pkcs12 -export -out "+pkcs12.absolutePath+" -in "+Filesystem.fullchainFile.absolutePath+" -inkey "+Filesystem.privkeyFile.absolutePath+" -password pass:"+Filesystem.preferences.dataserver.privateKeyPassword)
+        var proc = Runtime.getRuntime().exec("openssl pkcs12 -export -out "+pkcs12.absolutePath+" -in "+Filesystem.fullchainFile.absolutePath+" -inkey "+Filesystem.privkeyFile.absolutePath+" -password pass:"+Filesystem.preferences.master.privateKeyPassword)
         var stdIn = BufferedReader(InputStreamReader(proc.inputStream))
         var stdError = BufferedReader(InputStreamReader(proc.errorStream))
 
@@ -27,7 +26,7 @@ class SSLInstaller {
             logger.info(s)
         }
 
-        proc = Runtime.getRuntime().exec("keytool -v -importkeystore -srckeystore "+pkcs12.absolutePath+" -srcstorepass "+Filesystem.preferences.dataserver.privateKeyPassword+" -destkeystore "+Filesystem.keystoreFile.absolutePath+" -deststorepass "+Filesystem.preferences.dataserver.privateKeyPassword+" -deststoretype JKS")
+        proc = Runtime.getRuntime().exec("keytool -v -importkeystore -srckeystore "+pkcs12.absolutePath+" -srcstorepass "+Filesystem.preferences.master.privateKeyPassword+" -destkeystore "+Filesystem.keystoreFile.absolutePath+" -deststorepass "+Filesystem.preferences.master.privateKeyPassword+" -deststoretype JKS")
         stdIn = BufferedReader(InputStreamReader(proc.inputStream))
         stdError = BufferedReader(InputStreamReader(proc.errorStream))
 

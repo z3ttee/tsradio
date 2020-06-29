@@ -16,6 +16,7 @@ object Filesystem {
     val scriptsDirectory: File = File(rootDirectory.absolutePath+File.separator+"scripts")
 
     private val preferencesFile: File = File(rootDirectory.absolutePath, "preferences.json")
+    val daemonFile: File = File(rootDirectory, "daemon.jar")
     val fullchainFile: File = File(sslDirectory, "fullchain.pem")
     val privkeyFile: File = File(sslDirectory, "privkey.pem")
     var keystoreFile: File = File(sslDirectory, "keystore.jks")
@@ -25,7 +26,7 @@ object Filesystem {
     fun initialize(){
         loadConfig()
 
-        if (preferences.dataserver.ssl) {
+        if (preferences.master.ssl) {
             loadSSL()
         }
     }
@@ -65,7 +66,7 @@ object Filesystem {
 
         if(!fullchainFile.exists()) {
             logger.error("File not found. '${fullchainFile.absolutePath}' is needed in order for ssl transports to work. Disabling ssl...")
-            preferences.dataserver.ssl = false
+            preferences.master.ssl = false
             return
         }
 
@@ -75,6 +76,5 @@ object Filesystem {
         }
 
         SSLInstaller().install()
-
     }
 }

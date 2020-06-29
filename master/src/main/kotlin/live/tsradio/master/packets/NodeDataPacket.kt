@@ -1,8 +1,16 @@
 package live.tsradio.master.packets
 
 import com.google.gson.annotations.Expose
-import live.tsradio.master.api.NodeServer
+import live.tsradio.master.api.node.NodeServer
 
 class NodeDataPacket(
     @Expose val node: NodeServer
-): Packet()
+): Packet() {
+    override fun toListenerSafeJSON(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun toJSON(): String {
+        TODO("Not yet implemented")
+    }
+}

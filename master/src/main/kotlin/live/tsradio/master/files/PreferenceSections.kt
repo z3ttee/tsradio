@@ -5,7 +5,7 @@ import java.util.*
 class PreferenceSections {
 
         class GeneralSettings(
-                var nodeID: String = UUID.randomUUID().toString().replace("-", ""),
+                var nodeID: String = UUID.randomUUID().toString(),
                 var sessionHash: String = "")
 
         class IcecastSettings(
@@ -23,7 +23,6 @@ class PreferenceSections {
                 val restartDelay: Int = 20)
 
         class MySQLSettings(
-                val apiVersion: Int = 1,
                 val host: String = "localhost",
                 val port: Int = 3306,
                 val database: String = "dbname",
@@ -31,8 +30,8 @@ class PreferenceSections {
                 val password: String = "pass",
                 val prefix: String = "tsr_")
 
-        class DataserverSettings(
-                var ssl: Boolean = true,
+        class MasterSettings(
+                var ssl: Boolean = false,
                 var privateKeyPassword: String = "hackme",
                 val host: String = "localhost",
                 val port: Int = 9092)

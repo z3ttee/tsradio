@@ -5,13 +5,14 @@ import com.google.gson.JsonObject
 import live.tsradio.master.api.MasterClient
 import live.tsradio.master.api.auth.AccountType
 import live.tsradio.master.api.auth.AuthData
+import live.tsradio.master.api.node.NodeChannel
 import live.tsradio.master.database.MySQL
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object ClientHandler {
-    private val clients = HashMap<UUID, MasterClient>()
+    val clients = HashMap<UUID, MasterClient>()
 
     fun authenticate(client: SocketIOClient, data: JsonObject?) {
 
@@ -45,6 +46,10 @@ object ClientHandler {
 
     fun remove(uuid: UUID) {
         clients.remove(uuid)
+    }
+
+    fun getNodeForChannel(channel: NodeChannel): MasterClient? {
+        return this.clients.values.toCollection(ArrayList()).filter { it.id == channel.id }[0]
     }
 
     fun getClient(uuid: UUID): MasterClient? {
