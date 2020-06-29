@@ -5,8 +5,11 @@ import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.SocketIOServer
 import com.corundumstudio.socketio.listener.ExceptionListener
 import io.netty.channel.ChannelHandlerContext
-import live.tsradio.master.events.OnClientConnectionEvent
+import live.tsradio.master.events.client.OnClientConnectionEvent
+import live.tsradio.master.events.client.OnClientDisconnectEvent
+import live.tsradio.master.events.node.OnNodeChannelUpdateEvent
 import live.tsradio.master.files.Filesystem
+import live.tsradio.master.utils.Events
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
@@ -30,6 +33,9 @@ object SocketServer {
 
         instance = SocketIOServer(config)
         instance.addConnectListener(OnClientConnectionEvent())
+        instance.addDisconnectListener(OnClientDisconnectEvent())
+        instance.addEventListener(Events.EVENT_NODE_CHANNEL_UPDATE, String::class.java, OnNodeChannelUpdateEvent())
+
     }
 
     fun start() {
