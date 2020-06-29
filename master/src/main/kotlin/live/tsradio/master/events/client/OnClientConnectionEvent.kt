@@ -1,4 +1,4 @@
-package live.tsradio.master.events
+package live.tsradio.master.events.client
 
 import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.listener.ConnectListener
@@ -26,6 +26,7 @@ class OnClientConnectionEvent: ConnectListener {
             if(ClientHandler.getClient(client.sessionId)!!.isNode) {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as daemon node")
             } else {
+                logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as listener. Sending initial data...")
                 client.sendEvent("onInitialTransport", GsonBuilder().create().toJson(RadioHandler.channels.values.filter { it.listed }))
             }
         }

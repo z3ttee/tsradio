@@ -1,4 +1,4 @@
-package live.tsradio.master.api
+package live.tsradio.master.api.node
 
 import com.google.gson.annotations.Expose
 import java.util.*
