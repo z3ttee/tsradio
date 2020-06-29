@@ -21,6 +21,8 @@ dependencies {
     implementation "mysql:mysql-connector-java:8.0.20"
 
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+    //implementation "io.socket:socket.io-client:1.0.0"
+    implementation "com.corundumstudio.socketio:netty-socketio:1.7.12"
 }
 
 compileKotlin {
