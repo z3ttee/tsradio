@@ -32,12 +32,12 @@ object SocketClient {
         val options = IO.Options()
         options.query = "&authenticate={\"id\": \"${Filesystem.preferences.node.nodeID}\", \"key\": \"${Filesystem.preferences.node.sessionHash}\"}"
 
-        val protocol = when(Filesystem.preferences.dataserver.ssl) {
+        val protocol = when(Filesystem.preferences.master.ssl) {
             true -> "https://"
             else -> "http://"
         }
 
-        socket = IO.socket("${protocol}${Filesystem.preferences.dataserver.host}:${Filesystem.preferences.dataserver.port}", options)
+        socket = IO.socket("${protocol}${Filesystem.preferences.master.host}:${Filesystem.preferences.master.port}", options)
         if(socket != null) {
             socket!!.on(Socket.EVENT_CONNECT) { onSocketConnected() }
                     .on(Socket.EVENT_DISCONNECT) { onSocketDisconnected() }
@@ -52,7 +52,7 @@ object SocketClient {
     }
 
     private fun onSocketConnected() {
-        logger.info("Connected to dataserver '${Filesystem.preferences.dataserver.host}:${Filesystem.preferences.dataserver.port}'")
+        logger.info("Connected to dataserver '${Filesystem.preferences.master.host}:${Filesystem.preferences.master.port}'")
     }
     private fun onSocketDisconnected() {
         logger.error("Disconnected from dataserver. ChannelInfo transmission impossible.")

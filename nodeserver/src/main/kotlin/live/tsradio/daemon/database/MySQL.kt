@@ -24,10 +24,6 @@ object MySQL {
         try {
             connect()
             onCreate()
-
-            val currentVersion = Filesystem.preferences.mySQL.apiVersion
-            if (currentVersion < requiredVersion) onUpgrade(currentVersion)
-            if (currentVersion > requiredVersion) onDowngrade()
         } catch (ex: ExceptionInInitializerError) {
             ExceptionHandler(ex.exception).handle()
         } catch (ex: Exception){
