@@ -18,5 +18,5 @@ data class NodeChannel(
         @Expose val featured: Boolean,
         @Expose val listed: Boolean,
         @Expose val priority: Int,
-        @Expose val info: NodeChannelInfo
+        @Expose var info: NodeChannelInfo
 )

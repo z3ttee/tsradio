@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.listener.ExceptionListener
 import io.netty.channel.ChannelHandlerContext
 import live.tsradio.master.events.client.OnClientConnectionEvent
 import live.tsradio.master.events.client.OnClientDisconnectEvent
+import live.tsradio.master.events.node.OnNodeChannelInfoUpdateEvent
 import live.tsradio.master.events.node.OnNodeChannelUpdateEvent
 import live.tsradio.master.files.Filesystem
 import live.tsradio.master.utils.Events
@@ -36,7 +37,7 @@ object SocketServer {
         instance.addConnectListener(OnClientConnectionEvent())
         instance.addDisconnectListener(OnClientDisconnectEvent())
         instance.addEventListener(Events.EVENT_NODE_CHANNEL_UPDATE, String::class.java, OnNodeChannelUpdateEvent())
-
+        instance.addEventListener(Events.EVENT_NODE_CHANNEL_INFO_UPDATE, String::class.java, OnNodeChannelInfoUpdateEvent())
     }
 
     fun start() {
