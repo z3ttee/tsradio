@@ -4,7 +4,7 @@ import java.util.*
 
 class PreferenceSections {
 
-        class GeneralSettings(
+        /*class GeneralSettings(
                 var nodeID: String = UUID.randomUUID().toString(),
                 var sessionHash: String = "")
 
@@ -20,7 +20,7 @@ class PreferenceSections {
                 val autostart: Boolean = true,
                 val autorestart: Boolean = true,
                 val restartTries: Int = 3,
-                val restartDelay: Int = 20)
+                val restartDelay: Int = 20)*/
 
         class MySQLSettings(
                 val host: String = "localhost",
@@ -32,7 +32,7 @@ class PreferenceSections {
 
         class MasterSettings(
                 var ssl: Boolean = false,
-                var privateKeyPassword: String = "hackme",
+                var keystorePass: String = "hackme",
                 val host: String = "localhost",
                 val port: Int = 9092)
 }

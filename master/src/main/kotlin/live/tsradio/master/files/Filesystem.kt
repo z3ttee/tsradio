@@ -12,10 +12,11 @@ object Filesystem {
     private val logger: Logger = LoggerFactory.getLogger(Filesystem::class.java)
 
     val rootDirectory: File = File(System.getProperty("user.dir"))
+    val configDirectory: File = File(rootDirectory.absolutePath+File.separator+"config")
     val sslDirectory: File = File(rootDirectory.absolutePath+File.separator+"ssl")
     val scriptsDirectory: File = File(rootDirectory.absolutePath+File.separator+"scripts")
 
-    private val preferencesFile: File = File(rootDirectory.absolutePath, "preferences.json")
+    private val preferencesFile: File = File(configDirectory.absolutePath, "master.json")
     val daemonFile: File = File(rootDirectory, "daemon.jar")
     val fullchainFile: File = File(sslDirectory, "fullchain.pem")
     val privkeyFile: File = File(sslDirectory, "privkey.pem")
@@ -36,6 +37,7 @@ object Filesystem {
         preferencesFile.setWritable(true)
 
         if(!sslDirectory.exists()) sslDirectory.mkdirs()
+        if(!configDirectory.exists()) configDirectory.mkdirs()
 
         if(!preferencesFile.exists()) {
             if(!preferencesFile.createNewFile()) throw FileNotFoundException("preferences.json not found")

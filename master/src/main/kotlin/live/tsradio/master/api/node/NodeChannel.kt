@@ -20,7 +20,8 @@ data class NodeChannel(
     @Expose val featured: Boolean,
     @Expose val listed: Boolean,
     @Expose val priority: Int,
-    @Expose var info: NodeChannelInfo
+    @Expose var info: NodeChannelInfo,
+    var streamActive: Boolean
 ): Packet() {
     override fun toListenerSafeJSON(): String {
         val jsonObject = Gson().toJsonTree(this).asJsonObject

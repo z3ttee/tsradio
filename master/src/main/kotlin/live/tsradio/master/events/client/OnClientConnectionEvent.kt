@@ -4,8 +4,9 @@ import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.listener.ConnectListener
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import live.tsradio.master.api.client.NodeClient
 import live.tsradio.master.handler.ClientHandler
-import live.tsradio.master.handler.RadioHandler
+import live.tsradio.master.handler.NodeHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,11 +24,13 @@ class OnClientConnectionEvent: ConnectListener {
                 ClientHandler.authenticate(client, null)
             }
 
-            if(ClientHandler.getClient(client.sessionId)!!.isNode) {
+            val clientData = ClientHandler.getClient(client.sessionId)!!
+            if(clientData is NodeClient) {
+                NodeHandler.loadNode(clientData.nodeID)
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as daemon node")
             } else {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as listener. Sending initial data...")
-                client.sendEvent("onInitialTransport", GsonBuilder().create().toJson(RadioHandler.channels.values.filter { it.listed }))
+                client.sendEvent("onInitialTransport", GsonBuilder().create().toJson(NodeHandler.getListedChannels()))
             }
         }
     }

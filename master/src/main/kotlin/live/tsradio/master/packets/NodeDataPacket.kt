@@ -9,8 +9,4 @@ class NodeDataPacket(
     override fun toListenerSafeJSON(): String {
         TODO("Not yet implemented")
     }
-
-    override fun toJSON(): String {
-        TODO("Not yet implemented")
-    }
 }
