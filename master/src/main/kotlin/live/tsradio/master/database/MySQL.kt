@@ -45,8 +45,10 @@ object MySQL {
         return this.connection != null && !this.connection!!.isClosed
     }
 
-    fun get(table: String, whereClause: String, selection: ArrayList<String>, maxResults: Int = 1): ResultSet? {
+    fun get(table: String, whereClause: String, selection: ArrayList<String>?, maxResults: Int = 1): ResultSet? {
         try {
+            var selectionArgs = selection
+
             if (!hasConnection()) connect()
 
             val where: String = when (whereClause.isEmpty()) {
@@ -54,9 +56,13 @@ object MySQL {
                 else -> " WHERE $whereClause"
             }
 
+            if(selectionArgs.isNullOrEmpty()) {
+                selectionArgs = ArrayList(listOf("*"))
+            }
+
             val pps = when (maxResults) {
-                0 -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table$where;")
-                else -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table WHERE $whereClause LIMIT $maxResults;")
+                1 -> connection!!.prepareStatement("SELECT ${selectionArgs.joinToString(",")} FROM $table$where;")
+                else -> connection!!.prepareStatement("SELECT ${selectionArgs.joinToString(",")} FROM $table WHERE $whereClause LIMIT $maxResults;")
             }
 
             return pps.executeQuery()
