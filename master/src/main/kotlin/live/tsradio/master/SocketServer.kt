@@ -10,7 +10,8 @@ import live.tsradio.master.events.client.OnClientDisconnectEvent
 import live.tsradio.master.events.node.OnNodeChannelInfoUpdateEvent
 import live.tsradio.master.events.node.OnNodeChannelUpdateEvent
 import live.tsradio.master.files.Filesystem
-import live.tsradio.master.utils.Events
+import live.tsradio.master.events.Events
+import live.tsradio.master.events.node.OnNodeStatusChangeEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
@@ -25,7 +26,7 @@ object SocketServer {
         val config = Configuration()
 
         if(Filesystem.preferences.master.ssl) {
-            config.keyStorePassword = Filesystem.preferences.master.privateKeyPassword
+            config.keyStorePassword = Filesystem.preferences.master.keystorePass
             config.keyStore = FileInputStream(Filesystem.keystoreFile)
         }
 
@@ -34,10 +35,13 @@ object SocketServer {
         config.exceptionListener = ExceptionHandler()
 
         instance = SocketIOServer(config)
+
         instance.addConnectListener(OnClientConnectionEvent())
         instance.addDisconnectListener(OnClientDisconnectEvent())
+
         instance.addEventListener(Events.EVENT_NODE_CHANNEL_UPDATE, String::class.java, OnNodeChannelUpdateEvent())
         instance.addEventListener(Events.EVENT_NODE_CHANNEL_INFO_UPDATE, String::class.java, OnNodeChannelInfoUpdateEvent())
+        instance.addEventListener(Events.EVENT_NODE_STATUS_CHANGE, String::class.java, OnNodeStatusChangeEvent())
     }
 
     fun start() {
