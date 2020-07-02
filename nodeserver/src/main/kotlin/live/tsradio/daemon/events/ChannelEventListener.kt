@@ -1,4 +1,4 @@
-package live.tsradio.daemon.listener
+package live.tsradio.daemon.events
 
 import live.tsradio.daemon.channel.Channel
 

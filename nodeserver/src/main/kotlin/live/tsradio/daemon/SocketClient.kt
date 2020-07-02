@@ -1,4 +1,4 @@
-package live.tsradio.daemon.protocol
+package live.tsradio.daemon
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
@@ -7,7 +7,7 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import live.tsradio.daemon.channel.ChannelHandler
 import live.tsradio.daemon.files.Filesystem
-import live.tsradio.daemon.protocol.packets.Packet
+import live.tsradio.daemon.packets.Packet
 import okhttp3.OkHttpClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

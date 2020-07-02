@@ -1,4 +1,4 @@
-package live.tsradio.daemon.database
+package live.tsradio.daemon.utils
 
 import live.tsradio.daemon.exception.ExceptionHandler
 import live.tsradio.daemon.files.Filesystem
@@ -16,14 +16,10 @@ object MySQL {
     val tableNodes = "${Filesystem.preferences.mySQL.prefix}nodes"
     val tableChannels = "${Filesystem.preferences.mySQL.prefix}channels"
     val tablePlaylists = "${Filesystem.preferences.mySQL.prefix}playlists"
-    val tableGenres = "${Filesystem.preferences.mySQL.prefix}genres"
-    val tableInfo = "${Filesystem.preferences.mySQL.prefix}info"
-    val tableSessions = "${Filesystem.preferences.mySQL.prefix}sessions"
 
     init {
         try {
             connect()
-            onCreate()
         } catch (ex: ExceptionInInitializerError) {
             ExceptionHandler(ex.exception).handle()
         } catch (ex: Exception){
@@ -31,18 +27,6 @@ object MySQL {
         }
     }
 
-    private fun onCreate(){
-        if(hasConnection()){
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableNodes`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, lastLogin BIGINT NOT NULL);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(32) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(32) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(32), playlistShuffle BOOLEAN NOT NULL DEFAULT TRUE, playlistLoop BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT, featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE, priority INT DEFAULT 0);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, creatorID VARCHAR(32) DEFAULT 'System', genres TEXT);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableGenres`(id VARCHAR(32) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableSessions`(id VARCHAR(32) NOT NULL UNIQUE, sessionHash VARCHAR(254) NOT NULL UNIQUE, expirationDate BIGINT DEFAULT -1);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableInfo`(id VARCHAR(32) NOT NULL UNIQUE, title VARCHAR(256) NOT NULL, artist VARCHAR(256) NOT NULL, history TEXT, lastUpdate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);")
-        } else {
-            logger.info("Could not process onCreate(): No connection to mysql database")
-        }
-    }
     private fun onUpgrade(oldVersion: Int){
         logger.info("Found old api ($oldVersion) for mysql connection. Upgrading database to ($requiredVersion)...")
         // Do upgrades here: Like altering table etc.
@@ -122,7 +106,7 @@ object MySQL {
         }
     }
 
-    fun insert(table: String, fields: ContentValues): Boolean {
+    /*fun insert(table: String, fields: ContentValues): Boolean {
         return if(hasConnection()) {
             var keys = ""
             var values = ""
@@ -164,7 +148,7 @@ object MySQL {
             logger.error("Could not execute mysql query: No connection to mysql database.")
             0
         }
-    }
+    }*/
 
     fun delete(table: String, whereClause: String): Boolean? {
         return if(hasConnection()) {

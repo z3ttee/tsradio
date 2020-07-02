@@ -1,4 +1,6 @@
-package live.tsradio.daemon.protocol.packets
+package live.tsradio.daemon.packets.channel
+
+import live.tsradio.daemon.packets.Packet
 
 data class ChannelDataPacket(
         var id: String,

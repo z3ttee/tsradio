@@ -1,4 +1,4 @@
-package live.tsradio.master.database
+package live.tsradio.master.utils
 
 import live.tsradio.master.files.Filesystem
 import org.slf4j.Logger
@@ -42,7 +42,7 @@ object MySQL {
     }
 
     private fun hasConnection(): Boolean {
-        return this.connection != null && !this.connection!!.isClosed
+        return connection != null && !connection!!.isClosed
     }
 
     fun get(table: String, whereClause: String, selection: ArrayList<String>? = null, maxResults: Int = 1): ResultSet? {

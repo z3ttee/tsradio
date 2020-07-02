@@ -1,4 +1,4 @@
-package live.tsradio.daemon.protocol
+package live.tsradio.daemon.icecast
 
 /**
  * desc...

@@ -1,6 +1,7 @@
-package live.tsradio.daemon.protocol.packets
+package live.tsradio.daemon.packets.channel
 
-import live.tsradio.daemon.protocol.SocketClient
+import live.tsradio.daemon.SocketClient
+import live.tsradio.daemon.packets.Packet
 import live.tsradio.daemon.sound.AudioTrack
 import java.util.*
 import kotlin.collections.HashMap
@@ -10,7 +11,7 @@ data class ChannelInfoPacket(
         var title: String? = null,
         var artist: String? = null,
         var history: HashMap<Long, HashMap<String, String>> = HashMap()
-):Packet("onChannelInfoUpdate") {
+): Packet("onChannelInfoUpdate") {
 
     fun clearAll(){
         title = null

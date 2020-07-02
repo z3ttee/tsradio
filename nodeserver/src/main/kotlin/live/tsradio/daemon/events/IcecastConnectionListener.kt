@@ -1,4 +1,4 @@
-package live.tsradio.daemon.listener
+package live.tsradio.daemon.events
 
 interface IcecastConnectionListener {
 
