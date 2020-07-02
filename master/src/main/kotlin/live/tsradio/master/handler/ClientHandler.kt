@@ -1,52 +1,59 @@
 package live.tsradio.master.handler
 
 import com.corundumstudio.socketio.SocketIOClient
-import com.google.gson.JsonObject
 import live.tsradio.master.api.client.Client
 import live.tsradio.master.api.auth.AccountType
-import live.tsradio.master.api.auth.AuthData
+import live.tsradio.master.api.auth.AuthPacket
 import live.tsradio.master.api.client.ListenerClient
 import live.tsradio.master.api.client.NodeClient
-import live.tsradio.master.api.node.NodeChannel
-import live.tsradio.master.database.MySQL
+import live.tsradio.master.api.error.ServerError
+import live.tsradio.master.api.node.channel.NodeChannel
+import live.tsradio.master.events.Events
+import live.tsradio.master.utils.MySQL
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object ClientHandler {
+    private val logger: Logger = LoggerFactory.getLogger(ClientHandler::class.java)
     val clients = HashMap<UUID, Client>()
 
-    fun authenticate(client: SocketIOClient, data: JsonObject?) {
-
-        if(data == null) {
-            this.clients[client.sessionId] = ListenerClient(client.sessionId, client, AuthData(AccountType.ACCOUNT_LISTENER, "", false))
+    fun authenticate(client: SocketIOClient, authData: AuthPacket?) {
+        if(authData == null) {
+            this.clients[client.sessionId] = ListenerClient(client.sessionId, client, AuthPacket(client.sessionId, "", AccountType.ACCOUNT_LISTENER, true))
             return
         }
 
-        val authData = AuthData(AccountType.ACCOUNT_LISTENER, data["key"].asString, false)
-        if(MySQL.exists(MySQL.tableSessions, "id = '${data["id"].asString}' AND sessionHash = '${data["key"].asString}'")) {
-            authData.granted = true
+        authData.granted = false
 
-            // TODO: Send refresh event (prompt user with login)
-            val expiration = MySQL.get(MySQL.tableSessions, "id = '${data["id"].asString}'", ArrayList(listOf("expirationDate")))
-            if(expiration != null && expiration.next()) {
-
-                if(expiration.getLong("expirationDate") != -1L || expiration.getLong("expirationDate") <= System.currentTimeMillis()) {
-                    // Session expired
-                    authData.granted = false
+        // Authenticate as node
+        if(authData.accountType == AccountType.ACCOUNT_NODE) {
+            // Check if clientID exists as node account
+            if(MySQL.exists(MySQL.tableNodes, "id = '${authData.clientID}'") && MySQL.exists(MySQL.tableSessions, "id = '${authData.clientID}' AND sessionHash = '${authData.clientKey}'")) {
+                val result = MySQL.get(MySQL.tableSessions, "id = '${authData.clientID}'", ArrayList(listOf("expirationDate")))
+                if(result != null && result.next()) {
+                    val expiry = result.getLong("expirationDate")
+                    if(expiry != -1L || expiry <= System.currentTimeMillis()) {
+                        authData.granted = true
+                        this.clients[client.sessionId] = NodeClient(client.sessionId, client, authData)
+                        client.sendEvent(Events.EVENT_CLIENT_AUTHENTICATED, authData.toJSON())
+                        return
+                    }
                 }
-
-                if(MySQL.exists(MySQL.tableNodes, "id = '${data["id"].asString}'")) {
-                    // Register client as node
-                    authData.accountType = AccountType.ACCOUNT_NODE
-                    this.clients[client.sessionId] = NodeClient(client.sessionId, client, authData, UUID.fromString(data["id"].asString))
-                    return
-                }
-            } else {
-                authData.granted = false
             }
+
+            // Send error event and disconnect client
+            client.sendEvent(Events.EVENT_SERVER_ERROR, ServerError(200, "Can't authenticate client as node with given credentials.").toJSON())
+            client.disconnect()
+            return
         }
 
+        // Else login as normal radio listener client
+        authData.granted = true
+        authData.accountType = AccountType.ACCOUNT_LISTENER
+        client.sendEvent(Events.EVENT_CLIENT_AUTHENTICATED, authData.toJSON())
         this.clients[client.sessionId] = ListenerClient(client.sessionId, client, authData)
     }
 
