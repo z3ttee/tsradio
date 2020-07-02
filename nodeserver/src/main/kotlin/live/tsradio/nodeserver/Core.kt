@@ -1,11 +1,12 @@
-package live.tsradio.daemon
+package live.tsradio.nodeserver
 
-import live.tsradio.daemon.console.CommandHandler
-import live.tsradio.daemon.console.ConsoleHandler
-import live.tsradio.daemon.database.MySQL
-import live.tsradio.daemon.exception.ExceptionHandler
-import live.tsradio.daemon.files.Filesystem
-import live.tsradio.daemon.protocol.SocketClient
+import live.tsradio.nodeserver.api.auth.AccountType
+import live.tsradio.nodeserver.api.auth.AuthPacket
+import live.tsradio.nodeserver.console.CommandHandler
+import live.tsradio.nodeserver.console.ConsoleHandler
+import live.tsradio.nodeserver.exception.ExceptionHandler
+import live.tsradio.nodeserver.files.Filesystem
+import live.tsradio.nodeserver.utils.MySQL
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -16,6 +17,7 @@ fun main() {
 class Core {
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Core::class.java)
+        var authData: AuthPacket = AuthPacket(Filesystem.preferences.node.clientID, Filesystem.preferences.node.clientKey, AccountType.ACCOUNT_NODE)
     }
 
     init {
@@ -23,7 +25,6 @@ class Core {
             logger.info("Starting daemon...")
 
             // Init handlers
-            Filesystem
             CommandHandler
             MySQL
             ConsoleHandler().start()

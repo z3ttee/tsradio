@@ -1,13 +1,15 @@
-package live.tsradio.daemon
+package live.tsradio.nodeserver
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
+import com.google.gson.Gson
 import io.socket.client.IO
 import io.socket.client.Socket
-import live.tsradio.daemon.channel.ChannelHandler
-import live.tsradio.daemon.files.Filesystem
-import live.tsradio.daemon.packets.Packet
+import live.tsradio.nodeserver.events.Events
+import live.tsradio.nodeserver.events.client.OnClientAuthenticatedEvent
+import live.tsradio.nodeserver.events.client.OnClientConnectionEvent
+import live.tsradio.nodeserver.events.client.OnClientDisconnectEvent
+import live.tsradio.nodeserver.events.client.OnClientReconnectFailedEvent
+import live.tsradio.nodeserver.events.server.OnServerErrorEvent
+import live.tsradio.nodeserver.files.Filesystem
 import okhttp3.OkHttpClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +32,7 @@ object SocketClient {
         IO.setDefaultOkHttpCallFactory(okHttpClient)
 
         val options = IO.Options()
-        options.query = "&authenticate={\"id\": \"${Filesystem.preferences.node.nodeID}\", \"key\": \"${Filesystem.preferences.node.sessionHash}\"}"
+        options.query = "authenticate="+Gson().toJson(Core.authData)
 
         val protocol = when(Filesystem.preferences.master.ssl) {
             true -> "https://"
@@ -39,50 +41,12 @@ object SocketClient {
 
         socket = IO.socket("${protocol}${Filesystem.preferences.master.host}:${Filesystem.preferences.master.port}", options)
         if(socket != null) {
-            socket!!.on(Socket.EVENT_CONNECT) { onSocketConnected() }
-                    .on(Socket.EVENT_DISCONNECT) { onSocketDisconnected() }
-                    .on(Socket.EVENT_RECONNECTING) { onSocketReconnecting() }
-                    .on(Socket.EVENT_RECONNECT_FAILED){ onSocketReconnectFailed() }
-                    .on("onAuthenticated") {
-                        val json = JsonParser().parse(it[0].toString()).asJsonObject
-                        onSocketAuthenticated(json)
-                    }
+            socket!!.on(Socket.EVENT_CONNECT, OnClientConnectionEvent())
+                    .on(Socket.EVENT_DISCONNECT, OnClientDisconnectEvent())
+                    .on(Socket.EVENT_RECONNECT_FAILED, OnClientReconnectFailedEvent())
+                    .on(Events.EVENT_SERVER_ERROR, OnServerErrorEvent())
+                    .on(Events.EVENT_CLIENT_AUTHENTICATED, OnClientAuthenticatedEvent())
             socket!!.connect()
-        }
-    }
-
-    private fun onSocketConnected() {
-        logger.info("Connected to dataserver '${Filesystem.preferences.master.host}:${Filesystem.preferences.master.port}'")
-    }
-    private fun onSocketDisconnected() {
-        logger.error("Disconnected from dataserver. ChannelInfo transmission impossible.")
-    }
-    private fun onSocketReconnecting() {
-        logger.info("Reconnecting to dataserver...")
-    }
-    private fun onSocketReconnectFailed() {
-        logger.info("Failed to reconnect to dataserver")
-    }
-    private fun onSocketAuthenticated(data: JsonObject) {
-        authenticated = data["status"].asInt == 200 && data["accepted"].asBoolean
-
-        if(authenticated) {
-            logger.info("Authentication successful.")
-            sendAllChannelUpdate()
-        } else {
-            logger.error("Could not authenticate")
-        }
-    }
-
-    fun sendPacket(packet: Packet) {
-        if(socket != null && socket!!.connected()) {
-            socket!!.emit(packet.eventName, GsonBuilder().create().toJson(packet))
-        }
-    }
-
-    fun sendAllChannelUpdate(){
-        for(channel in ChannelHandler.activeChannels.values) {
-            sendPacket(channel.data)
         }
     }
 
