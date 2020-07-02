@@ -34,9 +34,9 @@ object MySQL {
 
         if(hasConnection()) {
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableNodes`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(36) NOT NULL UNIQUE, lastLogin BIGINT NOT NULL);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(36) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(36) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(36), shuffled BOOLEAN NOT NULL DEFAULT TRUE, looped BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT DEFAULT '[]', featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE, priority INT DEFAULT 0);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(36) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(36) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(36), shuffled BOOLEAN NOT NULL DEFAULT TRUE, looped BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT, featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE, priority INT DEFAULT 0);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableSessions`(id VARCHAR(36) NOT NULL UNIQUE, sessionHash VARCHAR(254) NOT NULL UNIQUE, expirationDate BIGINT DEFAULT -1);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) DEFAULT 'null', creatorID VARCHAR(36) DEFAULT 'System', genres TEXT DEFAULT '[]');")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) DEFAULT 'null', creatorID VARCHAR(36) DEFAULT 'System', genres TEXT);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableMembers`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, permissionGroup VARCHAR(36) NOT NULL, creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);")
         }
     }

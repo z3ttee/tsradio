@@ -5,7 +5,7 @@ import live.tsradio.master.api.node.channel.NodeChannel
 import live.tsradio.master.api.node.NodeServer
 import live.tsradio.master.api.node.NodeStatus
 import live.tsradio.master.api.node.channel.NodeChannelPlaylist
-import live.tsradio.master.database.MySQL
+import live.tsradio.master.utils.MySQL
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*

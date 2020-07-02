@@ -3,7 +3,7 @@ package live.tsradio.master
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
-import live.tsradio.master.database.MySQL
+import live.tsradio.master.utils.MySQL
 import live.tsradio.master.files.Filesystem
 import live.tsradio.master.utils.CMDInputFinder
 import live.tsradio.master.installer.ServiceInstaller

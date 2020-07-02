@@ -5,7 +5,7 @@ import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.listener.DataListener
 import com.google.gson.Gson
 import live.tsradio.master.api.client.NodeClient
-import live.tsradio.master.api.node.NodeChannel
+import live.tsradio.master.api.node.channel.NodeChannel
 import live.tsradio.master.handler.ClientHandler
 import live.tsradio.master.handler.NodeHandler
 import live.tsradio.master.events.Events
@@ -25,14 +25,14 @@ class OnNodeChannelUpdateEvent: DataListener<String> {
 
                     if(oldData!!.listed && !dataPacket.listed) {
                         // Not listed anymore -> Send removed event to clients
-                        ClientHandler.clients.values.filter { !it.isNode }.forEach {
+                        ClientHandler.clients.values.filter { it !is NodeClient }.forEach {
                             it.client.sendEvent(Events.EVENT_NODE_CHANNEL_REMOVED, "{\"id\": \"${dataPacket.id}\"}")
                         }
                         return
                     }
 
                     val clientSafe = dataPacket.toListenerSafeJSON()
-                    ClientHandler.clients.values.filter { !it.isNode }.forEach {
+                    ClientHandler.clients.values.filter { it !is NodeClient }.forEach {
                         it.client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, clientSafe)
                     }
 

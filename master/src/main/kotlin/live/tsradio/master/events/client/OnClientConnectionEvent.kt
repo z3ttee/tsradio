@@ -2,8 +2,9 @@ package live.tsradio.master.events.client
 
 import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.listener.ConnectListener
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
+import live.tsradio.master.api.auth.AuthPacket
 import live.tsradio.master.api.client.NodeClient
 import live.tsradio.master.handler.ClientHandler
 import live.tsradio.master.handler.NodeHandler
@@ -17,16 +18,15 @@ class OnClientConnectionEvent: ConnectListener {
         if(client != null) {
             val authData = client.handshakeData.getSingleUrlParam("authenticate")
 
-            if(authData != null) {
-                val data = JsonParser().parse(authData).asJsonObject
-                ClientHandler.authenticate(client, data)
-            } else {
+            if(authData == null) {
                 ClientHandler.authenticate(client, null)
+            } else {
+                ClientHandler.authenticate(client, Gson().fromJson(authData, AuthPacket::class.java))
             }
 
             val clientData = ClientHandler.getClient(client.sessionId)!!
             if(clientData is NodeClient) {
-                NodeHandler.loadNode(clientData.nodeID)
+                NodeHandler.loadNode(clientData.authPacket.clientID)
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as daemon node")
             } else {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as listener. Sending initial data...")
