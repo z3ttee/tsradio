@@ -36,7 +36,7 @@ object ClientHandler {
                 if(result != null && result.next()) {
                     val expiry = result.getLong("expirationDate")
                     if(expiry != -1L || expiry <= System.currentTimeMillis()) {
-                        authData.granted = true
+                        authData.granted = false
                         this.clients[client.sessionId] = NodeClient(client.sessionId, client, authData)
                         client.sendEvent(Events.EVENT_CLIENT_AUTHENTICATED, authData.toJSON())
                         return
@@ -45,7 +45,7 @@ object ClientHandler {
             }
 
             // Send error event and disconnect client
-            client.sendEvent(Events.EVENT_SERVER_ERROR, ServerError(200, "Can't authenticate client as node with given credentials.").toJSON())
+            client.sendEvent(Events.EVENT_SERVER_ERROR, ServerError(ServerError.ERROR_WRONG_AUTH_CREDENTIALS, "Can't authenticate client as node with given credentials.").toJSON())
             client.disconnect()
             return
         }
