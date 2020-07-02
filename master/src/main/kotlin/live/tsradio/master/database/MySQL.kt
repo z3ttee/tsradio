@@ -33,10 +33,10 @@ object MySQL {
         if(!hasConnection()) connect()
 
         if(hasConnection()) {
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableNodes`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, lastLogin BIGINT NOT NULL);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(36) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(36) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(36), playlistShuffle BOOLEAN NOT NULL DEFAULT TRUE, playlistLoop BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT, featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE, priority INT DEFAULT 0);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableNodes`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(36) NOT NULL UNIQUE, lastLogin BIGINT NOT NULL);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(36) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(36) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(36), shuffled BOOLEAN NOT NULL DEFAULT TRUE, looped BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT DEFAULT '[]', featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE, priority INT DEFAULT 0);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableSessions`(id VARCHAR(36) NOT NULL UNIQUE, sessionHash VARCHAR(254) NOT NULL UNIQUE, expirationDate BIGINT DEFAULT -1);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, creatorID VARCHAR(36) DEFAULT 'System', genres TEXT);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) DEFAULT 'null', creatorID VARCHAR(36) DEFAULT 'System', genres TEXT DEFAULT '[]');")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableMembers`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, permissionGroup VARCHAR(36) NOT NULL, creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);")
         }
     }
@@ -45,7 +45,7 @@ object MySQL {
         return this.connection != null && !this.connection!!.isClosed
     }
 
-    fun get(table: String, whereClause: String, selection: ArrayList<String>?, maxResults: Int = 1): ResultSet? {
+    fun get(table: String, whereClause: String, selection: ArrayList<String>? = null, maxResults: Int = 1): ResultSet? {
         try {
             var selectionArgs = selection
 
@@ -61,8 +61,8 @@ object MySQL {
             }
 
             val pps = when (maxResults) {
-                1 -> connection!!.prepareStatement("SELECT ${selectionArgs.joinToString(",")} FROM $table$where;")
-                else -> connection!!.prepareStatement("SELECT ${selectionArgs.joinToString(",")} FROM $table WHERE $whereClause LIMIT $maxResults;")
+                0 or 1 -> connection!!.prepareStatement("SELECT ${selectionArgs.joinToString(",")} FROM $table$where;")
+                else -> connection!!.prepareStatement("SELECT ${selectionArgs.joinToString(",")} FROM $table$where LIMIT $maxResults;")
             }
 
             return pps.executeQuery()
