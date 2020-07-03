@@ -26,7 +26,7 @@ class Core {
 
             // Init handlers
             CommandHandler
-            MySQL
+            MySQL.connect()
             ConsoleHandler().start()
 
             logger.info("Starting SocketClient...")

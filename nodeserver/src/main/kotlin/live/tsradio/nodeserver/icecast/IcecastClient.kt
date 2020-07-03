@@ -2,56 +2,42 @@ package live.tsradio.nodeserver.icecast
 
 import com.github.kevinsawicki.http.HttpRequest
 import com.google.common.io.LineReader
-import live.tsradio.nodeserver.channel.Channel
-import live.tsradio.nodeserver.exception.StreamException
-import live.tsradio.nodeserver.files.PreferenceSections
+import live.tsradio.nodeserver.api.node.channel.NodeChannel
 import live.tsradio.nodeserver.events.audio.IcecastConnectionListener
-import live.tsradio.nodeserver.events.audio.REASON_EXCEPTION
-import live.tsradio.nodeserver.events.audio.REASON_MAY_START_NEXT
 import live.tsradio.nodeserver.events.audio.TrackEventListener
-import live.tsradio.nodeserver.sound.AudioTrack
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import live.tsradio.nodeserver.exception.StreamException
+import live.tsradio.nodeserver.files.Filesystem
+import live.tsradio.nodeserver.api.audio.AudioTrack
 import java.io.*
 import java.net.Socket
 
-class IcecastClient(
-        val channel: Channel,
-        private val icecastSettings: PreferenceSections.IcecastSettings,
-        private val connectionListener: IcecastConnectionListener,
-        private val trackEventListener: TrackEventListener
-) {
+class IcecastClient(val channel: NodeChannel) {
 
-    private val logger: Logger = LoggerFactory.getLogger(IcecastClient::class.java)
     var socket: Socket? = null
     var outputStream: OutputStream? = null
-
-    fun isConnected(): Boolean {
-        return socket != null && !socket?.isClosed!!
-    }
 
     // TODO: Handle https requests
     fun connect(){
         try {
-            this.socket = Socket(icecastSettings.host, icecastSettings.port)
+            this.socket = Socket(Filesystem.preferences.icecast.host, Filesystem.preferences.icecast.port)
             this.outputStream = socket!!.getOutputStream()
 
             val outWriter = PrintWriter(outputStream!!, false)
             val inputStream = socket!!.getInputStream()
 
             // send an HTTP request to the web server
-            outWriter.println(String.format("SOURCE %s HTTP/1.0", channel.data.mountpoint))
+            outWriter.println(String.format("SOURCE %s HTTP/1.0", channel.mountpoint))
             outWriter.println(
                     String.format(
                             "Authorization: Basic %s",
-                            HttpRequest.Base64.encode("${icecastSettings.sourceUsername}:${icecastSettings.sourcePassword}")
+                            HttpRequest.Base64.encode("${Filesystem.preferences.icecast.sourceUsername}:${Filesystem.preferences.icecast.sourcePassword}")
                     )
             )
             outWriter.println("User-Agent: libshout/2.3.1")
             outWriter.println(String.format("Content-Type: %s", MimeType.mp3.contentType))
-            outWriter.println(String.format("ice-name: %s", channel.data.name))
+            outWriter.println(String.format("ice-name: %s", channel.name))
             outWriter.println("ice-public: 0")
-            outWriter.println(String.format("ice-description: %s", channel.data.name))
+            outWriter.println(String.format("ice-description: %s", channel.name))
             outWriter.println()
             outWriter.flush()
 
@@ -59,9 +45,9 @@ class IcecastClient(
             val data = lineReader.readLine()
             handleResponse(data)
 
-            connectionListener.onConnectionEstablished()
+            IcecastConnectionListener.onConnectionEstablished()
         } catch (ex: Exception) {
-            connectionListener.onConnectionError(ex)
+            IcecastConnectionListener.onConnectionError(ex)
         }
     }
 
@@ -72,8 +58,8 @@ class IcecastClient(
 
         try {
             // mainloop, write every specified size, reduce syscall
-            trackEventListener.onTrackStart(track)
-            while (!channel.forceShutdown) {
+            TrackEventListener.onTrackStart(channel, track)
+            while (!channel.shutdown) {
 
                 val read = inputStream.read(buffer, 0, bufferSize)
                 // EOF
@@ -90,24 +76,19 @@ class IcecastClient(
                     // skip
                 }
             }
-            trackEventListener.onTrackEnd(track, REASON_MAY_START_NEXT, null)
+            TrackEventListener.onTrackEnd(channel, track, TrackEventListener.REASON_MAY_START_NEXT, null)
         } catch (e: Exception) {
             try {
                 inputStream.close()
             } catch (ignored: IOException) { }
-            trackEventListener.onTrackEnd(track, REASON_EXCEPTION, e)
+            TrackEventListener.onTrackEnd(channel, track, TrackEventListener.REASON_EXCEPTION, e)
         }
     }
 
     fun closeConnection(){
         socket?.close()
         outputStream?.close()
-        connectionListener.onConnectionLost()
-    }
-
-    fun refreshConnection(){
-        closeConnection()
-        connect()
+        IcecastConnectionListener.onConnectionLost()
     }
 
     private fun handleResponse(data: String) {

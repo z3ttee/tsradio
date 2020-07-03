@@ -1,4 +1,4 @@
-package live.tsradio.nodeserver.sound
+package live.tsradio.nodeserver.api.audio
 
 import com.mpatric.mp3agic.Mp3File
 import java.io.File
