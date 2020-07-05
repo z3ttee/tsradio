@@ -10,7 +10,6 @@ if($request->getMethodType() != 'GET') {
 $missingParams = array();
 $username = $_GET["username"] ?? null;
 $password = $_GET["password"] ?? null;
-//$remembered = $_GET["remembered"] ?? false;
 
 if(!isset($username)) array_push($missingParams, "username");
 if(!isset($password)) array_push($missingParams, "password");
@@ -29,21 +28,30 @@ if(!$database->hasConnection()){
     throw new Exception("No database connection");
 }
 
-$result = $database->get('tsr_members', array('name', '=', $username));
+$result = $database->get('members', array('name', '=', $username), array('id', 'password'));
 if($result->count() == 0) {
     throw new Exception('Wrong credentials');
 }
 
+$user = $result->first();
 
-var_dump($userData);
-/*$userID = "";
-$hash = random_bytes(64);
-if($database->insert('tsr_sessions', array(
-    'id' => $userID,
+if(!password_verify($password, $user->password)) {
+    throw new Exception('Wrong credentials');
+}
+
+$hash = bin2hex(random_bytes(64));
+// Delete old session
+if($database->get("sessions", array("id", "=", $user->id))->count() > 0) {
+    $database->delete("sessions", array("id", "=", $user->id));
+}
+var_dump($database->errorInfo());
+
+// Insert new session
+$database->insert('sessions', array(
+    'id' => $user->id,
     'sessionHash' => $hash,
     'expirationDate' => 1000*60*60*24*7
-))) {
-    $response['payload']['token'] = $hash;
-}*/
-$response['payload']['received'] = $_GET;
+));
+
+$response['payload']['token'] = $hash;
 ?>

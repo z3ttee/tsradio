@@ -74,6 +74,10 @@ class Database {
                 $fields = implode(',',$fields);
             }
 
+            if($action === "DELETE") {
+                $fields = "";
+            }
+
             if (in_array($operator, $operators)) {
                 $sql = "{$action} {$fields} FROM `".Config::get('mysql/prefix').$table."` WHERE `{$field}` {$operator} ?;";
                 if(!$this->query($sql, array($value))->error()){
@@ -111,7 +115,6 @@ class Database {
         $columns = implode("`,`",$keys);
         $sql = "INSERT INTO `".Config::get('mysql/prefix').$table."` (`".$columns."`) VALUES ({$values});";
 
-        var_dump($sql);
         if (!$this->query($sql, $fields)->error()) {
             return true;
         }
