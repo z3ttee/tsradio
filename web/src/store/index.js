@@ -11,7 +11,10 @@ export default new Vuex.Store({
             mobile: false
         },
         channels: [],
-        currentChannel: {}
+        currentChannel: {},
+        user: {
+            token: undefined
+        }
     },
     mutations: {
     },

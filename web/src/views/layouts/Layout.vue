@@ -12,7 +12,6 @@
 <script>
 import Header from '../shared/Header.vue';
 
-
 export default {
     components: {
         tsrHeader: Header

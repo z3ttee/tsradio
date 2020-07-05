@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import { routes } from './routes.js';
+import store from '../store';
 
 Vue.use(VueRouter);
 
@@ -19,6 +20,19 @@ const router = new VueRouter({
         return {x: 0, y: 0};
     }
 });
+
+router.beforeEach((to, from, next) => {
+    // Check if logged in
+    if(to.name  != 'login') {
+        if(store.state.user.token) {
+            next()
+        } else {
+            next({name: 'login'});
+        }
+    } else {
+        next()
+    }
+})
 
 router.afterEach((to) => {
     document.title = to.meta.title

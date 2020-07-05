@@ -1,0 +1,58 @@
+@import '_variables';
+
+/*
+[]=========== Inputs ===========[]
+*/
+input[type=text],input[type=password] {
+    appearance: none;
+    font-size: 0.9em;
+    border: none;
+    outline: none;
+    padding: 0.8em;
+    color: rgba($color: $colorWhite, $alpha: 0.8);
+    background-color: $colorPlaceholder;
+    border: 2px solid transparent;
+    border-radius: $borderRadTiny;
+    transition: all $animSpeedFast*1s ease;
+
+    &:focus {
+        box-shadow: $shadowHeavy;
+    }
+
+    &.error {
+        border-color: $colorAccent;
+    }
+}
+
+.tsr_form_group {
+    display: block;
+    margin: 1.5em 0em;
+
+    label {
+        display: block;
+        font-size: 0.8em;
+        color: rgba($color: $colorWhite, $alpha: 0.8);
+        padding-bottom: 0.2em;
+    }
+
+    &.checkbox {
+        label {
+            display: inline;
+            vertical-align: middle;
+            margin-left: 0.5em;
+        }
+        input[type=checkbox] {
+            height: 12px;
+            width: 12px;
+            vertical-align: middle;
+        }
+    }
+}
+
+
+/*
+[]=========== Media Queries ===========[]
+*/
+@media screen and (max-width: 880px) {
+    
+}

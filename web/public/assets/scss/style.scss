@@ -33,6 +33,7 @@
     box-sizing: border-box;
     font-family: 'Poppins';
     font-size: 1em;
+    color: $colorWhite;
 }
 html, body {
     position: relative;
@@ -163,8 +164,6 @@ section {
         }
     }
 }
-
-
 
 /*
 []=========== Media Queries ===========[]

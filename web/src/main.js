@@ -1,29 +1,31 @@
 import Vue from 'vue'
-import VueResource from 'vue-resource';
+import axios from 'axios';
 import VueCookies from 'vue-cookies';
 
 import App from './App.vue'
 import router from './router/router.js'
 import store from './store'
 import LottiePlayer from 'lottie-player-vue';
+import UUID from 'vue-uuid';
 
-import { socketMixin } from '@/mixins/socketMixin.js';
+//import { socketMixin } from '@/mixins/socketMixin.js';
 
 Vue.use(LottiePlayer);
-Vue.use(VueResource);
 Vue.use(VueCookies);
+Vue.use(UUID);
 
-Vue.http.options.root = 'https://api.tsradio.live/v1/';
-Vue.http.interceptors.push((request, next) => {
+axios.defaults.baseURL = 'http://localhost/v1/';
+axios.defaults.withCredentials = true;
+/*Vue.http.interceptors.push((request, next) => {
     next();
-});
+});*/
 
 new Vue({
     el: '#app',
     data: {
         channels: []
     },
-    mixins: [socketMixin],
+    //mixins: [socketMixin],
     router,
     store,
     render: h => h(App),
@@ -33,6 +35,9 @@ new Vue({
         }
     },
     created() {
+        // Check if logged in
+        this.$store.state.user.token = this.$cookies.get('tsr_token') ?? undefined;
+
         if(!this.$cookies.isKey('tsr_app_theme')) this.$store.state.theme = 'dark';
     },
     mounted() {

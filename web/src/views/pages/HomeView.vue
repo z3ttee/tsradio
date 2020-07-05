@@ -5,6 +5,12 @@
         </div>
 
         <section id="featured">
+            <!--<div class="content-container">
+                <div>
+                    <form-token v-model="form.token"></form-token>
+                    <button @click="submit">Submit</button>
+                </div>
+            </div>-->
             <div class="content-container">
                 <h2>Featured</h2>
                 <!--<channel-list-item :channel="{name: 'Test', 
@@ -53,7 +59,7 @@ export default {
                 if(!+element.featured && !!+element.listed && element.isActive) return element;
             });
         }
-    },
+    }
 }
 </script>
 

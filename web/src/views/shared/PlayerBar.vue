@@ -16,7 +16,8 @@
                     
                     <div class="player_col playerbar_cover" :style="'background-image: url('+channel.coverURL+')'" @click="toggle">
                         <transition name="scale" mode="out-in">
-                            <lottie-player id="audioLoader" class="loader" :src="loaderData" :options="{ autoplay: true, loop: true }" v-if="loading"></lottie-player>
+                            <primary-loader classes="loader" :settings="{ autoplay: true, loop: true }" v-if="loading"></primary-loader>
+                            <!--<lottie-player id="audioLoader" class="loader" :src="loaderData" :options="" ></lottie-player>-->
                         </transition>
                         <transition name="scale" mode="out-in">
                             <img src="/assets/images/icons/play.svg" v-if="paused" key="play">
@@ -53,15 +54,17 @@
 
 <script>
 //import $ from 'jquery';
-import Loader from '@/assets/animated/loader.json';
+import PrimaryLoader from '@/components/loader/PrimaryLoader.vue';
 
 export default {
+    components: {
+        PrimaryLoader
+    },
     data() {
         return {
             volume: 10,
             paused: true,
             sourcePaused: true,
-            loaderData: Loader,
             loading: false
         }
     },

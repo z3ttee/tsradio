@@ -1,0 +1,66 @@
+@import '_variables';
+
+.btn {
+    position: relative;
+    appearance: none;
+    border: none;
+    background-color: $colorPlaceholder;
+    color: $colorWhite;
+    padding: 1em;
+    font-size: 0.75em;
+    font-weight: 800;
+    border: 2px solid transparent;
+    transition: all $animSpeedShort*1s ease;
+    border-radius: $borderRadTiny;
+    outline: none;
+
+    &:hover {
+        cursor: pointer;
+        background-color: darken($color: $colorPlaceholder, $amount: 2);
+    }
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &.btn-primary {
+        background-color: $colorAccent;
+
+        &:hover {
+            cursor: pointer;
+            background-color: $colorAccentDark;
+        }
+    }
+
+    &.btn-large {
+        width: 100%;
+    }
+    
+    &:disabled {
+        background-color: $colorPlaceholder;
+        color: grey;
+
+        &:hover {
+            background-color: $colorPlaceholder;
+            cursor: not-allowed;
+        }
+        &:active {
+            transform: none;
+        }
+    }
+}
+
+.btn-loader {
+    position: absolute;
+    top: 55%;
+    right: 0.5em;
+    transform: translateY(-50%);
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    height: inherit;
+
+    &.loader_hidden {
+        opacity: 0;
+    }
+}
