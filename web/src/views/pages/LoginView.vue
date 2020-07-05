@@ -12,10 +12,8 @@
                     </div>
                     <div class="tsr_form_content">
                         <h2>Anmelden</h2>
-
-                        <div class="tsr_msg">
-                            <p>Dies ist eine Seite zur privaten (non-kommerzielle) Nutzung. Bevor du die Seite nutzen kannst, musst du dich mit deinen Daten anmelden.</p>
-                        </div>
+                        <error-message :error="error" v-if="error" @click="error = undefined"></error-message>
+                        <p>Dies ist eine Seite zur privaten (non-kommerzielle) Nutzung. Bevor du die Seite nutzen kannst, musst du dich mit deinen Daten anmelden.</p>
                         
                         <div class="tsr_form_group">
                             <label for="form_username">Dein Benutzername</label>
@@ -24,21 +22,10 @@
                         <div class="tsr_form_group">
                             <label for="form_password">Dein Passwort</label>
                             <input type="password" name="password" id="form_password" v-model="form.password" autocomplete="false">
-
-                            <!--<ul class="tsr_form_requirements">
-                                <li>Mindestens 8 Zeichen</li>
-                                <li>Mindestens 1 Groß- und Kleinbuchstabe</li>
-                                <li>Mindestens 1 Ziffer</li>
-                                <li>Mindestens 1 Sonderzeichen</li>
-                            </ul>-->
                         </div>
                         <div class="tsr_form_group">
                             <p>Du bleibst automatisch für 7 Tage angemeldet</p>
                         </div>
-                        <!--<div class="tsr_form_group checkbox">
-                            <input type="checkbox" name="remember" id="form_remember" v-model="form.remember">
-                            <label for="form_remember">Angemeldet bleiben?</label>
-                        </div>-->
                         <primary-loading-button text="Jetzt anmelden" @click="submit" :disabled="!form.username || !form.password"></primary-loading-button>
                     </div>
                 </div>
@@ -50,34 +37,57 @@
 <script>
 import axios from 'axios';
 
+import ErrorMessage from '@/components/message/ErrorMessage.vue';
 import PrimaryLoader from '@/components/loader/PrimaryLoader.vue';
 import PrimaryLoadingButton from '@/components/buttons/PrimaryLoadingButton.vue';
 
 export default {
     components: {
         PrimaryLoader,
-        PrimaryLoadingButton
+        PrimaryLoadingButton,
+        ErrorMessage
     },
     data() {
         return {
             loading: false,
+            error: undefined,
             form: {}
         }
     },
     methods: {
         submit(event, done) {
-            axios.get('member/login/', { params: this.form }).then(response => {
-                console.log(response)
-                 if(response.status == 200) {
-                    var meta = response.data.meta;
+            this.error = undefined;
+            setTimeout(() => {
+                axios.get('member/login/', { params: this.form }).then(response => {
+                    console.log(response)
+                    if(response.status == 200) {
+                        var meta = response.data.meta;
 
-                    if(meta.status == 200) {
-                        console.log(response.config.url);
-                        console.log(response.data.payload);
+                        if(meta.status == 200) {
+                            console.log(response.config.url);
+
+                            if(response.data.payload.token) {
+                                this.$store.state.user.token = response.data.payload.token;
+                                var expiry = new Date(response.data.payload.expiry).toString();
+
+                                this.$cookies.set('tsr_session', response.data.payload.token, expiry, '/', null, null, true);
+                                this.$router.go(-1);
+                            }
+                        } else {
+                            if(response.data.meta.message == "wrong credentials") {
+                                this.error = "Du konntest nicht angemeldet werden, da der Benutzername nicht mit dem Passwort übereinstimmt."
+                            }
+                        }
+                    } else {
+                        this.error = "Du konntest nicht angemeldet werden, da unsere Services gerade nicht erreichbar sind."
                     }
-                }
-            });
-            done();
+                }).catch(error => {
+                    console.log(error);
+                    this.error = "Du konntest nicht angemeldet werden, da unsere Services gerade nicht erreichbar sind."
+                }).finally(() => {
+                    done();
+                });
+            }, 1000);
         }
     }
 }
