@@ -1,0 +1,13 @@
+{
+    "name": "tsradio/api",
+    "description": "no description",
+    "authors": [
+        {
+            "name": "z3ttee",
+            "email": "cedric.zitzmann@gmail.com"
+        }
+    ],
+    "require": {
+        "ramsey/uuid": "^4.0"
+    }
+}
