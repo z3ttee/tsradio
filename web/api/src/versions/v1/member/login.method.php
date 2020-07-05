@@ -40,18 +40,20 @@ if(!password_verify($password, $user->password)) {
 }
 
 $hash = bin2hex(random_bytes(64));
+$expiry = (1000*60*60*24*7)+round(microtime(true) * 1000); // 7 days
+
 // Delete old session
 if($database->get("sessions", array("id", "=", $user->id))->count() > 0) {
     $database->delete("sessions", array("id", "=", $user->id));
 }
-var_dump($database->errorInfo());
 
 // Insert new session
 $database->insert('sessions', array(
     'id' => $user->id,
     'sessionHash' => $hash,
-    'expirationDate' => 1000*60*60*24*7
+    'expirationDate' => $expiry
 ));
 
 $response['payload']['token'] = $hash;
+$response['payload']['expiry'] = $expiry;
 ?>
