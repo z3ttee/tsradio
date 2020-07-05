@@ -40,6 +40,11 @@ export const routes = [
         { path: '', name: 'webinterfaceDashboard',component: () => import('../views/pages/DashboardView.vue'), meta: { 
             title: pagePrefix+'Webinterface', 
             group: 'webinterface' 
+        }},
+        // Users
+        { path: 'members/', name: 'webinterfaceMembers',component: () => import('../views/pages/UserManagementView.vue'), meta: { 
+            title: pagePrefix+'Benutzerverwaltung', 
+            group: 'webinterface' 
         }}
     ]},
 

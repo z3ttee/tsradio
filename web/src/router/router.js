@@ -22,6 +22,10 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    if(to.name == 'login' && store.state.user.token) {
+        next(from);
+    }
+
     // Check if logged in
     if(to.name  != 'login') {
         if(store.state.user.token) {
