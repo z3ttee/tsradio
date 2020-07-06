@@ -1,26 +1,34 @@
+import store from '@/store/index.js';
+
 class Channels {
-    getChannelByID(id, vuestore) {
-        return vuestore.state.channels.filter((el) => {
+    getChannelByID(id) {
+        return store.state.channels.filter((el) => {
             if(el.id == id) return el;
         })[0];
     }
-    registerChannel(data, vuestore) {
-        vuestore.state.channels.push(data);
+    registerChannel(data) {
+        store.state.channels.push(data);
     }
-    updateChannel(data, vuestore) {
-        var index = vuestore.state.channels.indexOf(this.getChannelByID(data.id, vuestore));
-        vuestore.state.channels.splice(index, 0, data)
+    updateChannel(data) {
+        var index = store.state.channels.indexOf(this.getChannelByID(data.id));
+        store.state.channels[index] = data
     }
-    updateChannelInfo(data, vuestore) {
-        if(!this.channelExists(data.id, vuestore)) return;
+    updateChannelInfo(data) {
+        if(!this.channelExists(data.id)) return;
 
-        var index = vuestore.state.channels.indexOf(this.getChannelByID(data.id, vuestore));
-        vuestore.state.channels[index].info = data;
+        var index = store.state.channels.indexOf(this.getChannelByID(data.id));
+        store.state.channels[index].info = data;
     }
-    channelExists(id, vuestore) {
-        return vuestore.state.channels.filter((el) => {
+    channelExists(id) {
+        return store.state.channels.filter((el) => {
             if(el.id == id) return el;
         })[0] != null;
+    }
+    removeChannel(id) {
+        if(this.channelExists(id)) return
+
+        var index = store.state.channels.indexOf(this.getChannelByID(id));
+        store.state.channels.splice(index, 1);
     }
 }
 

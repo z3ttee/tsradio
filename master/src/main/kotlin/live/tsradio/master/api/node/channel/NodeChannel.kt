@@ -29,6 +29,7 @@ data class NodeChannel(
         jsonObject.remove("shuffled")
         jsonObject.remove("looped")
         jsonObject.remove("listed")
+        jsonObject.remove("playlist")
         return jsonObject.toString()
     }
 }

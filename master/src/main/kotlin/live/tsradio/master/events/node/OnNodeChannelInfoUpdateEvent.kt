@@ -16,25 +16,33 @@ class OnNodeChannelInfoUpdateEvent: DataListener<String> {
     private val logger: Logger = LoggerFactory.getLogger(OnNodeChannelInfoUpdateEvent::class.java)
 
     override fun onData(client: SocketIOClient?, data: String?, ackSender: AckRequest?) {
-        logger.info("Received info update.")
-
         if(client != null && data != null) {
             val clientData = ClientHandler.getClient(client.sessionId)
 
             if(clientData != null && clientData is NodeClient) {
+                logger.info("received channel info update")
                 // Check if client is nodeserver -> has permission to post channel info updates
 
                 val dataPacket = Gson().fromJson(data, NodeChannelInfo::class.java)
                 val channel = NodeHandler.channels[dataPacket.id]
 
                 if(channel != null) {
-                    channel.info = dataPacket
-                    NodeHandler.channels[channel.id] = channel
+                    if(channel.info == null) {
 
-                    // Send update to clients
-                    ClientHandler.clients.values.filter { it !is NodeClient }.forEach {
-                        it.client.sendEvent(Events.EVENT_NODE_CHANNEL_INFO_UPDATE, dataPacket.toListenerSafeJSON())
+                        channel.info = dataPacket
+                        NodeHandler.channels[channel.id] = channel
+
+                        ClientHandler.clients.values.filter { it !is NodeClient }.forEach {
+                            it.client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toListenerSafeJSON())
+                        }
+                    } else {
+                        channel.info = dataPacket
+                        NodeHandler.channels[channel.id] = channel
+                        ClientHandler.clients.values.filter { it !is NodeClient }.forEach {
+                            it.client.sendEvent(Events.EVENT_NODE_CHANNEL_INFO_UPDATE, dataPacket.toListenerSafeJSON())
+                        }
                     }
+
                 }
             }
         }

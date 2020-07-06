@@ -1,6 +1,9 @@
 package live.tsradio.nodeserver.handler
 
+import live.tsradio.nodeserver.SocketClient
+import live.tsradio.nodeserver.api.node.channel.NodeChannelInfo
 import live.tsradio.nodeserver.channel.Channel
+import live.tsradio.nodeserver.events.Events
 import live.tsradio.nodeserver.files.Filesystem
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,11 +22,27 @@ object ChannelHandler {
     private val executorService: ExecutorService = Executors.newFixedThreadPool(Filesystem.preferences.channels.max)
 
     fun set(channel: Channel) {
+        if(this.getRunningChannelsUUIDs().contains(channel.data.id)) {
+            logger.info("is running")
+            stopChannel(channel)
+        }
+
         if(this.channels.containsKey(channel.data.id)) {
             this.channels[channel.data.id]!!.data = channel.data
         } else {
             this.channels[channel.data.id] = channel
         }
+    }
+
+    fun updateInfo(info: NodeChannelInfo) {
+        val channel = this.channels[info.id]
+
+        if(channel != null) {
+            channel.data.info = info
+            this.channels[info.id] = channel
+        }
+
+        SocketClient.socket?.emit(Events.EVENT_NODE_CHANNEL_INFO_UPDATE, info.toJSON())
     }
 
     fun startChannel(uuid: UUID) {
@@ -46,6 +65,16 @@ object ChannelHandler {
         nodeChannel.execute(executorService)
     }
 
+    private fun stopChannel(channel: Channel?) {
+        if(channel == null) {
+            logger.warn("Cannot stop non-existent channel")
+            return
+        }
+
+        channel.shutdown()
+        channel.join()
+    }
+
     fun channelExists(uuid: UUID): Boolean {
         return this.channels.containsKey(uuid)
     }
@@ -64,6 +93,15 @@ object ChannelHandler {
 
     fun getRunningChannels(): ArrayList<Channel> {
         return this.channels.values.filter { it.isRunning }.toCollection(ArrayList())
+    }
+    fun getRunningChannelsUUIDs(): ArrayList<UUID> {
+        val list = ArrayList<UUID>()
+
+        for(channel in this.channels.values.filter { it.isRunning }.toCollection(ArrayList())) {
+            list.add(channel.data.id)
+        }
+
+        return list
     }
     fun getConfiguredChannels(): ArrayList<Channel> {
         return this.channels.values.filter { !it.isRunning }.toCollection(ArrayList())

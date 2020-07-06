@@ -31,9 +31,11 @@ class OnClientConnectionEvent: ConnectListener {
             } else {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as listener. Sending initial data...")
                 for(channel in NodeHandler.getListedChannels()) {
-                    client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toListenerSafeJSON())
+                    logger.info("${channel.name}")
+                    if(channel.info != null) {
+                        client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toListenerSafeJSON())
+                    }
                 }
-                //client.sendEvent("onInitialTransport", GsonBuilder().create().toJson(NodeHandler.getListedChannels()))
             }
         }
     }

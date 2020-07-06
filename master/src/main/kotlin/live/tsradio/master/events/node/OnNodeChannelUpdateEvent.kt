@@ -10,8 +10,11 @@ import live.tsradio.master.handler.ClientHandler
 import live.tsradio.master.handler.NodeHandler
 import live.tsradio.master.events.Events
 import live.tsradio.master.utils.Permissions
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class OnNodeChannelUpdateEvent: DataListener<String> {
+    private val logger: Logger = LoggerFactory.getLogger(OnNodeChannelUpdateEvent::class.java)
 
     override fun onData(client: SocketIOClient?, data: String?, ackSender: AckRequest?) {
         if(client != null && data != null) {
@@ -19,17 +22,22 @@ class OnNodeChannelUpdateEvent: DataListener<String> {
 
             if(clientData != null) {
                 if (clientData is NodeClient) {
+                    logger.info("received channel update")
+
                     // Modify received packet (remove unnecessary data)
                     val dataPacket = Gson().fromJson(data, NodeChannel::class.java)
                     val oldData = NodeHandler.channels[dataPacket.id]
 
-                    if(oldData!!.listed && !dataPacket.listed) {
+                    if(oldData != null && oldData.listed && !dataPacket.listed) {
                         // Not listed anymore -> Send removed event to clients
+                        NodeHandler.channels[dataPacket.id] = dataPacket
                         ClientHandler.clients.values.filter { it !is NodeClient }.forEach {
                             it.client.sendEvent(Events.EVENT_NODE_CHANNEL_REMOVED, "{\"id\": \"${dataPacket.id}\"}")
                         }
                         return
                     }
+
+                    logger.info(dataPacket.toString())
 
                     val clientSafe = dataPacket.toListenerSafeJSON()
                     ClientHandler.clients.values.filter { it !is NodeClient }.forEach {

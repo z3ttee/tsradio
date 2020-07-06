@@ -64,7 +64,6 @@ class IcecastClient(val channel: Channel) {
             // mainloop, write every specified size, reduce syscall
             TrackEventListener.onTrackStart(channel.data, track)
             while (!channel.shutdown) {
-
                 val read = inputStream.read(buffer, 0, bufferSize)
                 // EOF
                 if (read < 0) {

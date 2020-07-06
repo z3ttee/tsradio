@@ -27,6 +27,7 @@ object TrackEventListener {
             channel.info!!.title = track.title
             channel.info!!.artist = track.artist
         }
+        logger.info(channel.info.toString())
         channel.info!!.sendUpdate()
     }
 

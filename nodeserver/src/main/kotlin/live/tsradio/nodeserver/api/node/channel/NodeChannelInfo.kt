@@ -3,6 +3,7 @@ package live.tsradio.nodeserver.api.node.channel
 import com.google.gson.annotations.Expose
 import live.tsradio.nodeserver.SocketClient
 import live.tsradio.nodeserver.events.Events
+import live.tsradio.nodeserver.handler.ChannelHandler
 import live.tsradio.nodeserver.packets.Packet
 import java.util.*
 import kotlin.collections.HashMap
@@ -24,6 +25,6 @@ data class NodeChannelInfo(
     }
 
     fun sendUpdate() {
-        SocketClient.socket?.emit(Events.EVENT_NODE_CHANNEL_INFO_UPDATE, this.toJSON())
+        ChannelHandler.updateInfo(this)
     }
 }

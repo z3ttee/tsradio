@@ -16,6 +16,7 @@ class OnNodeChannelUpdate: Emitter.Listener {
         ChannelHandler.set(channel)
 
         if(Filesystem.preferences.channels.autostart) {
+            //if(!ChannelHandler.getRunningChannelsUUIDs().contains(channel.data.id)) ChannelHandler.startChannel(channel.data.id)
             ChannelHandler.startChannel(channel.data.id)
         }
     }

@@ -7,29 +7,26 @@ export const socketMixin = {
         const protocol = config.dataserver.dev ? 'http://' : 'https://';
         const socket = io(protocol+config.dataserver.host+':'+config.dataserver.port);
 
-        socket.on('onInitialTransport', (event) => {
-            for(var channel of JSON.parse(event)) {
-                Channels.registerChannel(channel, this.$store);
-            }
-        });
-        socket.on('onChannelUpdate', (event) => {
-            var data = JSON.parse(event);
-            var oldChannel = Channels.getChannelByID(data.id, this.$store);
+        socket.on('onNodeChannelUpdate', (data) => {
+            var channel = JSON.parse(data);
 
-            if(oldChannel) {
-                Channels.updateChannel(data, this.$store);
+            if(Channels.channelExists(channel.id)) {
+                Channels.updateChannel(channel);
             } else {
-                Channels.registerChannel(data, this.$store);
+                Channels.registerChannel(channel);
             }
         });
-        socket.on('onChannelInfoUpdate', (data) => {
-            Channels.updateChannelInfo(data, this.$store);
+        socket.on('onNodeChannelInfoUpdate', (data) => {
+            Channels.updateChannelInfo(JSON.parse(data))
         });
-        socket.on('onChannelRemoved', (event) => {
-            console.log(event)
+        socket.on('onNodeChannelRemoved', (data) => {
+            Channels.removeChannel(JSON.parse(data).id)
         });
 
         socket.on('connect', () => {
+            this.$store.state.channels = [];
+        });
+        socket.on('disconnect', () => {
             this.$store.state.channels = [];
         });
         socket.on('connect_error', () => {

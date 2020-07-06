@@ -9,8 +9,8 @@
             <div class="tsr_list_item_col tsr_list_item_content">
                 <p class="name" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.name"></p>
                 <div class="tsr_info">
-                    <p class="title" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.info.title"></p>
-                    <p class="artist" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.info.artist"></p>
+                    <p class="title" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.info.title" v-if="channel.info"></p>
+                    <p class="artist" v-html="'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+channel.info.artist" v-if="channel.info"></p>
                 </div>
             </div>
         </div>

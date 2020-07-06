@@ -72,6 +72,8 @@ object SocketServer {
                 true -> e.message
                 else -> ""
             })
+
+            if(e != null) throw e
         }
 
         override fun onDisconnectException(e: Exception?, client: SocketIOClient?) {

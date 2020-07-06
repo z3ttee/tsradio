@@ -67,7 +67,7 @@ object NodeHandler {
                     this.channels[id] = channel
                     ClientHandler.getNode(nodeData.id)?.client?.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toJSON())
 
-                    ClientHandler.getListenerClients().forEach { it.client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toListenerSafeJSON()) }
+                    //ClientHandler.getListenerClients().forEach { it.client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toListenerSafeJSON()) }
                 }
             } while (channelsResult.next())
         }
