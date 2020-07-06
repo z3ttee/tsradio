@@ -8,10 +8,14 @@ import live.tsradio.nodeserver.events.audio.TrackEventListener
 import live.tsradio.nodeserver.exception.StreamException
 import live.tsradio.nodeserver.files.Filesystem
 import live.tsradio.nodeserver.api.audio.AudioTrack
+import live.tsradio.nodeserver.channel.Channel
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.*
 import java.net.Socket
 
-class IcecastClient(val channel: NodeChannel) {
+class IcecastClient(val channel: Channel) {
+    private val logger: Logger = LoggerFactory.getLogger(IcecastClient::class.java)
 
     var socket: Socket? = null
     var outputStream: OutputStream? = null
@@ -26,7 +30,7 @@ class IcecastClient(val channel: NodeChannel) {
             val inputStream = socket!!.getInputStream()
 
             // send an HTTP request to the web server
-            outWriter.println(String.format("SOURCE %s HTTP/1.0", channel.mountpoint))
+            outWriter.println(String.format("SOURCE %s HTTP/1.0", channel.data.mountpoint))
             outWriter.println(
                     String.format(
                             "Authorization: Basic %s",
@@ -35,9 +39,9 @@ class IcecastClient(val channel: NodeChannel) {
             )
             outWriter.println("User-Agent: libshout/2.3.1")
             outWriter.println(String.format("Content-Type: %s", MimeType.mp3.contentType))
-            outWriter.println(String.format("ice-name: %s", channel.name))
+            outWriter.println(String.format("ice-name: %s", channel.data.name))
             outWriter.println("ice-public: 0")
-            outWriter.println(String.format("ice-description: %s", channel.name))
+            outWriter.println(String.format("ice-description: %s", channel.data.description))
             outWriter.println()
             outWriter.flush()
 
@@ -58,7 +62,7 @@ class IcecastClient(val channel: NodeChannel) {
 
         try {
             // mainloop, write every specified size, reduce syscall
-            TrackEventListener.onTrackStart(channel, track)
+            TrackEventListener.onTrackStart(channel.data, track)
             while (!channel.shutdown) {
 
                 val read = inputStream.read(buffer, 0, bufferSize)
@@ -76,12 +80,12 @@ class IcecastClient(val channel: NodeChannel) {
                     // skip
                 }
             }
-            TrackEventListener.onTrackEnd(channel, track, TrackEventListener.REASON_MAY_START_NEXT, null)
+            TrackEventListener.onTrackEnd(channel.data, track, TrackEventListener.REASON_MAY_START_NEXT, null)
         } catch (e: Exception) {
             try {
                 inputStream.close()
             } catch (ignored: IOException) { }
-            TrackEventListener.onTrackEnd(channel, track, TrackEventListener.REASON_EXCEPTION, e)
+            TrackEventListener.onTrackEnd(channel.data, track, TrackEventListener.REASON_EXCEPTION, e)
         }
     }
 

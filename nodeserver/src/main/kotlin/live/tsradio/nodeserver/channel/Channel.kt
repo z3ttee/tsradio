@@ -4,126 +4,95 @@ import com.mpatric.mp3agic.Mp3File
 import live.tsradio.nodeserver.exception.StreamException
 import live.tsradio.nodeserver.files.Filesystem
 import live.tsradio.nodeserver.events.audio.IcecastConnectionListener
-import live.tsradio.nodeserver.events.audio.REASON_MAY_START_NEXT
-import live.tsradio.nodeserver.events.audio.TrackEventListener
 import live.tsradio.nodeserver.events.channel.ChannelEventListener
-import live.tsradio.nodeserver.events.channel.REASON_CHANNEL_EXCEPTION
+import live.tsradio.nodeserver.handler.ChannelHandler
 import live.tsradio.nodeserver.icecast.IcecastClient
-import live.tsradio.nodeserver.packets.channel.ChannelDataPacket
-import live.tsradio.nodeserver.sound.AudioTrack
-import live.tsradio.nodeserver.sound.PlaylistHandler
+import live.tsradio.nodeserver.api.audio.AudioTrack
+import live.tsradio.nodeserver.api.node.channel.NodeChannel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.io.FileNotFoundException
 import java.net.ConnectException
 import java.net.SocketException
 import java.util.*
+import java.util.concurrent.ExecutorService
 import kotlin.collections.ArrayList
 
 class Channel(
-        var data: ChannelDataPacket
-): Thread("channel-${data.name}-${(1..4).map { (0..9).random() }.joinToString("")}"), IcecastConnectionListener, TrackEventListener {
-
+        var data: NodeChannel
+): Thread("channel-${data.name}-${(1..4).map { (0..9).random() }.joinToString("")}") {
     private val logger: Logger = LoggerFactory.getLogger(Channel::class.java)
 
+    var isRunning: Boolean = false
     var shutdown: Boolean = false
-    var forceShutdown: Boolean = false
-    val queue: ArrayList<AudioTrack> = ArrayList()
-    val icecastClient: IcecastClient = IcecastClient(this, Filesystem.preferences.icecast, this, this)
-    var channelEventListener: ChannelEventListener? = null
+    var queue: ArrayList<AudioTrack> = ArrayList()
+    var icecastClient: IcecastClient = IcecastClient(this)
 
-    override fun run() {
-        try {
-            data.info.clearAll()
-            logger.info("Starting channel '${data.name}'")
+    fun execute(executorService: ExecutorService) {
+        executorService.execute {
 
-            // Connect to icecast
-            icecastClient.connect()
+            try {
+                data.info?.clear()
+                logger.info("Starting channel '${data.name}'")
 
-            channelEventListener?.onChannelReady(this)
+                icecastClient.connect()
+                ChannelEventListener.onChannelReady(this)
 
-            // Start playing
-            while (!shutdown) {
-
-                // Play
-                if(queue.isEmpty()){
-                    if(data.looped) loadPlaylist()
-
-                    if(queue.isEmpty()) {
-                        if (Filesystem.preferences.channels.waitForQueue) {
-                            logger.warn("Waiting till queue gets populated...")
-                            while (queue.isEmpty() && !shutdown) {
-                                sleep(1000 * 1) // Check every sec, if queue was populated
-                            }
-                        }
+                while (!shutdown) {
+                    if (queue.isEmpty() && data.looped && !loadPlaylist()) {
+                        logger.error("Queue for channel '${data.name}' is empty. Nothing found to play!")
+                        break
                     }
-                }
 
-                if(!shutdown) {
                     try {
                         val rnd = Random().nextInt(queue.size)
-
                         val track = queue.removeAt(rnd)
                         icecastClient.streamTrack(track)
-                        ChannelHandler.resetRestartTries(this)
+                        ChannelHandler.restartTries.remove(data.id)
                     } catch (ignored: NullPointerException) {
                     }
                 }
-            }
 
-            channelEventListener?.onChannelDone(this)
-            icecastClient.closeConnection()
-            channelEventListener?.onChannelStop(this)
-        } catch (ex: Exception){
-            if(ex is ConnectException || ex is SocketException) {
-                // Do nothing
-            } else {
-                if(ex is StreamException) {
-                    logger.error("An error occured: ${ex.message}")
+                ChannelEventListener.onChannelDone(data)
+                icecastClient.closeConnection()
+                ChannelEventListener.onChannelStop(this)
+            } catch (ex: Exception) {
+                if(ex is ConnectException || ex is SocketException) {
+                    // Do nothing
                 } else {
-                    ex.printStackTrace()
+                    if(ex is StreamException) {
+                        logger.error("An error occured: ${ex.message}")
+                    } else {
+                        ex.printStackTrace()
+                    }
+
+                    IcecastConnectionListener.onConnectionError(ex)
                 }
 
-                onConnectionError(ex)
+                icecastClient.closeConnection()
+                ChannelEventListener.onChannelStop(this, ChannelEventListener.REASON_CHANNEL_EXCEPTION)
             }
-
-            icecastClient.closeConnection()
-            channelEventListener?.onChannelStop(this, REASON_CHANNEL_EXCEPTION)
         }
     }
 
-    fun cancel(forceStop: Boolean) {
-        shutdown = true
-        forceShutdown = forceStop
-
-        when(forceStop) {
-            true -> logger.info("Channel shutdown triggered.")
-            else -> logger.info("Channel shutdown triggered. Shutting down after current song was played.")
-        }
+    fun shutdown(){
+        this.shutdown = true
     }
 
-    fun reload(){
-        loadPlaylist()
-    }
-
-    private fun loadPlaylist(withLogEntries: Boolean = true){
+    fun loadPlaylist(): Boolean {
         queue.clear()
+        val playlist = data.playlist ?: return false
+        val directory = File(Filesystem.playlistDirectory.absolutePath+ File.separator+playlist.id)
 
-        val playlist = PlaylistHandler.configuredPlaylists[data.playlistID]
-
-        if(playlist == null) {
-            if(withLogEntries) logger.error("Could not find playlist '${data.playlistID}' for channel '${data.name}'.")
-            return
-        }
-
-        if(!playlist.directoryAsFile.exists() || !playlist.directoryAsFile.isDirectory) {
-            if(!playlist.directoryAsFile.mkdirs()) {
-                if (withLogEntries) logger.error("Playlist directory '${playlist.directoryAsFile.absolutePath}' is not a directory or not found")
-                return
+        if(!directory.exists() || !directory.isDirectory) {
+            if(!directory.mkdirs()) {
+                logger.error("Playlist directory '${directory.absolutePath}' is not a directory or cannot be found")
+                return false
             }
         }
 
-        playlist.directoryAsFile.listFiles { _, name -> name.endsWith(".mp3") }!!.forEach { file ->
+        directory.listFiles { _, name -> name.endsWith(".mp3") }!!.forEach { file ->
             var mp3File: Mp3File? = null
             try {
                 mp3File = Mp3File(file)
@@ -144,93 +113,14 @@ class Channel(
                         artist = mp3File.id3v2Tag.artist ?: "Unknown artist"
                     }
                 } catch (ignored: IllegalStateException) {
-                    if (withLogEntries) logger.warn("'${data.name}' >> Found song file with corrupted Id3v2/v1 Tags ('${file.absolutePath}')")
+                    logger.warn("'${data.name}' >> Found song file with corrupted Id3v2/v1 Tags ('${file.absolutePath}')")
                 }
 
                 val track = AudioTrack(title, artist, file, mp3File)
                 queue.add(track)
             }
         }
-    }
 
-    fun liveUpdate(channel: Channel){
-        if(data.playlistID != channel.data.playlistID) {
-            // Playlist updated -> reload
-            loadPlaylist(false)
-        }
-
-        this.data = channel.data
-        logger.info("live updated.")
-    }
-
-    /*fun toContentValues(): ContentValues {
-        val values = ContentValues()
-        values["id"] = data.id.replace("-", "")
-        values["name"] = data.name
-        values["nodeID"] = data.nodeID.replace("-", "")
-        values["description"] = data.description
-        values["creatorID"] = data.creatorID.replace("-", "")
-        values["mountpoint"] = "/${(data.mountpoint.removePrefix("/").removeSuffix("/").replace("/", "").replace("\\", ""))}"
-        values["playlistID"] = data.playlistID.replace("-", "")
-        values["playlistShuffle"] = when(data.shuffled) {
-            true -> "1"
-            else -> "0"
-        }
-        values["playlistLoop"] = when(data.looped) {
-            true -> "1"
-            else -> "0"
-        }
-        values["genres"] = "["+GsonBuilder().create().toJson(data.genres)+"]"
-
-        return values
-    }*/
-
-    override fun onConnectionEstablished() {
-        logger.info("Channel '${data.name}' connected to icecast2 successfully.")
-    }
-
-    override fun onConnectionError(exception: Exception) {
-        val message: String
-
-        when (exception) {
-            is ConnectException -> message = "Connection refused"
-            else -> {
-                message = exception.message!!
-                exception.printStackTrace()
-            }
-        }
-
-        logger.error("An error occured in channel '${data.name}' whilst connecting to icecast2: $message")
-        throw exception
-    }
-
-    override fun onConnectionLost() {
-        logger.warn("Channel '${data.name}' lost connection to icecast2.")
-    }
-
-    override fun onTrackStart(track: AudioTrack) {
-        data.info.title = track.title
-        data.info.artist = track.artist
-        data.info.triggerUpdate()
-    }
-
-    override fun onTrackEnd(track: AudioTrack, endReason: Int, exception: Exception?) {
-        data.info.addToHistory(track)
-
-        if(endReason != REASON_MAY_START_NEXT || exception != null){
-            data.info.clearAll()
-            data.info.triggerUpdate()
-        }
-
-        if(exception != null){
-            when (exception) {
-                is SocketException -> {
-                    logger.error("Connection closed: ${exception.message}")
-                    throw exception
-                }
-                else -> exception.printStackTrace()
-            }
-
-        }
+        return queue.isNotEmpty()
     }
 }

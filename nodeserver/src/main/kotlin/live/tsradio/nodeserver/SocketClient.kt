@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import io.socket.client.IO
 import io.socket.client.Socket
 import live.tsradio.nodeserver.events.Events
+import live.tsradio.nodeserver.events.channel.OnNodeChannelUpdate
 import live.tsradio.nodeserver.events.client.OnClientAuthenticatedEvent
 import live.tsradio.nodeserver.events.client.OnClientConnectionEvent
 import live.tsradio.nodeserver.events.client.OnClientDisconnectEvent
@@ -46,6 +47,7 @@ object SocketClient {
                     .on(Socket.EVENT_RECONNECT_FAILED, OnClientReconnectFailedEvent())
                     .on(Events.EVENT_SERVER_ERROR, OnServerErrorEvent())
                     .on(Events.EVENT_CLIENT_AUTHENTICATED, OnClientAuthenticatedEvent())
+                    .on(Events.EVENT_NODE_CHANNEL_UPDATE, OnNodeChannelUpdate())
             socket!!.connect()
         }
     }

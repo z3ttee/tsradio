@@ -7,6 +7,7 @@ import live.tsradio.master.api.auth.AuthPacket
 import live.tsradio.master.api.client.ListenerClient
 import live.tsradio.master.api.client.NodeClient
 import live.tsradio.master.api.error.ServerError
+import live.tsradio.master.api.node.NodeServer
 import live.tsradio.master.api.node.channel.NodeChannel
 import live.tsradio.master.events.Events
 import live.tsradio.master.utils.MySQL
@@ -36,9 +37,10 @@ object ClientHandler {
                 if(result != null && result.next()) {
                     val expiry = result.getLong("expirationDate")
                     if(expiry != -1L || expiry <= System.currentTimeMillis()) {
-                        authData.granted = false
+                        authData.granted = true
                         this.clients[client.sessionId] = NodeClient(client.sessionId, client, authData)
                         client.sendEvent(Events.EVENT_CLIENT_AUTHENTICATED, authData.toJSON())
+                        NodeHandler.loginNode(authData.clientID)
                         return
                     }
                 }
@@ -58,11 +60,24 @@ object ClientHandler {
     }
 
     fun remove(uuid: UUID) {
-        clients.remove(uuid)
+        val client = clients.remove(uuid)
+
+        if(client is NodeClient) {
+            NodeHandler.unloadNode(client.authPacket.clientID)
+            getListenerClients().forEach { it.client.sendEvent(Events.EVENT_NODE_CHANNEL_REMOVED, "{\"id\": \"${client.authPacket.clientID}\"}") }
+        }
     }
 
     fun getNodeForChannel(channel: NodeChannel): Client? {
         return this.clients.values.toCollection(ArrayList()).filter { it.id == channel.id }[0]
+    }
+
+    fun getListenerClients(): ArrayList<Client> {
+        return this.clients.values.filter { it is ListenerClient }.toCollection(ArrayList())
+    }
+
+    fun getNode(nodeID: UUID): Client? {
+        return this.clients.values.filter { it.authPacket.clientID == nodeID }.toCollection(ArrayList())[0]
     }
 
     fun getClient(uuid: UUID): Client? {

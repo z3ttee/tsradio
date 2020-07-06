@@ -1,13 +1,9 @@
 package live.tsradio.nodeserver.console.commands
 
-import live.tsradio.nodeserver.utils.CMDInputFinder
 import live.tsradio.nodeserver.console.Command
 import live.tsradio.nodeserver.console.CommandHandler
-import live.tsradio.nodeserver.sound.Playlist
-import live.tsradio.nodeserver.sound.PlaylistHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 import kotlin.collections.ArrayList
 
 // TODO: New mysql system
@@ -20,7 +16,7 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
             return
         }
 
-        if(args[0].equals("help", true)) {
+        /*if(args[0].equals("help", true)) {
             logger.info("Attribute help: ")
             logger.info("[-n] Name of the playlist")
             logger.info("[-c] Creator of the playlist")
@@ -105,6 +101,6 @@ class CmdPlaylist: Command("playlist", "<help|list|create|delete|edit>", "Manage
             return
         }
 
-        logger.warn("Could not handle argument '${args[0]}'")
+        logger.warn("Could not handle argument '${args[0]}'")*/
     }
 }

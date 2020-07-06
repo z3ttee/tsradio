@@ -9,10 +9,15 @@ import live.tsradio.master.api.node.channel.NodeChannelInfo
 import live.tsradio.master.handler.ClientHandler
 import live.tsradio.master.handler.NodeHandler
 import live.tsradio.master.events.Events
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class OnNodeChannelInfoUpdateEvent: DataListener<String> {
+    private val logger: Logger = LoggerFactory.getLogger(OnNodeChannelInfoUpdateEvent::class.java)
 
     override fun onData(client: SocketIOClient?, data: String?, ackSender: AckRequest?) {
+        logger.info("Received info update.")
+
         if(client != null && data != null) {
             val clientData = ClientHandler.getClient(client.sessionId)
 

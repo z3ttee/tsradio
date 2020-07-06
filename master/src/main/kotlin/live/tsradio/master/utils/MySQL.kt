@@ -37,7 +37,7 @@ object MySQL {
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableChannels`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, nodeID VARCHAR(36) NOT NULL, description VARCHAR(256) DEFAULT 'no description', creatorID VARCHAR(36) DEFAULT 'System', mountpoint VARCHAR(32) NOT NULL, playlistID VARCHAR(36), shuffled BOOLEAN NOT NULL DEFAULT TRUE, looped BOOLEAN NOT NULL DEFAULT TRUE, genres TEXT, featured BOOLEAN DEFAULT TRUE, listed BOOLEAN DEFAULT TRUE, priority INT DEFAULT 0);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tableSessions`(id VARCHAR(36) NOT NULL UNIQUE, sessionHash VARCHAR(254) NOT NULL UNIQUE, expirationDate BIGINT DEFAULT -1);")
             rawUpdate("CREATE TABLE IF NOT EXISTS `$tablePlaylists`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) DEFAULT 'null', creatorID VARCHAR(36) DEFAULT 'System', genres TEXT);")
-            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableMembers`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, permissionGroup VARCHAR(36) NOT NULL, creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);")
+            rawUpdate("CREATE TABLE IF NOT EXISTS `$tableMembers`(id VARCHAR(36) NOT NULL UNIQUE, name VARCHAR(32) NOT NULL UNIQUE, password VARCHAR(254), permissionGroup VARCHAR(36) NOT NULL, creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);")
         }
     }
 
@@ -109,6 +109,24 @@ object MySQL {
             }
         } catch (ex: Exception) {
             logger.error("An error occured when executing a database query: ${ex.message}")
+            0
+        }
+    }
+
+    fun update(table: String, whereClause: String, fields: HashMap<String, String>): Int {
+        return if(hasConnection()) {
+            var joined = ""
+            for((index, entry) in fields.entries.withIndex()) {
+                if(index == 0){
+                    joined = "${entry.key} = '${entry.value}'"
+                } else {
+                    joined += ",${entry.key} = '${entry.value}'"
+                }
+            }
+            val pps = connection!!.prepareStatement("UPDATE `$table` SET $joined WHERE $whereClause;")
+            pps.executeUpdate()
+        } else {
+            logger.error("Could not execute mysql query: No connection to mysql database.")
             0
         }
     }

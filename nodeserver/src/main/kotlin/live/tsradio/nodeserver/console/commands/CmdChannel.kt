@@ -2,7 +2,7 @@ package live.tsradio.nodeserver.console.commands
 
 import live.tsradio.nodeserver.console.Command
 import live.tsradio.nodeserver.console.CommandHandler
-import live.tsradio.nodeserver.channel.ChannelHandler
+import live.tsradio.nodeserver.handler.ChannelHandler
 import live.tsradio.nodeserver.files.Filesystem
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -90,7 +90,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             return
         }*/
 
-        if(args[0].equals("delete",true)) {
+        /*if(args[0].equals("delete",true)) {
             if(args.size < 1) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")
                 return
@@ -105,7 +105,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
 
             ChannelHandler.deleteChannel(ChannelHandler.getChannelOnNodeByName(channelName)!!)
             return
-        }
+        }*/
 
         /*if(args[0].equals("edit",true)) {
             if(args.size < 2) {
@@ -176,7 +176,7 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             return
         }*/
 
-        if(args[0].equals("start",true)) {
+        /*if(args[0].equals("start",true)) {
             if(args.size != 2) {
                 sendText("Syntax: $name ${args[0].toLowerCase()} <channel_name>")
                 return
@@ -214,6 +214,6 @@ class CmdChannel: Command("channel", "<help|list|create|delete|edit|start|restar
             return
         }
 
-        logger.warn("Could not handle argument '${args[0]}'")
+        logger.warn("Could not handle argument '${args[0]}'")*/
     }
 }

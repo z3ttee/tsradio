@@ -3,15 +3,20 @@ package live.tsradio.nodeserver.events.channel
 import com.google.gson.Gson
 import io.socket.emitter.Emitter
 import live.tsradio.nodeserver.api.node.channel.NodeChannel
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import live.tsradio.nodeserver.channel.Channel
+import live.tsradio.nodeserver.files.Filesystem
+import live.tsradio.nodeserver.handler.ChannelHandler
 
 class OnNodeChannelUpdate: Emitter.Listener {
-    private val logger: Logger = LoggerFactory.getLogger(OnNodeChannelUpdate::class.java)
 
     override fun call(vararg args: Any?) {
         val packet = Gson().fromJson(Gson().toJsonTree(args).asJsonArray[0].asString, NodeChannel::class.java)
 
-        logger.info("Got data for channel ${packet.name}")
+        val channel = Channel(packet)
+        ChannelHandler.set(channel)
+
+        if(Filesystem.preferences.channels.autostart) {
+            ChannelHandler.startChannel(channel.data.id)
+        }
     }
 }

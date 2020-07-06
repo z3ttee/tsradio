@@ -17,17 +17,25 @@ object TrackEventListener {
     const val REASON_EXCEPTION = 1
 
     fun onTrackStart(channel: NodeChannel, track: AudioTrack) {
-        channel.info.title = track.title
-        channel.info.artist = track.artist
-        channel.info.sendUpdate()
+        if(channel.info == null) {
+            channel.info = NodeChannelInfo(
+                    channel.id,
+                    track.title,
+                    track.artist,
+                    HashMap())
+        } else {
+            channel.info!!.title = track.title
+            channel.info!!.artist = track.artist
+        }
+        channel.info!!.sendUpdate()
     }
 
     fun onTrackEnd(channel: NodeChannel, track: AudioTrack, endReason: Int, exception: Exception?) {
-        addToHistory(channel.info, track)
+        addToHistory(channel.info!!, track)
 
         if(endReason != REASON_MAY_START_NEXT || exception != null) {
-            channel.info.clear()
-            channel.info.sendUpdate()
+            channel.info!!.clear()
+            channel.info!!.sendUpdate()
         }
 
         if(exception != null){

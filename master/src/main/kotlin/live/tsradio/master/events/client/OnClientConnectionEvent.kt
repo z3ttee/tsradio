@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import live.tsradio.master.api.auth.AuthPacket
 import live.tsradio.master.api.client.NodeClient
+import live.tsradio.master.events.Events
 import live.tsradio.master.handler.ClientHandler
 import live.tsradio.master.handler.NodeHandler
 import org.slf4j.Logger
@@ -26,11 +27,13 @@ class OnClientConnectionEvent: ConnectListener {
 
             val clientData = ClientHandler.getClient(client.sessionId)!!
             if(clientData is NodeClient) {
-                NodeHandler.loadNode(clientData.authPacket.clientID)
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as daemon node")
             } else {
                 logger.info("Client '${client.remoteAddress}/${client.sessionId}' connected. Authenticated as listener. Sending initial data...")
-                client.sendEvent("onInitialTransport", GsonBuilder().create().toJson(NodeHandler.getListedChannels()))
+                for(channel in NodeHandler.getListedChannels()) {
+                    client.sendEvent(Events.EVENT_NODE_CHANNEL_UPDATE, channel.toListenerSafeJSON())
+                }
+                //client.sendEvent("onInitialTransport", GsonBuilder().create().toJson(NodeHandler.getListedChannels()))
             }
         }
     }

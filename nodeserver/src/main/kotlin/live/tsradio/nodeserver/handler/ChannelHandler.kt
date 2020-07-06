@@ -1,39 +1,74 @@
-package live.tsradio.nodeserver.channel
+package live.tsradio.nodeserver.handler
 
+import live.tsradio.nodeserver.channel.Channel
 import live.tsradio.nodeserver.files.Filesystem
-import live.tsradio.nodeserver.events.channel.ChannelEventListener
-import live.tsradio.nodeserver.events.channel.REASON_CHANNEL_EXCEPTION
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.sql.ResultSet
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.ThreadFactory
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-object ChannelHandler: ChannelEventListener, ThreadFactory {
+object ChannelHandler {
     private val logger: Logger = LoggerFactory.getLogger(ChannelHandler::class.java)
 
-    val configuredChannels: HashMap<String, Channel> = HashMap()
-    val activeChannels: HashMap<String, Channel> = HashMap()
-    private val restartTries: HashMap<String, Int> = HashMap()
-    private val executorService: ExecutorService = Executors.newFixedThreadPool(Filesystem.preferences.channels.max, this)
+    private val channels: HashMap<UUID, Channel> = HashMap()
+    val restartTries: HashMap<UUID, Int> = HashMap()
 
-    fun startChannel(channel: Channel?) {
-        if(channel == null) {
+    private val executorService: ExecutorService = Executors.newFixedThreadPool(Filesystem.preferences.channels.max)
+
+    fun set(channel: Channel) {
+        if(this.channels.containsKey(channel.data.id)) {
+            this.channels[channel.data.id]!!.data = channel.data
+        } else {
+            this.channels[channel.data.id] = channel
+        }
+    }
+
+    fun startChannel(uuid: UUID) {
+        if(!channels.containsKey(uuid)) {
             logger.warn("Cannot start non-existent channel")
             return
         }
 
-        if(activeChannels.size < Filesystem.preferences.channels.max) {
-            channel.channelEventListener = this
-            channel.shutdown = false
-            channel.forceShutdown = false
-            activeChannels[channel.data.id] = channel
-            executorService.execute(channel)
+        if(getRunningChannels().size >= Filesystem.preferences.channels.max) {
+            logger.warn("The maximum of simultaneously running channels reached!")
+            return
+        }
+
+        val nodeChannel = channels[uuid]!!
+        if(channelIsRunning(uuid)) {
+            logger.warn("Channel '${nodeChannel.name}' is already running!")
+            return
+        }
+
+        nodeChannel.execute(executorService)
+    }
+
+    fun channelExists(uuid: UUID): Boolean {
+        return this.channels.containsKey(uuid)
+    }
+
+    fun channelIsRunning(uuid: UUID): Boolean {
+        return if(this.channels.containsKey(uuid)) {
+            this.channels[uuid]!!.isRunning
+        } else {
+            false
         }
     }
-    fun startChannel(channelName: String) {
+
+    fun getChannel(uuid: UUID): Channel? {
+        return this.channels[uuid]
+    }
+
+    fun getRunningChannels(): ArrayList<Channel> {
+        return this.channels.values.filter { it.isRunning }.toCollection(ArrayList())
+    }
+    fun getConfiguredChannels(): ArrayList<Channel> {
+        return this.channels.values.filter { !it.isRunning }.toCollection(ArrayList())
+    }
+    /*fun startChannel(channelName: String) {
         val channel = getChannelByNameLocally(channelName) ?: return
         startChannel(configuredChannels[channel.data.id])
     }
@@ -254,5 +289,5 @@ object ChannelHandler: ChannelEventListener, ThreadFactory {
         if(activeChannels.containsKey(channelID)) {
             stopChannel(channelID, true)
         }
-    }
+    }*/
 }
