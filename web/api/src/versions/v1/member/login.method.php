@@ -54,6 +54,17 @@ $database->insert('sessions', array(
     'expirationDate' => $expiry
 ));
 
-$response['payload']['token'] = $hash;
-$response['payload']['expiry'] = $expiry;
+// Get user data
+$result = $database->get('members', array("id", "=", $user->id), array('id','name','creation','permissionGroup'));
+if($result->count() == 0){
+    throw new NotFoundException('user not found');
+}
+
+$user = $result->first();
+$user->session = array(
+    'token' => $hash,
+    'expiry' => $expiry
+);
+
+$response['payload']['user'] = $user;
 ?>
