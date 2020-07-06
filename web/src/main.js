@@ -17,7 +17,7 @@ Vue.use(UUID);
 axios.defaults.baseURL = 'http://localhost/v1/';
 axios.defaults.withCredentials = false;
 
-store.state.user.token = VueCookies.get('tsr_session') ?? undefined;
+store.state.user.session.token = VueCookies.get('tsr_session') ?? undefined;
 
 new Vue({
     el: '#app',
@@ -35,7 +35,6 @@ new Vue({
     },
     created() {
         // Check if logged in
-        
         if(!this.$cookies.isKey('tsr_app_theme')) this.$store.state.theme = 'dark';
     },
     mounted() {

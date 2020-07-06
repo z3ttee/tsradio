@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import { routes } from './routes.js';
 import store from '../store';
+import VueCookies from 'vue-cookies';
 
 Vue.use(VueRouter);
 
@@ -22,13 +23,17 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if(to.name == 'login' && store.state.user.token) {
+    if(!VueCookies.isKey('tsr_session')) {
+        store.state.user.session = {}
+    }
+
+    if(to.name == 'login' && store.state.user.session.token) {
         next(from);
     }
 
     // Check if logged in
     if(to.name  != 'login') {
-        if(store.state.user.token) {
+        if(store.state.user.session.token) {
             next()
         } else {
             next({name: 'login'});

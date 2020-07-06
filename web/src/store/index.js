@@ -13,7 +13,7 @@ export default new Vuex.Store({
         channels: [],
         currentChannel: {},
         user: {
-            token: undefined
+            session: {}
         }
     },
     mutations: {

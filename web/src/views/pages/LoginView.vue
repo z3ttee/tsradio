@@ -59,18 +59,17 @@ export default {
             this.error = undefined;
             setTimeout(() => {
                 axios.get('member/login/', { params: this.form }).then(response => {
-                    console.log(response)
                     if(response.status == 200) {
                         var meta = response.data.meta;
 
                         if(meta.status == 200) {
-                            console.log(response.config.url);
+                            var user = response.data.payload.user;
 
-                            if(response.data.payload.token) {
-                                this.$store.state.user.token = response.data.payload.token;
-                                var expiry = new Date(response.data.payload.expiry).toString();
+                            if(user.session.token) {
+                                this.$store.state.user = user
+                                var expiry = new Date(user.session.expiry).toString();
 
-                                this.$cookies.set('tsr_session', response.data.payload.token, expiry, '/', null, null, true);
+                                this.$cookies.set('tsr_session', user.session.token, expiry, '/', null, null, true);
                                 this.$router.go(-1);
                             }
                         } else {
