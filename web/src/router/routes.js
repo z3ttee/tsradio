@@ -35,15 +35,35 @@ export const routes = [
     }}, 
 
     // Webinterface
-    { path: '/webinterface', component: () => import('../views/pages/DashboardView.vue'), children: [
+    { path: '/webinterface',  component: () => import('../views/pages/webinterface/Webinterface.vue'), children: [
+        //{ path: 'member', component: () => import('../views/pages/webinterface/member/MemberOverview.vue') }
         // Dashboard
-        { path: '', name: 'webinterfaceDashboard',component: () => import('../views/pages/DashboardView.vue'), meta: { 
+        { path: '', name: 'webinterfaceDashboard', component: () => import('../views/pages/webinterface/Webinterface.vue'), meta: { 
             title: pagePrefix+'Webinterface', 
+            sidebarComponent: 'DashboardActions',
+            sidebarTitle: 'Dashboard',
             group: 'webinterface' 
         }},
-        // Users
-        { path: 'members/', name: 'webinterfaceMembers',component: () => import('../views/pages/UserManagementView.vue'), meta: { 
+        // Members
+        { path: 'members/', redirect: "members/overview", name: 'webinterfaceMembers'},
+        { path: 'members/:action', name: 'webinterfaceMembersAction', component: () => import('../views/pages/webinterface/member/MemberIndex.vue'), meta: { 
             title: pagePrefix+'Benutzerverwaltung', 
+            sidebarComponent: 'MembersActions',
+            sidebarTitle: 'Benutzerverwaltung',
+            group: 'webinterface' 
+        }},
+        // Channels
+        { path: 'channels/', name: 'webinterfaceChannels',component: () => import('../views/pages/webinterface/Webinterface.vue'), meta: { 
+            title: pagePrefix+'Channels', 
+            sidebarComponent: 'ChannelsActions',
+            sidebarTitle: 'Channel verwalten',
+            group: 'webinterface' 
+        }},
+        // Playlists
+        { path: 'playlists/', name: 'webinterfacePlaylists',component: () => import('../views/pages/webinterface/Webinterface.vue'), meta: { 
+            title: pagePrefix+'Playlists', 
+            sidebarComponent: 'PlaylistsActions',
+            sidebarTitle: 'Playlisten verwalten',
             group: 'webinterface' 
         }}
     ]},

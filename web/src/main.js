@@ -17,7 +17,28 @@ Vue.use(UUID);
 axios.defaults.baseURL = 'http://localhost/v1/';
 axios.defaults.withCredentials = false;
 
-store.state.user.session.token = VueCookies.get('tsr_session') ?? undefined;
+/*store.state.user.session.token = VueCookies.get('tsr_session') ?? undefined;
+if(store.state.user.session.token) {
+    axios.get('member/info/?session='+store.state.user.session.token).then(response => {
+        if(response.status == 200 && response.data.meta.status == 200) {
+            console.log(response.data);
+            var user = response.data.payload;
+            user.session = {token: store.state.user.session.token};
+            store.state.user = user
+        } else {
+            if(response.data.meta.status == 404) {
+                store.state.user = {session: {}};
+                VueCookies.remove('tsr_session');
+                router.to({name: 'login'});
+            }
+            // TODO: Show error message
+            console.log("Error received: "+response.data.meta.message);
+        }
+    }).catch(error => {
+        // TODO: Show error message
+        console.log(error)
+    });
+}*/
 
 new Vue({
     el: '#app',

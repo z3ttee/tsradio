@@ -1,6 +1,4 @@
 <?php
-
-
 // Check for method
 if($request->getMethodType() != 'GET') {
     throw new WrongMethodTypeException('GET required.');

@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import User from '@/models/user.js';
 
 import { routes } from './routes.js';
-import store from '../store';
-import VueCookies from 'vue-cookies';
+//import store from '../store';
+//import VueCookies from 'vue-cookies';
 
 Vue.use(VueRouter);
 
@@ -23,7 +24,18 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if(!VueCookies.isKey('tsr_session')) {
+    if(to.name != 'login') {
+        if(User.isLoggedIn()){
+            next()
+        } else {
+            next({name: 'login'});
+        }
+    } else {
+        next();
+    }
+    // TODO: Check if session hash is expired (cookie expiry can technically be updated by user)
+
+    /*if(!VueCookies.isKey('tsr_session')) {
         store.state.user.session = {}
     }
 
@@ -40,7 +52,7 @@ router.beforeEach((to, from, next) => {
         }
     } else {
         next()
-    }
+    }*/
 })
 
 router.afterEach((to) => {

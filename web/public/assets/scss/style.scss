@@ -75,6 +75,15 @@ h1 {
 h2 {
     font-size: 2em;
 }
+h3 {
+    font-size: 1.7em;
+}
+h4 {
+    font-size: 1.4em;
+}
+h5 {
+    font-size: 1.2em;
+}
 
 /*
 []=========== Paragraphs ===========[]
@@ -130,6 +139,11 @@ section {
     padding: 1.5em 2em;
     border-radius: $borderRadSmall;
     box-shadow: $shadowSpread;
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
 }
 
 /*
@@ -164,6 +178,78 @@ section {
         }
     }
 }
+
+/*
+[]=========== Horizontal lines ===========[]
+*/
+hr {
+
+    &.interface {
+        appearance: none;
+        border: none;
+        height: 3px;
+        width: 50%;
+        margin: 0 auto;
+        background-color: $colorPlaceholder;
+        opacity: 0.4;
+        border-radius: 4px;
+        margin: 1em auto;
+
+        &.large {
+            width: 100%;
+        }
+    }
+}
+
+/*
+[]=========== Tables ===========[]
+*/
+table {
+    width: 100%;
+    border-spacing: 0 1em;
+    border-collapse: separate;
+
+    thead {
+        tr th {
+            text-align: left;
+            font-family: 'BebasKai';
+            font-weight: 400;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            opacity: 0.4;
+            padding: 1em;
+        }
+    }
+
+    tbody {
+        tr {
+            cursor: pointer;
+            border-radius: $borderRadSmall;
+            overflow: hidden;
+            box-shadow: $shadowSpread;
+            margin-bottom: 1em;
+            background-color: $colorPlaceholder;
+            transition: all $animSpeedFast*1s $cubicNormal;
+
+            td {
+                font-size: 0.9em;
+                padding: 1.3em;
+
+                &:first-of-type {
+                    border-top-left-radius: $borderRadTiny;
+                    border-bottom-left-radius: $borderRadTiny;
+                }
+                &:last-of-type {
+                    border-top-right-radius: $borderRadTiny;
+                    border-bottom-right-radius: $borderRadTiny;
+                }
+                
+                //background-color: $colorPlaceholder;
+            }
+        }
+    }
+}
+
 
 /*
 []=========== Media Queries ===========[]

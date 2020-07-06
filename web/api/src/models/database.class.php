@@ -61,22 +61,22 @@ class Database {
     }
 
     public function action($action, $table, $where = array(), $fields = array()) {
+        if(empty($fields)) {
+            $fields = '*';
+        } else {
+            $fields = implode(',',$fields);
+        }
+
+        if($action === "DELETE") {
+            $fields = "";
+        }
+
         if (count($where) === 3) {
             $operators = array('=','>','<','>=','<=');
 
             $field      = $where[0];
             $operator   = $where[1];
             $value      = $where[2];
-
-            if(empty($fields)) {
-                $fields = '*';
-            } else {
-                $fields = implode(',',$fields);
-            }
-
-            if($action === "DELETE") {
-                $fields = "";
-            }
 
             if (in_array($operator, $operators)) {
                 $sql = "{$action} {$fields} FROM `".Config::get('mysql/prefix').$table."` WHERE `{$field}` {$operator} ?;";
@@ -85,7 +85,7 @@ class Database {
                 }
             }
         } else {
-            $sql = "{$action} FROM `".Config::get('mysql/prefix').$table."`;";
+            $sql = "{$action} {$fields} FROM `".Config::get('mysql/prefix').$table."`;";
             if(!$this->query($sql)->error()){
                 return $this;
             }

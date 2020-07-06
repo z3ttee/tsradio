@@ -31,8 +31,32 @@
         }
     }
 
+    &.btn-secondary {
+        background-color: $colorPrimaryDark;
+        overflow: hidden;
+
+        &:hover {
+            cursor: pointer;
+            border-color: $colorPlaceholder;
+            //background-color: $colorAccentDark;
+        }
+
+        &.active {
+            border-left: 4px solid $colorAccent;
+        }
+    }
+
+    &.btn-tiny {
+        font-size: 0.6em;
+        padding: 0.5em 1em;
+    }
+
     &.btn-large {
         width: 100%;
+    }
+
+    &.btn-leftalign {
+        text-align: left;
     }
     
     &:disabled {

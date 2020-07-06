@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import User from '@/models/user.js';
 
 import ErrorMessage from '@/components/message/ErrorMessage.vue';
 import PrimaryLoader from '@/components/loader/PrimaryLoader.vue';
@@ -58,32 +58,16 @@ export default {
         submit(event, done) {
             this.error = undefined;
             setTimeout(() => {
-                axios.get('member/login/', { params: this.form }).then(response => {
-                    if(response.status == 200) {
-                        var meta = response.data.meta;
-
-                        if(meta.status == 200) {
-                            var user = response.data.payload.user;
-
-                            if(user.session.token) {
-                                this.$store.state.user = user
-                                var expiry = new Date(user.session.expiry).toString();
-
-                                this.$cookies.set('tsr_session', user.session.token, expiry, '/', null, null, true);
-                                this.$router.go(-1);
-                            }
-                        } else {
-                            if(response.data.meta.message == "wrong credentials") {
-                                this.error = "Du konntest nicht angemeldet werden, da der Benutzername nicht mit dem Passwort übereinstimmt."
-                            }
-                        }
+                User.loginWithCredentials(this.form.username, this.form.password, (result) => {
+                    if(result.ok) {
+                        this.$router.go(-1);
                     } else {
-                        this.error = "Du konntest nicht angemeldet werden, da unsere Services gerade nicht erreichbar sind."
+                        if(result.message == "wrong credentials") {
+                            this.error = "Du konntest nicht angemeldet werden, da der Benutzername nicht mit dem Passwort übereinstimmt."
+                        } else {
+                            this.error = "Du konntest nicht angemeldet werden, da unsere Services gerade nicht erreichbar sind."
+                        }
                     }
-                }).catch(error => {
-                    console.log(error);
-                    this.error = "Du konntest nicht angemeldet werden, da unsere Services gerade nicht erreichbar sind."
-                }).finally(() => {
                     done();
                 });
             }, 1000);
