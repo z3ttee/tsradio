@@ -14,7 +14,7 @@ Vue.use(LottiePlayer);
 Vue.use(VueCookies);
 Vue.use(UUID);
 
-axios.defaults.baseURL = 'http://localhost/v1/';
+axios.defaults.baseURL = 'https://api.tsradio.live/v1/';
 axios.defaults.withCredentials = false;
 
 new Vue({

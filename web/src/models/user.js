@@ -5,11 +5,10 @@ import store from '@/store/index.js';
 
 const sessionCookieName = "tsr_session";
 
-
 class User {
 
     constructor() {
-        axios.defaults.baseURL = 'http://localhost/v1/';
+        axios.defaults.baseURL = 'https://api.tsradio.live/v1/';
         axios.defaults.withCredentials = false;
 
         this.checkLogin();

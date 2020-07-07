@@ -5,7 +5,7 @@ require_once('src/functions/sanatize.php');
 #require_once('config/config.php');
 require_once('config/config.dev.php');
 
-header('Access-Control-Allow-Origin: http://localhost:81');
+header('Access-Control-Allow-Origin: https://api.tsradio.live/');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 

@@ -39,7 +39,7 @@
                     </div>
                     
                     <audio id="audiosrc"
-                                controls
+                                hidden
                                 src="''" 
                                 :paused="sourcePaused" 
                                 autoplay 
