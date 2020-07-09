@@ -36,12 +36,10 @@ export default {
     },
     methods: {
         select(){
-            if(!this.clickDisabled) {
-                if(this.currentChannel.id == this.channel.id) {
-                    this.$router.push({ path: '/channels/'+this.channel.id });
-                } else {
-                    this.$store.state.currentChannel = this.channel;
-                }
+            if(this.currentChannel.id == this.channel.id && !this.clickDisabled) {
+                this.$router.push({ path: '/channels/'+this.channel.id });
+            } else {
+                this.$store.state.currentChannel = this.channel;
             }
         }
     }

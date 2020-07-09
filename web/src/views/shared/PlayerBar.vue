@@ -74,7 +74,7 @@ export default {
         }
     },
     watch: {
-        pause(val) {
+        paused(val) {
             this.sourcePaused = val;
         },
         volume(val) {
@@ -94,7 +94,7 @@ export default {
         }
     },
     methods: {
-        changeSource(mountpoint) {
+        changeSource(mountpoint, forced = false) {
             setTimeout(() => {
                 var audioElement = document.getElementById('audiosrc');
 
@@ -110,7 +110,9 @@ export default {
                 
                 var streamURL = 'https://streams.tsradio.live' + mountpoint;
 
-                if(audioElement.src != streamURL) {
+                if(audioElement.src != streamURL || forced) {
+                    console.log('changed source');
+
                     this.paused = false;
                     this.loading = true;
                     
@@ -136,11 +138,11 @@ export default {
         eventEnded(){
             console.log('ended');
             
-            this.changeSource(null);
+            this.changeSource(null, true);
         },
         eventPaused(){
             console.log('paused');
-            this.changeSource(null);
+            this.changeSource(null, true);
             //this.sourcePaused = false;
         },
         eventCanPlay(event) {
