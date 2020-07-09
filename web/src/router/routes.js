@@ -23,7 +23,7 @@ export const routes = [
     }},
 
     // Channel + id
-    { path: '/channels/:id', name: 'channelPage', component: () => import('../views/errors/404View.vue'), meta: { 
+    { path: '/channels/:id', name: 'channelPage', component: () => import('../views/pages/ChannelDetailsView.vue'), meta: { 
         title: pagePrefix+'Der bessere Sound',
         group: 'default'
     }},

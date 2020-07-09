@@ -140,7 +140,8 @@ export default {
         },
         eventPaused(){
             console.log('paused');
-            this.sourcePaused = false;
+            this.changeSource(null);
+            //this.sourcePaused = false;
         },
         eventCanPlay(event) {
             this.loading = false;

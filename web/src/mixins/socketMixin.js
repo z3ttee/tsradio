@@ -9,6 +9,8 @@ export const socketMixin = {
 
         socket.on('onNodeChannelUpdate', (data) => {
             var channel = JSON.parse(data);
+            channel.coverURL = 'https://tsradio.live/upload/covers/'+channel.id+'.png';
+            channel.listenerCount = 0;
 
             if(Channels.channelExists(channel.id)) {
                 Channels.updateChannel(channel);

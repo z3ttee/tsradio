@@ -4,7 +4,7 @@
             <message-slide></message-slide>
         </div>
 
-        <section id="featured">
+        <section id="featured" v-if="featuredChannels.length > 0">
             <!--<div class="content-container">
                 <div>
                     <form-token v-model="form.token"></form-token>
@@ -24,7 +24,7 @@
                 </transition-group>
             </div>
         </section>
-        <section id="other">
+        <section id="other" v-if="otherChannels.length > 0">
             <div class="content-container">
                 <h2>Weitere Channel</h2>
                 <transition-group name="slide" tag="div" class="tsr_layout_tablelist" appear>
@@ -37,7 +37,7 @@
 
 <script>
 import MessageSlide from '../../components/message/MessageSlide.vue';
-import ChannelListItem from '../../components/ChannelListItem.vue';
+import ChannelListItem from '../../components/listitems/ChannelListItem.vue';
 
 export default {
     name: 'home',
@@ -46,9 +46,6 @@ export default {
         MessageSlide
     },
     computed: {
-        channels() {
-            return this.$root.$data.channels;
-        },
         featuredChannels() {
             return this.$store.state.channels.filter((element) => {
                 if(element.featured) return element;
