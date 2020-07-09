@@ -7,7 +7,7 @@
                         Du hörst <span v-html="channel.name"></span>
                     </div>
                     <div class="tsr_actionbox playerbar_channelbox" @click="upvote"><img src="/assets/images/icons/like.svg"></div>
-                    <div class="tsr_actionbox playerbar_channelbox" @click="$router.push({ path: '/channels/'+channel.id })">Mehr anzeigen</div>
+                    <div class="tsr_actionbox playerbar_channelbox" @click="$router.push({ path: '/channels/'+channel.id })" v-if="$route.name != 'channelPage'">Mehr anzeigen</div>
                 </div>
             </div>
             
