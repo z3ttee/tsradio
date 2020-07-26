@@ -11,6 +11,7 @@ import discord4j.core.DiscordClient
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.event.domain.message.MessageUpdateEvent
+import live.tsradio.discordbot.api.ApiRequest
 import live.tsradio.discordbot.utils.CMDInputFinder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,6 +20,10 @@ import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
 private val logger: Logger = LoggerFactory.getLogger(BotCore::class.java)
+
+fun main() {
+
+}
 
 fun main(args: Array<String>) {
     logger.info("Bot is now starting...")
@@ -50,6 +55,10 @@ class BotCore(token: String) {
         // registering commands
         ConsoleHandler.start()
         CommandHandler.registerCommands()
+
+        ApiRequest().get().subscribe {
+            logger.info(it.toJSONString())
+        }
 
         // creating instance of client
         discordClient = DiscordClient.create(token)

@@ -96,7 +96,13 @@ object MySQL {
                 0 -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table$where;")
                 else -> connection!!.prepareStatement("SELECT ${selection.joinToString(",")} FROM $table WHERE $whereClause LIMIT $maxResults;")
             }
-            pps.executeQuery()
+
+            val result = pps.executeQuery()
+            if(result.next()) {
+                result
+            } else {
+                null
+            }
         } else {
             logger.error("Could not execute mysql query: No connection to mysql database.")
             null
