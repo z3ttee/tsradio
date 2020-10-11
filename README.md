@@ -1,4 +1,4 @@
-# TSRadio Project [Discontinued]
+# TSRadio Project
 This repository consists of multiple projects together building the system behind TSRadio. The project is a private project of mine (not intended for public usage in near future).
 
 #### Daemon
