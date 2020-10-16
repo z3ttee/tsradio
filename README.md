@@ -8,7 +8,6 @@ To see the current state of development in detail, please visit the following pa
 - [ ] Create / Manage channels
 - [ ] Create / Manage users
 
-
 ## Prerequisites
 * NodeJS v12
 
