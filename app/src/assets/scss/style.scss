@@ -15,6 +15,10 @@ body {
     background-color: $colorPrimary;
 
     background-image: url(assets/images/background/background_blurred.png);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 #wrapper {
