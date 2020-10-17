@@ -4,7 +4,6 @@
 * {
     margin: 0 auto;
     box-sizing: border-box;
-    font-weight: 500;
     font-family: 'Poppins';
     color: $colorWhite;
 }
@@ -14,6 +13,8 @@ body {
     height: 100%;
     width: 100%;
     background-color: $colorPrimary;
+
+    background-image: url(assets/images/background/background_blurred.png);
 }
 
 #wrapper {
@@ -81,27 +82,31 @@ p {
 /*
 []=========== Buttons ===========[]
 */
+
+$buttonHeights: (
+    's': 32px, 
+    'm': 38px, 
+    'l': 45px, 
+    'xl': 52px
+);
+
 .btn {
     display: block;
     appearance: none;
     border: none;
     background: none;
     outline: none;
-    letter-spacing: 0px;
+    letter-spacing: 0.3px;
     font-size: 0.7em;
-    font-weight: 500;
+    font-weight: 600;
     padding: 0.8em;
     border-radius: $borderRadTiny;
     cursor: pointer;
     transition: all $animSpeedFast*1s $cubicNorm;
 
-    &:active {
-        transform: scale(0.97);
-    }
-
     img {
-        height: 1.2em;
-        width: 1.2em;
+        display: inline-block;
+        height: 45%;
         vertical-align: middle;
         margin-right: 0.5em;
     }
@@ -125,28 +130,39 @@ p {
 }
 
 .btn-s {
-    padding: 0.6em;
+    padding: 0 1em;
     font-size: 0.65em;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-.btn-m {
-    padding: 1em 1.8em;
+
+    height: map-get($map: $buttonHeights, $key: 's');
 
     &:active {
-        transform: scale(0.975);
+        transform: scale(0.95);
+    }
+}
+.btn-m {
+    padding: 0 1.8em;
+    height: map-get($map: $buttonHeights, $key: 'm');
+
+    &:active {
+        transform: scale(0.96);
     }
 }
 .btn-l {
-    padding: 1.1em 2.8em;
+    padding: 0 5em;
     font-size: 0.75em;
+    font-weight: 500;
+    height: map-get($map: $buttonHeights, $key: 'l');
+
     &:active {
-        transform: scale(0.975);
+        transform: scale(0.97);
     }
 }
 .btn-xl {
-    padding: 1.2em 3.8em;
+    padding: 0em 8em;
     font-size: 0.8em;
+    font-weight: 500;
+    height: map-get($map: $buttonHeights, $key: 'xl');
+
     &:active {
         transform: scale(0.98);
     }
@@ -154,8 +170,6 @@ p {
 .btn-full {
     display: block;
     width: 100%;
-    font-size: 0.75em;
-    padding: 1em 1.8em;
 
     &:active {
         transform: scale(0.99);
@@ -164,31 +178,34 @@ p {
 
 .btn-inline {
     display: inline-block;
+    vertical-align: middle;
 }
 .btn-icon {
-    padding: 0em;
-    height: 28px;
-    width: 28px;
+    height: map-get($map: $buttonHeights, $key: 's');
+    width: map-get($map: $buttonHeights, $key: 's');
+
+    padding: 0 !important;
     text-align: center;
     
     img {
         display: inline-block;
-        margin-right: 0;
-        height: 11px;
-        width: 11px;
+        height: 45%;
+        width: 45%;
+        vertical-align: middle;
+        margin: 0;
     }
 
-    &.btn-s {
-        padding: 0.6em;
-    }
     &.btn-m {
-        padding: 1em;
+        height: map-get($map: $buttonHeights, $key: 'm');
+        width: map-get($map: $buttonHeights, $key: 'm');
     }
     &.btn-l {
-        padding: 1.1em;
+        height: map-get($map: $buttonHeights, $key: 'l');
+        width: map-get($map: $buttonHeights, $key: 'l');
     }
     &.btn-xl {
-        padding: 1.2em;
+        height: map-get($map: $buttonHeights, $key: 'xl');
+        width: map-get($map: $buttonHeights, $key: 'xl');
     }
 }
 .btn-icon-circle {
