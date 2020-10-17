@@ -32,6 +32,7 @@ export default {
     min-height: 200px;
     padding: $windowPad;
     margin-top: 5em;
+    margin-bottom: 2em;
     padding-left: 17em;
 
     .animation-wrapper {
