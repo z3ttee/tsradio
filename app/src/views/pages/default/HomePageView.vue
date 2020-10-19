@@ -148,4 +148,17 @@ export default {
         }
     }
 }
+
+/*
+[]=========== Media Query ===========[]
+*/
+@media screen and (max-width: 1300px) {
+    
+}
+
+@media screen and (max-width: 950px) {
+    .channel-grid {
+        grid-template-columns: 100%;
+    }
+}
 </style>
