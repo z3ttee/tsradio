@@ -26,7 +26,7 @@ export default {
 .announcement-box {
     position: relative;
     display: block;
-    background-color: rgba($color: $colorPlaceholder, $alpha: 0.8);
+    background-color: rgba($color: $colorPlaceholder, $alpha: 0.7);
     border-radius: $borderRadSmall;
     box-shadow: $shadowNormal;
     min-height: 200px;
