@@ -27,7 +27,7 @@
 
 <script>
 import AppContentDividerComp from '@/components/AppContentDividerComp.vue'
-import SetupDatabaseView from '@/views/setup/SetupDatabaseView.vue'
+import SetupDatabaseView from '@/views/pages/setup/SetupDatabaseView.vue'
 
 export default {
     components: {
