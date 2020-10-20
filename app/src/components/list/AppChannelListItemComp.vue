@@ -1,12 +1,14 @@
 <template>
-    <div class="list-item-covered">
-        <div class="list-item-col list-item-cover"></div>
-        <div class="list-item-col list-item-content channel-info">
-            <h4>Channel #1</h4>
-            <p>
-                Das ist ein Lied 
-                <span>Das ist ein Künstler</span>
-            </p>
+    <div class="list-item-covered-wrapper">
+        <div class="list-item-covered">
+            <div class="list-item-col list-item-cover"></div>
+            <div class="list-item-col list-item-content channel-info">
+                <h4>Channel #1</h4>
+                <p>
+                    Das ist ein Lied 
+                    <span>Das ist ein Künstler</span>
+                </p>
+            </div>
         </div>
     </div>
 </template>

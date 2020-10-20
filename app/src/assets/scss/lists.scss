@@ -2,8 +2,21 @@
 
 .list-grid-wrapper {
     display: grid;
-    gap: 1em;
+    width: 100%;
     grid-template-columns: 50% 50%;
+
+    .list-item-covered-wrapper {
+        display: block;
+        width: 100%;
+        padding: 0 1em;
+
+        &:nth-child(even) {
+            padding-right: 0;
+        }
+        &:nth-child(odd) {
+            padding-left: 0;
+        }
+    }
 
     .list-item-covered {
         display: table;
@@ -46,13 +59,21 @@
     .list-grid-wrapper {
         grid-template-columns: 100%;
 
+        .list-item-covered-wrapper {
+            padding: 0.5em 0;
+
+            &:first-of-type {
+                padding-top: 0;
+            }
+            &:last-of-type {
+                padding-bottom: 0;
+            }
+        }
+
         .list-item-covered {
             .list-item-cover {
                 width: 80px !important;
                 height: 80px !important;
-            }
-            .list-item-content {
-
             }
         }
     }
