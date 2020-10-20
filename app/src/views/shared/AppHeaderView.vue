@@ -7,6 +7,7 @@
 
             <div class="header-bar-section">
                 <img id="desktop-banner" src="@/assets/images/branding/ts_radio_banner.svg" alt="" srcset="">
+                <img id="mobile-banner" src="@/assets/images/branding/ts_logo.svg" alt="" srcset="">
             </div>
 
             <div class="header-bar-section">
@@ -35,8 +36,13 @@ export default {
         width: 33%;
         text-align: center;
 
-        img#desktop-banner {
+        img#desktop-banner,
+        img#mobile-banner {
             height: 50px;
+        }
+
+        img#mobile-banner {
+            display: none;
         }
 
         &:first-of-type {
@@ -44,6 +50,19 @@ export default {
         }
         &:last-of-type {
             text-align: right;
+        }
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .header {
+        img#desktop-banner {
+            display: none;
+        }
+        img#mobile-banner {
+            display: inline-block !important;
+            width: 32px;
+            height: 32px;
         }
     }
 }

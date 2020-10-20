@@ -43,4 +43,48 @@ export default {
         left: 0;
     }
 }
+
+@media screen and (max-width: 950px) {
+    .announcement-box {
+        margin-top: 5em;
+        min-height: 160px;
+        padding-left: 16em;
+
+        .animation-wrapper {
+            width: 190px !important;
+            top: -60%;
+            left: 0em;
+        }
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .announcement-box {
+        margin-top: 1em;
+        min-height: 180px;
+        padding-left: 14em;
+
+        .animation-wrapper {
+            width: 180px !important;
+            top: 50%;
+            left: -1em;
+            transform: translateY(-50%);
+        }
+    }
+}
+@media screen and (max-width: 480px) {
+    .announcement-box {
+        margin-top: 2em;
+        padding: $windowPad;
+        padding-top: 8em;
+        text-align: center;
+
+        .animation-wrapper {
+            width: 110px !important;
+            top: 2em;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+}
 </style>
