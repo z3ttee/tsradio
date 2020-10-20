@@ -5,16 +5,19 @@
     </div>
 
     <app-footer-view></app-footer-view>
+    <app-sidebar-view></app-sidebar-view>
 </template>
 
 <script>
 import AppHeaderView from '@/views/shared/AppHeaderView.vue'
 import AppFooterView from '@/views/shared/AppFooterView.vue'
+import AppSidebarView from '@/views/shared/AppSidebarView.vue'
 
 export default {
     components: {
         AppHeaderView,
-        AppFooterView
+        AppFooterView,
+        AppSidebarView
     }
 }
 </script>

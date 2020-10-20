@@ -2,7 +2,7 @@
     <div class="header">
         <div class="content-container">
             <div class="header-bar-section">
-                <button class="btn btn-icon btn-l btn-inline"><img src="@/assets/images/icons/menu.svg"></button>
+                <button class="btn btn-icon btn-l btn-inline" @click="toggleSidebar"><img src="@/assets/images/icons/menu.svg"></button>
             </div>
 
             <div class="header-bar-section">
@@ -19,8 +19,14 @@
 </template>
 
 <script>
+import sidebarEventListener from '@/events/SidebarEventListener.js'
+
 export default {
-    
+    methods: {
+        toggleSidebar() {
+            sidebarEventListener.emit('toggle')
+        }
+    }
 }
 </script>
 
@@ -54,7 +60,7 @@ export default {
     }
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 950px) {
     .header {
         img#desktop-banner {
             display: none;

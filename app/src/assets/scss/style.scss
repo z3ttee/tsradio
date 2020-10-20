@@ -277,8 +277,34 @@ $buttonHeights: (
     text-align: right;
 }
 
+/*
+[]=========== Horizontal lines ===========[]
+*/
+hr {
+    border: none;
+    appearance: none;
+    background: none;
+    display: block;
+    width: 100%;
+    height: 3px;
+    border-radius: 8px;
+    background-color: $colorPrimary;
+    margin: 0.8em 0;
+}
 
-
+/*
+[]=========== Scrollbar ===========[]
+*/
+/* width */
+::-webkit-scrollbar {
+    width: 0.4em;
+}
+  
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: $colorPlaceholder;
+    border-radius: 1em;
+}
 
 
 /*

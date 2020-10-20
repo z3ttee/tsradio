@@ -53,8 +53,8 @@
 @media screen and (max-width: 950px) {
     .channel-info {
         h4,p {
-            font-size: 1.2em;
-            height: 40px;
+            font-size: 1.3em;
+            height: 42px;
         }
         h4 {
             background: linear-gradient($colorAccent, $colorPrimaryDark);
