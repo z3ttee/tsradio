@@ -9,6 +9,7 @@
         display: block;
         width: 100%;
         padding: 0 1em;
+        
 
         &:nth-child(even) {
             padding-right: 0;
@@ -21,24 +22,23 @@
     .list-item-covered {
         display: table;
         width: 100%;
-        
+
         overflow: hidden;
         vertical-align: top;
         box-shadow: $shadowNormal;
         background-color: rgba($color: $colorPlaceholder, $alpha: 0.8);
         border-radius: $borderRadSmall;
+        border: 2px solid rgba($color: $colorPlaceholder, $alpha: 0.8);
 
         .list-item-col {
             display: table-cell;
 
             &.list-item-cover {
                 padding: 0;
-                width: 100px;
-                height: 100px;
+                width: 116px;
+                height: 116px;
                 background-color: $colorPrimary;
-
-                border-top-right-radius: $borderRadSmall;
-                border-bottom-right-radius: $borderRadSmall;
+                border-radius: $borderRadSmall;
             }
 
             &.list-item-content {
@@ -52,7 +52,14 @@
 []=========== Media Query ===========[]
 */
 @media screen and (max-width: 1300px) {
-    
+    .list-grid-wrapper {
+        .list-item-covered {
+            .list-item-cover {
+                width: 96px !important;
+                height: 96px !important;
+            }
+        }
+    }
 }
 
 @media screen and (max-width: 950px) {
