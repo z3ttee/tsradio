@@ -19,5 +19,5 @@ To see the current state of development in detail, please visit the following pa
 TBD
 
 #### 2. Setting up SSL
-To user ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory 
+To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory 
 and place ``server.key`` and ``server.crt`` inside the newly created folder.
