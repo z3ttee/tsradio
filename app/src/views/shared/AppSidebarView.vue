@@ -141,7 +141,7 @@ export default {
 
 @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
     .sidebar-overlay {
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(6px);
     }
 }
 

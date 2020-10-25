@@ -6,6 +6,8 @@
         </app-announcement-box-comp>
 
         <section>
+            <button class="btn btn-primary btn-m" @click="showTestModal">Show Modal</button>
+
             <h3>Hervorgehobene Channels</h3>
             <div class="list-grid-wrapper">
                 <app-channel-list-item-comp></app-channel-list-item-comp>
@@ -19,10 +21,21 @@
 import AppAnnouncementBoxComp from '@/components/message/AppAnnouncementBoxComp.vue'
 import AppChannelListItemComp from '@/components/list/AppChannelListItemComp.vue'
 
+//import AppLoginModal from '@/components/modal/AppLoginModal.vue'
+
 export default {
     components: {
         AppAnnouncementBoxComp,
         AppChannelListItemComp
+    },
+    methods: {
+        showTestModal() {
+            const modal = {
+                componentPath: "@/components/modal/AppLoginModal.vue"
+            }
+
+            this.$modal.show(modal)
+        }
     }
 }
 </script>

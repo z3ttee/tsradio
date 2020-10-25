@@ -1,0 +1,23 @@
+.modal-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+}
+
+.modal-overlay {
+    width: 100%;
+    height: 100%;
+    
+    background-color: rgba($color: black, $alpha: 0.4);
+    pointer-events: none;
+    overflow: hidden;
+}
+
+@supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+    .modal-overlay {
+        backdrop-filter: blur(6px);
+    }
+}

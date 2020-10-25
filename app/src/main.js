@@ -5,11 +5,15 @@ import store from './store'
 
 import VueLottiePlayer from 'vue-lottie-player'
 
+import modaljs from '@/models/modal.js'
+
 const app = createApp(App)
 
 app.use(store)
 app.use(router)
 app.use(VueLottiePlayer)
+
+app.config.globalProperties.$modal = modaljs
 
 app.mixin({
     methods: {
