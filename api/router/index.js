@@ -28,7 +28,7 @@ class Router {
                     // Refactor action to match function naming scheme
                     const action = 'action'+route.action.charAt(0).toUpperCase()+route.action.substr(1, route.action.length)        
                     
-                    this.currentRoute = {...route, req, res}
+                    this.currentRoute = {...route, req, res, params: req.params}
                     handler[action](this.currentRoute).then((result) => {
                         res.setHeader('Content-Type', 'application/json');
 
