@@ -1,17 +1,17 @@
 module.exports = {
     app: {
-        devmode: true
+        devmode: false
     },
     ports: {
         default: 3000,
         ssl: 3443
     },
     mysql: {
-        host: 'easternexploration.de',
+        host: 'localhost',
         port: 3306,
-        dbname: 'tsradio',
-        user: 'tsradio',
-        pass: 'RadioTSCockila14€€€',
+        dbname: 'database',
+        user: 'username',
+        pass: 'password',
         prefix: 'tsr_'
     }
 }

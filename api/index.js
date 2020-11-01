@@ -7,6 +7,7 @@ import bodyParser from 'body-parser'
 
 import config from './config/config'
 import Router from './router/index.js'
+import Database from './models/database'
 
 const app = express()
 global.cfg = config
@@ -15,6 +16,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 Router.use(app)
+
+Database.findOne()
 
 // Starting secure webserver if certificate exists
 if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {

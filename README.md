@@ -10,6 +10,7 @@ To see the current state of development in detail, please visit the following pa
 
 ## Prerequisites
 * NodeJS v12
+* MySQL as database
 
 ## Setup / Installation
 1. Installation
