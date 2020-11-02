@@ -1,5 +1,6 @@
 import { Sequelize,DataTypes } from 'sequelize'
 import config from '../config/config'
+import bcrypt from 'bcrypt'
 
 class Database {
     constructor() {
@@ -56,6 +57,10 @@ function createTables(sequelize) {
     
     User.sync({alter: true}).then(() => {
         // TODO: Create default user
+        User.create({
+            username: 'admin',
+            password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds)
+        })
     })
     
 }
