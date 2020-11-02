@@ -16,7 +16,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 Router.use(app)
-
 Database.findOne()
 
 // Starting secure webserver if certificate exists
