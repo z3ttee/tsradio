@@ -41,7 +41,7 @@ node_modules/
 .firebase
 api_old/
 *_old/
-config/config.js
+api/config/config.js
 *.jks
 *.dev.*
 *.MF
