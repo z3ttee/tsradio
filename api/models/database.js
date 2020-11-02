@@ -6,7 +6,8 @@ class Database {
     constructor() {
         this.sequelize = new Sequelize('mysql://'+config.mysql.user+':'+config.mysql.pass+'@'+config.mysql.host+':'+config.mysql.port+'/'+config.mysql.dbname, {
             dialect: 'mysql',
-            loggin: (...msg) => console.log(msg)
+            logging: false
+            //loggin: (...msg) => console.log(msg)
         })
 
         this.sequelize.authenticate()
@@ -55,7 +56,8 @@ function createTables(sequelize) {
         updatedAt: false
     })
     
-    User.sync({alter: true}).then(() => {
+    User.sync({ force: true }).then(() => {
+    //User.sync({alter: true}).then(() => {
         // TODO: Create default user
         User.create({
             username: 'admin',
