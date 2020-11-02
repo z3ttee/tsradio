@@ -19,6 +19,13 @@ To see the current state of development in detail, please visit the following pa
 #### 1. Installation
 TBD
 
+First, download the newest release (there is no release yet).
+After unzipping the file, you will find several files of which the folders ``frontend`` and ``backend`` are needed. <br>
+Ideally you put all the contents of ``frontend`` into your webservers's directory.
+Because ``backend`` is a nodejs project, you have to start the nodejs server as follows:
+1. Go into the ``backend`` directory
+2. Open terminal and type in ``npm run start``
+
 #### 2. Setting up SSL
 To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory 
 and place ``server.key`` and ``server.crt`` inside the newly created folder.
