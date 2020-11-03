@@ -9,12 +9,12 @@ class Router {
     }
 
     use(app) {
-        this.app = app
 
         for(var endpoint of this.endpoints) {
 
             for(var route of endpoint.paths) {
 
+                
                 if(!route.method) route.method = 'GET'
             
                 if(this.routes[route.name.toLowerCase()]) {
@@ -23,8 +23,18 @@ class Router {
                     this.routes[route.name.toLowerCase()] = route
                 }
 
-                this.app[route.method.toLowerCase()](route.path, (req, res) => {
-                    const handler = endpoint.handler
+                //console.log(app[route.method.toLowerCase()])
+                //console.log(route.path)
+
+                console.log('Registering route '+route.name, route.path)
+
+                app[route.method.toLowerCase()](route.path, (req, res) => {
+                    console.log(route.method, req.method)
+
+                    const action = 'action'+route.action.charAt(0).toUpperCase()+route.action.slice(1) 
+
+                    res.end(action)
+                    /*const handler = endpoint.handler
                     // Refactor action to match function naming scheme
                     const action = 'action'+route.action.charAt(0).toUpperCase()+route.action.substr(1, route.action.length)        
                     
@@ -39,10 +49,10 @@ class Router {
                                 res.end(JSON.stringify(result.getAsJSON()))
                             } else {
                                 res.end(JSON.stringify(result))
-                            }
+                            //}
                         }
                         
-                    })
+                    })*/
                 })
             }
         }

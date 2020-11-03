@@ -9,15 +9,19 @@ class UserEndpoint {
     }
 
     /**
-     * @api {get} /users/:id
+     * @api {get} /users
      * 
      */
     async actionGetMultiple(route) {
-
+        return {msg: 'get multiple users'}
     }
 
+    /**
+     * @api {post} /users
+     * 
+     */
     async actionCreate(route) {
-        
+        return {msg: 'create user'}
     }
 
 }
