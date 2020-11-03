@@ -15,15 +15,9 @@ global.cfg = config
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-Router.use(app)
+const router = new Router(app)
+router.setup()
 Database.findOne()
-
-app['post']('/hello',(req, res) => {
-    res.end('post')
-})
-app['get']('/hello',(req, res) => {
-    res.end('get')
-})
 
 // Starting secure webserver if certificate exists
 if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {

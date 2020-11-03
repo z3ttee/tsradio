@@ -3,17 +3,31 @@ import routes from './routes.js'
 
 class Router {
 
-    constructor() {
+    constructor(app) {
         this.endpoints = routes
-        this.routes = {}
+        this.routes = routes
+        this.app = app
     }
 
-    use(app) {
+    setup() {
+        const self = this
 
-        for(var endpoint of this.endpoints) {
+        for(var groupName in self.routes) {
+            const group = self.routes[groupName]
+
+            for(var action of group.actions) {
+                console.log(action)
+
+                self.app[action.method.toLowerCase()](action.path, (req, res) => {
+                    console.log(action)
+                })
+            }
+        }
+
+
+        /*for(var endpoint of this.endpoints) {
 
             for(var route of endpoint.paths) {
-
                 
                 if(!route.method) route.method = 'GET'
             
@@ -24,17 +38,15 @@ class Router {
                 }
 
                 //console.log(app[route.method.toLowerCase()])
-                //console.log(route.path)
+                console.log(route.name, route.path, route.action)
 
-                console.log('Registering route '+route.name, route.path)
+                //console.log('Registering route '+route.name, route.path)
 
-                app[route.method.toLowerCase()](route.path, (req, res) => {
-                    console.log(route.method, req.method)
+                this.app[route.method.toLowerCase()](route.path, (req, res) => {
+                    console.log(route.method, route.name, route.path, route.action)
+                    //console.log(route.method, req.method)
 
-                    const action = 'action'+route.action.charAt(0).toUpperCase()+route.action.slice(1) 
-
-                    res.end(action)
-                    /*const handler = endpoint.handler
+                    const handler = endpoint.handler
                     // Refactor action to match function naming scheme
                     const action = 'action'+route.action.charAt(0).toUpperCase()+route.action.substr(1, route.action.length)        
                     
@@ -45,19 +57,19 @@ class Router {
                         if(!result) {
                             res.end(JSON.stringify({}))
                         } else {
-                            if(result instanceof ApiError) {
+                            if(result instanceof ApiError()) {
                                 res.end(JSON.stringify(result.getAsJSON()))
                             } else {
                                 res.end(JSON.stringify(result))
-                            //}
+                            }
                         }
                         
-                    })*/
+                    })
                 })
             }
-        }
+        }*/
     }
 
 }
 
-export default new Router()
+export default Router
