@@ -18,6 +18,13 @@ app.use(bodyParser.json())
 Router.use(app)
 Database.findOne()
 
+app['post']('/hello',(req, res) => {
+    res.end('post')
+})
+app['get']('/hello',(req, res) => {
+    res.end('get')
+})
+
 // Starting secure webserver if certificate exists
 if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {
     var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
