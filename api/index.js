@@ -25,9 +25,7 @@ process.on('uncaughtException', (error) => {
 // Setup custom router
 const router = new Router(app)
 router.setup()
-
-
-Database.findOne()
+Database.setup()
 
 // Starting secure webserver if certificate exists
 if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {
