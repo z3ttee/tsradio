@@ -1,4 +1,4 @@
-import { ApiError } from '../error/error.js'
+import { TrustedError } from '../error/trustedError.js'
 import Authenticator from '../models/authenticator.js'
 import routes from './routes.js'
 
@@ -21,29 +21,26 @@ class Router {
                     this.currentRoute = {...action, req, res, params: req.params, authenticated}
                     let actionFunc = 'action'+action.action.charAt(0).toUpperCase()+action.action.slice(1)
 
-                    console.log(authenticated)
+                    res.setHeader('Content-Type', 'application/json');
 
                     if(handler.requiresAuth && !authenticated) {
-
-                        return
-                    }
-
-                    handler[actionFunc](this.currentRoute).then((result) => {
-                        if(!result) {
-                            res.setHeader('Content-Type', 'application/json');
-                            res.status(404).end(JSON.stringify({}))
-                        } else {
-                            res.setHeader('Content-Type', 'application/json');
-
-                            if(result instanceof ApiError) {
-                                throw result
-                                //res.end(JSON.stringify(result.getAsJSON()))
+                        res.end(new TrustedError(res, "API_AUTH_REQUIRED").toJSON())
+                    } else {
+                        handler[actionFunc](this.currentRoute).then((result) => {
+                            if(!result) {
+                                res.status(404).end(JSON.stringify({}))
                             } else {
-                                res.end(JSON.stringify(result))
+    
+                                if(result instanceof TrustedError) {
+                                    throw result
+                                    //res.end(JSON.stringify(result.getAsJSON()))
+                                } else {
+                                    res.end(JSON.stringify(result))
+                                }
                             }
-                        }
-                        
-                    })
+                            
+                        })
+                    }
                 })
 
             }
