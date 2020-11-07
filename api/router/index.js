@@ -1,64 +1,43 @@
-import { ApiError } from '../models/error.js'
+import { ApiError } from '../error/error.js'
+import Authenticator from '../models/authenticator.js'
 import routes from './routes.js'
 
 class Router {
 
     constructor(app) {
-        this.endpoints = routes
         this.routes = routes
         this.app = app
     }
 
     setup() {
-        const self = this
+        for(let group of this.routes) {
+            for(let action of group.actions) {
 
-        for(var groupName in self.routes) {
-            const group = self.routes[groupName]
+                this.app[action.method.toLowerCase()](action.path, (req, res) => {
+                    let handler = group.handler
 
-            for(var action of group.actions) {
-                console.log(action)
+                    // Authenticate user, if required by endpoint, using provided jwt
+                    let authenticated = handler.requiresAuth ? new Authenticator().authenticateJWT(req) : true
+                    this.currentRoute = {...action, req, res, params: req.params, authenticated}
+                    let actionFunc = 'action'+action.action.charAt(0).toUpperCase()+action.action.slice(1)
 
-                self.app[action.method.toLowerCase()](action.path, (req, res) => {
-                    console.log(action)
-                })
-            }
-        }
+                    console.log(authenticated)
 
+                    if(handler.requiresAuth && !authenticated) {
 
-        /*for(var endpoint of this.endpoints) {
+                        return
+                    }
 
-            for(var route of endpoint.paths) {
-                
-                if(!route.method) route.method = 'GET'
-            
-                if(this.routes[route.name.toLowerCase()]) {
-                    console.warn('> WARN: A route named ['+route.name.toLowerCase()+'] already exists! Ensure that each route is unique!')
-                } else {
-                    this.routes[route.name.toLowerCase()] = route
-                }
-
-                //console.log(app[route.method.toLowerCase()])
-                console.log(route.name, route.path, route.action)
-
-                //console.log('Registering route '+route.name, route.path)
-
-                this.app[route.method.toLowerCase()](route.path, (req, res) => {
-                    console.log(route.method, route.name, route.path, route.action)
-                    //console.log(route.method, req.method)
-
-                    const handler = endpoint.handler
-                    // Refactor action to match function naming scheme
-                    const action = 'action'+route.action.charAt(0).toUpperCase()+route.action.substr(1, route.action.length)        
-                    
-                    this.currentRoute = {...route, req, res, params: req.params}
-                    handler[action](this.currentRoute).then((result) => {
-                        res.setHeader('Content-Type', 'application/json');
-
+                    handler[actionFunc](this.currentRoute).then((result) => {
                         if(!result) {
-                            res.end(JSON.stringify({}))
+                            res.setHeader('Content-Type', 'application/json');
+                            res.status(404).end(JSON.stringify({}))
                         } else {
-                            if(result instanceof ApiError()) {
-                                res.end(JSON.stringify(result.getAsJSON()))
+                            res.setHeader('Content-Type', 'application/json');
+
+                            if(result instanceof ApiError) {
+                                throw result
+                                //res.end(JSON.stringify(result.getAsJSON()))
                             } else {
                                 res.end(JSON.stringify(result))
                             }
@@ -66,10 +45,10 @@ class Router {
                         
                     })
                 })
-            }
-        }*/
-    }
 
+            }
+        }
+    }
 }
 
 export default Router
