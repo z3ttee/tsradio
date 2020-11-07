@@ -12,6 +12,12 @@ const routes = [
         ]
     },
     {
+        handler: authEndpoint,
+        actions: [
+            {name: 'AuthSignin', path: '/auth/signin', action: 'signin', method: 'get'}
+        ]
+    },
+    {
         handler: pingEndpoint,
         actions: [
             {name: 'CatchAll', path: '*', action: 'index', method: 'all'}

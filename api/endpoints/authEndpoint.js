@@ -1,7 +1,12 @@
-class PingEndpoint {
+import Authenticator from '../models/authenticator.js'
 
-    async actionAuthenticate(route) { }
+class AuthEndpoint {
+
+    async actionSignin(route) {
+        let token = Authenticator.loginWithCredentials(route.req, route.res)
+        return {token}
+    }
 
 }
 
-export default new PingEndpoint();
+export default new AuthEndpoint();
