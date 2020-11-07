@@ -10,6 +10,12 @@ const routes = [
             {name: 'UsersGetOne', path: '/users/:id', action: 'getOne', method: 'get'},
             {name: 'UsersCreate', path: '/users', action: 'create', method: 'post'}
         ]
+    },
+    {
+        handler: pingEndpoint,
+        actions: [
+            {name: 'CatchAll', path: '*', action: 'index', method: 'all'}
+        ]
     }
 ]
 
