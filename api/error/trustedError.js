@@ -1,6 +1,11 @@
 const errorCodes = {
     "API_INTERNAL_ERROR": { code: 500, message: 'Internal API error occured. Please contact system administrator.' },
-    "API_AUTH_REQUIRED": { code: 400, message: 'This endpoint requires authentication' }
+    "API_AUTH_REQUIRED": { code: 400, message: 'This endpoint requires authentication' },
+    "API_JWT_INVALID": { code: 400, message: 'This endpoint requires authentication' },
+    "API_JWT_NOT_SUPPLIED": { code: 400, message: 'This endpoint requires authentication' },
+    "API_CREDENTIALS_NOT_SUPPLIED": { code: 400, message: 'This endpoint requires authentication' },
+    "API_CREDENTIALS_INVALID": { code: 400, message: 'This endpoint requires authentication' }
+
 }
 
 class TrustedError {
