@@ -1,5 +1,7 @@
+<img src="attachments/project_banner.png" alt="Project Banner" style="display: block; margin: 0 auto 64px auto;" />
+
 # TSRadio NEXT
-The next version of TSRadio. Completely written from scratch using modern techniques, enables a way better experience.
+The next version of TSRadio. Completely re-written from scratch using modern techniques, enabling a better experience than before.
 
 ## Planned Features
 To see the current state of development in detail, please visit the following page: [https://github.com/z3ttee/tsradio/projects/2](https://github.com/z3ttee/tsradio/projects/2)
