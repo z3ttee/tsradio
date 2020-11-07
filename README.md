@@ -1,6 +1,5 @@
 <img src="attachments/project_banner.png" alt="Project Banner" style="display: block; margin: 0 auto 64px auto;" />
 
-# TSRadio NEXT
 The next version of TSRadio. Completely re-written from scratch using modern techniques, enabling a better experience than before.
 
 ## Planned Features
