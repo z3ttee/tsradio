@@ -1,5 +1,4 @@
 import express from 'express'
-import path from 'path'
 import http from 'http'
 import https from 'https'
 import fs from 'fs'
@@ -8,6 +7,7 @@ import bodyParser from 'body-parser'
 import config from './config/config'
 import Router from './router/index.js'
 import Database from './models/database'
+import ErrorHandler from './error/handler.js'
 
 const app = express()
 global.cfg = config
@@ -15,8 +15,18 @@ global.cfg = config
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
+// Centralized error handling
+app.use(ErrorHandler.handleError)
+process.on('unhandledRejection', (reason) => {throw reason})
+process.on('uncaughtException', (error) => {
+    ErrorHandler.handleError(error)
+})
+
+// Setup custom router
 const router = new Router(app)
 router.setup()
+
+
 Database.findOne()
 
 // Starting secure webserver if certificate exists
