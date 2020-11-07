@@ -2,7 +2,16 @@ import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 
 class User extends Model {
-    hasPermission(permission) {
+    static async getByName(username) {
+        var result = (await User.findOne({where: { username }})).get()
+        return result
+    }
+    static async getByID(uuid) {
+        var result = (await User.findOne({where: { uuid }})).get()
+        return result
+    }
+
+    hasPermission(userID) {
         
     }
 }
