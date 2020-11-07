@@ -1,4 +1,13 @@
-class UserEndpoint {
+import { ApiError } from '../error/error.js';
+import Endpoint from './endpoint.js'
+
+class UserEndpoint extends Endpoint {
+
+    constructor() {
+        super({
+            requiresAuth: true
+        })
+    }
 
     /**
      * @api {get} /users/:id
@@ -13,7 +22,7 @@ class UserEndpoint {
      * 
      */
     async actionGetMultiple(route) {
-        return {msg: 'get multiple users'}
+        
     }
 
     /**
@@ -21,7 +30,7 @@ class UserEndpoint {
      * 
      */
     async actionCreate(route) {
-        return {msg: 'create user'}
+        throw new ApiError(200, "Default")
     }
 
 }
