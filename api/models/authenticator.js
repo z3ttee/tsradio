@@ -19,7 +19,7 @@ class Authenticator {
 
             jwt.verify(token, config.app.jwt_token_secret, (err, decoded) => {
                 if(!err) {
-                    passed = false
+                    passed = true
                     data = decoded
                 }
             })
