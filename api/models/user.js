@@ -1,5 +1,6 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
+import { Group } from './group.js'
 
 class User extends Model {
     static async getByName(username) {
@@ -11,8 +12,16 @@ class User extends Model {
         return result
     }
 
-    hasPermission(userID) {
-        
+    async hasPermission(permission) {
+        if(this.groupUUID == '*') return true
+
+        let group = await Group.findOne({
+            where: { uuid: this.groupUUID },
+            attributes: ['permissions']
+        })
+
+        this.permissions = group.permissions
+        return group.permissions.includes(permission)
     }
 }
 
