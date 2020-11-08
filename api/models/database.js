@@ -1,9 +1,10 @@
-import { Sequelize,DataTypes } from 'sequelize'
+import { Sequelize } from 'sequelize'
 import config from '../config/config'
 import bcrypt from 'bcrypt'
 
 import { User, dbModel as userDBModel, dbSettings as userDBSettings} from '../models/user.js'
 import { Group, dbModel as groupDBModel, dbSettings as groupDBSettings} from '../models/group.js'
+
 
 class Database {
     constructor() {
@@ -30,20 +31,16 @@ async function createTables(sequelize) {
     console.log('Creating tables...')
 
     User.init(userDBModel, {sequelize, ...userDBSettings})
-    await User.sync({ force: true }).then(() => {
+    await User.sync({ alter: false }).then(() => {
         User.create({
             username: 'admin',
+            groupUUID: '*',
             password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds)
         })
     })
 
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
-    await Group.sync({force: true}).then(() => {
-        Group.findOrCreate({
-            where: { groupname: 'default' },
-            defaults: { groupname: 'default' }
-        })
-    })
+    await Group.sync({ alter: false })
     
     console.log('Database successfully setup')
 }
