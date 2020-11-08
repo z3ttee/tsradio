@@ -31,16 +31,19 @@ class Authenticator {
     static async loginWithCredentials(request, response) {
         let username = request.body.username
         let password = request.body.password
-        let user = await User.getByName(username)
 
         if(!username && !password) {
-            throw new TrustedError(response, "API_CREDENTIALS_NOT_SUPPLIED")
+            TrustedError.send("API_CREDENTIALS_NOT_SUPPLIED", response)
+            return false
         }
+
+        let user = await User.getByName(username)
 
         if(bcrypt.compareSync(password, user.password)) {
             return jwt.sign({ uuid: user.uuid }, config.app.jwt_token_secret, {expiresIn: '24h'})
         } else {
-            throw new TrustedError(response, "API_CREDENTIALS_INVALID")
+            TrustedError.send("API_CREDENTIALS_INVALID", response)
+            return false
         }
     }
 }

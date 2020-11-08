@@ -40,7 +40,7 @@ class TrustedError {
             responseJson.code = responseJson.errors[0].code
             response.status(responseJson.code).json(responseJson)
         } else {
-            let error = {err: errorCode, ...errorCodes[errorCode]}
+            let error = {err: errors, ...errorCodes[errors]}
             response.status(error.code).json(error)
         }
     }

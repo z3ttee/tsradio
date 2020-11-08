@@ -7,7 +7,7 @@ import bodyParser from 'body-parser'
 import config from './config/config'
 import Router from './router/index.js'
 import Database from './models/database'
-import ErrorHandler from './error/handler.js'
+//import ErrorHandler from './error/handler.js'
 
 const app = express()
 global.cfg = config
@@ -16,11 +16,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 // Centralized error handling
-app.use(ErrorHandler.handleError)
-process.on('unhandledRejection', (reason) => {throw reason})
-process.on('uncaughtException', (error) => {
+//app.use(ErrorHandler.handleError)
+process.on('unhandledRejection', () => {})
+/*process.on('uncaughtException', (error) => {
     ErrorHandler.handleError(error)
-})
+})*/
 
 // Setup custom router
 const router = new Router(app)
