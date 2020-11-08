@@ -26,11 +26,11 @@ class Database {
     }
 }
 
-function createTables(sequelize) {
+async function createTables(sequelize) {
     console.log('Creating tables...')
 
     User.init(userDBModel, {sequelize, ...userDBSettings})
-    User.sync({ force: true }).then(() => {
+    await User.sync({ force: true }).then(() => {
         User.create({
             username: 'admin',
             password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds)
@@ -38,13 +38,14 @@ function createTables(sequelize) {
     })
 
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
-    Group.sync({force: true}).then(() => {
+    await Group.sync({force: true}).then(() => {
         Group.findOrCreate({
             where: { groupname: 'default' },
             defaults: { groupname: 'default' }
         })
     })
     
+    console.log('Database successfully setup')
 }
 
 export default new Database()
