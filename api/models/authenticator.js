@@ -1,32 +1,34 @@
 import jwt from 'jsonwebtoken'
-import config from '../config/config.js'
 import bcrypt from 'bcrypt'
-import { TrustedError } from '../error/trustedError.js'
 
+import config from '../config/config.js'
+import { TrustedError } from '../error/trustedError.js'
 import { User } from '../models/user.js'
 
 class Authenticator {
-    authenticateJWT(request, response) {
+    static authenticateJWT(request) {
         let token = request.headers['x-access-token'] || request.headers['authorization']
 
-        if(token.startsWith('Bearer ')) {
-            token = token.slice(7)
-        }
+        let passed = false
+        let data = undefined
 
         if(token) {
+            if(token.startsWith('Bearer ')) {
+                token = token.slice(7)
+            }
+
             jwt.verify(token, config.app.jwt_token_secret, (err, decoded) => {
-                if(err) {
-                    throw new TrustedError(response, "API_JWT_INVALID")
-                } else {
-                    request.decoded = decoded
+                if(!err) {
+                    passed = false
+                    data = decoded
                 }
             })
-        } else {
-            throw new TrustedError(response, "API_JWT_NOT_SUPPLIED")
         }
+
+        return { passed, data }
     }
 
-    async loginWithCredentials(request, response) {
+    static async loginWithCredentials(request, response) {
         let username = request.body.username
         let password = request.body.password
         let user = await User.getByName(username)
@@ -43,4 +45,4 @@ class Authenticator {
     }
 }
 
-export default new Authenticator()
+export default Authenticator

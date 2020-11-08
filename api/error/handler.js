@@ -3,8 +3,7 @@ import { TrustedError } from './trustedError.js'
 class ErrorHandler {
     handleError(err, req, res, next) {
         if(this.isTrustedError(err)) {
-            err.res.setHeader('Content-Type', 'application/json');
-            err.res.status(400).end(err.toJSON())
+            err.res.status(err.code).json(err.toJSON())
         } else {
             console.trace(err)
         }

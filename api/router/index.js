@@ -15,32 +15,28 @@ class Router {
 
                 this.app[action.method.toLowerCase()](action.path, (req, res) => {
                     let handler = group.handler
-
-                    // Authenticate user, if required by endpoint, using provided jwt
-                    let authenticated = handler.requiresAuth ? new Authenticator().authenticateJWT(req) : true
-                    this.currentRoute = {...action, req, res, params: req.params, authenticated}
                     let actionFunc = 'action'+action.action.charAt(0).toUpperCase()+action.action.slice(1)
+                    let authenticator = Authenticator.authenticateJWT(req)
 
-                    res.setHeader('Content-Type', 'application/json');
+                    this.currentRoute = {...action, req, res, params: req.params}
 
-                    if(handler.requiresAuth && !authenticated) {
-                        res.end(new TrustedError(res, "API_AUTH_REQUIRED").toJSON())
-                    } else {
-                        handler[actionFunc](this.currentRoute).then((result) => {
-                            if(!result) {
-                                res.status(404).end(JSON.stringify({}))
-                            } else {
-    
-                                if(result instanceof TrustedError) {
-                                    throw result
-                                    //res.end(JSON.stringify(result.getAsJSON()))
-                                } else {
-                                    res.end(JSON.stringify(result))
-                                }
-                            }
-                            
-                        })
+                    // Authenticate user when jwt is provided
+                    if(!authenticator.passed && handler.requiresAuth) {
+                        TrustedError.send(["API_AUTH_REQUIRED","API_JWT_INVALID"], res)
+                        return
                     }
+
+                    if(authenticator.data) {
+                        this.currentRoute.user = authenticator.data
+                    }
+
+                    handler[actionFunc](this.currentRoute).then((result) => {
+                        if(!result) {
+                            res.status(404).json({})
+                        } else {
+                            res.status(result.code || 200).json(result)
+                        }
+                    })
                 })
 
             }
