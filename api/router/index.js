@@ -23,7 +23,11 @@ class Router {
 
                     // Authenticate user when jwt is provided
                     if(!authenticator.passed && handler.requiresAuth) {
-                        TrustedError.send(["API_AUTH_REQUIRED","API_JWT_INVALID"], res)
+                        if(authenticator.error) {
+                            TrustedError.send(authenticator.error, res)
+                        } else {
+                            TrustedError.send(["API_AUTH_REQUIRED","API_JWT_INVALID"], res)
+                        }
                         return
                     }
 

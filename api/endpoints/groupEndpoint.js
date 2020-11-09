@@ -52,7 +52,7 @@ class GroupEndpoint extends Endpoint {
 
         let exists = await Group.findOne({ where: { groupname }})
         if(exists) {
-            return TrustedError.get("API_GROUP_NAME_EXISTS")
+            return TrustedError.get("API_RESOURCE_EXISTS")
         }
 
         let result = await Group.create({groupname, permissions})
