@@ -20,7 +20,6 @@ class Router {
 
                     this.currentRoute = {...action, req, res, params: req.params}
 
-
                     // Authenticate user when jwt is provided
                     if(!authenticator.passed && handler.requiresAuth) {
                         if(authenticator.error) {

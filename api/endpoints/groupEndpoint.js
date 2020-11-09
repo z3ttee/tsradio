@@ -22,6 +22,7 @@ class GroupEndpoint extends Endpoint {
      * @apiExample json-body: 
      * {
      *      "groupname": "default",
+     *      "hierarchy": 0,
      *      "permissions": ["permission1", "permission2"]
      * }
      * 
@@ -30,6 +31,7 @@ class GroupEndpoint extends Endpoint {
      * {
      *      "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
      *      "groupname": "default",
+     *      "hierarchy": 0,
      *      "permissions": [
      *          "permission1",
      *          "permission2"
@@ -45,9 +47,14 @@ class GroupEndpoint extends Endpoint {
 
         let groupname = route.req.body.groupname
         let permissions = route.req.body.permissions
+        let hierarchy = route.req.body.hierarchy
 
         if(!groupname) {
             return TrustedError.get("API_GROUP_NAME_REQUIRED")
+        }
+
+        if(hierarchy && !Number.isInteger(hierarchy)) {
+            return TrustedError.get("API_INVALID_DATATYPE")
         }
 
         let exists = await Group.findOne({ where: { groupname }})
@@ -55,7 +62,7 @@ class GroupEndpoint extends Endpoint {
             return TrustedError.get("API_RESOURCE_EXISTS")
         }
 
-        let result = await Group.create({groupname, permissions})
+        let result = await Group.create({groupname, permissions, hierarchy})
         return result
     }
 
@@ -76,6 +83,7 @@ class GroupEndpoint extends Endpoint {
      * {
      *      "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
      *      "groupname": "default",
+     *      "hierarchy": 0,
      *      "permissions": [
      *          "permission1",
      *          "permission2"
@@ -91,7 +99,10 @@ class GroupEndpoint extends Endpoint {
 
         let group = await Group.findOne({where: {uuid: id}})
 
-        group.permissions = JSON.parse(group.permissions)
+        if(!group) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
+        }
+
         return group
     }
 
@@ -122,6 +133,7 @@ class GroupEndpoint extends Endpoint {
      *      {
      *          "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
      *          "groupname": "default",
+     *          "hierarchy": 0,
      *          "permissions": [
      *              "permission1",
      *              "permission2"
@@ -137,15 +149,13 @@ class GroupEndpoint extends Endpoint {
         let offset = Math.min(Math.max(route.req.body.offset || 0, 30), 0)
         let limit = Math.min(Math.max(route.req.body.limit || 1, 30), 1)
 
-        console.log(offset,limit)
-
         let groups = await Group.findAll({
             offset: offset,
             limit: limit
         })
 
-        for(let group of groups) {
-            group.permissions = JSON.parse(group.permissions)
+        if(!group) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
         }
         
         return groups
@@ -170,12 +180,82 @@ class GroupEndpoint extends Endpoint {
     async actionRemoveOne(route) {
         let id = route.params.id
 
+        // Check if hierarchy is higher than resource that should be deleted
+        if(route.user.group) {
+            let hierarchy = route.user.group.hierarchy
+            let group = await Group.findOne({ where: { uuid: id }})
+
+            if(!group) {
+                return TrustedError.get("API_RESOURCE_NOT_FOUND")
+            }
+
+            // throw error if hierarchy lower or equal
+            if(group.hierarchy >= hierarchy) {
+                return TrustedError.get("API_NO_PERMISSION")
+            }
+        }
+
         let result = await Group.destroy({where: { uuid: id }})
-        console.log(result)
 
         if(result != 1) {
-            return TrustedError.get("API_NOT_DELETED")
+            return TrustedError.get("API_RESOURCE_NOT_DELETED")
         }
+
+        return {}
+    }
+
+    /**
+     * @api {put} /groups/:id Update Group
+     * @apiGroup Groups
+     * @apiDescription Endpoint for updating an existing permission group.
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} id Groups unique ID.
+     * @apiParam {String} groupname Groups unique updated name.
+     * @apiParam {String} hierarchy Define updated order in hierarchy for group.
+     * @apiParam {Array} permissions Updated list of all permissions.
+     * 
+     * @apiExample json-body: 
+     * {
+     *      "groupname": "default",
+     *      "hierarchy": 0,
+     *      "permissions": ["permission1", "permission2"]
+     * }
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
+     *      "groupname": "default",
+     *      "hierarchy": 0,
+     *      "permissions": [
+     *          "permission1",
+     *          "permission2"
+     *      ],
+     *      "createdAt": "2020-11-09T09:39:54.589Z"
+     * }
+     * 
+     * 
+     * @apiPermission permission.groups.canCreate
+     * @apiVersion 1.0.0
+     */
+    async actionUpdate(route) {
+
+        let groupname = route.req.body.groupname
+        let permissions = route.req.body.permissions
+
+        if(!groupname) {
+            return TrustedError.get("API_GROUP_NAME_REQUIRED")
+        }
+
+        let exists = await Group.findOne({ where: { groupname }})
+        if(exists) {
+            return TrustedError.get("API_RESOURCE_EXISTS")
+        }
+
+        let result = await Group.create({groupname, permissions})
+        return result
     }
 
 }
