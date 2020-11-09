@@ -3,6 +3,10 @@ import Endpoint from './endpoint.js'
 import { Group } from '../models/group.js'
 import { TrustedError } from '../error/trustedError.js'
 import { User } from '../models/user.js'
+import { Op } from 'sequelize'
+
+import Joi from 'joi'
+import Validator from '../models/validator.js'
 
 class GroupEndpoint extends Endpoint {
 
@@ -44,17 +48,20 @@ class GroupEndpoint extends Endpoint {
      * @apiVersion 1.0.0
      */
     async actionCreate(route) {
-
         let groupname = route.req.body.groupname
         let permissions = route.req.body.permissions
         let hierarchy = route.req.body.hierarchy
 
-        if(!groupname) {
-            return TrustedError.get("API_GROUP_NAME_REQUIRED")
-        }
+        const validationSchema = Joi.object({
+            groupname: Joi.string().alphanum().min(3).max(16).required(),
+            hierarchy: Joi.number().min(0).max(1000),
+            permissions: Joi.array()
+        })
 
-        if(hierarchy && !Number.isInteger(hierarchy)) {
-            return TrustedError.get("API_INVALID_DATATYPE")
+        let validator = await Validator.validate(validationSchema, {groupname, permissions, hierarchy})
+
+        if(!validator.passed) {
+            return validator.error
         }
 
         let exists = await Group.findOne({ where: { groupname }})
@@ -223,39 +230,49 @@ class GroupEndpoint extends Endpoint {
      *      "permissions": ["permission1", "permission2"]
      * }
      * 
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *      "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
-     *      "groupname": "default",
-     *      "hierarchy": 0,
-     *      "permissions": [
-     *          "permission1",
-     *          "permission2"
-     *      ],
-     *      "createdAt": "2020-11-09T09:39:54.589Z"
-     * }
-     * 
-     * 
-     * @apiPermission permission.groups.canCreate
+     * @apiPermission permission.groups.canUpdate
      * @apiVersion 1.0.0
      */
-    async actionUpdate(route) {
-
+    async actionUpdateOne(route) {
+        let id = route.params.id
         let groupname = route.req.body.groupname
         let permissions = route.req.body.permissions
+        let hierarchy = route.req.body.hierarchy
 
-        if(!groupname) {
-            return TrustedError.get("API_GROUP_NAME_REQUIRED")
+        const validationSchema = Joi.object({
+            groupname: Joi.string().alphanum().min(3).max(16),
+            hierarchy: Joi.number().min(0).max(1000),
+            permissions: Joi.array()
+        })
+
+        let validator = await Validator.validate(validationSchema, {groupname, permissions, hierarchy})
+
+        if(!validator.passed) {
+            return validator.error
         }
 
-        let exists = await Group.findOne({ where: { groupname }})
-        if(exists) {
+        let groupExistsResult = await Group.findAll({ where: { [Op.or]: [{uuid: id}, {groupname: groupname || ''}] }})
+        let idExists = false
+        let existsGroupname = false
+
+        for(let result of groupExistsResult) {
+            if(result.groupname == groupname && result.uuid != id) {
+                existsGroupname = true
+            }
+            if(result.uuid == id) {
+                idExists = true
+            }
+        }
+
+        if(!idExists) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
+        }
+        if(existsGroupname) {
             return TrustedError.get("API_RESOURCE_EXISTS")
         }
 
-        let result = await Group.create({groupname, permissions})
-        return result
+        await Group.update({groupname, permissions, hierarchy}, { where: { uuid: id }})
+        return {}
     }
 
 }
