@@ -1,6 +1,7 @@
 import pingEndpoint from '../endpoints/pingEndpoint.js'
 import authEndpoint from '../endpoints/authEndpoint.js'
 import userEndpoint from '../endpoints/userEndpoint.js'
+import groupEndpoint from '../endpoints/groupEndpoint.js'
 
 const routes = [
     {
@@ -9,6 +10,12 @@ const routes = [
             {name: 'UsersGetMultiple', path: '/users', action: 'getMultiple', method: 'get'},
             {name: 'UsersGetOne', path: '/users/:id', action: 'getOne', method: 'get'},
             {name: 'UsersCreate', path: '/users', action: 'create', method: 'post'}
+        ]
+    },
+    {
+        handler: groupEndpoint,
+        actions: [
+            {name: 'GroupsCreateOne', path: '/groups', action: 'create', method: 'post'},
         ]
     },
     {
