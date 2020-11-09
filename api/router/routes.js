@@ -9,14 +9,14 @@ const routes = [
         actions: [
             {name: 'UsersGetMultiple', path: '/users', action: 'getMultiple', method: 'get'},
             {name: 'UsersGetOne', path: '/users/:id', action: 'getOne', method: 'get'},
-            {name: 'UsersCreate', path: '/users', action: 'create', method: 'post'}
+            {name: 'UsersCreate', path: '/users', action: 'create', method: 'post', permission: 'permission.users.canCreate'}
         ]
     },
     {
         handler: groupEndpoint,
         actions: [
-            {name: 'GroupsCreateOne', path: '/groups', action: 'create', method: 'post'},
-            {name: 'GroupsGetOne', path: '/groups/:id', action: 'getOne', method: 'get'},
+            {name: 'GroupsCreateOne', path: '/groups', action: 'create', method: 'post', permission: 'permission.groups.canCreate'},
+            {name: 'GroupsGetOne', path: '/groups/:id', action: 'getOne', method: 'get', permission: 'permission.groups.canRead'},
         ]
     },
     {

@@ -37,6 +37,7 @@ class UserEndpoint extends Endpoint {
      *      "createdAt": "2020-11-08T15:16:03.000Z"
      * }
      * 
+     * @apiError 404 The requested user was not found.
      * @apiVersion 1.0.0
      */
     async actionGetOne(route) {
