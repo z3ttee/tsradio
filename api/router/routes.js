@@ -19,6 +19,7 @@ const routes = [
             {name: 'GroupsGetMultiple', path: '/groups', action: 'getMultiple', method: 'get', permission: 'permission.groups.canRead'},
             {name: 'GroupsGetOne', path: '/groups/:id', action: 'getOne', method: 'get', permission: 'permission.groups.canRead'},
             {name: 'GroupsRemoveOne', path: '/groups/:id', action: 'removeOne', method: 'delete', permission: 'permission.groups.canDelete'},
+            {name: 'GroupsUpdateOne', path: '/groups/:id', action: 'updateOne', method: 'put', permission: 'permission.groups.canUpdate'},
 
         ]
     },
