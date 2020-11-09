@@ -11,6 +11,7 @@ class Authenticator {
 
         let passed = false
         let data = undefined
+        let error = undefined
 
         if(token) {
             if(token.startsWith('Bearer ')) {
@@ -24,13 +25,14 @@ class Authenticator {
                 passed = true
             } catch (exception) {
                 if(exception instanceof TokenExpiredError) {
-                    // TODO
+                    error = TrustedError.get("API_JWT_EXPIRED")
+                } else {
                     console.log(exception)
                 }
             }
         }
 
-        return { passed, data }
+        return { passed, data, error }
     }
 
     static async loginWithCredentials(request, response) {
