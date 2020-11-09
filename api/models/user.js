@@ -17,10 +17,10 @@ class User extends Model {
 
         let group = await Group.findOne({
             where: { uuid: this.groupUUID },
-            attributes: ['permissions']
+            attributes: ['permissions', 'hierarchy']
         })
 
-        this.permissions = group.permissions
+        this.group = group
         return group.permissions.includes(permission)
     }
 }

@@ -1,8 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 
-class Group extends Model {
-}
+class Group extends Model {}
 
 const dbModel = {
     uuid: {
@@ -21,6 +20,11 @@ const dbModel = {
         type: DataTypes.JSON,
         allowNull: false,
         defaultValue: []
+    },
+    hierarchy: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }
 

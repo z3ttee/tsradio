@@ -7,9 +7,10 @@ const errorCodes = {
     "API_CREDENTIALS_NOT_SUPPLIED": { code: 400, message: 'No credentials provided.' },
     "API_CREDENTIALS_INVALID": { code: 400, message: 'Wrong credentials provided' },
     "API_GROUP_NAME_REQUIRED": { code: 400, message: 'The provided group data does not contain a groupname' },
-    "API_NOT_DELETED": { code: 400, message: 'Resource not deleted' },
+    "API_RESOURCE_NOT_DELETED": { code: 400, message: 'Resource not deleted' },
     "API_RESOURCE_EXISTS": { code: 400, message: 'Resource already exists' },
     "API_RESOURCE_NOT_FOUND": { code: 404, message: 'Resource does not exist' },
+    "API_INVALID_DATATYPE": { code: 404, message: 'One ore more parameters have an invalid data type' },
 }
 
 class TrustedError {
