@@ -3,7 +3,9 @@ const errorCodes = {
     "API_AUTH_REQUIRED": { code: 400, message: 'This endpoint requires authentication' },
     "API_JWT_INVALID": { code: 400, message: 'Provided JWT is invalid' },
     "API_CREDENTIALS_NOT_SUPPLIED": { code: 400, message: 'No credentials provided' },
-    "API_CREDENTIALS_INVALID": { code: 400, message: 'Wrong credentials provided' }
+    "API_CREDENTIALS_INVALID": { code: 400, message: 'Wrong credentials provided' },
+    "API_GROUP_NAME_REQUIRED": { code: 400, message: 'The provided group data does not contain a groupname' },
+    "API_GROUP_NAME_EXISTS": { code: 400, message: 'The groupname already exists' },
 }
 
 class TrustedError {
