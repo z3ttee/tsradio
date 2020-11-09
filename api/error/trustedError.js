@@ -9,6 +9,7 @@ const errorCodes = {
     "API_GROUP_NAME_REQUIRED": { code: 400, message: 'The provided group data does not contain a groupname' },
     "API_NOT_DELETED": { code: 400, message: 'Resource not deleted' },
     "API_RESOURCE_EXISTS": { code: 400, message: 'Resource already exists' },
+    "API_RESOURCE_NOT_FOUND": { code: 404, message: 'Resource does not exist' },
 }
 
 class TrustedError {
