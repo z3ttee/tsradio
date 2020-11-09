@@ -1,5 +1,6 @@
 import { Group } from '../models/group.js'
 import { TrustedError } from '../error/trustedError.js'
+import { User } from '../models/user.js'
 
 class GroupEndpoint {
 
@@ -72,7 +73,12 @@ class GroupEndpoint {
      * @apiVersion 1.0.0
      */
     async actionGetOne(route) {
-        
+        let id = route.params.id
+
+        let group = await Group.findOne({where: {uuid: id}})
+
+        group.permissions = JSON.parse(group.permissions)
+        return group
     }
 
 }

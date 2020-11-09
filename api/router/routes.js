@@ -16,6 +16,7 @@ const routes = [
         handler: groupEndpoint,
         actions: [
             {name: 'GroupsCreateOne', path: '/groups', action: 'create', method: 'post'},
+            {name: 'GroupsGetOne', path: '/groups/:id', action: 'getOne', method: 'get'},
         ]
     },
     {
