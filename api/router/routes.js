@@ -16,6 +16,7 @@ const routes = [
         handler: groupEndpoint,
         actions: [
             {name: 'GroupsCreateOne', path: '/groups', action: 'create', method: 'post', permission: 'permission.groups.canCreate'},
+            {name: 'GroupsGetMultiple', path: '/groups', action: 'getMultiple', method: 'get', permission: 'permission.groups.canRead'},
             {name: 'GroupsGetOne', path: '/groups/:id', action: 'getOne', method: 'get', permission: 'permission.groups.canRead'},
         ]
     },
