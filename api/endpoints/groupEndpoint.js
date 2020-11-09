@@ -1,8 +1,16 @@
+import Endpoint from './endpoint.js'
+
 import { Group } from '../models/group.js'
 import { TrustedError } from '../error/trustedError.js'
 import { User } from '../models/user.js'
 
-class GroupEndpoint {
+class GroupEndpoint extends Endpoint {
+
+    constructor() {
+        super({
+            requiresAuth: true
+        })
+    }
 
     /**
      * @api {post} /groups Create Group
@@ -29,7 +37,8 @@ class GroupEndpoint {
      *      "createdAt": "2020-11-09T09:39:54.589Z"
      * }
      * 
-     * @apiPermission permission.group.canCreate
+     * 
+     * @apiPermission permission.groups.canCreate
      * @apiVersion 1.0.0
      */
     async actionCreate(route) {
@@ -58,6 +67,8 @@ class GroupEndpoint {
      * @apiHeader {String} Authorization Users Bearer Token (JWT)
      * @apiParam {String} id Groups unique ID.
      * 
+     * @apiError 404 The requested group was not found.
+     * 
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
@@ -70,6 +81,7 @@ class GroupEndpoint {
      *      "createdAt": "2020-11-09T09:39:54.589Z"
      * }
      * 
+     * @apiPermission permission.groups.canRead
      * @apiVersion 1.0.0
      */
     async actionGetOne(route) {

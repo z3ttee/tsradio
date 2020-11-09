@@ -9,16 +9,17 @@ class Router {
         this.app = app
     }
 
-    setup() {
+    async setup() {
         for(let group of this.routes) {
             for(let action of group.actions) {
 
-                this.app[action.method.toLowerCase()](action.path, (req, res) => {
+                this.app[action.method.toLowerCase()](action.path, async (req, res) => {
                     let handler = group.handler
                     let actionFunc = 'action'+action.action.charAt(0).toUpperCase()+action.action.slice(1)
-                    let authenticator = Authenticator.authenticateJWT(req)
+                    let authenticator = await Authenticator.authenticateJWT(req)
 
                     this.currentRoute = {...action, req, res, params: req.params}
+
 
                     // Authenticate user when jwt is provided
                     if(!authenticator.passed && handler.requiresAuth) {
@@ -28,6 +29,11 @@ class Router {
 
                     if(authenticator.data) {
                         this.currentRoute.user = authenticator.data
+                    }
+
+                    if(action.permission && (!authenticator.passed || !await authenticator.data.hasPermission(action.permission))) {
+                        TrustedError.send("API_NO_PERMISSION", res)
+                        return
                     }
 
                     handler[actionFunc](this.currentRoute).then((result) => {

@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt, { TokenExpiredError } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 import config from '../config/config.js'
@@ -6,7 +6,7 @@ import { TrustedError } from '../error/trustedError.js'
 import { User } from '../models/user.js'
 
 class Authenticator {
-    static authenticateJWT(request) {
+    static async authenticateJWT(request) {
         let token = request.headers['x-access-token'] || request.headers['authorization']
 
         let passed = false
@@ -17,12 +17,17 @@ class Authenticator {
                 token = token.slice(7)
             }
 
-            jwt.verify(token, config.app.jwt_token_secret, (err, decoded) => {
-                if(!err) {
-                    passed = true
-                    data = decoded
+            try {
+                let decoded = jwt.verify(token, config.app.jwt_token_secret)
+                data = await User.findOne({ where: { uuid: decoded.uuid } })
+
+                passed = true
+            } catch (exception) {
+                if(exception instanceof TokenExpiredError) {
+                    // TODO
+                    console.log(exception)
                 }
-            })
+            }
         }
 
         return { passed, data }
@@ -39,8 +44,11 @@ class Authenticator {
 
         let user = await User.getByName(username)
 
+        console.log(Date.now())
+
         if(bcrypt.compareSync(password, user.password)) {
-            return jwt.sign({ uuid: user.uuid }, config.app.jwt_token_secret, {expiresIn: '24h'})
+            
+            return jwt.sign({ uuid: user.uuid }, config.app.jwt_token_secret, {expiresIn: config.app.jwt_expiry+'ms'})
         } else {
             TrustedError.send("API_CREDENTIALS_INVALID", response)
             return false
