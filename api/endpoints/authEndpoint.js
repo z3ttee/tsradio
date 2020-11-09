@@ -25,8 +25,13 @@ class AuthEndpoint {
      * @apiVersion 1.0.0
      */
     async actionSignin(route) {
-        let token = await Authenticator.loginWithCredentials(route.req, route.res)
-        if(token) return { token }
+        let authenticator = await Authenticator.loginWithCredentials(route.req, route.res)
+
+        if(authenticator.passed) {
+            return { token: authenticator.token }
+        } else {
+            return authenticator.error
+        }
     }
 
     /**

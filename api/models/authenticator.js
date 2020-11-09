@@ -36,25 +36,31 @@ class Authenticator {
     }
 
     static async loginWithCredentials(request, response) {
+        let passed = false
+        let token = undefined
+        let error = undefined
+
         let username = request.body.username
         let password = request.body.password
 
         if(!username && !password) {
-            TrustedError.send("API_CREDENTIALS_NOT_SUPPLIED", response)
-            return false
-        }
-
-        let user = await User.getByName(username)
-
-        console.log(Date.now())
-
-        if(bcrypt.compareSync(password, user.password)) {
-            
-            return jwt.sign({ uuid: user.uuid }, config.app.jwt_token_secret, {expiresIn: config.app.jwt_expiry+'ms'})
+            error = TrustedError.get("API_CREDENTIALS_NOT_SUPPLIED")
         } else {
-            TrustedError.send("API_CREDENTIALS_INVALID", response)
-            return false
+            let user = await User.findOne({ where: { username }})
+
+            if(user) {        
+                if(bcrypt.compareSync(password, user.password)) {
+                    token = jwt.sign({ uuid: user.uuid }, config.app.jwt_token_secret, {expiresIn: config.app.jwt_expiry+'ms'})
+                    passed = true
+                } else {
+                    error = TrustedError.get("API_CREDENTIALS_INVALID")
+                }
+            } else {
+                error = TrustedError.get("API_RESOURCE_NOT_FOUND")
+            }
         }
+
+        return { passed, token, error }
     }
 }
 
