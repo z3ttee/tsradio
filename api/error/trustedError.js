@@ -7,6 +7,7 @@ const errorCodes = {
     "API_CREDENTIALS_INVALID": { code: 400, message: 'Wrong credentials provided' },
     "API_GROUP_NAME_REQUIRED": { code: 400, message: 'The provided group data does not contain a groupname' },
     "API_GROUP_NAME_EXISTS": { code: 400, message: 'The groupname already exists' },
+    "API_NOT_DELETED": { code: 400, message: 'Resource not deleted' },
 }
 
 class TrustedError {

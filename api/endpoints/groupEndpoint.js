@@ -130,7 +130,6 @@ class GroupEndpoint extends Endpoint {
      *      }, 
      *      ...
      * ]
-     * @apiError 404 The requested group was not found.
      * @apiPermission permission.groups.canRead
      * @apiVersion 1.0.0
      */
@@ -150,6 +149,33 @@ class GroupEndpoint extends Endpoint {
         }
         
         return groups
+    }
+
+    
+    /**
+     * @api {delete} /groups/:id Delete Group
+     * @apiGroup Groups
+     * @apiDescription Endpoint for deleting a group
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * @apiParam {String} id Groups unique id
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiPermission permission.groups.canDelete
+     * @apiVersion 1.0.0
+     */
+    async actionRemoveOne(route) {
+        let id = route.params.id
+
+        let result = await Group.destroy({where: { uuid: id }})
+        console.log(result)
+
+        if(result != 1) {
+            return TrustedError.get("API_NOT_DELETED")
+        }
     }
 
 }
