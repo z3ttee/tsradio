@@ -11,6 +11,7 @@ const errorCodes = {
     "API_RESOURCE_EXISTS": { code: 400, message: 'Resource already exists' },
     "API_RESOURCE_NOT_FOUND": { code: 404, message: 'Resource does not exist' },
     "API_INVALID_DATATYPE": { code: 404, message: 'One ore more parameters have an invalid data type' },
+    "API_ACCOUNT_NOT_FOUND": { code: 403, message: 'The account you are using does not exist anymore' },
 }
 
 class TrustedError {

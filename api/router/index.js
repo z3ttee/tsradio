@@ -34,9 +34,15 @@ class Router {
                         this.currentRoute.user = authenticator.data
                     }
 
-                    if(action.permission && (!authenticator.passed || !await authenticator.data.hasPermission(action.permission))) {
-                        TrustedError.send("API_NO_PERMISSION", res)
-                        return
+                    if(action.permission) {
+                        if(!authenticator.data) {
+                            TrustedError.send("API_ACCOUNT_NOT_FOUND", res)
+                            return
+                        }
+                        if(!authenticator.passed || !await authenticator.data.hasPermission(action.permission)) {
+                            TrustedError.send("API_NO_PERMISSION", res)
+                            return
+                        }
                     }
 
                     handler[actionFunc](this.currentRoute).then((result) => {
