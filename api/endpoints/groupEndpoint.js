@@ -2,7 +2,6 @@ import Endpoint from './endpoint.js'
 
 import { Group } from '../models/group.js'
 import { TrustedError } from '../error/trustedError.js'
-import { User } from '../models/user.js'
 import { Op } from 'sequelize'
 
 import Joi from 'joi'
@@ -161,7 +160,7 @@ class GroupEndpoint extends Endpoint {
             limit: limit
         })
 
-        if(!group) {
+        if(!groups) {
             return TrustedError.get("API_RESOURCE_NOT_FOUND")
         }
         
