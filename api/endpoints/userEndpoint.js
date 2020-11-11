@@ -6,6 +6,11 @@ import { User } from '../models/user.js'
 import Database from '../models/database.js'
 import { Group } from '../models/group.js'
 
+import Joi from 'joi'
+import Validator from '../models/validator.js'
+import bcrypt from 'bcrypt'
+import config from '../config/config.js'
+
 class UserEndpoint extends Endpoint {
 
     constructor() {
@@ -67,11 +72,69 @@ class UserEndpoint extends Endpoint {
     }
 
     /**
-     * @api {post} /users
+     * @api {post} /users Create User 
+     * @apiGroup Users
+     * @apiDescription Endpoint for creating new user
      * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} username Users unique username (required).
+     * @apiParam {String} password Users password (required).
+     * @apiParam {String} groupUUID Users permission group id (optional).
+     * @apiParam {String} username Users unique username (required).
+     * 
+     * @apiSuccess (200) {String} uuid Users unique id
+     * @apiSuccess (200) {String} username Users unique name
+     * @apiSuccess (200) {String} groupUUID Users unique id
+     * @apiSuccess (200) {Timestamp} createdAt Date at which user was created
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "uuid": "09a7e1ff-ebd3-4683-8f77-28f41bfb9b7c",
+     *      "username": "user123",
+     *      "groupUUID": "4c0530ba-6951-415e-865c-6db93205d8bc",
+     *      "createdAt": "2020-11-08T15:16:03.000Z"
+     * }
+     * 
+     * @apiVersion 1.0.0
      */
     async actionCreate(route) {
-        //throw new TrustedError(route.res, "API_INTERNAL_ERROR")
+        let username = route.req.body.username
+        let password = route.req.body.password
+        let groupUUID = route.req.body.groupUUID
+
+        const validationSchema = Joi.object({
+            username: Joi.string().alphanum().min(3).max(16).required(),
+            password: Joi.string().min(6).max(32).required(),
+            groupUUID: Joi.string().uuid()
+        })
+
+        let validation = await Validator.validate(validationSchema, {username, password, groupUUID})
+
+        if(!validation.passed) {
+            return validation.error
+        }
+
+        let exists = await User.findOne({ where: { username }})
+        if(exists) {
+            return TrustedError.get("API_RESOURCE_EXISTS")
+        }
+
+        let passwordValidation = await Validator.validatePassword(password)
+
+        if(!passwordValidation.passed) {
+            return passwordValidation.error
+        }
+
+        let user = await User.create({
+            username,
+            password: bcrypt.hashSync(password, config.app.password_encryption.salt_rounds),
+            groupUUID
+        })
+
+        user.password = undefined
+        return user
     }
 
 }
