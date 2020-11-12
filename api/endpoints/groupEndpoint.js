@@ -222,13 +222,6 @@ class GroupEndpoint extends Endpoint {
      * @apiParam {String} hierarchy Define updated order in hierarchy for group.
      * @apiParam {Array} permissions Updated list of all permissions.
      * 
-     * @apiExample json-body: 
-     * {
-     *      "groupname": "default",
-     *      "hierarchy": 0,
-     *      "permissions": ["permission1", "permission2"]
-     * }
-     * 
      * @apiPermission permission.groups.canUpdate
      * @apiVersion 1.0.0
      */
