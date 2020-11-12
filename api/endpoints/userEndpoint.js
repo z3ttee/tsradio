@@ -1,15 +1,12 @@
-import { TrustedError } from '../error/trustedError.js'
-import { Sequelize, DataTypes } from 'sequelize'
 import Endpoint from './endpoint.js'
-
-import { User } from '../models/user.js'
-import Database from '../models/database.js'
-import { Group } from '../models/group.js'
-
 import Joi from 'joi'
 import Validator from '../models/validator.js'
 import bcrypt from 'bcrypt'
 import config from '../config/config.js'
+
+import { TrustedError } from '../error/trustedError.js'
+import { Op } from 'sequelize'
+import { User } from '../models/user.js'
 
 class UserEndpoint extends Endpoint {
 
@@ -58,7 +55,7 @@ class UserEndpoint extends Endpoint {
         let user = await User.findOne({
             where: { uuid },
             attributes: ['uuid', 'username', 'groupUUID', 'createdAt'],
-        }, {sequelize: Database.sequelize})
+        })
 
         return user
     }
@@ -97,6 +94,7 @@ class UserEndpoint extends Endpoint {
      *      "createdAt": "2020-11-08T15:16:03.000Z"
      * }
      * 
+     * @apiPermission permission.users.canCreate
      * @apiVersion 1.0.0
      */
     async actionCreate(route) {
@@ -135,6 +133,81 @@ class UserEndpoint extends Endpoint {
 
         user.password = undefined
         return user
+    }
+
+    /**
+     * @api {put} /users/:id Update User 
+     * @apiGroup Users
+     * @apiDescription Endpoint for updating an user
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} username Users updated unique username.
+     * @apiParam {String} password Users updated password.
+     * @apiParam {String} groupUUID Users updated permission group id.
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiPermission permission.users.canUpdate
+     * @apiVersion 1.0.0
+     */
+    async actionUpdateOne(route) {
+        let id = route.params.id
+        let username = route.req.body.username
+        let password = route.req.body.password
+        let groupUUID = route.req.body.groupUUID
+
+        const validationSchema = Joi.object({
+            username: Joi.string().alphanum().min(3).max(16),
+            password: Joi.string().min(6).max(32),
+            groupUUID: Joi.string().uuid()
+        })
+
+        let validation = await Validator.validate(validationSchema, {username, password, groupUUID})
+
+        if(!validation.passed) {
+            return validation.error
+        }
+
+        let userExistsResult = await User.findAll({ where: { [Op.or]: [{uuid: id}, {username: username || ''}] }})
+        let idExists = false
+        let existsUsername = false
+
+        for(let result of userExistsResult) {
+            if(result.username == username && result.uuid != id) {
+                existsUsername = true
+            }
+            if(result.uuid == id) {
+                idExists = true
+            }
+        }
+
+        if(!idExists) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
+        }
+        if(existsUsername) {
+            return TrustedError.get("API_RESOURCE_EXISTS")
+        }
+
+        if(password) {
+            let passwordValidation = await Validator.validatePassword(password)
+
+            if(!passwordValidation.passed) {
+                return passwordValidation.error
+            }
+        }
+
+        await User.update( {
+            username,
+            password: password ? bcrypt.hashSync(password, config.app.password_encryption.salt_rounds) : undefined,
+            groupUUID
+        },{
+            where: { uuid: id }
+        })
+
+        return {}
     }
 
 }
