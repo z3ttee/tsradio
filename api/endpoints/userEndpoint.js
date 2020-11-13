@@ -62,11 +62,59 @@ class UserEndpoint extends Endpoint {
     }
 
     /**
-     * @api {get} /users
+     * @api {get} /users Get Users
+     * @apiGroup Users
+     * @apiDescription Endpoint for getting multiple users. Pagination is available
      * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * @apiParam {String} offset Offset index to start looking in database. Min: 0
+     * @apiParam {String} limit Amount of entries to be looked up in database. Min: 1, Max: 30
+     * 
+     * @apiExample json-body:
+     * {
+     *      "offset": 0,
+     *      "limit": 30
+     * }
+     *
+     * @apiSuccess (200) {Object} user Entry in returned array, holding a users info
+     * @apiSuccess (200) {String} user.uuid Users unique id
+     * @apiSuccess (200) {String} user.username Users unique name
+     * @apiSuccess (200) {String} user.groupUUID Users group id
+     * @apiSuccess (200) {Timestamp} user.createdAt Users date of creation
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * [
+     *      ...,
+     *      {
+     *          "uuid": "09a7e1ff-ebd3-4683-8f77-28f41bfb9b7c",
+     *          "username": "user123",
+     *          "groupUUID": "4c0530ba-6951-415e-865c-6db93205d8bc",
+     *          "createdAt": "2020-11-08T15:16:03.000Z"
+     *      }, 
+     *      ...
+     * ]
+     * @apiPermission permission.users.canRead
+     * @apiVersion 1.0.0
      */
     async actionGetMultiple(route) {
-        
+        let offset = route.req.body.offset || 0
+        let limit = route.req.body.limit || 1
+
+        if(offset < 0) offset = 0
+        if(limit > 30 || limit < 1) limit = 30
+
+        let users = await User.findAll({
+            offset: offset,
+            limit: limit,
+            attributes: ['uuid', 'username', 'groupUUID', 'createdAt']
+        })
+
+        if(!users) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
+        }
+
+        let availableCount = await User.findAndCountAll({ where: {}})
+        return { available: availableCount.count, entries: users }
     }
 
     /**
