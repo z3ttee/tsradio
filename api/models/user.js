@@ -26,6 +26,7 @@ class User extends Model {
 
     async isOwnResource() {
         // TODO
+        // Planned to use scopes in requests. @me would then indicate to make request on own resource
     }
 }
 
