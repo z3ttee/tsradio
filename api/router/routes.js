@@ -30,6 +30,7 @@ const routes = [
         actions: [
             {name: 'PlaylistsCreateOne', path: '/playlists', action: 'createOne', method: 'post', permission: 'permission.playlists.canCreate'},
             {name: 'PlaylistsGetOne', path: '/playlists/:id', action: 'getOne', method: 'get', permission: 'permission.playlists.canRead'},
+            {name: 'PlaylistsGetMultiple', path: '/playlists', action: 'getMultiple', method: 'get', permission: 'permission.playlists.canRead'},
             {name: 'PlaylistsRemoveOne', path: '/playlists/:id', action: 'removeOne', method: 'delete', permission: 'permission.playlists.canDelete'},
             {name: 'PlaylistsUpdateOne', path: '/playlists/:id', action: 'updateOne', method: 'put', permission: 'permission.playlists.canUpdate'},
         ]
