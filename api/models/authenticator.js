@@ -4,9 +4,10 @@ import bcrypt from 'bcrypt'
 import config from '../config/config.js'
 import { TrustedError } from '../error/trustedError.js'
 import { User } from '../models/user.js'
+import { Group } from './group.js'
 
 class Authenticator {
-    static async authenticateJWT(request) {
+    static async validateJWT(request) {
         let token = request.headers['x-access-token'] || request.headers['authorization']
 
         let passed = false
@@ -14,16 +15,36 @@ class Authenticator {
         let error = undefined
 
         if(token) {
+            // Remove Bearer from header value
             if(token.startsWith('Bearer ')) {
                 token = token.slice(7)
             }
 
             try {
+                // Verify jwt and load user data
                 let decoded = jwt.verify(token, config.app.jwt_token_secret)
-                data = await User.findOne({ where: { uuid: decoded.uuid } })
+                data = await User.findOne({ 
+                    where: { 
+                        uuid: decoded.uuid 
+                    }, 
+                    attributes: ['uuid', 'groupUUID'],
+                    include: [
+                        { model: Group, as: 'Group' }
+                    ]
+                })
 
-                passed = true
+                // Set error if user account was not found, otherwise set passed to true
+                if(!data) {
+                    error = TrustedError.get("API_ACCOUNT_NOT_FOUND")
+                    data = undefined
+                } else {
+                    passed = true
+                    console.log(data)
+                }
+
             } catch (exception) {
+
+                // Set error, if jwt is expired
                 if(exception instanceof TokenExpiredError) {
                     error = TrustedError.get("API_JWT_EXPIRED")
                 } else {
