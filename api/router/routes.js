@@ -10,7 +10,8 @@ const routes = [
             {name: 'UsersGetMultiple', path: '/users', action: 'getMultiple', method: 'get'},
             {name: 'UsersGetOne', path: '/users/:id', action: 'getOne', method: 'get'},
             {name: 'UsersCreate', path: '/users', action: 'create', method: 'post', permission: 'permission.users.canCreate'},
-            {name: 'UsersUpdateOne', path: '/users/:id', action: 'updateOne', method: 'put', permission: 'permission.users.canUpdate'}
+            {name: 'UsersUpdateOne', path: '/users/:id', action: 'updateOne', method: 'put', permission: 'permission.users.canUpdate'},
+            {name: 'UsersDeleteOne', path: '/users/:id', action: 'deleteOne', method: 'delete', permission: 'permission.users.canDelete'}
 
         ]
     },

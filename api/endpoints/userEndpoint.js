@@ -7,6 +7,7 @@ import config from '../config/config.js'
 import { TrustedError } from '../error/trustedError.js'
 import { Op } from 'sequelize'
 import { User } from '../models/user.js'
+import { Group } from '../models/group.js'
 
 class UserEndpoint extends Endpoint {
 
@@ -207,6 +208,53 @@ class UserEndpoint extends Endpoint {
             where: { uuid: id }
         })
 
+        return {}
+    }
+
+    /**
+     * @api {delete} /users/:id Delete User
+     * @apiGroup Users
+     * @apiDescription Endpoint for deleting an users
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * @apiParam {String} id Users unique id
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiPermission permission.users.canDelete
+     * @apiVersion 1.0.0
+     */
+    async actionDeleteOne(route) {
+        let id = route.params.id
+
+        // Check if hierarchy is higher than resource that should be deleted
+        if(route.user.group) {
+            let hierarchy = route.user.group.hierarchy
+            let targetUser = await User.findOne({ where: { uuid: id }, attributes: ['groupUUID']})
+
+            if(!targetUser) {
+                return TrustedError.get("API_RESOURCE_NOT_FOUND")
+            }
+            if(targetUser.groupUUID == '*') {
+                return TrustedError.get("API_NO_PERMISSION")
+            }
+
+            let targetUserGroup = await Group.findOne({ where: { uuid: targetUser.group }, attributes: ['hierarchy']})
+            let targetHierarchy = targetUserGroup ? targetUserGroup.hierarchy : 0
+
+            // throw error if hierarchy lower or equal
+            if(targetHierarchy >= hierarchy) {
+                return TrustedError.get("API_NO_PERMISSION")
+            }
+        }
+
+        let result = await User.destroy({where: { uuid: id }})
+
+        if(result != 1) {
+            return TrustedError.get("API_RESOURCE_NOT_DELETED")
+        }
         return {}
     }
 
