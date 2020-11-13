@@ -157,6 +157,62 @@ class PlaylistEndpoint extends Endpoint {
         return { available: availableCount.count, entries: playlists }
     }
 
+    /**
+     * @api {get} /playlists/@user/:id Get playlists of specific user 
+     * @apiGroup Playlists
+     * @apiDescription Endpoint for getting multiple playlists of a specific user. (Pagination available)
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} id Users unique ID.
+     * 
+     * @apiSuccess (200) {Integer} available Number of available entries in database (used to calc pages in frontend)
+     * @apiSuccess (200) {Object} playlist Entry in returned array, holding a groups info
+     * @apiSuccess (200) {String} playlist.uuid Playlists unique id
+     * @apiSuccess (200) {String} playlist.title Playlists title
+     * @apiSuccess (200) {String} playlist.description Playlists description
+     * @apiSuccess (200) {String} playlist.creatorUUID Playlists creator unique user id
+     * @apiSuccess (200) {Array} playlist.tracks Playlists list of tracks
+     * @apiSuccess (200) {Timestamp} playlist.updatedAt Date of last update
+     * @apiSuccess (200) {Timestamp} playlist.createdAt Date at which user was created
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "available": 1,
+     *      "entries": [
+     *          {
+     *              "uuid": "d5b434c3-c287-4cbe-bb6e-26dd90b47fd3",
+     *              "title": "Das ist eine Playlist",
+     *              "description": "",
+     *              "creatorUUID": "a495e477-2aa2-4fef-ad0c-6dbda6e59155",
+     *              "tracks": "[]",
+     *              "createdAt": "2020-11-13T11:25:11.000Z",
+     *              "updatedAt": "2020-11-13T11:25:11.000Z"
+     *          }
+     *      ]
+     * }
+     * 
+     * @apiVersion 1.0.0
+     */
+    async actionGetByUser(route) {
+        let id = route.params.id
+        let offset = route.req.body.offset || 0
+        let limit = route.req.body.limit || 1
+
+        if(offset < 0) offset = 0
+        if(limit > 30 || limit < 1) limit = 30
+
+        let playlists = await Playlist.findAll({
+            where: { creatorUUID: id },
+            offset: offset,
+            limit: limit
+        })
+
+        let availableCount = await Playlist.findAndCountAll({ where: {}})
+        return { available: availableCount.count, entries: playlists }
+    }
+
 }
 
 export default new PlaylistEndpoint();
