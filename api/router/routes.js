@@ -7,7 +7,7 @@ const routes = [
     {
         handler: userEndpoint,
         actions: [
-            {name: 'UsersGetMultiple', path: '/users', action: 'getMultiple', method: 'get'},
+            {name: 'UsersGetMultiple', path: '/users', action: 'getMultiple', method: 'get', permission: 'permission.users.canRead'},
             {name: 'UsersGetOne', path: '/users/:id', action: 'getOne', method: 'get'},
             {name: 'UsersCreate', path: '/users', action: 'create', method: 'post', permission: 'permission.users.canCreate'},
             {name: 'UsersUpdateOne', path: '/users/:id', action: 'updateOne', method: 'put', permission: 'permission.users.canUpdate'},
