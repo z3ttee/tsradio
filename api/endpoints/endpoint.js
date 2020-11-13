@@ -1,3 +1,5 @@
+import { User } from "../models/user"
+
 class Endpoint {
 
     constructor(options = {}) {

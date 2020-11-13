@@ -153,7 +153,7 @@ class UserEndpoint extends Endpoint {
 
         const validationSchema = Joi.object({
             username: Joi.string().alphanum().min(3).max(16).required(),
-            password: Joi.string().min(6).max(32).required(),
+            password: Joi.string().min(3).max(32).required(),
             groupUUID: Joi.string().uuid()
         })
 
