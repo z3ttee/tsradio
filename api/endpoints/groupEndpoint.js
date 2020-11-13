@@ -84,6 +84,7 @@ class GroupEndpoint extends Endpoint {
      * @apiSuccess (200) {String} groupname Groups unique name
      * @apiSuccess (200) {Array} permissions Groups list of permissions
      * @apiSuccess (200) {Timestamp} createdAt Date at which group was created
+     * 
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
@@ -96,6 +97,7 @@ class GroupEndpoint extends Endpoint {
      *      ],
      *      "createdAt": "2020-11-09T09:39:54.589Z"
      * }
+     * 
      * @apiError 404 The requested group was not found.
      * @apiPermission permission.groups.canRead
      * @apiVersion 1.0.0
@@ -126,28 +128,31 @@ class GroupEndpoint extends Endpoint {
      *      "offset": 0,
      *      "limit": 30
      * }
-     *
+     * 
+     * @apiSuccess (200) {Integer} available Number of available entries in database (used to calc pages in frontend)
      * @apiSuccess (200) {Object} group Entry in returned array, holding a groups info
      * @apiSuccess (200) {String} group.uuid Groups unique id
      * @apiSuccess (200) {String} group.groupname Groups unique name
      * @apiSuccess (200) {Array} group.permissions Groups array of permissions
      * @apiSuccess (200) {Timestamp} group.createdAt Date at which group was created
+     * 
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * [
-     *      ...,
-     *      {
-     *          "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
-     *          "groupname": "default",
-     *          "hierarchy": 0,
-     *          "permissions": [
-     *              "permission1",
-     *              "permission2"
-     *          ],
-     *          "createdAt": "2020-11-09T09:39:54.589Z"
-     *      }, 
-     *      ...
-     * ]
+     * {
+     *      "available": 1,
+     *      "entries": [
+     *          {
+     *              "uuid": "913c79a0-05ea-4008-8df9-8fc11749fe3d",
+     *              "groupname": "default",
+     *              "hierarchy": 0,
+     *              "permissions": [
+     *                  "permission1",
+     *                  "permission2"
+     *              ],
+     *              "createdAt": "2020-11-09T09:39:54.589Z"
+     *          } 
+     *      ]
+     * }
      * @apiPermission permission.groups.canRead
      * @apiVersion 1.0.0
      */
@@ -162,10 +167,6 @@ class GroupEndpoint extends Endpoint {
             offset: offset,
             limit: limit
         })
-
-        if(!groups) {
-            return TrustedError.get("API_RESOURCE_NOT_FOUND")
-        }
 
         let availableCount = await Group.findAndCountAll({ where: {}})
         return { available: availableCount.count, entries: groups }
