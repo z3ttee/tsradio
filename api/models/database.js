@@ -35,6 +35,12 @@ async function createTables(sequelize) {
     User.init(userDBModel, {sequelize, ...userDBSettings})
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
 
+    User.belongsTo(Group, {
+        as: 'Group',
+        constraints: false,
+        foreignKey: 'groupUUID'
+    })
+
     await User.sync({ alter: false }).then(() => {
         // Create default user
         User.create({

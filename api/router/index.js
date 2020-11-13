@@ -6,17 +6,17 @@ class Router {
 
     constructor(app) {
         this.routes = routes
-        this.app = app
     }
 
-    async setup() {
+    async setup(app) {
+        this.app = app
+
         for(let group of this.routes) {
             for(let action of group.actions) {
-
                 this.app[action.method.toLowerCase()](action.path, async (req, res) => {
                     let handler = group.handler
                     let actionFunc = 'action'+action.action.charAt(0).toUpperCase()+action.action.slice(1)
-                    let authenticator = await Authenticator.authenticateJWT(req)
+                    let authenticator = await Authenticator.validateJWT(req)
 
                     this.currentRoute = {...action, req, res, params: req.params}
 
@@ -30,10 +30,11 @@ class Router {
                         return
                     }
 
-                    if(authenticator.data) {
+                    /*if(authenticator.data) {
                         this.currentRoute.user = authenticator.data
-                    }
+                    }*/
 
+                    // Check if action requires permission, throw error if user is not permitted
                     if(action.permission) {
                         if(!authenticator.data) {
                             TrustedError.send("API_ACCOUNT_NOT_FOUND", res)
@@ -45,6 +46,7 @@ class Router {
                         }
                     }
 
+                    // Execute action
                     handler[actionFunc](this.currentRoute).then((result) => {
                         if(!result) {
                             res.status(404).json({})
@@ -59,4 +61,4 @@ class Router {
     }
 }
 
-export default Router
+export default new Router()

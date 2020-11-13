@@ -17,14 +17,13 @@ app.use(bodyParser.json())
 
 // Centralized error handling
 //app.use(ErrorHandler.handleError)
-process.on('unhandledRejection', () => {})
+//process.on('unhandledRejection', () => {})
 /*process.on('uncaughtException', (error) => {
     ErrorHandler.handleError(error)
 })*/
 
 // Setup custom router
-const router = new Router(app)
-router.setup()
+Router.setup(app)
 Database.setup()
 
 // Starting secure webserver if certificate exists
