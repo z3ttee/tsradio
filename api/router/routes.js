@@ -2,6 +2,7 @@ import pingEndpoint from '../endpoints/pingEndpoint.js'
 import authEndpoint from '../endpoints/authEndpoint.js'
 import userEndpoint from '../endpoints/userEndpoint.js'
 import groupEndpoint from '../endpoints/groupEndpoint.js'
+import playlistEndpoint from '../endpoints/playlistEndpoint.js'
 
 const routes = [
     {
@@ -12,7 +13,6 @@ const routes = [
             {name: 'UsersCreate', path: '/users', action: 'create', method: 'post', permission: 'permission.users.canCreate'},
             {name: 'UsersUpdateOne', path: '/users/:id', action: 'updateOne', method: 'put', permission: 'permission.users.canUpdate'},
             {name: 'UsersDeleteOne', path: '/users/:id', action: 'deleteOne', method: 'delete', permission: 'permission.users.canDelete'}
-
         ]
     },
     {
@@ -23,7 +23,15 @@ const routes = [
             {name: 'GroupsGetOne', path: '/groups/:id', action: 'getOne', method: 'get', permission: 'permission.groups.canRead'},
             {name: 'GroupsRemoveOne', path: '/groups/:id', action: 'removeOne', method: 'delete', permission: 'permission.groups.canDelete'},
             {name: 'GroupsUpdateOne', path: '/groups/:id', action: 'updateOne', method: 'put', permission: 'permission.groups.canUpdate'},
-
+        ]
+    },
+    {
+        handler: playlistEndpoint,
+        actions: [
+            {name: 'PlaylistsCreateOne', path: '/playlists', action: 'createOne', method: 'post', permission: 'permission.playlists.canCreate'},
+            {name: 'PlaylistsGetOne', path: '/playlists/:id', action: 'getOne', method: 'get', permission: 'permission.playlists.canRead'},
+            {name: 'PlaylistsRemoveOne', path: '/playlists/:id', action: 'removeOne', method: 'delete', permission: 'permission.playlists.canDelete'},
+            {name: 'PlaylistsUpdateOne', path: '/playlists/:id', action: 'updateOne', method: 'put', permission: 'permission.playlists.canUpdate'},
         ]
     },
     {
