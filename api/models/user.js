@@ -23,6 +23,10 @@ class User extends Model {
         this.group = group
         return group.permissions.includes(permission)
     }
+
+    async isOwnResource() {
+        // TODO
+    }
 }
 
 const dbModel = {
