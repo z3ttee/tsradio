@@ -76,23 +76,27 @@ class UserEndpoint extends Endpoint {
      *      "limit": 30
      * }
      *
+     * @apiSuccess (200) {Integer} available Number of available entries in database (used to calc pages in frontend)
      * @apiSuccess (200) {Object} user Entry in returned array, holding a users info
      * @apiSuccess (200) {String} user.uuid Users unique id
      * @apiSuccess (200) {String} user.username Users unique name
      * @apiSuccess (200) {String} user.groupUUID Users group id
      * @apiSuccess (200) {Timestamp} user.createdAt Users date of creation
+     * 
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
-     * [
-     *      ...,
-     *      {
-     *          "uuid": "09a7e1ff-ebd3-4683-8f77-28f41bfb9b7c",
-     *          "username": "user123",
-     *          "groupUUID": "4c0530ba-6951-415e-865c-6db93205d8bc",
-     *          "createdAt": "2020-11-08T15:16:03.000Z"
-     *      }, 
-     *      ...
-     * ]
+     * {
+     *      "available": 1,
+     *      "entries": [
+     *          {
+     *              "uuid": "09a7e1ff-ebd3-4683-8f77-28f41bfb9b7c",
+     *              "username": "user123",
+     *              "groupUUID": "4c0530ba-6951-415e-865c-6db93205d8bc",
+     *              "createdAt": "2020-11-08T15:16:03.000Z"
+     *          } 
+     *      ]
+     * }
+     * 
      * @apiPermission permission.users.canRead
      * @apiVersion 1.0.0
      */
@@ -108,10 +112,6 @@ class UserEndpoint extends Endpoint {
             limit: limit,
             attributes: ['uuid', 'username', 'groupUUID', 'createdAt']
         })
-
-        if(!users) {
-            return TrustedError.get("API_RESOURCE_NOT_FOUND")
-        }
 
         let availableCount = await User.findAndCountAll({ where: {}})
         return { available: availableCount.count, entries: users }
