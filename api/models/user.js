@@ -1,6 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 import { Group } from './group.js'
+import { Playlist } from './playlist.js'
 
 class User extends Model {
     static async getByName(username) {
@@ -22,11 +23,6 @@ class User extends Model {
 
         this.group = group
         return group.permissions.includes(permission)
-    }
-
-    async isOwnResource() {
-        // TODO
-        // Planned to use scopes in requests. @me would then indicate to make request on own resource
     }
 }
 
