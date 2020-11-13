@@ -152,8 +152,11 @@ class GroupEndpoint extends Endpoint {
      * @apiVersion 1.0.0
      */
     async actionGetMultiple(route) {
-        let offset = Math.min(Math.max(route.req.body.offset || 0, 30), 0)
-        let limit = Math.min(Math.max(route.req.body.limit || 1, 30), 1)
+        let offset = route.req.body.offset || 0
+        let limit = route.req.body.limit || 1
+
+        if(offset < 0) offset = 0
+        if(limit > 30 || limit < 1) limit = 30
 
         let groups = await Group.findAll({
             offset: offset,
@@ -163,8 +166,9 @@ class GroupEndpoint extends Endpoint {
         if(!groups) {
             return TrustedError.get("API_RESOURCE_NOT_FOUND")
         }
-        
-        return groups
+
+        let availableCount = await Group.findAndCountAll({ where: {}})
+        return { available: availableCount.count, entries: groups }
     }
 
     
