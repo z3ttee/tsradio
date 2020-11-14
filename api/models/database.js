@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import { User, dbModel as userDBModel, dbSettings as userDBSettings} from '../models/user.js'
 import { Group, dbModel as groupDBModel, dbSettings as groupDBSettings} from '../models/group.js'
 import { Playlist, dbModel as playlistDBModel, dbSettings as playlistDBSettings} from '../models/playlist.js'
+import { trace } from 'joi'
 
 
 class Database {
@@ -35,13 +36,14 @@ async function createTables(sequelize) {
     User.init(userDBModel, {sequelize, ...userDBSettings})
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
 
-    User.belongsTo(Group, {
-        as: 'Group',
-        constraints: false,
-        foreignKey: 'groupUUID'
-    })
+    User.belongsTo(Group)
+    Group.hasMany(User)
 
-    await User.sync({ alter: false }).then(() => {
+    Playlist.belongsTo(User)
+    User.hasMany(Playlist)
+
+    await Group.sync({ alter: true })
+    await User.sync({ alter: true }).then(() => {
         // Create default user
         User.create({
             username: 'admin',
@@ -49,8 +51,7 @@ async function createTables(sequelize) {
             password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds)
         })
     })
-    await Group.sync({ alter: false })
-    await Playlist.sync({ alter: false })
+    await Playlist.sync({ alter: true })
     
     console.log('Database successfully setup')
 }

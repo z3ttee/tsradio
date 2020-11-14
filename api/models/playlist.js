@@ -1,5 +1,6 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
+import { User } from './user.js'
 
 class Playlist extends Model {}
 
@@ -20,10 +21,6 @@ const dbModel = {
         type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: ''
-    },
-    creatorUUID: {
-        type: DataTypes.UUID,
-        allowNull: false,
     },
     tracks: {
         type: DataTypes.JSON,

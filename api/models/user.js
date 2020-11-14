@@ -15,14 +15,7 @@ class User extends Model {
 
     async hasPermission(permission) {
         if(this.groupUUID == '*') return true
-
-        let group = await Group.findOne({
-            where: { uuid: this.groupUUID },
-            attributes: ['permissions', 'hierarchy']
-        })
-
-        this.group = group
-        return group.permissions.includes(permission)
+        return this.group.permissions.includes(permission)
     }
 }
 
@@ -42,10 +35,6 @@ const dbModel = {
     password: {
         type: DataTypes.STRING,
         allowNull: false
-    },
-    groupUUID: {
-        type: DataTypes.UUID,
-        allowNull: true,
     }
 }
 
