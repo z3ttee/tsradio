@@ -24,24 +24,26 @@ app.use(bodyParser.json())
 
 // Setup custom router
 Router.setup(app)
-Database.setup()
+Database.setup().finally(startServer)
 
-// Starting secure webserver if certificate exists
-if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {
-    var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-    var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+async function startServer() {
+    // Starting secure webserver if certificate exists
+    if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {
+        var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+        var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 
-    const credentials = {key: privateKey, cert: certificate}
-    const httpsServer = https.createServer(credentials, app)
-    
-    httpsServer.listen(cfg.ports.ssl, () => {
-        console.log('App started and listening on port '+cfg.ports.ssl)
-    })
-} else {
-    // Starting insecure webserver if certificate does not exist
+        const credentials = {key: privateKey, cert: certificate}
+        const httpsServer = https.createServer(credentials, app)
+        
+        httpsServer.listen(cfg.ports.ssl, () => {
+            console.log('App started and listening on port '+cfg.ports.ssl)
+        })
+    } else {
+        // Starting insecure webserver if certificate does not exist
 
-    const httpServer = http.createServer(app)
-    httpServer.listen(cfg.ports.default, () => {
-        console.log('App started and listening on port '+cfg.ports.default)
-    })
+        const httpServer = http.createServer(app)
+        httpServer.listen(cfg.ports.default, () => {
+            console.log('App started and listening on port '+cfg.ports.default)
+        })
+    }
 }
