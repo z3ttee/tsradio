@@ -42,12 +42,19 @@ async function createTables(sequelize) {
     Playlist.belongsTo(User)
     User.hasMany(Playlist)
 
-    await Group.sync({ alter: true })
+    await Group.sync({ alter: true }).then(() => {
+        Group.create({
+            groupname: 'root',
+            uuid: '*',
+            permissions: ['*'],
+            hierarchy: 1001
+        })
+    })
     await User.sync({ alter: true }).then(() => {
         // Create default user
         User.create({
             username: 'admin',
-            groupUUID: '*',
+            GroupUuid: '*',
             password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds)
         })
     })
