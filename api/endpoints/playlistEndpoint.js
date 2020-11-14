@@ -2,8 +2,8 @@ import Endpoint from './endpoint.js'
 import Joi from 'joi'
 import Validator from '../models/validator.js'
 
-import { Group } from '../models/group.js'
 import { Playlist } from '../models/playlist.js'
+import { User } from '../models/user.js'
 
 class PlaylistEndpoint extends Endpoint {
 
@@ -99,7 +99,15 @@ class PlaylistEndpoint extends Endpoint {
     async actionGetOne(route) {
         let id = route.params.id
 
-        let playlist = await Playlist.findOne({ where: { uuid: id }})
+        let playlist = await Playlist.findOne({ 
+            where: { 
+                uuid: id
+            }, 
+            attributes: ['uuid', 'title', 'description', 'tracks', 'createdAt', 'updatedAt'],
+            include: [
+                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+            ]
+        })
         return playlist
     }
 
@@ -153,7 +161,9 @@ class PlaylistEndpoint extends Endpoint {
             limit: limit
         })
 
-        let availableCount = await Playlist.findAndCountAll({ where: {}})
+        let availableCount = await Playlist.findAndCountAll({ where: {}, include: [
+            { model: User, as: 'creator', attributes: ['uuid', 'username']}
+        ]})
         return { available: availableCount.count, entries: playlists }
     }
 
@@ -204,12 +214,17 @@ class PlaylistEndpoint extends Endpoint {
         if(limit > 30 || limit < 1) limit = 30
 
         let playlists = await Playlist.findAll({
-            where: { creatorUUID: id },
+            where: { userUUID: id },
             offset: offset,
             limit: limit
         })
 
-        let availableCount = await Playlist.findAndCountAll({ where: {}})
+        let availableCount = await Playlist.findAndCountAll({ 
+            where: {}, 
+            include: [
+                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+            ]
+        })
         return { available: availableCount.count, entries: playlists }
     }
 
