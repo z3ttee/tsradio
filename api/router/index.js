@@ -1,10 +1,12 @@
 import { TrustedError } from '../error/trustedError.js'
 import Authenticator from '../models/authenticator.js'
+import { Playlist } from '../models/playlist.js'
+import { User } from '../models/user.js'
 import routes from './routes.js'
 
 class Router {
 
-    constructor(app) {
+    constructor() {
         this.routes = routes
     }
 
@@ -18,7 +20,7 @@ class Router {
                     let actionFunc = 'action'+action.action.charAt(0).toUpperCase()+action.action.slice(1)
                     let authenticator = await Authenticator.validateJWT(req)
 
-                    this.currentRoute = {...action, req, res, params: req.params}
+                    this.currentRoute = {groupname: group.groupname, ...action, req, res, params: req.params, handler}
 
                     // Authenticate user when jwt is provided
                     if(!authenticator.passed && handler.requiresAuth) {
@@ -35,16 +37,20 @@ class Router {
                     }
 
                     // Check if action requires permission, throw error if user is not permitted
-                    if(action.permission) {
+                    if(action.permission && !authenticator.passed) {
                         if(!authenticator.data) {
                             TrustedError.send("API_ACCOUNT_NOT_FOUND", res)
                             return
                         }
-                        if(!authenticator.passed || !await authenticator.data.hasPermission(action.permission)) {
+
+                        const hasPermission = await authenticator.data.hasPermission(action.permission)
+                        if(!hasPermission && !await this.isOwnResource()) {
                             TrustedError.send("API_NO_PERMISSION", res)
                             return
                         }
                     }
+
+                    console.log(await this.isOwnResource())
 
                     // Execute action
                     handler[actionFunc](this.currentRoute).then((result) => {
@@ -57,6 +63,32 @@ class Router {
                 })
 
             }
+        }
+    }
+
+    async isOwnResource(){
+        try {
+            let ownID = this.currentRoute.user.uuid
+            let resourceID = this.currentRoute.params.id
+            let endpointGroup = this.currentRoute.groupname
+
+            if(endpointGroup == 'users') {
+                if(resourceID == '@me') return true
+                
+                let requestedResource = await User.findOne({ where: { uuid: resourceID }, attributes: ['uuid']})
+                this.currentRoute.resource = requestedResource
+                return requestedResource.uuid == ownID
+            }
+
+            if(endpointGroup == 'playlists') {
+                if(resourceID == '@me') return true
+
+                let requestedResource = await Playlist.findOne({ where: { creatorUUID: ownID }, attributes: ['uuid']})
+                this.currentRoute.resource = requestedResource
+                return requestedResource.uuid == resourceID
+            }
+        } catch (exception) {
+            return false
         }
     }
 }
