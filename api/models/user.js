@@ -1,5 +1,6 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
+import { Playlist } from './playlist.js'
 
 class User extends Model {
     static async getByName(username) {
@@ -12,8 +13,8 @@ class User extends Model {
     }
 
     async hasPermission(permission) {
-        if(this.Group.permissions.includes('*')) return true
-        return this.Group.permissions.includes(permission)
+        if(this.group.permissions.includes('*')) return true
+        return this.group.permissions.includes(permission)
     }
 }
 

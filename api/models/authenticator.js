@@ -29,7 +29,7 @@ class Authenticator {
                     }, 
                     attributes: ['uuid', 'groupUUID'],
                     include: [
-                        { model: Group, attributes: ['permissions', 'hierarchy'] }
+                        { model: Group, as: 'group', attributes: ['permissions', 'hierarchy'] }
                     ]
                 })
 
@@ -39,7 +39,7 @@ class Authenticator {
                     data = undefined
                 } else {
                     passed = true
-                    data.Group.permissions = JSON.parse(data.Group.permissions)
+                    data.group.permissions = JSON.parse(data.group.permissions)
                 }
 
             } catch (exception) {

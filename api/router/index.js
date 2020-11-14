@@ -30,9 +30,9 @@ class Router {
                         return
                     }
 
-                    /*if(authenticator.data) {
+                    if(authenticator.data) {
                         this.currentRoute.user = authenticator.data
-                    }*/
+                    }
 
                     // Check if action requires permission, throw error if user is not permitted
                     if(action.permission) {
