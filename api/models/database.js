@@ -17,15 +17,15 @@ class Database {
         })
     }
 
-    setup() {
-        this.sequelize.authenticate().then(() => {
-            console.log('Connection has been established successfully.')
-
-            // When connection successful, create tables
-            createTables(this.sequelize)
-        }).catch((error) => {
+    async setup() {
+        await this.sequelize.authenticate().catch((error) => {
             console.error('Unable to connect to the database:', error.message)
         });
+
+        console.log('Connection has been established successfully.')
+
+        // When connection successful, create tables
+        await createTables(this.sequelize)
     }
 }
 
