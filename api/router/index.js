@@ -50,8 +50,6 @@ class Router {
                         }
                     }
 
-                    console.log(await this.isOwnResource())
-
                     // Execute action
                     handler[actionFunc](this.currentRoute).then((result) => {
                         if(!result) {

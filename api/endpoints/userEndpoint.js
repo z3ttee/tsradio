@@ -45,16 +45,14 @@ class UserEndpoint extends Endpoint {
      */
     async actionGetOne(route) {
         let id = route.params.id
-        let uuid = ""
 
         if(id == "@me") {
-            uuid = route.user.uuid
-        } else {
-            uuid = id
+            if(!route.user) return TrustedError.get("API_AUTH_REQUIRED")
+            id = route.user.uuid
         }
 
         let user = await User.findOne({
-            where: { uuid },
+            where: { uuid: id },
             attributes: ['uuid', 'username', 'createdAt'],
             include: [
                 {model: Group, as: 'group', attributes: ['uuid', 'groupname']}
