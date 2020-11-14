@@ -2,6 +2,7 @@ import Endpoint from './endpoint.js'
 import Joi from 'joi'
 import Validator from '../models/validator.js'
 
+import { TrustedError } from '../error/trustedError.js'
 import { Playlist } from '../models/playlist.js'
 import { User } from '../models/user.js'
 
@@ -23,8 +24,14 @@ class PlaylistEndpoint extends Endpoint {
      * @apiParam {String} title Playlists title (required) (Min: 3, Max: 120).
      * @apiParam {String} description Playlists description (optional) (Max: 240).
      * 
-     * @apiSuccess (200) {String} uuid Users unique id
-     * @apiSuccess (200) {String} username Users unique name
+     * @apiExample json-body:
+     * {
+     *      "title": "This is a title",
+     *      "description": "This is a description"
+     * }
+     * 
+     * @apiSuccess (200) {String} uuid Playlists unique id
+     * @apiSuccess (200) {String} title Playlists unique title
      * @apiSuccess (200) {String} groupUUID Users unique id
      * @apiSuccess (200) {Timestamp} createdAt Date at which user was created
      * 
@@ -158,12 +165,14 @@ class PlaylistEndpoint extends Endpoint {
 
         let playlists = await Playlist.findAll({
             offset: offset,
-            limit: limit
+            limit: limit,
+            attributes: ['uuid', 'title', 'description', 'tracks', 'createdAt', 'updatedAt'],
+            include: [
+                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+            ]
         })
 
-        let availableCount = await Playlist.findAndCountAll({ where: {}, include: [
-            { model: User, as: 'creator', attributes: ['uuid', 'username']}
-        ]})
+        let availableCount = await Playlist.findAndCountAll({ where: {}})
         return { available: availableCount.count, entries: playlists }
     }
 
@@ -207,25 +216,101 @@ class PlaylistEndpoint extends Endpoint {
      */
     async actionGetByUser(route) {
         let id = route.params.id
+
         let offset = route.req.body.offset || 0
         let limit = route.req.body.limit || 1
 
         if(offset < 0) offset = 0
         if(limit > 30 || limit < 1) limit = 30
 
-        let playlists = await Playlist.findAll({
-            where: { userUUID: id },
-            offset: offset,
-            limit: limit
-        })
+        if(id == '@me') {
+            if(!route.user) return TrustedError.get("API_AUTH_REQUIRED")
+            id = route.user.uuid
+        }
 
-        let availableCount = await Playlist.findAndCountAll({ 
-            where: {}, 
+        let playlists = await Playlist.findAll({
+            where: { creatorUUID: id },
+            offset: offset,
+            limit: limit,
+            attributes: ['uuid', 'title', 'description', 'tracks', 'createdAt', 'updatedAt'],
             include: [
                 { model: User, as: 'creator', attributes: ['uuid', 'username']}
             ]
         })
+
+        let availableCount = await Playlist.findAndCountAll({ where: {} })
         return { available: availableCount.count, entries: playlists }
+    }
+
+    /**
+     * @api {delete} /playlists/:id Delete Playlist
+     * @apiGroup Playlists
+     * @apiDescription Endpoint for deleting a playlist
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * @apiParam {String} id Playlists unique id
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiPermission permission.playlists.canDelete
+     * @apiVersion 1.0.0
+     */
+    async actionRemoveOne(route) {
+        let id = route.params.id
+        let result = result = await Playlist.destroy({where: { uuid: id }})
+
+        if(result != 1) {
+            return TrustedError.get("API_RESOURCE_NOT_DELETED")
+        }
+
+        return {}
+    }
+
+    /**
+     * @api {put} /playlists/:id Update Playlist
+     * @apiGroup Playlists
+     * @apiDescription Endpoint for updating playlists info (not tracks).
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} id Playlists unique ID.
+     * @apiParam {String} title Playlists updated title.
+     * @apiParam {String} description Playlists updated description.
+     * 
+     * @apiExample json-body:
+     * {
+     *      "title": "This is a title",
+     *      "description": "This is a description"
+     * }
+     * 
+     * @apiPermission permission.playlists.canUpdate
+     * @apiVersion 1.0.0
+     */
+    async actionUpdateOne(route) {
+        let id = route.params.id
+        let title = route.req.body.title
+        let description = route.req.body.description
+
+        const validationSchema = Joi.object({
+            title: Joi.string().alphanum().min(3).max(120),
+            description: Joi.number().min(0).max(240),
+        })
+
+        let validator = await Validator.validate(validationSchema, {title, description})
+
+        if(!validator.passed) {
+            return validator.error
+        }
+
+        let exists = await Playlist.findAll({ where: { uuid: id }})
+        if(!exists) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
+        }
+
+        await Playlist.update({title, description}, { where: { uuid: id }})
+        return {}
     }
 
 }
