@@ -55,7 +55,10 @@ class UserEndpoint extends Endpoint {
 
         let user = await User.findOne({
             where: { uuid },
-            attributes: ['uuid', 'username', 'groupUUID', 'createdAt'],
+            attributes: ['uuid', 'username', 'createdAt'],
+            include: [
+                {model: Group, as: 'group', attributes: ['uuid', 'groupname']}
+            ]
         })
 
         return user
@@ -110,7 +113,10 @@ class UserEndpoint extends Endpoint {
         let users = await User.findAll({
             offset: offset,
             limit: limit,
-            attributes: ['uuid', 'username', 'groupUUID', 'createdAt']
+            attributes: ['uuid', 'username', 'createdAt'],
+            include: [
+                {model: Group, as: 'group', attributes: ['uuid', 'groupname']}
+            ]
         })
 
         let availableCount = await User.findAndCountAll({ where: {}})
