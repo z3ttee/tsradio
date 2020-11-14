@@ -29,6 +29,8 @@ class Database {
     }
 }
 
+const database = new Database()
+
 async function createTables(sequelize) {
     console.log('Creating tables...')
 
@@ -36,31 +38,27 @@ async function createTables(sequelize) {
     User.init(userDBModel, {sequelize, ...userDBSettings})
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
 
-    User.belongsTo(Group)
-    Group.hasMany(User)
+    Group.hasMany(User, {as: 'user', foreignKey: 'uuid', constraints: false})
+    User.belongsTo(Group, { as: 'group', foreignKey: 'groupUUID' })
 
-    Playlist.belongsTo(User)
-    User.hasMany(Playlist)
+    User.hasMany(Playlist, {as: 'playlist', foreignKey: 'uuid', constraints: false})
+    Playlist.belongsTo(User, { as: 'creator', foreignKey: 'creatorUUID' })
 
-    await Group.sync({ alter: true }).then(() => {
-        Group.create({
-            groupname: 'root',
-            uuid: '*',
-            permissions: ['*'],
-            hierarchy: 1001
-        })
-    })
-    await User.sync({ alter: true }).then(() => {
-        // Create default user
-        User.create({
-            username: 'admin',
-            GroupUuid: '*',
-            password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds)
-        })
-    })
+    await Group.sync({ alter: true })
+    await Group.create({ groupname: 'root', uuid: '*', permissions: ['*'], hierarchy: 1001 })
+
+    await User.sync({ alter: true })
+    await User.create({ username: 'admin', groupUUID: '*', password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds) })
+
     await Playlist.sync({ alter: true })
-    
+    await setupTriggers()
+
     console.log('Database successfully setup')
 }
 
-export default new Database()
+async function setupTriggers() {
+    // Delete users playlists if account gets deleted
+    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeletePlaylistsOnUserDeletion` BEFORE DELETE ON `tsr_users` FOR EACH ROW DELETE FROM tsr_playlists WHERE tsr_playlists.creatorUUID = old.uuid;")
+}
+
+export default database
