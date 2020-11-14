@@ -29,7 +29,7 @@ class Authenticator {
                     }, 
                     attributes: ['uuid', 'groupUUID'],
                     include: [
-                        { model: Group, as: 'Group' }
+                        { model: Group, attributes: ['permissions', 'hierarchy'] }
                     ]
                 })
 
@@ -39,11 +39,10 @@ class Authenticator {
                     data = undefined
                 } else {
                     passed = true
-                    console.log(data)
+                    data.Group.permissions = JSON.parse(data.Group.permissions)
                 }
 
             } catch (exception) {
-
                 // Set error, if jwt is expired
                 if(exception instanceof TokenExpiredError) {
                     error = TrustedError.get("API_JWT_EXPIRED")
