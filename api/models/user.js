@@ -1,6 +1,5 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
-import { Playlist } from './playlist.js'
 
 class User extends Model {
     static async getByName(username) {

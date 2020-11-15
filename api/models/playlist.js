@@ -17,13 +17,12 @@ const dbModel = {
         allowNull: false
     },
     description: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        defaultValue: ''
+        type: DataTypes.STRING,
+        allowNull: true
     },
     tracks: {
         type: DataTypes.JSON,
-        allowNull: true,
+        allowNull: false,
         defaultValue: []
     }
 }
