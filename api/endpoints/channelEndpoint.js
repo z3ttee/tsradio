@@ -124,7 +124,7 @@ class ChannelEndpoint extends Endpoint {
             }, 
             attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt'],
             include: [
-                { model: Playlist, as: 'playlist', attributes: ['uuid', 'title']},
+                { model: Playlist, as: 'playlist', nested: true},
                 { model: User, as: 'creator', attributes: ['uuid', 'username']}
             ]
         })

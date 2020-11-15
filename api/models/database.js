@@ -5,7 +5,9 @@ import bcrypt from 'bcrypt'
 import { User, dbModel as userDBModel, dbSettings as userDBSettings} from '../models/user.js'
 import { Group, dbModel as groupDBModel, dbSettings as groupDBSettings} from '../models/group.js'
 import { Playlist, dbModel as playlistDBModel, dbSettings as playlistDBSettings} from '../models/playlist.js'
-import { Channel, dbModel as channelDBModel, dbSettings as channelDBSettings } from './channel'
+import { Channel, dbModel as channelDBModel, dbSettings as channelDBSettings } from './channel.js'
+import { Track, dbModel as trackDBModel, dbSettings as trackDBSettings } from './track.js'
+import { TracksList, dbModel as trackslistDBModel, dbSettings as trackslistDBSettings } from './tracksList'
 
 class Database {
     constructor() {
@@ -37,6 +39,8 @@ async function createTables(sequelize) {
     User.init(userDBModel, {sequelize, ...userDBSettings})
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
     Channel.init(channelDBModel, {sequelize, ...channelDBSettings})
+    Track.init(trackDBModel, {sequelize, ...trackDBSettings})
+    TracksList.init(trackslistDBModel, {sequelize, ...trackslistDBSettings})
 
     Group.hasMany(User, {as: 'user', foreignKey: 'uuid', constraints: false})
     User.belongsTo(Group, { as: 'group', foreignKey: 'groupUUID' })
@@ -49,6 +53,15 @@ async function createTables(sequelize) {
 
     Playlist.hasMany(Channel, {as: 'channel', foreignKey: 'uuid', constraints: false})
     Channel.belongsTo(Playlist, { as: 'playlist', foreignKey: 'playlistUUID' })
+
+    Playlist.belongsToMany(Track, { through: TracksList, as: 'tracklist', foreignKey: 'uuid'})
+    Track.belongsToMany(Playlist, { through: TracksList, as: 'tracklist', foreignKey: 'uuid'})
+
+    /*Playlist.hasMany(TracksList, { as: 'tracks', foreignKey: 'playlistUUID'})
+    TracksList.belongsTo(Playlist, { as: 'playlist', foreignKey: 'playlistUUID'})
+
+    Track.hasMany(TracksList, { as: 'list', foreignKey: 'trackUUID'})
+    TracksList.belongsTo(Track, { as: 'track', foreignKey: 'trackUUID'})*/
 
     try {
 
@@ -77,6 +90,8 @@ async function createTables(sequelize) {
     
         // Create playlists table
         await Playlist.sync({ alter: true })
+        await Track.sync({ alter: true })
+        await TracksList.sync({ alter: true })
     
         // Create playlists table
         await Channel.sync({ alter: true })
@@ -101,7 +116,10 @@ async function createTables(sequelize) {
 
 async function setupTriggers() {
     // Delete users playlists if account gets deleted
-    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeletePlaylistsOnUserDeletion` BEFORE DELETE ON `tsr_users` FOR EACH ROW DELETE FROM tsr_playlists WHERE tsr_playlists.creatorUUID = old.uuid;")
+    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeletePlaylistsOnUserDeletion` BEFORE DELETE ON `tsr_users` FOR EACH ROW DELETE FROM tsr_playlists_info WHERE tsr_playlists_info.creatorUUID = old.uuid;")
+    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeleteTrackFromTracksListOnTrackDeletion` BEFORE DELETE ON `tsr_tracks` FOR EACH ROW DELETE FROM tsr_playlists_tracks WHERE tsr_playlists_tracks.trackUUID = old.uuid;")
+    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeletePlaylistFromTracksListOnPlaylistDeletion` BEFORE DELETE ON `tsr_playlists_info` FOR EACH ROW DELETE FROM tsr_playlists_tracks WHERE tsr_playlists_tracks.playlistUUID = old.uuid;")
+
 }
 
 export default database

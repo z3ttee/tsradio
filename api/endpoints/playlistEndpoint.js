@@ -5,6 +5,8 @@ import Validator from '../models/validator.js'
 import { TrustedError } from '../error/trustedError.js'
 import { Playlist } from '../models/playlist.js'
 import { User } from '../models/user.js'
+import { TracksList } from '../models/tracksList.js'
+import { Track } from '../models/track.js'
 
 class PlaylistEndpoint extends Endpoint {
 
@@ -116,10 +118,16 @@ class PlaylistEndpoint extends Endpoint {
             where: { 
                 uuid: id
             }, 
-            attributes: ['uuid', 'title', 'description', 'tracks', 'createdAt', 'updatedAt'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt'],
             include: [
-                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+                {model: User, as: 'creator'},
+                {model: TracksList, as: 'tracks', attributes: [], include: {
+                    all: true
+                }}
             ]
+                //{model: User, as: 'creator'},
+                //{model: Track, as: 'tracklist'}
+                //{model: TracksList, as: 'tracks'},
         })
         return playlist
     }
