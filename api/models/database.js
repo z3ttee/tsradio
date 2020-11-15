@@ -5,8 +5,7 @@ import bcrypt from 'bcrypt'
 import { User, dbModel as userDBModel, dbSettings as userDBSettings} from '../models/user.js'
 import { Group, dbModel as groupDBModel, dbSettings as groupDBSettings} from '../models/group.js'
 import { Playlist, dbModel as playlistDBModel, dbSettings as playlistDBSettings} from '../models/playlist.js'
-import { trace } from 'joi'
-
+import { Channel, dbModel as channelDBModel, dbSettings as channelDBSettings } from './channel'
 
 class Database {
     constructor() {
@@ -37,6 +36,7 @@ async function createTables(sequelize) {
     Playlist.init(playlistDBModel, {sequelize, ...playlistDBSettings})
     User.init(userDBModel, {sequelize, ...userDBSettings})
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
+    Channel.init(channelDBModel, {sequelize, ...channelDBSettings})
 
     Group.hasMany(User, {as: 'user', foreignKey: 'uuid', constraints: false})
     User.belongsTo(Group, { as: 'group', foreignKey: 'groupUUID' })
@@ -44,16 +44,53 @@ async function createTables(sequelize) {
     User.hasMany(Playlist, {as: 'playlist', foreignKey: 'uuid', constraints: false})
     Playlist.belongsTo(User, { as: 'creator', foreignKey: 'creatorUUID' })
 
-    await Group.sync({ alter: true })
-    await Group.create({ groupname: 'root', uuid: '*', permissions: ['*'], hierarchy: 1001 })
+    try {
 
-    await User.sync({ alter: true })
-    await User.create({ username: 'admin', groupUUID: '*', password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds) })
+        // Create groups table and create default group
+        await Group.sync({ alter: true })
+        await Group.findOrCreate({ 
+            where: { groupname: 'root' },
+            defaults: {
+                groupname: 'root', 
+                uuid: '*', 
+                permissions: ['*'], 
+                hierarchy: 1001 
+            }
+        })
+    
+        // Create users table and create default user
+        await User.sync({ alter: true })
+        await User.findOrCreate({
+            where: { username: 'admin' },
+            defaults: {
+                username: 'admin', 
+                groupUUID: '*', 
+                password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds) 
+            }
+        })
+    
+        // Create playlists table
+        await Playlist.sync({ alter: true })
+    
+        // Create playlists table
+        await Channel.sync({ alter: true })
 
-    await Playlist.sync({ alter: true })
-    await setupTriggers()
+        // Setup triggers
+        await setupTriggers()
 
-    console.log('Database successfully setup')
+        console.log('Database successfully setup')
+    } catch (exception) {
+        console.log(exception)
+        
+        console.log('Database initialized with errors:')
+        console.log(exception.message)
+
+        if(exception.errors) {
+            for(let error of exception.errors) {
+                console.log(error.message)
+            }
+        }
+    }
 }
 
 async function setupTriggers() {
