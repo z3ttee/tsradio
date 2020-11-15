@@ -38,6 +38,7 @@ const routes = [
             {name: 'PlaylistsGetMultiple', path: '/playlists', action: 'getMultiple', method: 'get'},
             {name: 'PlaylistsRemoveOne', path: '/playlists/:id', action: 'removeOne', method: 'delete', permission: 'permission.playlists.canDelete'},
             {name: 'PlaylistsUpdateOne', path: '/playlists/:id', action: 'updateOne', method: 'put', permission: 'permission.playlists.canUpdate'},
+            {name: 'PlaylistsPatchOne', path: '/playlists/:id', action: 'patchOne', method: 'patch', permission: 'permission.playlists.canPatch'}
         ]
     },
     {

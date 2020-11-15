@@ -12,6 +12,8 @@ const errorCodes = {
     "API_RESOURCE_NOT_FOUND": { code: 404, message: 'Resource does not exist' },
     "API_INVALID_DATATYPE": { code: 404, message: 'One ore more parameters have an invalid data type' },
     "API_ACCOUNT_NOT_FOUND": { code: 403, message: 'The account you are using does not exist anymore' },
+    "API_TRACK_IN_PLAYLIST": { code: 400, message: 'This track already is in this playlist.' },
+    "API_TRACK_NOT_FOUND": { code: 404, message: 'This track does not exist.' },
 }
 
 class TrustedError {
