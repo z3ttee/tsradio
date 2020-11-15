@@ -1,7 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 
-class Playlist extends Model {}
+class TracksList extends Model {}
 
 const dbModel = {
     uuid: {
@@ -10,21 +10,13 @@ const dbModel = {
         allowNull: false,
         unique: true,
         primaryKey: true
-    },
-    title: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    description: {
-        type: DataTypes.STRING,
-        allowNull: true
     }
 }
 
 const dbSettings = {
-    tableName: config.mysql.prefix+'playlists_info',
+    tableName: config.mysql.prefix+'playlists_tracks',
     timestamps: true,
-    updatedAt: true
+    updatedAt: false
 }
 
-export { Playlist, dbModel, dbSettings }
+export { TracksList, dbModel, dbSettings }
