@@ -31,17 +31,23 @@ class PlaylistEndpoint extends Endpoint {
      * }
      * 
      * @apiSuccess (200) {String} uuid Playlists unique id
-     * @apiSuccess (200) {String} title Playlists unique title
-     * @apiSuccess (200) {String} groupUUID Users unique id
+     * @apiSuccess (200) {String} title Playlists title
+     * @apiSuccess (200) {String} description Playlists description
+     * @apiSuccess (200) {String} creatorUUID Playlists creator unique user id
+     * @apiSuccess (200) {Array} tracks Playlists list of tracks
+     * @apiSuccess (200) {Timestamp} updatedAt Date of last update
      * @apiSuccess (200) {Timestamp} createdAt Date at which user was created
      * 
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "uuid": "09a7e1ff-ebd3-4683-8f77-28f41bfb9b7c",
-     *      "username": "user123",
-     *      "groupUUID": "4c0530ba-6951-415e-865c-6db93205d8bc",
-     *      "createdAt": "2020-11-08T15:16:03.000Z"
+     *      "uuid": "d5b434c3-c287-4cbe-bb6e-26dd90b47fd3",
+     *      "title": "Das ist eine Playlist",
+     *      "description": "",
+     *      "creatorUUID": "a495e477-2aa2-4fef-ad0c-6dbda6e59155",
+     *      "tracks": "[]",
+     *      "createdAt": "2020-11-13T11:25:11.000Z",
+     *      "updatedAt": "2020-11-13T11:25:11.000Z"
      * }
      * 
      * @apiPermission permission.playlists.canCreate
@@ -284,6 +290,10 @@ class PlaylistEndpoint extends Endpoint {
      *      "title": "This is a title",
      *      "description": "This is a description"
      * }
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
      * 
      * @apiPermission permission.playlists.canUpdate
      * @apiVersion 1.0.0
