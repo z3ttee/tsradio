@@ -3,6 +3,7 @@ import authEndpoint from '../endpoints/authEndpoint.js'
 import userEndpoint from '../endpoints/userEndpoint.js'
 import groupEndpoint from '../endpoints/groupEndpoint.js'
 import playlistEndpoint from '../endpoints/playlistEndpoint.js'
+import channelEndpoint from '../endpoints/channelEndpoint.js'
 
 const routes = [
     {
@@ -37,6 +38,15 @@ const routes = [
             {name: 'PlaylistsGetMultiple', path: '/playlists', action: 'getMultiple', method: 'get'},
             {name: 'PlaylistsRemoveOne', path: '/playlists/:id', action: 'removeOne', method: 'delete', permission: 'permission.playlists.canDelete'},
             {name: 'PlaylistsUpdateOne', path: '/playlists/:id', action: 'updateOne', method: 'put', permission: 'permission.playlists.canUpdate'},
+        ]
+    },
+    {
+        groupname: 'channels',
+        handler: channelEndpoint,
+        actions: [
+            {name: 'ChannelsCreateOne', path: '/channels', action: 'createOne', method: 'post', permission: 'permission.channels.canCreate'},
+            {name: 'ChannelsGetOne', path: '/channels/:id', action: 'getOne', method: 'get'},
+
         ]
     },
     {
