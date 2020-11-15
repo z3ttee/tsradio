@@ -333,6 +333,53 @@ class PlaylistEndpoint extends Endpoint {
         return {}
     }
 
+    /**
+     * @api {patch} /playlists/:id Add Track to playlist
+     * @apiGroup Playlists
+     * @apiDescription Endpoint for adding tracks to a playlist.
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} id Playlists unique ID.
+     * @apiParam {String} trackUUID Tracks unique ID that needs to be added.
+     * 
+     * @apiExample json-body:
+     * {
+     *      "trackUUID": "d5b434c3-c287-4cbe-bb6e-26dd90b47fd3",
+     * }
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiPermission permission.playlists.canPatch
+     * @apiVersion 1.0.0
+     */
+    async actionPatchOne(route) {
+        let id = route.params.id
+        let trackUUID = route.req.body.trackUUID
+
+        let exists = await Playlist.findOne({ where: { uuid: id }})
+        if(!exists) {
+            return TrustedError.get("API_RESOURCE_NOT_FOUND")
+        }
+
+        exists = await Track.findOne({ where: { uuid: trackUUID }})
+        if(!exists) {
+            return TrustedError.get("API_TRACK_NOT_FOUND")
+        }
+
+        exists = await TracksList.findOne({ where: { playlistUUID: id, trackUUID}})
+        if(exists) {
+            return TrustedError.get("API_TRACK_IN_PLAYLIST")
+        }
+        
+        return await TracksList.create({
+            playlistUUID: id,
+            trackUUID
+        })
+    }
+
 }
 
 export default new PlaylistEndpoint();
