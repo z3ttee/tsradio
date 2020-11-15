@@ -20,24 +20,6 @@ const dbModel = {
     description: {
         type: DataTypes.STRING,
         allowNull: true
-    },
-    playlist: {
-        type: DataTypes.UUID,
-        references: {
-            model: Playlist,
-            key: 'uuid'
-        },
-        onDelete: 'SET NULL',
-        onUpdate: 'CASCADE'
-    },
-    creatorUUID: {
-        type: DataTypes.UUID,
-        references: {
-            model: User,
-            key: 'uuid'
-        },
-        onDelete: 'SET NULL',
-        onUpdate: 'CASCADE'
     }
 }
 

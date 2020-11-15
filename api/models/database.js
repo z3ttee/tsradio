@@ -44,6 +44,12 @@ async function createTables(sequelize) {
     User.hasMany(Playlist, {as: 'playlist', foreignKey: 'uuid', constraints: false})
     Playlist.belongsTo(User, { as: 'creator', foreignKey: 'creatorUUID' })
 
+    User.hasMany(Channel, {as: 'channel', foreignKey: 'uuid', constraints: false})
+    Channel.belongsTo(User, { as: 'creator', foreignKey: 'creatorUUID' })
+
+    Playlist.hasMany(Channel, {as: 'channel', foreignKey: 'uuid', constraints: false})
+    Channel.belongsTo(Playlist, { as: 'playlist', foreignKey: 'playlistUUID' })
+
     try {
 
         // Create groups table and create default group
