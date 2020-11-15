@@ -120,15 +120,17 @@ class PlaylistEndpoint extends Endpoint {
             }, 
             attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt'],
             include: [
-                {model: User, as: 'creator'},
-                {model: TracksList, as: 'tracks', attributes: [], include: {
-                    all: true
-                }}
+                {model: User, as: 'creator', attributes: ['uuid', 'username']},
+                {model: TracksList, as: 'tracks', attributes: ['trackUUID'], include: [
+                    {model: Track, as: 'track', attributes: ['uuid', 'title', 'artist', 'createdAt']}
+                ]}
             ]
-                //{model: User, as: 'creator'},
-                //{model: Track, as: 'tracklist'}
-                //{model: TracksList, as: 'tracks'},
         })
+
+        for(let index in playlist.tracks) {
+            playlist.tracks[index] = playlist.tracks[index].track
+        }
+
         return playlist
     }
 

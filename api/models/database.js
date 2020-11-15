@@ -57,11 +57,11 @@ async function createTables(sequelize) {
     Playlist.belongsToMany(Track, { through: TracksList, as: 'tracklist', foreignKey: 'uuid'})
     Track.belongsToMany(Playlist, { through: TracksList, as: 'tracklist', foreignKey: 'uuid'})
 
-    /*Playlist.hasMany(TracksList, { as: 'tracks', foreignKey: 'playlistUUID'})
+    Playlist.hasMany(TracksList, { as: 'tracks', foreignKey: 'playlistUUID'})
     TracksList.belongsTo(Playlist, { as: 'playlist', foreignKey: 'playlistUUID'})
 
     Track.hasMany(TracksList, { as: 'list', foreignKey: 'trackUUID'})
-    TracksList.belongsTo(Track, { as: 'track', foreignKey: 'trackUUID'})*/
+    TracksList.belongsTo(Track, { as: 'track', foreignKey: 'trackUUID'})
 
     try {
 
