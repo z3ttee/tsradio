@@ -109,24 +109,37 @@ class PlaylistEndpoint extends Endpoint {
      * }
      * 
      * @apiError 404 The requested playlist was not found.
+     * @apiPermission permission.playlists.seePrivate (Optional to see non public playlists)
      * @apiVersion 1.0.0
      */
     async actionGetOne(route) {
         let id = route.params.id
 
-        let playlist = await Playlist.findOne({ 
-            where: { 
-                uuid: id
-            }, 
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt'],
+        // Specify what to return
+        let options = {
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic'],
             include: [
                 {model: User, as: 'creator', attributes: ['uuid', 'username']},
                 {model: TracksList, as: 'tracks', attributes: ['trackUUID'], include: [
                     {model: Track, as: 'track', attributes: ['uuid', 'title', 'artist', 'createdAt']}
                 ]}
             ]
-        })
+        }
 
+        // Define where clause
+        let where = {
+            uuid: id
+        }
+
+        // Check if user is permitted to see private playlists
+        let canSeePrivate = route.isOwnResource || route.user && route.user.hasPermission('permission.playlists.seePrivate')
+        if(!canSeePrivate) {
+            where.isPublic = true
+        }
+
+        let playlist = await Playlist.findOne({where, ...options})
+
+        // Better tracks formatting in list
         for(let index in playlist.tracks) {
             playlist.tracks[index] = playlist.tracks[index].track
         }
@@ -179,15 +192,42 @@ class PlaylistEndpoint extends Endpoint {
         if(offset < 0) offset = 0
         if(limit > 30 || limit < 1) limit = 30
 
-        let playlists = await Playlist.findAll({
+        // Specify what to return
+        let options = {
             offset: offset,
             limit: limit,
-            attributes: ['uuid', 'title', 'description', 'tracks', 'createdAt', 'updatedAt'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic'],
             include: [
-                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+                {model: User, as: 'creator', attributes: ['uuid', 'username']},
+                {model: TracksList, as: 'tracks', attributes: ['trackUUID'], include: [
+                    {model: Track, as: 'track', attributes: ['uuid', 'title', 'artist', 'createdAt']}
+                ]}
             ]
-        })
+        }
 
+        // Define where clause
+        let where = {}
+
+        // Check if user is permitted to see private playlists
+        let canSeePrivate = route.user && route.user.hasPermission('permission.playlists.seePrivate')
+        if(!canSeePrivate) {
+            where.isPublic = true
+        }
+
+        let playlists = await Playlist.findAll({ where, ...options })
+
+        // Better tracks formatting in list
+        for(let plIndex in playlists) {
+            let playlist = playlists[plIndex]
+
+            for(let index in playlist.tracks) {
+                playlist.tracks[index] = playlist.tracks[index].track
+            }
+
+            playlists[plIndex] = playlist
+        }
+
+        // Output
         let availableCount = await Playlist.findAndCountAll({ where: {}})
         return { available: availableCount.count, entries: playlists }
     }
@@ -239,21 +279,50 @@ class PlaylistEndpoint extends Endpoint {
         if(offset < 0) offset = 0
         if(limit > 30 || limit < 1) limit = 30
 
+        // Refactor @me scope to actual id
         if(id == '@me') {
             if(!route.user) return TrustedError.get("API_AUTH_REQUIRED")
             id = route.user.uuid
         }
 
-        let playlists = await Playlist.findAll({
-            where: { creatorUUID: id },
+        // Specify what to return
+        let options = {
             offset: offset,
             limit: limit,
-            attributes: ['uuid', 'title', 'description', 'tracks', 'createdAt', 'updatedAt'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic'],
             include: [
-                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+                {model: User, as: 'creator', attributes: ['uuid', 'username']},
+                {model: TracksList, as: 'tracks', attributes: ['trackUUID'], include: [
+                    {model: Track, as: 'track', attributes: ['uuid', 'title', 'artist', 'createdAt']}
+                ]}
             ]
-        })
+        }
 
+        // Define where clause
+        let where = {
+            creatorUUID: id
+        }
+
+        // Check if user is permitted to see private playlists
+        let canSeePrivate = route.isOwnResource || route.user && route.user.hasPermission('permission.playlists.seePrivate')
+        if(!canSeePrivate) {
+            where.isPublic = true
+        }
+
+        let playlists = await Playlist.findAll({ where, ...options })
+
+        // Better formatting tracks in list
+        for(let plIndex in playlists) {
+            let playlist = playlists[plIndex]
+
+            for(let index in playlist.tracks) {
+                playlist.tracks[index] = playlist.tracks[index].track
+            }
+
+            playlists[plIndex] = playlist
+        }
+
+        // Output
         let availableCount = await Playlist.findAndCountAll({ where: {} })
         return { available: availableCount.count, entries: playlists }
     }
