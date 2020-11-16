@@ -133,6 +133,82 @@ class ChannelEndpoint extends Endpoint {
     }
 
     /**
+     * @api {get} /channels Get multiple channels 
+     * @apiGroup Channels
+     * @apiDescription Endpoint for getting multiple channels. (Pagination available)
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiSuccess (200) {Integer} available Number of available entries in database (used to calc pages in frontend)
+     * @apiSuccess (200) {Object} playlist Entry in returned array, holding a groups info
+     * @apiSuccess (200) {String} playlist.uuid Playlists unique id
+     * @apiSuccess (200) {String} playlist.title Playlists title
+     * @apiSuccess (200) {String} playlist.description Playlists description
+     * @apiSuccess (200) {String} playlist.creatorUUID Playlists creator unique user id
+     * @apiSuccess (200) {Array} playlist.tracks Playlists list of tracks
+     * @apiSuccess (200) {Timestamp} playlist.updatedAt Date of last update
+     * @apiSuccess (200) {Timestamp} playlist.createdAt Date at which user was created
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *      "available": 1,
+     *      "entries": [
+     *          {
+     *              "uuid": "d5b434c3-c287-4cbe-bb6e-26dd90b47fd3",
+     *              "title": "Das ist eine Playlist",
+     *              "description": "",
+     *              "creatorUUID": "a495e477-2aa2-4fef-ad0c-6dbda6e59155",
+     *              "tracks": "[]",
+     *              "createdAt": "2020-11-13T11:25:11.000Z",
+     *              "updatedAt": "2020-11-13T11:25:11.000Z"
+     *          }
+     *      ]
+     * }
+     * 
+     * @apiPermission permission.channels.seePrivate
+     * @apiVersion 1.0.0
+     */
+    async actionGetMultiple(route) {
+        let offset = route.req.body.offset || 0
+        let limit = route.req.body.limit || 1
+
+        if(offset < 0) offset = 0
+        if(limit > 30 || limit < 1) limit = 30
+
+        // Specify what to return
+        let options = {
+            offset: offset,
+            limit: limit,
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured'],
+            include: [
+                {model: User, as: 'creator', attributes: ['uuid', 'username']},
+                {model: Playlist, as: 'playlist', attributes: ['uuid', 'title', 'description']}
+            ]
+        }
+
+        // Define where clause
+        let where = {}
+
+        // Check if user is permitted to see private playlists
+        let canSeePrivate = route.user && route.user.hasPermission('permission.channels.seePrivate')
+        if(!canSeePrivate) {
+            where.isPublic = true
+        }
+
+        let channels = await Channel.findAll({ where, ...options })
+        let availableCount = 0
+
+        // Output
+        if(canSeePrivate) {
+            availableCount = await Channel.findAndCountAll({ where: {}})
+        } else {
+            availableCount = await Channel.findAndCountAll({ where: { isPublic: true }})
+        }
+        return { available: availableCount.count, entries: channels }
+    }
+
+    /**
      * @api {delete} /channels/:id Delete Channel
      * @apiGroup Channels
      * @apiDescription Endpoint for deleting a channel
