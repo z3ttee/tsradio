@@ -18,6 +18,10 @@ const dbModel = {
     description: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }
 

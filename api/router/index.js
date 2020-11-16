@@ -9,6 +9,7 @@ class Router {
 
     constructor() {
         this.routes = routes
+        this.ownResourceRequest = false
     }
 
     async setup(app) {
@@ -51,6 +52,8 @@ class Router {
                         }
                     }
 
+                    this.currentRoute.isOwnResource = this.ownResourceRequest
+
                     // Execute action
                     handler[actionFunc](this.currentRoute).then((result) => {
                         if(!result) {
@@ -66,6 +69,8 @@ class Router {
     }
 
     async isOwnResource(){
+        let result = false
+
         try {
             let ownID = this.currentRoute.user.uuid
             let resourceID = this.currentRoute.params.id
@@ -76,27 +81,26 @@ class Router {
                 
                 let requestedResource = await User.findOne({ where: { uuid: resourceID }, attributes: ['uuid']})
                 this.currentRoute.resource = requestedResource
-                return requestedResource.uuid == ownID
-            }
-
-            if(endpointGroup == 'playlists') {
+                result = requestedResource.uuid == ownID
+            } else if(endpointGroup == 'playlists') {
                 if(resourceID == '@me') return true
 
                 let requestedResource = await Playlist.findOne({ where: { creatorUUID: ownID }, attributes: ['uuid']})
                 this.currentRoute.resource = requestedResource
-                return requestedResource.uuid == resourceID
-            }
-
-            if(endpointGroup == 'channels') {
+                result = requestedResource.uuid == resourceID
+            } else if(endpointGroup == 'channels') {
                 if(resourceID == '@me') return true
 
                 let requestedResource = await Channel.findOne({ where: { creatorUUID: ownID }, attributes: ['uuid']})
                 this.currentRoute.resource = requestedResource
-                return requestedResource.uuid == resourceID
+                result = requestedResource.uuid == resourceID
             }
         } catch (exception) {
-            return false
+            result = false
         }
+
+        this.ownResourceRequest = result
+        return result
     }
 }
 
