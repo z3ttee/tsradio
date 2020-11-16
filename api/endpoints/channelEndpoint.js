@@ -4,6 +4,7 @@ import Validator from '../models/validator.js'
 import { Channel } from '../models/channel.js'
 import { Playlist } from '../models/playlist.js'
 import { User } from '../models/user.js'
+import { TrustedError } from '../error/trustedError.js'
 
 class ChannelEndpoint extends Endpoint {
 
@@ -131,7 +132,31 @@ class ChannelEndpoint extends Endpoint {
         return playlist
     }
 
-    
+    /**
+     * @api {delete} /channels/:id Delete Channel
+     * @apiGroup Channels
+     * @apiDescription Endpoint for deleting a channel
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * @apiParam {String} id Channels unique id
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiPermission permission.channels.canDelete
+     * @apiVersion 1.0.0
+     */
+    async actionRemoveOne(route) {
+        let id = route.params.id
+
+        let result = await Channel.destroy({where: { uuid: id }})
+        if(result != 1) {
+            return TrustedError.get("API_RESOURCE_NOT_DELETED")
+        }
+
+        return {}
+    }
 
 }
 
