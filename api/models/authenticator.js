@@ -39,7 +39,7 @@ class Authenticator {
                     data = undefined
                 } else {
                     passed = true
-                    data.group.permissions = JSON.parse(data.group.permissions)
+                    data.group.permissions = data.group.permissions
                 }
 
             } catch (exception) {
