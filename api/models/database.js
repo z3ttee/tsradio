@@ -116,10 +116,9 @@ async function createTables(sequelize) {
 
 async function setupTriggers() {
     // Delete users playlists if account gets deleted
-    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeletePlaylistsOnUserDeletion` BEFORE DELETE ON `tsr_users` FOR EACH ROW DELETE FROM tsr_playlists_info WHERE tsr_playlists_info.creatorUUID = old.uuid;")
-    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeleteTrackFromTracksListOnTrackDeletion` BEFORE DELETE ON `tsr_tracks` FOR EACH ROW DELETE FROM tsr_playlists_tracks WHERE tsr_playlists_tracks.trackUUID = old.uuid;")
-    await database.sequelize.query("CREATE TRIGGER IF NOT EXISTS `DeletePlaylistFromTracksListOnPlaylistDeletion` BEFORE DELETE ON `tsr_playlists_info` FOR EACH ROW DELETE FROM tsr_playlists_tracks WHERE tsr_playlists_tracks.playlistUUID = old.uuid;")
-
+    await database.sequelize.query("CREATE TRIGGER `DeletePlaylistsOnUserDeletion` BEFORE DELETE ON `tsr_users` FOR EACH ROW DELETE FROM tsr_playlists_info WHERE tsr_playlists_info.creatorUUID = old.uuid;").catch(() => {})
+    await database.sequelize.query("CREATE TRIGGER `DeleteTrackFromTracksListOnTrackDeletion` BEFORE DELETE ON `tsr_tracks` FOR EACH ROW DELETE FROM tsr_playlists_tracks WHERE tsr_playlists_tracks.trackUUID = old.uuid;").catch(() => {})
+    await database.sequelize.query("CREATE TRIGGER `DeletePlaylistFromTracksListOnPlaylistDeletion` BEFORE DELETE ON `tsr_playlists_info` FOR EACH ROW DELETE FROM tsr_playlists_tracks WHERE tsr_playlists_tracks.playlistUUID = old.uuid;").catch(() => {})
 }
 
 export default database
