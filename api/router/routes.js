@@ -47,6 +47,7 @@ const routes = [
         actions: [
             {name: 'ChannelsCreateOne', path: '/channels', action: 'createOne', method: 'post', permission: 'permission.channels.canCreate'},
             {name: 'ChannelsGetOne', path: '/channels/:id', action: 'getOne', method: 'get'},
+            {name: 'ChannelsRemoveOne', path: '/channels/:id', action: 'removeOne', method: 'delete', permission: 'permission.channels.canDelete'},
 
         ]
     },
