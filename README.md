@@ -12,10 +12,12 @@ To see the current state of development in detail, please visit the following pa
 ## Prerequisites
 * NodeJS v12
 * MySQL as database
+* Python installed
 
 ## Setup / Installation
 1. Installation
 2. Setting up SSL
+3. Setup listener authentication in icecast
 
 #### 1. Installation
 TBD
@@ -30,3 +32,21 @@ Because ``backend`` is a nodejs project, you have to start the nodejs server as 
 #### 2. Setting up SSL
 To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory 
 and place ``server.key`` and ``server.crt`` inside the newly created folder.
+
+#### 3. Setup listener authentication in icecast
+TSRadio API supports icecast listener authentication through url. It is recommended to setup authentication following the official docs of icecast: 
+(https://icecast.org/docs/icecast-2.4.1/auth.html)[https://icecast.org/docs/icecast-2.4.1/auth.html] <br>
+Given the following configuration
+```
+<mount>
+    <mount-name>/example</mount-name>
+    <authentication type="url">
+        <option name="listener_add" value="<YOUR_URL>"/>
+        <option name="headers" value="cookie"/>
+    </authentication>
+</mount>
+```
+you only need to adjust ``<YOUR_URL>`` to something that points to the /auth/listener endpoint of TSRadio's API.
+This could look something like <br>
+* ``https://example.org/api/auth/listener``
+* ``http://example.org/auth/listener`` (Non-SSL connections are not recommended, because of missing encryption)

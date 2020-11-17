@@ -55,7 +55,8 @@ const routes = [
         groupname: 'auth',
         handler: authEndpoint,
         actions: [
-            {name: 'AuthSignin', path: '/auth/signin', action: 'signin', method: 'get'}
+            {name: 'AuthSignin', path: '/auth/signin', action: 'signin', method: 'get'},
+            {name: 'AuthListenerLogin', path: '/auth/listener', action: 'listenerLogin', method: 'post'}
         ]
     },
     {
