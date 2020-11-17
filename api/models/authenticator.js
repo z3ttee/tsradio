@@ -55,6 +55,49 @@ class Authenticator {
         return { passed, data, error }
     }
 
+    static async validateJWTString(token) {
+
+        let passed = false
+        let data = undefined
+        let error = undefined
+
+        if(token) {
+            try {
+                // Verify jwt and load user data
+                let decoded = jwt.verify(token, config.app.jwt_token_secret)
+                data = await User.findOne({ 
+                    where: { 
+                        uuid: decoded.uuid 
+                    }, 
+                    attributes: ['uuid', 'groupUUID'],
+                    include: [
+                        { model: Group, as: 'group', attributes: ['permissions', 'hierarchy'] }
+                    ]
+                })
+
+                // Set error if user account was not found, otherwise set passed to true
+                if(!data) {
+                    error = TrustedError.get("API_ACCOUNT_NOT_FOUND")
+                    data = undefined
+                } else {
+                    passed = true
+                    data.group.permissions = data.group.permissions
+                }
+
+            } catch (exception) {
+                // Set error, if jwt is expired
+                if(exception instanceof TokenExpiredError) {
+                    error = TrustedError.get("API_JWT_EXPIRED")
+                } else {
+                    console.log(exception)
+                }
+            }
+        }
+
+        return { passed, data, error }
+    }
+
+
     static async loginWithCredentials(request, response) {
         let passed = false
         let token = undefined

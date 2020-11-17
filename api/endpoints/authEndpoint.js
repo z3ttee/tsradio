@@ -1,4 +1,6 @@
 import Authenticator from '../models/authenticator.js'
+import cookieParser from 'cookie'
+import { TrustedError } from '../error/trustedError.js'
 
 class AuthEndpoint {
 
@@ -56,9 +58,27 @@ class AuthEndpoint {
      * 
      * @apiVersion 1.0.0
      */
-    async actionSignout(route) {
-        let token = Authenticator.loginWithCredentials(route.req, route.res)
-        return {token}
+    async actionListenerLogin(route) {
+        try {
+            let cookies = cookieParser.parse(route.req.body.cookie)
+            let token = cookies.tsr_session
+            let authenticator = await Authenticator.validateJWTString(token)
+    
+            if(authenticator.passed) {
+                route.res.set('icecast-auth-user', '1');
+                return {}
+            } else {
+                route.res.set('icecast-auth-user', '0');
+                route.res.set('Icecast-Auth-Message', authenticator.error.message);
+                return authenticator.error
+            }
+        } catch (exception) {
+            let error = TrustedError.get("API_INTERNAL_ERROR")
+            route.res.set('icecast-auth-user', '0');
+            route.res.set('Icecast-Auth-Message', error.message);
+            return error
+        }
+        
     }
 
 }
