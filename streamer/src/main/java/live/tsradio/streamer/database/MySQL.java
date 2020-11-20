@@ -1,4 +1,4 @@
-package live.tsradio.streamer.mysql;
+package live.tsradio.streamer.database;
 
 import live.tsradio.streamer.files.FileHandler;
 import org.json.simple.JSONObject;
@@ -6,10 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class MySQL {
     private static final Logger logger = LoggerFactory.getLogger(MySQL.class);
+
     public static final String PREFIX = (String) ((JSONObject) FileHandler.getInstance().getConfig().get("mysql")).get("prefix");
+    public static final String TABLE_CHANNELS = "channels";
+
     private static MySQL instance;
     private static Connection connection;
 
@@ -62,6 +66,13 @@ public class MySQL {
             throwable.printStackTrace();
             return null;
         }
+    }
+
+    public ResultSet get(String tableName, String where, ArrayList<String> attributes){
+        String attrs = attributes.isEmpty() ? "*" : String.join(",",attributes);
+        String whereClause = where != null ? "WHERE "+where : "";
+
+        return this.query("SELECT "+attrs+" FROM `"+PREFIX+tableName+"` "+whereClause+";");
     }
 
     public static MySQL getInstance() {
