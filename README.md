@@ -13,11 +13,12 @@ To see the current state of development in detail, please visit the following pa
 * NodeJS v12
 * MySQL as database
 * Python installed
+* Redis for pub/sub (Is used for exchanging radio meta data in real-time)
 
 ## Setup / Installation
-1. Installation
-2. Setting up SSL
-3. Setup listener authentication in icecast
+1. [Installation](#1.-Installation)
+2. [Setting up SSL](#2.-Setting-up-SSL)
+3. [Setup listener authentication in icecast](#3.-Setup-listener-authentication-in-icecast)
 
 #### 1. Installation
 TBD
@@ -35,7 +36,7 @@ and place ``server.key`` and ``server.crt`` inside the newly created folder.
 
 #### 3. Setup listener authentication in icecast
 TSRadio API supports icecast listener authentication through url. It is recommended to setup authentication following the official docs of icecast: 
-(https://icecast.org/docs/icecast-2.4.1/auth.html)[https://icecast.org/docs/icecast-2.4.1/auth.html] <br>
+[Icecast 2.4.1 Listener Authentication Docs](https://icecast.org/docs/icecast-2.4.1/auth.html) <br>
 Given the following configuration
 ```
 <mount>
