@@ -16,9 +16,9 @@ To see the current state of development in detail, please visit the following pa
 * Redis for pub/sub (Is used for exchanging radio meta data in real-time)
 
 ## Setup / Installation
-1. [Installation](#1.-Installation)
-2. [Setting up SSL](#2.-Setting-up-SSL)
-3. [Setup listener authentication in icecast](#3.-Setup-listener-authentication-in-icecast)
+1. [Installation](#1-installation)
+2. [Setting up SSL](#2-setting-up-ssl)
+3. [Setup listener authentication in icecast](#3-setup-listener-authentication-in-icecast)
 
 #### 1. Installation
 TBD
