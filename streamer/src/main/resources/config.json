@@ -1,0 +1,16 @@
+{
+    "mysql": {
+        "host": "localhost",
+        "port": 3306,
+        "database": "dbname",
+        "user": "username",
+        "pass": "password",
+        "prefix": "tsr_"
+    },
+    "icecast": {
+        "host": "localhost",
+        "port": 8000,
+        "sourceName": "source",
+        "sourcePass": "sourcePassword"
+    }
+}
