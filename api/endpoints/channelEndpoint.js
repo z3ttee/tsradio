@@ -43,12 +43,15 @@ class ChannelEndpoint extends Endpoint {
      * @apiSuccessExample {json} Success-Response:
      * HTTP/1.1 200 OK
      * {
-     *      "uuid": "053f2851-c351-421d-819b-2b7d95ed600b",
+     *      "uuid": "a6f2d99a-3c7c-4730-8418-8b694fe4acc2",
+     *      "isPublic": true,
+     *      "featured": false,
+     *      "enabled": true,
      *      "title": "This is a title",
      *      "description": "This is a description",
-     *      "creatorUUID": "f16cdbc3-6671-4835-9ccf-2123c6b470f3",
-     *      "updatedAt": "2020-11-15T09:35:37.711Z",
-     *      "createdAt": "2020-11-15T09:35:37.711Z"
+     *      "creatorUUID": "1eb9566f-1820-448c-9db6-27e6db18e7b7",
+     *      "updatedAt": "2020-11-20T18:30:39.235Z",
+     *      "createdAt": "2020-11-20T18:30:39.235Z"
      * }
      * 
      * @apiPermission permission.channels.canCreate
@@ -119,16 +122,28 @@ class ChannelEndpoint extends Endpoint {
     async actionGetOne(route) {
         let id = route.params.id
 
-        let playlist = await Channel.findOne({ 
-            where: { 
-                uuid: id
-            }, 
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt'],
+        // Specify what to return
+        let options = {
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled'],
             include: [
-                { model: Playlist, as: 'playlist', nested: true},
-                { model: User, as: 'creator', attributes: ['uuid', 'username']}
+                {model: User, as: 'creator', attributes: ['uuid', 'username']},
+                {model: Playlist, as: 'playlist', attributes: ['uuid', 'title', 'description']}
             ]
-        })
+        }
+
+        // Define where clause
+        let where = {
+            uuid: id
+        }
+
+        // Check if user is permitted to see private playlists
+        let canSeePrivate = route.isOwnResource() || route.user && route.user.hasPermission('permission.channels.seePrivate')
+        if(!canSeePrivate) {
+            where.isPublic = true
+            where.enabled = true
+        }
+
+        let playlist = await Channel.findOne({ where, ...options})
         return playlist
     }
 
@@ -180,7 +195,7 @@ class ChannelEndpoint extends Endpoint {
         let options = {
             offset: offset,
             limit: limit,
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled'],
             include: [
                 {model: User, as: 'creator', attributes: ['uuid', 'username']},
                 {model: Playlist, as: 'playlist', attributes: ['uuid', 'title', 'description']}
@@ -194,6 +209,7 @@ class ChannelEndpoint extends Endpoint {
         let canSeePrivate = route.user && route.user.hasPermission('permission.channels.seePrivate')
         if(!canSeePrivate) {
             where.isPublic = true
+            where.enabled = true
         }
 
         let channels = await Channel.findAll({ where, ...options })

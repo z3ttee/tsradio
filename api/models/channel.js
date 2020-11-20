@@ -28,6 +28,10 @@ const dbModel = {
     featured: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    enabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }
 
