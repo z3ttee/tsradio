@@ -10,10 +10,12 @@ To see the current state of development in detail, please visit the following pa
 - [ ] Create / Manage users
 
 ## Prerequisites
+* OS: Linux (Win will be supported in the late future)
 * NodeJS v12
 * MySQL as database
 * Python installed
 * Redis for pub/sub (Is used for exchanging radio meta data in real-time)
+* NOTE: ``execstack`` command on linux (``sudo apt-get install execstack -y``)
 
 ## Setup / Installation
 1. [Installation](#1-installation)
