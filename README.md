@@ -34,7 +34,15 @@ Because ``backend`` is a nodejs project, you have to start the nodejs server as 
 To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory 
 and place ``server.key`` and ``server.crt`` inside the newly created folder. <br><br>
 When setting up SSL on icecast2 using letsencrypt, the following command can come in handy when bundling the certificate:<br>
-``sudo bash -c 'cat /etc/letsencrypt/live/easternexploration.de/fullchain.pem /etc/letsencrypt/live/easternexploration.de/privkey.pem >> /etc/icecast2/cert.bundle.pem'``
+``sudo bash -c 'cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem >> /etc/icecast2/cert.bundle.pem' && sudo service icecast2 restart`` <br>
+You can write this command in your domains renewal config under ``post_hook``. Example:<br>
+```
+sudo nano /etc/letsencrypt/renewal/example.com.conf
+
+Add the line:
+post_hook = sudo bash -c 'cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem >> /etc/icecast2/cert.bundle.pem' && sudo service icecast2 restart
+```
+Now when using ``sudo certbot renew --dry-run`` the certificate should automatically renew for icecast too.
 
 #### 3. Setup listener authentication in icecast
 TSRadio API supports icecast listener authentication through url. It is recommended to setup authentication following the official docs of icecast: 
