@@ -21,5 +21,11 @@ public class ChannelHandler {
 
         logger.info("loadChannels(): Registered "+channels.size()+" channel(s).");
     }
+    public static void startChannels() {
+        logger.info("startChannels(): Starting all channels...");
+        for(Channel channel : channels) {
+            channel.boot();
+        }
+    }
 
 }

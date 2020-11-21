@@ -13,6 +13,7 @@ public class MySQL {
 
     public static final String PREFIX = (String) ((JSONObject) FileHandler.getInstance().getConfig().get("mysql")).get("prefix");
     public static final String TABLE_CHANNELS = "channels";
+    public static final String TABLE_PLAYISTS = "playlists_info";
 
     private static MySQL instance;
     private static Connection connection;
@@ -23,6 +24,8 @@ public class MySQL {
 
     private void connect() {
         try {
+            logger.info("connect(): Connecting to mysql database...");
+
             JSONObject mysqlConfig = (JSONObject) FileHandler.getInstance().getConfig().get("mysql");
             String host = (String) mysqlConfig.get("host");
             long port = (long) mysqlConfig.get("port");
