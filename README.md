@@ -43,7 +43,7 @@ sudo nano /etc/letsencrypt/renewal/example.com.conf
 Add the line:
 post_hook = sudo bash -c 'cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem >> /etc/icecast2/cert.bundle.pem' && sudo service icecast2 restart
 ```
-Now when using ``sudo certbot renew --dry-run`` the certificate should automatically renew for icecast too.
+Now when using ``sudo certbot renew`` the certificate should automatically renew for icecast too.
 
 #### 3. Setup listener authentication in icecast
 TSRadio API supports icecast listener authentication through url. It is recommended to setup authentication following the official docs of icecast: 
