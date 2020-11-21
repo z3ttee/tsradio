@@ -17,6 +17,10 @@ const dbModel = {
         type: DataTypes.STRING,
         allowNull: false
     },
+    path: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     description: {
         type: DataTypes.STRING,
         allowNull: true

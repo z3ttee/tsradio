@@ -22,6 +22,7 @@ class ChannelEndpoint extends Endpoint {
      * @apiHeader {String} Authorization Users Bearer Token (JWT)
      * 
      * @apiParam {String} title Channels title (required) (Min: 3, Max: 120).
+     * @apiParam {String} path Channels mountpoint on icecast (required) (Min: 3, Max: 16).
      * @apiParam {String} description Channels description (optional) (Max: 240).
      * @apiParam {String} playlist Channels playlist uuid (optional).
      * 
@@ -34,6 +35,7 @@ class ChannelEndpoint extends Endpoint {
      * 
      * @apiSuccess (200) {String} uuid Channels unique id
      * @apiSuccess (200) {String} title Channels title
+     * @apiSuccess (200) {String} path Channels mountpoint on icecast
      * @apiSuccess (200) {String} description Channels description
      * @apiSuccess (200) {String} creatorUUID Channels creator unique user id
      * @apiSuccess (200) {Array} playlist Channels playlist
@@ -46,6 +48,7 @@ class ChannelEndpoint extends Endpoint {
      *      "uuid": "a6f2d99a-3c7c-4730-8418-8b694fe4acc2",
      *      "isPublic": true,
      *      "featured": false,
+     *      "path": "/example",
      *      "enabled": true,
      *      "title": "This is a title",
      *      "description": "This is a description",
@@ -59,16 +62,18 @@ class ChannelEndpoint extends Endpoint {
      */
     async actionCreateOne(route) {
         let title = route.req.body.title
+        let path = route.req.body.path
         let description = route.req.body.description
         let playlistUUID = route.req.body.playlist
 
         const validationSchema = Joi.object({
             title: Joi.string().min(3).max(120).required(),
+            path: Joi.string().min(3).max(16).required(),
             description: Joi.string().max(240),
             playlistUUID: Joi.string().max(36)
         })
 
-        let validation = await Validator.validate(validationSchema, {title, description, playlistUUID})
+        let validation = await Validator.validate(validationSchema, {title, path, description, playlistUUID})
 
         if(!validation.passed) {
             return validation.error
@@ -76,6 +81,7 @@ class ChannelEndpoint extends Endpoint {
 
         let channel = await Channel.create({
             title,
+            path,
             description,
             playlistUUID,
             creatorUUID: route.user.uuid
@@ -124,7 +130,7 @@ class ChannelEndpoint extends Endpoint {
 
         // Specify what to return
         let options = {
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled', 'path'],
             include: [
                 {model: User, as: 'creator', attributes: ['uuid', 'username']},
                 {model: Playlist, as: 'playlist', attributes: ['uuid', 'title', 'description']}
@@ -195,7 +201,7 @@ class ChannelEndpoint extends Endpoint {
         let options = {
             offset: offset,
             limit: limit,
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled', 'path'],
             include: [
                 {model: User, as: 'creator', attributes: ['uuid', 'username']},
                 {model: Playlist, as: 'playlist', attributes: ['uuid', 'title', 'description']}
