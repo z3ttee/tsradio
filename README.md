@@ -15,7 +15,6 @@ To see the current state of development in detail, please visit the following pa
 * MySQL as database
 * Python installed
 * Redis for pub/sub (Is used for exchanging radio meta data in real-time)
-* NOTE: ``execstack`` command on linux (``sudo apt-get install execstack -y``)
 
 ## Setup / Installation
 1. [Installation](#1-installation)
