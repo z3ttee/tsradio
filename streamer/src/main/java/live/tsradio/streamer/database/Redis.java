@@ -14,7 +14,8 @@ public class Redis {
     private static final Logger logger = LoggerFactory.getLogger(Redis.class);
     private static Redis instance;
 
-    private Jedis jedis;
+    private Jedis publishRedis;
+    private Jedis subscribeRedis;
     private boolean isOperatable;
 
     public Redis(){
@@ -24,8 +25,12 @@ public class Redis {
         String password = (String) redis.get("pass");
 
         try {
-            this.jedis = new Jedis(host, (int) port);
-            this.jedis.auth(password);
+            this.publishRedis = new Jedis(host, (int) port);
+            this.publishRedis.auth(password);
+
+            this.subscribeRedis = new Jedis(host, (int) port);
+            this.subscribeRedis.auth(password);
+
             this.isOperatable = true;
         } catch (Exception ex){
             this.isOperatable = false;
@@ -40,17 +45,19 @@ public class Redis {
 
     public void publish(RedisChannels channel, String message){
         if(!this.isOperatable) return;
-        this.jedis.publish(channel.getChannelName(), message);
+        this.publishRedis.publish(channel.getChannelName(), message);
     }
 
-    public void on(String channel, RedisEvent eventListener){
+    public void on(RedisChannels channel, RedisEvent eventListener){
         if(!this.isOperatable) return;
-        new Thread(() -> this.jedis.subscribe(new JedisPubSub() {
+
+        String channelName = channel.getChannelName();
+        this.subscribeRedis.subscribe(new JedisPubSub() {
             @Override
-            public void onMessage(String channel, String message) {
-                eventListener.onEvent(channel, message);
+            public void onMessage(String c, String message) {
+                eventListener.onEvent(channelName, message);
             }
-        }, channel)).start();
+        }, channelName);
     }
 
     public static Redis getInstance() {

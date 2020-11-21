@@ -9,6 +9,11 @@ repositories {
     mavenCentral()
 }
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
@@ -27,4 +32,7 @@ dependencies {
 
     // Add logback for logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+    // Add to lookup mp3 tags
+    implementation "com.mpatric:mp3agic:0.9.1"
 }

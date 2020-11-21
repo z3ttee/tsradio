@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URISyntaxException;
 
+@SuppressWarnings("SameParameterValue")
 public class FileHandler {
     private static final Logger logger = LoggerFactory.getLogger(FileHandler.class);
     private static final File configFile = new File(System.getProperty("user.dir"), "config.json");
@@ -27,34 +27,10 @@ public class FileHandler {
         try {
             if(!configFile.exists()) {
                 logger.info("loadConfig(): Config file does not exist. Creating it...");
+                InputStream sysResIn = Streamer.class.getResourceAsStream("/config.json");
 
-                if(!configFile.setReadable(true) && !configFile.setWritable(true)) {
-                    logger.error("loadConfig(): Could not set read/write permissions for file '"+configFile.getAbsolutePath()+"'.");
-                    logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");
-                    System.exit(0);
-                    return;
-                }
-
-                if(!configFile.createNewFile()) {
-                    logger.error("loadConfig(): Could not create file '"+configFile.getAbsolutePath()+"'.");
-                    logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");
-                    System.exit(0);
-                    return;
-                }
-
-                File sysRes = new File(getClass().getResource("/config.json").toURI());
-
-                BufferedReader reader = new BufferedReader(new FileReader(sysRes));
-                PrintWriter writer = new PrintWriter(configFile);
-                String line;
-
-                while((line = reader.readLine()) != null) {
-                    writer.write(line+"\n");
-                }
-
-                writer.flush();
-                writer.close();
-                reader.close();
+                createFile(configFile);
+                createFileFromResources(sysResIn, configFile);
             }
 
             logger.info("loadConfig(): Loading config file...");
@@ -63,9 +39,38 @@ public class FileHandler {
             JSONParser parser = new JSONParser();
 
             config = (JSONObject) parser.parse(reader);
-        } catch (IOException | ParseException | URISyntaxException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
             logger.error("loadConfig(): An error occured during config initialization.");
+        }
+    }
+
+    private static void createFileFromResources(InputStream sysResIn, File dest) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(sysResIn));
+        PrintWriter writer = new PrintWriter(dest);
+        String line;
+
+        while((line = reader.readLine()) != null) {
+            writer.println(line);
+        }
+
+        writer.flush();
+        writer.close();
+        reader.close();
+    }
+
+    private static void createFile(File file) throws IOException {
+        if(!file.setReadable(true) && !file.setWritable(true)) {
+            logger.error("loadConfig(): Could not set read/write permissions for file '"+file.getAbsolutePath()+"'.");
+            logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");
+            System.exit(0);
+            return;
+        }
+
+        if(!file.createNewFile()) {
+            logger.error("loadConfig(): Could not create file '"+file.getAbsolutePath()+"'.");
+            logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");
+            System.exit(0);
         }
     }
 
