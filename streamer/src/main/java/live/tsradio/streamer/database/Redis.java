@@ -1,22 +1,24 @@
 package live.tsradio.streamer.database;
 
+import live.tsradio.streamer.database.consts.RedisChannels;
+import live.tsradio.streamer.database.consts.RedisSets;
 import live.tsradio.streamer.database.events.RedisEvent;
 import live.tsradio.streamer.files.FileHandler;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 public class Redis {
     private static final Logger logger = LoggerFactory.getLogger(Redis.class);
-    private static Redis instance;
 
-    private Jedis publishRedis;
-    private Jedis subscribeRedis;
-    private boolean isOperatable;
+    private JedisPool jedisPool;
+    private static Redis instance;
 
     public Redis(){
         JSONObject redis = (JSONObject) FileHandler.getInstance().getConfig().get("redis");
@@ -25,16 +27,10 @@ public class Redis {
         String password = (String) redis.get("pass");
 
         try {
-            this.publishRedis = new Jedis(host, (int) port);
-            this.publishRedis.auth(password);
-
-            this.subscribeRedis = new Jedis(host, (int) port);
-            this.subscribeRedis.auth(password);
-
-            this.isOperatable = true;
+            JedisPoolConfig poolConfig = new JedisPoolConfig();
+            poolConfig.setMaxTotal(100);
+            this.jedisPool = new JedisPool(poolConfig, host, (int) port, 4000, password);
         } catch (Exception ex){
-            this.isOperatable = false;
-
             if(ex instanceof JedisConnectionException || ex instanceof JedisDataException) {
                 logger.error("Redis(): Connection to redis failed: "+ex.getMessage());
             } else {
@@ -44,20 +40,42 @@ public class Redis {
     }
 
     public void publish(RedisChannels channel, String message){
-        if(!this.isOperatable) return;
-        this.publishRedis.publish(channel.getChannelName(), message);
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            jedis.publish(channel.getChannelName(), message);
+        } catch (Exception ex) {
+            logger.error("publish(): Error occured: "+ex.getMessage());
+        }
+    }
+
+    public void addToSet(RedisSets set, String value) {
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            jedis.sadd(set.getSetName(), value);
+        } catch (Exception ex) {
+            logger.error("addToSet(): Error occured: "+ex.getMessage());
+        }
+    }
+
+    public void removeFromSet(RedisSets set, String value) {
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            jedis.srem(set.getSetName(), value);
+        } catch (Exception ex) {
+            logger.error("removeFromSet(): Error occured: "+ex.getMessage());
+        }
     }
 
     public void on(RedisChannels channel, RedisEvent eventListener){
-        if(!this.isOperatable) return;
-
         String channelName = channel.getChannelName();
-        this.subscribeRedis.subscribe(new JedisPubSub() {
-            @Override
-            public void onMessage(String c, String message) {
-                eventListener.onEvent(channelName, message);
-            }
-        }, channelName);
+
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            jedis.subscribe(new JedisPubSub() {
+                @Override
+                public void onMessage(String c, String message) {
+                    eventListener.onEvent(channelName, message);
+                }
+            }, channelName);
+        } catch (Exception ex) {
+            logger.error("removeFromSet(): Error occured: "+ex.getMessage());
+        }
     }
 
     public static Redis getInstance() {
