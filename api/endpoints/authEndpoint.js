@@ -5,7 +5,7 @@ import { TrustedError } from '../error/trustedError.js'
 class AuthEndpoint {
 
     /**
-     * @api {get} /auth/signin Signin User
+     * @api {post} /auth/signin Signin User
      * @apiGroup Authentication
      * @apiDescription Endpoint for signing users in to obtain a jwt for future authorized api calls
      * 

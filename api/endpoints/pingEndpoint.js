@@ -1,6 +1,6 @@
 class PingEndpoint {
 
-    async actionIndex(route) { }
+    async actionIndex(route) {}
 
 }
 
