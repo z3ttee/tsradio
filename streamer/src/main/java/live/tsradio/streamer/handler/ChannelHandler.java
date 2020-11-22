@@ -22,9 +22,13 @@ public class ChannelHandler {
         logger.info("loadChannels(): Registered "+channels.size()+" channel(s).");
     }
     public static void startChannels() {
-        logger.info("startChannels(): Starting all channels...");
-        for(Channel channel : channels) {
-            channel.boot();
+        if(channels.size() > 0) {
+            logger.info("startChannels(): Starting all channels...");
+            for (Channel channel : channels) {
+                channel.boot();
+            }
+        } else {
+            logger.warn("startChannels(): Can not start any channel: Nothing found.");
         }
     }
 
