@@ -1,4 +1,4 @@
-package live.tsradio.streamer.database;
+package live.tsradio.streamer.database.consts;
 
 import lombok.Getter;
 

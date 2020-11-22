@@ -1,7 +1,7 @@
 package live.tsradio.streamer;
 
 import live.tsradio.streamer.database.Redis;
-import live.tsradio.streamer.database.RedisChannels;
+import live.tsradio.streamer.database.consts.RedisChannels;
 import live.tsradio.streamer.handler.ChannelHandler;
 import live.tsradio.streamer.listener.OnChannelDeleteListener;
 import org.slf4j.Logger;
