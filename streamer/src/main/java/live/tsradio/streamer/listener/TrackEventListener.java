@@ -2,6 +2,7 @@ package live.tsradio.streamer.listener;
 
 import live.tsradio.streamer.database.Redis;
 import live.tsradio.streamer.database.consts.RedisChannels;
+import live.tsradio.streamer.database.consts.RedisLists;
 import live.tsradio.streamer.objects.AudioTrack;
 import live.tsradio.streamer.objects.Channel;
 
@@ -12,8 +13,7 @@ public class TrackEventListener {
     public static final int REASON_DONE = 3;
 
     public static void onTrackStart(Channel channel, AudioTrack track){
-        String jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"title\": \""+track.getTitle()+"\", \"artist\": \""+track.getArtist()+"\" }}";
-        Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);
+        sendMetadataUpdate(channel, track);
         channel.logger.info("onTrackStart(): Now playing: \""+track.getTitle()+"\" - "+track.getArtist());
     }
 
@@ -28,13 +28,29 @@ public class TrackEventListener {
                 }
                 break;
             case REASON_DONE:
+                sendMetadataUpdate(channel, null);
                 channel.reload();
                 break;
 
             default:
+                sendMetadataUpdate(channel, null);
                 channel.logger.error("onTrackEnd(): A track has ended because of an exception: "+exception.getMessage());
                 break;
         }
+    }
+
+    private static void sendMetadataUpdate(Channel channel, AudioTrack track) {
+        String jsonData;
+
+        if(track == null) {
+            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": {}}";
+            Redis.getInstance().removeFromMap(RedisLists.SET_CHANNEL_INFOS, channel.getUuid());
+        } else {
+            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"title\": \""+track.getTitle()+"\", \"artist\": \""+track.getArtist()+"\" }}";
+            Redis.getInstance().setInMap(RedisLists.SET_CHANNEL_INFOS, channel.getUuid(), jsonData);
+        }
+
+        Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);
     }
 
 }
