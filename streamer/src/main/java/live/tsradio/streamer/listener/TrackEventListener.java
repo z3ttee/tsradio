@@ -1,7 +1,7 @@
 package live.tsradio.streamer.listener;
 
 import live.tsradio.streamer.database.Redis;
-import live.tsradio.streamer.database.RedisChannels;
+import live.tsradio.streamer.database.consts.RedisChannels;
 import live.tsradio.streamer.objects.AudioTrack;
 import live.tsradio.streamer.objects.Channel;
 
