@@ -1,0 +1,36 @@
+@import '_variables';
+
+.toast-enter-active {
+    animation: toastBounceIn $animSpeedLong*1s $cubicNorm;
+}
+.toast-leave-active {
+    animation: toastBounceOut $animSpeedNormal*1s $cubicNorm;
+}
+
+/*
+Toast
+*/
+@keyframes toastBounceIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+@keyframes toastBounceOut {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+}

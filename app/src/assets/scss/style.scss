@@ -47,6 +47,15 @@ section {
     }
 }
 
+#toast-container {
+    position: fixed;
+    bottom: $windowPad;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    width: 400px;
+}
+
 /*
 []=========== Links ===========[]
 */
@@ -145,6 +154,12 @@ $buttonHeights: (
     'l': 45px, 
     'xl': 52px
 );
+$buttonScales: (
+    's': 0.94, 
+    'm': 0.95, 
+    'l': 0.96, 
+    'xl': 0.97
+);
 
 .btn {
     display: block;
@@ -192,7 +207,7 @@ $buttonHeights: (
     height: map-get($map: $buttonHeights, $key: 's');
 
     &:active {
-        transform: scale(0.95);
+        transform: scale(map-get($map: $buttonScales, $key: 's'));
     }
 }
 .btn-m {
@@ -200,7 +215,7 @@ $buttonHeights: (
     height: map-get($map: $buttonHeights, $key: 'm');
 
     &:active {
-        transform: scale(0.96);
+        transform: scale(map-get($map: $buttonScales, $key: 'm'));
     }
 }
 .btn-l {
@@ -210,7 +225,7 @@ $buttonHeights: (
     height: map-get($map: $buttonHeights, $key: 'l');
 
     &:active {
-        transform: scale(0.97);
+        transform: scale(map-get($map: $buttonScales, $key: 'l'));
     }
 }
 .btn-xl {
@@ -220,7 +235,7 @@ $buttonHeights: (
     height: map-get($map: $buttonHeights, $key: 'xl');
 
     &:active {
-        transform: scale(0.98);
+        transform: scale(map-get($map: $buttonScales, $key: 'xl'));
     }
 }
 .btn-full {

@@ -1,13 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
-const routes = [
-  { name: 'home', path: '/', component: () => import('@/views/pages/default/HomePageView.vue') },
-  { name: 'setup', path: '/setup', component: () => import('@/views/pages/setup/SetupIndexView.vue') }
-]
+import routes from '@/router/routes.js'
+import user from '@/models/user.js'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if(to.name != 'login' && !user.isLoggedIn()) {
+    router.push({name: 'login'})
+  } else {
+    next()
+  }
 })
 
 export default router

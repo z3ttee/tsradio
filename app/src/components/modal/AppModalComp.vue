@@ -11,11 +11,13 @@ export default {
     },
     computed: {
         modalComp() {
-            
             return defineAsyncComponent({
-                    loader: () => import(this.modal.componentPath)
-                })
+                loader: () => import(this.modal.componentPath)
+            })
         }
+    },
+    mounted() {
+        console.log(this.modal)
     }
 }
 </script>

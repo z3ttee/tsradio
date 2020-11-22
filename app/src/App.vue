@@ -11,6 +11,12 @@
         <div class="modal-overlay" v-if="modals.length > 0"></div>
         <app-modal v-for="modal in modals" :modal="modal" :key="modal.id"></app-modal>
     </div>
+
+    <transition name="toast" mode="out-in" :appear="true">
+        <div id="toast-container" v-if="toast">
+            <app-toast :toast="toast" :key="toast.id"></app-toast>
+        </div>
+    </transition>
 </template>
 
 <script>
@@ -18,6 +24,7 @@ import AppHeaderView from '@/views/shared/AppHeaderView.vue'
 import AppFooterView from '@/views/shared/AppFooterView.vue'
 import AppSidebarView from '@/views/shared/AppSidebarView.vue'
 
+import AppToast from '@/components/message/AppToastComp.vue'
 import AppModal from '@/components/modal/AppModalComp.vue'
 
 export default {
@@ -25,18 +32,24 @@ export default {
         AppHeaderView,
         AppFooterView,
         AppSidebarView,
-        AppModal
+        AppModal,
+        AppToast
     },
     computed: {
         modals() {
             return this.$store.state.modals
-        }
+        },
+        toast() {
+            var toast = this.$store.state.toast
+            return toast
+        },
     }
 }
 </script>
 
 <style lang="scss">
 @import '@/assets/scss/_variables.scss';
+@import '@/assets/scss/animations.scss';
 @import '@/assets/scss/fonts.scss';
 @import '@/assets/scss/style.scss';
 @import '@/assets/scss/modal.scss';
