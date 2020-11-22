@@ -1,7 +1,7 @@
 package live.tsradio.streamer.database;
 
 import live.tsradio.streamer.database.consts.RedisChannels;
-import live.tsradio.streamer.database.consts.RedisSets;
+import live.tsradio.streamer.database.consts.RedisLists;
 import live.tsradio.streamer.database.events.RedisEvent;
 import live.tsradio.streamer.files.FileHandler;
 import org.json.simple.JSONObject;
@@ -47,19 +47,35 @@ public class Redis {
         }
     }
 
-    public void addToSet(RedisSets set, String value) {
+    public void addToSet(RedisLists set, String value) {
         try (Jedis jedis = this.jedisPool.getResource()) {
-            jedis.sadd(set.getSetName(), value);
+            jedis.sadd(set.getListName(), value);
         } catch (Exception ex) {
             logger.error("addToSet(): Error occured: "+ex.getMessage());
         }
     }
 
-    public void removeFromSet(RedisSets set, String value) {
+    public void setInMap(RedisLists map, String field, String value) {
         try (Jedis jedis = this.jedisPool.getResource()) {
-            jedis.srem(set.getSetName(), value);
+            jedis.hset(map.getListName(), field, value);
+        } catch (Exception ex) {
+            logger.error("addToSet(): Error occured: "+ex.getMessage());
+        }
+    }
+
+    public void removeFromSet(RedisLists set, String value) {
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            jedis.srem(set.getListName(), value);
         } catch (Exception ex) {
             logger.error("removeFromSet(): Error occured: "+ex.getMessage());
+        }
+    }
+
+    public void removeFromMap(RedisLists map, String field) {
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            jedis.hdel(map.getListName(), field);
+        } catch (Exception ex) {
+            logger.error("addToSet(): Error occured: "+ex.getMessage());
         }
     }
 
