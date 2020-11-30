@@ -6,12 +6,11 @@
         </app-announcement-box-comp>
 
         <section>
-            <button class="btn btn-primary btn-m" @click="showTestModal">Show Modal</button>
+            <!--<button class="btn btn-primary btn-m" @click="showTestModal">Show Modal</button>-->
 
             <h3>Hervorgehobene Channels</h3>
             <div class="list-grid-wrapper">
-                <app-channel-list-item-comp></app-channel-list-item-comp>
-                <app-channel-list-item-comp></app-channel-list-item-comp>
+                <app-channel-list-item-comp v-for="channel in $store.state.channels" :key="channel.uuid" :channel="channel" @click="$store.state.currentChannel = channel"></app-channel-list-item-comp>
             </div>
         </section>
     </div>

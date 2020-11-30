@@ -20,7 +20,9 @@ export default createStore({
     },
     toast: undefined,
     version: version,
-    config
+    config,
+    channels: {},
+    currentChannel: undefined
   },
 
   mutations: {

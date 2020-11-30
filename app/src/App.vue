@@ -17,11 +17,14 @@
             <app-toast :toast="toast" :key="toast.id"></app-toast>
         </div>
     </transition>
+
+    <app-player-bar-view></app-player-bar-view>
 </template>
 
 <script>
 import AppHeaderView from '@/views/shared/AppHeaderView.vue'
 import AppFooterView from '@/views/shared/AppFooterView.vue'
+import AppPlayerBarView from '@/views/shared/AppPlayerBarView.vue'
 import AppSidebarView from '@/views/shared/AppSidebarView.vue'
 
 import AppToast from '@/components/message/AppToastComp.vue'
@@ -32,6 +35,7 @@ export default {
         AppHeaderView,
         AppFooterView,
         AppSidebarView,
+        AppPlayerBarView,
         AppModal,
         AppToast
     },

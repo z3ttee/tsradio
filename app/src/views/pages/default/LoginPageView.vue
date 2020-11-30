@@ -45,8 +45,10 @@ export default {
             }
 
             this.$user.loginWithCredentials(this.$v.username.$model, this.$v.password.$model).finally(() => {
-                done()
-                this.$router.push({name: 'home'})
+                setTimeout(() => {
+                    done()
+                    this.$router.push({name: 'home'})
+                }, 1000)
             })
         }
     },

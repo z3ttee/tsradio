@@ -34,8 +34,9 @@ class User {
     }
 
     async logout() {
-        this.setToken(null)
-        if(router.currentRoute.name != 'login') router.push({name: 'login'})
+        this.setToken(null).finally(() => {
+            if(router.currentRoute.name != 'login') router.push({name: 'login'})
+        })
     }
 
     async setToken(value) {

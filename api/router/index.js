@@ -52,7 +52,7 @@ class Router {
                         }
                     }
 
-                    this.currentRoute.isOwnResource = this.ownResourceRequest
+                    this.currentRoute.isOwnResource = () => { return this.ownResourceRequest }
 
                     // Execute action
                     handler[actionFunc](this.currentRoute).then((result) => {
