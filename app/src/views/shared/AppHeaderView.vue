@@ -2,7 +2,7 @@
     <div class="header">
         <div class="content-container">
             <div class="header-bar-section">
-                <button class="btn btn-icon btn-l btn-inline" @click="toggleSidebar"><img src="@/assets/images/icons/menu.svg"></button>
+                <button class="btn btn-icon btn-l btn-inline" @click="toggleSidebar" v-if="$user.isLoggedIn()"><img src="@/assets/images/icons/menu.svg"></button>
             </div>
 
             <div class="header-bar-section">
@@ -11,8 +11,10 @@
             </div>
 
             <div class="header-bar-section">
-                <button class="btn btn-primary btn-m btn-inline"><img src="@/assets/images/icons/key.svg"> Anmelden</button>
-                <button class="btn btn-icon btn-m btn-inline"><img src="" alt=""></button>
+                <div v-show="$route.name != 'login'">
+                    <button class="btn btn-primary btn-m btn-inline" v-if="!$user.isLoggedIn()"><img src="@/assets/images/icons/key.svg"> Anmelden</button>
+                    <button class="btn btn-primary btn-m btn-inline" v-else @click="$user.logout()"><img src="@/assets/images/icons/power.svg" alt=""> Logout</button>
+                </div>
             </div>
         </div>
     </div>

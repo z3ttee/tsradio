@@ -6,17 +6,23 @@ class Api {
 
     constructor() {
         axios.defaults.baseURL = store.state.config.api.baseURL
+        axios.defaults.headers.common['Content-Type'] = "application/json";
+
+        axios.interceptors.request.use((config) => {
+            // Set authorization token for every request in header
+
+            const token = store.state.user.token
+            config.headers.Authorization = token
+
+            return config
+        })
     }
 
     get(url, data) {
         console.log(data)
 
-        let headers = {
-            'Content-Type': 'application/json'
-        }
-
         return new Promise((resolve, reject) => {
-            axios.get(url, { data }, headers).then((response) => {
+            axios.get(url, { data }).then((response) => {
                 console.log(response)
                 resolve(response)
             }).catch((error) => {
@@ -32,12 +38,8 @@ class Api {
     post(url, data) {
         console.log(data)
 
-        let headers = {
-            'Content-Type': 'application/json'
-        }
-
         return new Promise((resolve, reject) => {
-            axios.post(url, data, headers).then((response) => {
+            axios.post(url, data).then((response) => {
                 resolve(response)
             }).catch((error) => {
                 if(error.response) {
@@ -120,7 +122,6 @@ class Api {
             console.log(response)
 
             Toast.error(message);
-
             reject()
         }
 
@@ -192,7 +193,7 @@ class Api {
     }
 
     handleError(error, printError = true) {
-        console.log(error.status);
+        console.log(error);
         if(!printError) return
         Toast.error('Der Service ist derzeit nicht verfügbar');
     }
