@@ -1,3 +1,5 @@
+import Authenticator from "./authenticator"
+
 class Socket {
     constructor(socketio) {
         this.socketio = socketio
@@ -11,6 +13,13 @@ class Socket {
                 return
             }
 
+            let validator = Authenticator.validateJWTString(token)
+
+            if(!validator.passed) {
+                socket.disconnect(true)
+                return
+            }
+            
             next()
         })
     }

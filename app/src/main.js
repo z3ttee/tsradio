@@ -9,6 +9,7 @@ import VueLottiePlayer from 'vue-lottie-player'
 import modaljs from '@/models/modal.js'
 import toastjs from '@/models/toast.js'
 import apijs from '@/models/api.js'
+import userjs from '@/models/user.js'
 
 import AppButton from '@/components/button/AppButtonComp.vue'
 
@@ -25,6 +26,7 @@ app.component("app-button", AppButton)
 app.config.globalProperties.$modal = modaljs
 app.config.globalProperties.$toast = toastjs
 app.config.globalProperties.$api = apijs
+app.config.globalProperties.$user = userjs
 
 app.mixin({
     methods: {
