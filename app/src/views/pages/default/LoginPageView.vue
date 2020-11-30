@@ -44,10 +44,10 @@ export default {
                 return
             }
 
-            this.$api.post('/auth/signin', { username: this.$v.username.$model, password: this.$v.password.$model }).then((result) => {
-                console.log(result)
+            this.$user.loginWithCredentials(this.$v.username.$model, this.$v.password.$model).finally(() => {
+                done()
+                this.$router.push({name: 'home'})
             })
-            done()
         }
     },
     validations() {
