@@ -1,10 +1,12 @@
 import Authenticator from "./authenticator"
 
+const CHANNEL_METADATA_UPDATE = ""
+
 class Socket {
-    constructor(socketio) {
+    async setup(socketio) {
         this.socketio = socketio
 
-        this.socketio.use((socket, next) => {
+        await this.socketio.use(async (socket, next) => {
             let handshakeData = socket.handshake
             let token = handshakeData.query.token
 
@@ -13,16 +15,20 @@ class Socket {
                 return
             }
 
-            let validator = Authenticator.validateJWTString(token)
+            let validator = await Authenticator.validateJWTString(token)
 
             if(!validator.passed) {
                 socket.disconnect(true)
                 return
             }
-            
+
             next()
         })
     }
+
+    broadcast(event, message){
+        this.socketio.emit(event, message)
+    }
 }
 
-export default Socket
+export default new Socket()

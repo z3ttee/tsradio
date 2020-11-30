@@ -18,14 +18,12 @@ class Api {
         })
     }
 
-    get(url, data) {
-        console.log(data)
-
+    get(url, data = {}) {
         return new Promise((resolve, reject) => {
-            axios.get(url, { data }).then((response) => {
-                console.log(response)
+            axios.get(url, data).then((response) => {
                 resolve(response)
             }).catch((error) => {
+                console.log(error)
                 if(error.response) {
                     this.handleResponse(error.response, reject)
                 } else {
@@ -36,8 +34,6 @@ class Api {
     }
 
     post(url, data) {
-        console.log(data)
-
         return new Promise((resolve, reject) => {
             axios.post(url, data).then((response) => {
                 resolve(response)

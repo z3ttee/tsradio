@@ -38,13 +38,16 @@ Router.setup(app)
 Database.setup().finally(startServer)
 
 // Setup socket handler
-const socket = new Socket(socketio)
 const options = {
     cors: {
         origin: '*'
     }
 }
-app.ioHandler = socket
+
+const socket = Socket
+socket.setup(socketio).then(() => {
+    app.ioHandler = socket
+})
 
 async function startServer() {
 

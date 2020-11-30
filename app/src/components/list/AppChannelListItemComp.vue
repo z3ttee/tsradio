@@ -3,10 +3,10 @@
         <div :id="itemID+'content'" class="list-item-covered">
             <div :id="itemID+'cover'" class="list-item-col list-item-cover"></div>
             <div :id="itemID+'info'" class="list-item-col list-item-content channel-info">
-                <h4 :id="itemID+'title'">Channel #1</h4>
+                <h4 :id="itemID+'title'">{{ channel.title }}</h4>
                 <div>
-                    <p :id="itemID+'song'">Das ist ein Lied Das ist ein LiedDas ist ein LiedDas ist ein LiedDas ist ein Lied</p>
-                    <span :id="itemID+'artist'">Das ist ein KünstlerDas ist ein KünstlerDas ist ein KünstlerDas ist ein KünstlerDas ist ein KünstlerDas ist ein Künstler</span>
+                    <p :id="itemID+'song'">{{ channel.info.title ?? '' }}</p>
+                    <span :id="itemID+'artist'">{{ channel.info.title ?? '' }}</span>
                 </div>
             </div>
         </div>
@@ -17,6 +17,9 @@
 import clamp from 'clamp-js'
 
 export default {
+    props: {
+        channel: Object
+    },
     data() {
         return {
             itemID: this.makeid(6),
@@ -24,6 +27,7 @@ export default {
         }
     },
     mounted() {
+
         this.observer = new ResizeObserver(() => {
             clamp(document.getElementById(this.itemID+'song'), {clamp: 0,useNativeClamp: true, animate: true})
             clamp(document.getElementById(this.itemID+'song'), {clamp: 1,useNativeClamp: true, animate: true})

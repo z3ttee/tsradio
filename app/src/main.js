@@ -10,8 +10,12 @@ import modaljs from '@/models/modal.js'
 import toastjs from '@/models/toast.js'
 import apijs from '@/models/api.js'
 import userjs from '@/models/user.js'
+import channeljs from '@/models/channel.js'
 
 import AppButton from '@/components/button/AppButtonComp.vue'
+
+const CHANNEL_STATUS_UPDATE = "channel_update_status"
+const CHANNEL_UPDATE_METADATA = "channel_update_metadata"
 
 store.commit('initialiseStore')
 const app = createApp(App)
@@ -46,7 +50,7 @@ router.isReady().then(() => app.mount('#wrapper'))
 
 const socket = io("http://"+store.state.config.socket.host+":3000", {
     query: {
-        //token: "123"
+        token: store.state.user.token
     }
 })
 
@@ -55,4 +59,12 @@ socket.on("connect", () => {
 })
 socket.on("error", (error) => {
     console.log(error)
+})
+socket.on(CHANNEL_STATUS_UPDATE, async(message) => {
+    let data = JSON.parse(message)
+    channeljs.updateChannel(data)
+})
+socket.on(CHANNEL_UPDATE_METADATA, async(message) => {
+    let data = JSON.parse(message)
+    channeljs.updateChannel(data)
 })

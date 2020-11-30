@@ -43,10 +43,10 @@ public class TrackEventListener {
         String jsonData;
 
         if(track == null) {
-            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": {}}";
+            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"info\": {}}}";
             Redis.getInstance().removeFromMap(RedisLists.SET_CHANNEL_INFOS, channel.getUuid());
         } else {
-            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"title\": \""+track.getTitle()+"\", \"artist\": \""+track.getArtist()+"\" }}";
+            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"info\": {\"title\": \""+track.getTitle()+"\", \"artist\": \""+track.getArtist()+"\" }}}";
             Redis.getInstance().setInMap(RedisLists.SET_CHANNEL_INFOS, channel.getUuid(), jsonData);
         }
 

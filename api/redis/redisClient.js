@@ -1,10 +1,9 @@
 import redis from 'redis'
 import config from '../config/config.js'
+import Socket from '../models/socket.js'
 
 const CHANNEL_STATUS_UPDATE = "channel_update_status"
 const CHANNEL_UPDATE_METADATA = "channel_update_metadata"
-
-
 
 class RedisClient {
     constructor(){
@@ -43,8 +42,10 @@ class RedisClient {
 
     onChannelStatusUpdate(data) {
         console.log(JSON.parse(data))
+        Socket.broadcast(CHANNEL_STATUS_UPDATE, data)
     }
     onChannelMetadataUpdate(data) {
+        Socket.broadcast(CHANNEL_UPDATE_METADATA, data)
         console.log(JSON.parse(data))
     }
 }
