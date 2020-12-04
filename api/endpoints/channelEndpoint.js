@@ -135,10 +135,9 @@ class ChannelEndpoint extends Endpoint {
             uuid: id
         }
 
-        // Check if user is permitted to see private playlists
+        // Check if user is permitted to see private channels
         let canSeePrivate = route.isOwnResource() || route.user && route.user.hasPermission('permission.channels.seePrivate')
         if(!canSeePrivate) {
-            where.isPublic = true
             where.enabled = true
         }
 
@@ -203,10 +202,9 @@ class ChannelEndpoint extends Endpoint {
         // Define where clause
         let where = {}
 
-        // Check if user is permitted to see private playlists
+        // Check if user is permitted to see private channels
         let canSeePrivate = route.user && route.user.hasPermission('permission.channels.seePrivate')
         if(!canSeePrivate) {
-            where.isPublic = true
             where.enabled = true
         }
 
