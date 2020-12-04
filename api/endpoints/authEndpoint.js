@@ -37,6 +37,30 @@ class AuthEndpoint {
     }
 
     /**
+     * @api {get} /auth/verify Verify Users session
+     * @apiGroup Authentication
+     * @apiDescription Endpoint for verifying users session to check if future api calls are granted
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiSuccess (200) {String} token Users JWT after successful login
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {}
+     * 
+     * @apiVersion 1.0.0
+     */
+    async actionVerify(route) {
+        let authenticator = await Authenticator.validateJWT(route.req)
+
+        if(authenticator.passed) {
+            return { }
+        } else {
+            return authenticator.error
+        }
+    }
+
+    /**
      * @api {get} /auth/signout Signout User
      * @apiGroup Authentication
      * @apiDescription Endpoint for signing users out to deny future authorized api calls
