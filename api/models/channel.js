@@ -1,7 +1,5 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
-import { Playlist } from './playlist.js'
-import { User } from './user.js'
 
 class Channel extends Model {}
 

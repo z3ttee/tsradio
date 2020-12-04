@@ -1,7 +1,6 @@
 import { TrustedError } from '../error/trustedError.js'
 import Authenticator from '../models/authenticator.js'
 import { Channel } from '../models/channel.js'
-import { Playlist } from '../models/playlist.js'
 import { User } from '../models/user.js'
 import routes from './routes.js'
 
@@ -82,12 +81,6 @@ class Router {
                 let requestedResource = await User.findOne({ where: { uuid: resourceID }, attributes: ['uuid']})
                 this.currentRoute.resource = requestedResource
                 result = requestedResource.uuid == ownID
-            } else if(endpointGroup == 'playlists') {
-                if(resourceID == '@me') return true
-
-                let requestedResource = await Playlist.findOne({ where: { creatorUUID: ownID }, attributes: ['uuid']})
-                this.currentRoute.resource = requestedResource
-                result = requestedResource.uuid == resourceID
             } else if(endpointGroup == 'channels') {
                 if(resourceID == '@me') return true
 

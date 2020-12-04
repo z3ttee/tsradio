@@ -2,7 +2,6 @@ import pingEndpoint from '../endpoints/pingEndpoint.js'
 import authEndpoint from '../endpoints/authEndpoint.js'
 import userEndpoint from '../endpoints/userEndpoint.js'
 import groupEndpoint from '../endpoints/groupEndpoint.js'
-import playlistEndpoint from '../endpoints/playlistEndpoint.js'
 import channelEndpoint from '../endpoints/channelEndpoint.js'
 
 const routes = [
@@ -29,19 +28,6 @@ const routes = [
         ]
     },
     {
-        groupname: 'playlists',
-        handler: playlistEndpoint,
-        actions: [
-            {name: 'PlaylistsCreateOne', path: '/playlists', action: 'createOne', method: 'post', permission: 'permission.playlists.canCreate'},
-            {name: 'PlaylistsGetOne', path: '/playlists/:id', action: 'getOne', method: 'get'},
-            {name: 'PlaylistsGetByUser', path: '/playlists/@user/:id', action: 'getByUser', method: 'get'},
-            {name: 'PlaylistsGetMultiple', path: '/playlists', action: 'getMultiple', method: 'get'},
-            {name: 'PlaylistsRemoveOne', path: '/playlists/:id', action: 'removeOne', method: 'delete', permission: 'permission.playlists.canDelete'},
-            {name: 'PlaylistsUpdateOne', path: '/playlists/:id', action: 'updateOne', method: 'put', permission: 'permission.playlists.canUpdate'},
-            {name: 'PlaylistsPatchOne', path: '/playlists/:id', action: 'patchOne', method: 'patch', permission: 'permission.playlists.canPatch'}
-        ]
-    },
-    {
         groupname: 'channels',
         handler: channelEndpoint,
         actions: [
@@ -56,6 +42,7 @@ const routes = [
         handler: authEndpoint,
         actions: [
             {name: 'AuthSignin', path: '/auth/signin', action: 'signin', method: 'post'},
+            {name: 'AuthVerify', path: '/auth/verify', action: 'verify', method: 'get'},
             {name: 'AuthListenerLogin', path: '/auth/listener', action: 'listenerLogin', method: 'post'}
         ]
     },
