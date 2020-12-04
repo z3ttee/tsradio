@@ -1,4 +1,4 @@
-import jwt, { TokenExpiredError } from 'jsonwebtoken'
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 import config from '../config/config.js'
@@ -44,7 +44,9 @@ class Authenticator {
 
             } catch (exception) {
                 // Set error, if jwt is expired
-                if(exception instanceof TokenExpiredError) {
+                if(exception instanceof JsonWebTokenError) {
+                    error = TrustedError.get("API_JWT_INVALID")
+                } else if(exception instanceof TokenExpiredError) {
                     error = TrustedError.get("API_JWT_EXPIRED")
                 } else {
                     console.log(exception)
