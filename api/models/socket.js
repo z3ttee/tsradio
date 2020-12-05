@@ -1,8 +1,10 @@
 import Authenticator from "./authenticator"
-
-const CHANNEL_METADATA_UPDATE = ""
+import { Channel } from "../models/channel.js"
 
 class Socket {
+    CHANNEL_METADATA_UPDATE = ""
+    CHANNEL_INITIAL_TRANSPORT = "channel_initial_transport"
+
     async setup(socketio) {
         this.socketio = socketio
 
@@ -22,6 +24,7 @@ class Socket {
                 return
             }
 
+            socket.emit(this.CHANNEL_INITIAL_TRANSPORT, Channel.activeChannels)
             next()
         })
     }
