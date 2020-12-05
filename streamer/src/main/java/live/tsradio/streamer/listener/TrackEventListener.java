@@ -19,7 +19,7 @@ public class TrackEventListener {
     }
 
     public static void onTrackEnd(Channel channel, AudioTrack track, int endReason, Exception exception){
-        channel.getHistory().add(track);
+        channel.getInfo().getHistory().add(track);
 
         switch (endReason) {
             case REASON_MAY_START_NEXT:
@@ -47,14 +47,17 @@ public class TrackEventListener {
         String jsonData;
 
         if(track == null) {
-            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"info\": {}}}";
-            Redis.getInstance().removeFromMap(RedisLists.SET_CHANNEL_INFOS, channel.getUuid());
-        } else {
-            jsonData = "{ \"uuid\": \""+channel.getUuid()+"\", \"data\": { \"info\": {\"title\": \""+track.getTitle()+"\", \"artist\": \""+track.getArtist()+"\" }}}";
-            Redis.getInstance().setInMap(RedisLists.SET_CHANNEL_INFOS, channel.getUuid(), jsonData);
-        }
+            channel.getInfo().clear();
+            channel.setActive(false);
+            jsonData = channel.toJSON();
 
-        Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);
+            Redis.getInstance().removeFromMap(RedisLists.SET_ACTIVE_CHANNELS, channel.getUuid());
+            Redis.getInstance().publish(RedisChannels.CHANNEL_STATUS_UPDATE, jsonData);
+        } else {
+            jsonData = channel.toJSON();
+            Redis.getInstance().setInMap(RedisLists.SET_ACTIVE_CHANNELS, channel.getUuid(), jsonData);
+            Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);
+        }
     }
 
 }

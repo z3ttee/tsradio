@@ -34,6 +34,9 @@ public class ChannelHandler {
             logger.warn("startChannels(): Can not start any channel: Nothing found.");
         }
     }
+    public static void unloadChannel(Channel channel) {
+        channels.remove(channel);
+    }
 
     public static Channel getChannel(String channelUUID) {
         return channels.stream().filter(c -> c.getUuid().equals(channelUUID)).collect(Collectors.toList()).get(0);
