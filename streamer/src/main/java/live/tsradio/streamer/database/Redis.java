@@ -80,18 +80,24 @@ public class Redis {
     }
 
     public void on(RedisChannels channel, RedisEvent eventListener){
-        String channelName = channel.getChannelName();
+        new Thread(() -> {
+            String channelName = channel.getChannelName();
 
-        try (Jedis jedis = this.jedisPool.getResource()) {
-            jedis.subscribe(new JedisPubSub() {
-                @Override
-                public void onMessage(String c, String message) {
-                    eventListener.onEvent(channelName, message);
-                }
-            }, channelName);
-        } catch (Exception ex) {
-            logger.error("removeFromSet(): Error occured: "+ex.getMessage());
-        }
+            try (Jedis jedis = this.jedisPool.getResource()) {
+                jedis.subscribe(new JedisPubSub() {
+                    @Override
+                    public void onMessage(String c, String message) {
+                        try {
+                            eventListener.onEvent(channelName, message);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }, channelName);
+            } catch (Exception ex) {
+                logger.error("on(): Error occured: "+ex.getMessage());
+            }
+        }).start();
     }
 
     public static Redis getInstance() {

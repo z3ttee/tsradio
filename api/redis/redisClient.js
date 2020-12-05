@@ -2,10 +2,14 @@ import redis from 'redis'
 import config from '../config/config.js'
 import Socket from '../models/socket.js'
 
-const CHANNEL_STATUS_UPDATE = "channel_update_status"
-const CHANNEL_UPDATE_METADATA = "channel_update_metadata"
+
 
 class RedisClient {
+    CHANNEL_CREATED = "channel_created"
+    CHANNEL_DELETED = "channel_deleted"
+    CHANNEL_STATUS_UPDATE = "channel_update_status"
+    CHANNEL_UPDATE_METADATA = "channel_update_metadata"
+
     constructor(){
         this.subscriber = redis.createClient({
             host: config.redis.host,
@@ -19,20 +23,24 @@ class RedisClient {
         })
 
         this.subscriber.on("message", (channel, message) => this.handleMessage(channel, message))
-        this.subscriber.subscribe(CHANNEL_STATUS_UPDATE)
-        this.subscriber.subscribe(CHANNEL_UPDATE_METADATA)
+        this.subscriber.subscribe(this.CHANNEL_STATUS_UPDATE)
+        this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
     }
 
     on(event, callback) {
         this.subscriber.on(event, callback)
     }
 
+    broadcast(channel, message) {
+        this.publisher.publish(channel, message)
+    }
+
     handleMessage(channel, message) {
         switch (channel) {
-            case CHANNEL_STATUS_UPDATE:
+            case this.CHANNEL_STATUS_UPDATE:
                 this.onChannelStatusUpdate(message)
                 break
-            case CHANNEL_UPDATE_METADATA:
+            case this.CHANNEL_UPDATE_METADATA:
                 this.onChannelMetadataUpdate(message)
                 break
             default:
@@ -41,12 +49,10 @@ class RedisClient {
     }
 
     onChannelStatusUpdate(data) {
-        console.log(JSON.parse(data))
-        Socket.broadcast(CHANNEL_STATUS_UPDATE, data)
+        Socket.broadcast(this.CHANNEL_STATUS_UPDATE, data)
     }
     onChannelMetadataUpdate(data) {
-        Socket.broadcast(CHANNEL_UPDATE_METADATA, data)
-        console.log(JSON.parse(data))
+        Socket.broadcast(this.CHANNEL_UPDATE_METADATA, data)
     }
 }
 

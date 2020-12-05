@@ -27,12 +27,14 @@ dependencies {
     // Add mysql client connector to access database
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
 
-    // Add json simple for reading json config files
+    // Add json simple for reading json config files and gson for object to json conversion
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     // Add logback for logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
     // Add to lookup mp3 tags
     implementation "com.mpatric:mp3agic:0.9.1"
+
 }

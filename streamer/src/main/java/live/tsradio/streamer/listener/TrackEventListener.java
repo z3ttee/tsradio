@@ -11,6 +11,7 @@ public class TrackEventListener {
     public static final int REASON_EXCEPTION = 1;
     public static final int REASON_MAY_START_NEXT = 2;
     public static final int REASON_DONE = 3;
+    public static final int REASON_SHUTDOWN = 4;
 
     public static void onTrackStart(Channel channel, AudioTrack track){
         sendMetadataUpdate(channel, track);
@@ -30,6 +31,9 @@ public class TrackEventListener {
             case REASON_DONE:
                 sendMetadataUpdate(channel, null);
                 channel.reload();
+                break;
+            case REASON_SHUTDOWN:
+                sendMetadataUpdate(channel, null);
                 break;
 
             default:
