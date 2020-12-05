@@ -1,12 +1,12 @@
 <template>
-        <button @click.prevent="onClicked">
-            <slot v-if="!loading"></slot>
-            <v-lottie-player class="animation-wrapper" width="24px" height="24px" loop autoplay :animationData="loaderData" v-else></v-lottie-player>
+        <button @click.prevent="onClicked" :disabled="loading">
+            <span :class="{'hidden': loading}"><slot></slot></span>
+            <v-lottie-player :class="{'animation': true, 'hidden': !loading}" width="24px" height="24px" loop autoplay :animationData="loaderData"></v-lottie-player>
         </button>
 </template>
 
 <script>
-import loaderData from '@/assets/animated/loader.json'
+import loaderData from '@/assets/animated/primary_loader_light.json'
 
 export default {
     data() {
@@ -25,3 +25,21 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+button {
+    position: relative;
+
+    .animation {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        pointer-events: none;
+    }
+}
+
+.hidden {
+    opacity: 0;
+}
+</style>

@@ -4,10 +4,7 @@ import bcrypt from 'bcrypt'
 
 import { User, dbModel as userDBModel, dbSettings as userDBSettings} from '../models/user.js'
 import { Group, dbModel as groupDBModel, dbSettings as groupDBSettings} from '../models/group.js'
-import { Playlist, dbModel as playlistDBModel, dbSettings as playlistDBSettings} from '../models/playlist.js'
 import { Channel, dbModel as channelDBModel, dbSettings as channelDBSettings } from './channel.js'
-import { Track, dbModel as trackDBModel, dbSettings as trackDBSettings } from './track.js'
-import { TracksList, dbModel as trackslistDBModel, dbSettings as trackslistDBSettings } from './tracksList'
 
 class Database {
     constructor() {
@@ -35,36 +32,17 @@ const database = new Database()
 async function createTables(sequelize) {
     console.log('Creating tables...')
 
-    Playlist.init(playlistDBModel, {sequelize, ...playlistDBSettings})
     User.init(userDBModel, {sequelize, ...userDBSettings})
     Group.init(groupDBModel, {sequelize, ...groupDBSettings})
     Channel.init(channelDBModel, {sequelize, ...channelDBSettings})
-    Track.init(trackDBModel, {sequelize, ...trackDBSettings})
-    TracksList.init(trackslistDBModel, {sequelize, ...trackslistDBSettings})
 
     Group.hasMany(User, {as: 'user', foreignKey: 'uuid', constraints: false})
     User.belongsTo(Group, { as: 'group', foreignKey: 'groupUUID' })
 
-    User.hasMany(Playlist, {as: 'playlist', foreignKey: 'uuid', constraints: false})
-    Playlist.belongsTo(User, { as: 'creator', foreignKey: 'creatorUUID' })
-
     User.hasMany(Channel, {as: 'channel', foreignKey: 'uuid', constraints: false})
     Channel.belongsTo(User, { as: 'creator', foreignKey: 'creatorUUID' })
 
-    Playlist.hasMany(Channel, {as: 'channel', foreignKey: 'uuid', constraints: false})
-    Channel.belongsTo(Playlist, { as: 'playlist', foreignKey: 'playlistUUID' })
-
-    Playlist.belongsToMany(Track, { through: TracksList, as: 'tracklist', foreignKey: 'uuid'})
-    Track.belongsToMany(Playlist, { through: TracksList, as: 'tracklist', foreignKey: 'uuid'})
-
-    Playlist.hasMany(TracksList, { as: 'tracks', foreignKey: 'playlistUUID'})
-    TracksList.belongsTo(Playlist, { as: 'playlist', foreignKey: 'playlistUUID'})
-
-    Track.hasMany(TracksList, { as: 'list', foreignKey: 'trackUUID'})
-    TracksList.belongsTo(Track, { as: 'track', foreignKey: 'trackUUID'})
-
     try {
-
         // Create groups table and create default group
         await Group.sync({ alter: true })
         await Group.findOrCreate({ 
@@ -87,11 +65,6 @@ async function createTables(sequelize) {
                 password: bcrypt.hashSync('hackme', config.app.password_encryption.salt_rounds) 
             }
         })
-    
-        // Create playlists table
-        await Playlist.sync({ alter: true })
-        await Track.sync({ alter: true })
-        await TracksList.sync({ alter: true })
     
         // Create playlists table
         await Channel.sync({ alter: true })

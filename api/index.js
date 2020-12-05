@@ -11,6 +11,7 @@ import Router from './router/index.js'
 import Database from './models/database.js'
 import Redis from './redis/redisClient.js'
 import Socket from './models/socket.js'
+import { Channel } from './models/channel.js'
 //import ErrorHandler from './error/handler.js'
 
 const app = express()
@@ -22,16 +23,16 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-// Centralized error handling
-//app.use(ErrorHandler.handleError)
-//process.on('unhandledRejection', () => {})
-/*process.on('uncaughtException', (error) => {
-    ErrorHandler.handleError(error)
-})*/
-
 // Establish redis connection
-Redis.on("ready", () => console.log("Connected to redis successfully."))
+Redis.on("ready", () => {
+    console.log("Connected to redis successfully.")
+
+    // Initially load all active channels from redis
+    Channel.loadActiveChannels()
+})
+
 Redis.on("error", (error) => console.log("A redis error occured:", error))
+
 
 // Setup custom router
 Router.setup(app)
