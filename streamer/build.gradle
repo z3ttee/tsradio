@@ -29,6 +29,7 @@ dependencies {
 
     // Add json simple for reading json config files and gson for object to json conversion
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     // Add logback for logging
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

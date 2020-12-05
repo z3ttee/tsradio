@@ -14,12 +14,15 @@ public class TrackEventListener {
     public static final int REASON_SHUTDOWN = 4;
 
     public static void onTrackStart(Channel channel, AudioTrack track){
+        channel.getInfo().setTitle(track.getTitle());
+        channel.getInfo().setArtist(track.getArtist());
+
         sendMetadataUpdate(channel, track);
         channel.logger.info("onTrackStart(): Now playing: \""+track.getTitle()+"\" - "+track.getArtist());
     }
 
     public static void onTrackEnd(Channel channel, AudioTrack track, int endReason, Exception exception){
-        channel.getInfo().getHistory().add(track);
+        channel.getInfo().addToHistory(track);
 
         switch (endReason) {
             case REASON_MAY_START_NEXT:
@@ -54,6 +57,7 @@ public class TrackEventListener {
             Redis.getInstance().removeFromMap(RedisLists.SET_ACTIVE_CHANNELS, channel.getUuid());
             Redis.getInstance().publish(RedisChannels.CHANNEL_STATUS_UPDATE, jsonData);
         } else {
+            channel.setActive(true);
             jsonData = channel.toJSON();
             Redis.getInstance().setInMap(RedisLists.SET_ACTIVE_CHANNELS, channel.getUuid(), jsonData);
             Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);

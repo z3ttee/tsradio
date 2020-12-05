@@ -96,7 +96,6 @@ public class Channel extends Thread {
     public void next() {
         AudioTrack track = this.queue.poll();
         this.currentTrack = track;
-
         this.connection.stream(track);
     }
 
