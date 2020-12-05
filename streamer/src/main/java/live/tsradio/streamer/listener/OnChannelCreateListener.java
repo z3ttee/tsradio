@@ -7,8 +7,8 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OnChannelDeleteListener implements RedisEvent {
-    private static final Logger logger = LoggerFactory.getLogger(OnChannelDeleteListener.class);
+public class OnChannelCreateListener implements RedisEvent {
+    private static final Logger logger = LoggerFactory.getLogger(OnChannelCreateListener.class);
 
     @Override
     public void onEvent(String channel, String message) {
@@ -17,9 +17,9 @@ public class OnChannelDeleteListener implements RedisEvent {
             JSONObject json = (JSONObject) parser.parse(message);
 
             String channelUUID = (String) json.get("uuid");
-            ChannelHandler.removeChannel(channelUUID);
+            ChannelHandler.registerChannel(channelUUID);
         } catch (Exception e) {
-           logger.warn("onEvent(): Could not properly handle event received by redis["+channel+"]: "+e.getMessage());
+            logger.warn("onEvent(): Could not properly handle event received by redis["+channel+"]: "+e.getMessage());
         }
     }
 }

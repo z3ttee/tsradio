@@ -106,7 +106,9 @@ public class IcecastConnection {
                 } catch (InterruptedException ignored) { }
             }
 
-            if(this.channel.getQueue().peek() != null) {
+            if(channel.shutdown) {
+                TrackEventListener.onTrackEnd(this.channel, track, TrackEventListener.REASON_SHUTDOWN, null);
+            } else if(this.channel.getQueue().peek() != null) {
                 TrackEventListener.onTrackEnd(this.channel, track, TrackEventListener.REASON_MAY_START_NEXT, null);
             } else {
                 TrackEventListener.onTrackEnd(this.channel, track, TrackEventListener.REASON_DONE, null);

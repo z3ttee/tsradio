@@ -4,6 +4,7 @@ import Validator from '../models/validator.js'
 import { Channel } from '../models/channel.js'
 import { User } from '../models/user.js'
 import { TrustedError } from '../error/trustedError.js'
+import RedisClient from '../redis/redisClient.js'
 
 class ChannelEndpoint extends Endpoint {
 
@@ -74,6 +75,16 @@ class ChannelEndpoint extends Endpoint {
             return validation.error
         }
 
+        let pathExists = await Channel.findOne({
+            where: {
+                path
+            }
+        })
+
+        if(pathExists) {
+            return TrustedError.get("API_RESOURCE_EXISTS")
+        }
+
         let channel = await Channel.create({
             title,
             path,
@@ -81,6 +92,7 @@ class ChannelEndpoint extends Endpoint {
             creatorUUID: route.user.uuid
         })
 
+        RedisClient.broadcast(RedisClient.CHANNEL_CREATED, JSON.stringify(channel))
         return channel
     }
 
@@ -124,7 +136,7 @@ class ChannelEndpoint extends Endpoint {
 
         // Specify what to return
         let options = {
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled', 'path'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'featured', 'enabled', 'path'],
             include: [
                 {model: User, as: 'creator', attributes: ['uuid', 'username']}
             ]
@@ -184,7 +196,7 @@ class ChannelEndpoint extends Endpoint {
      */
     async actionGetMultiple(route) {
         let offset = route.req.body.offset || 0
-        let limit = route.req.body.limit || 1
+        let limit = route.req.body.limit || 30
 
         if(offset < 0) offset = 0
         if(limit > 30 || limit < 1) limit = 30
@@ -193,7 +205,7 @@ class ChannelEndpoint extends Endpoint {
         let options = {
             offset: offset,
             limit: limit,
-            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'isPublic', 'featured', 'enabled', 'path'],
+            attributes: ['uuid', 'title', 'description', 'createdAt', 'updatedAt', 'featured', 'enabled', 'path'],
             include: [
                 {model: User, as: 'creator', attributes: ['uuid', 'username']}
             ]
@@ -215,7 +227,7 @@ class ChannelEndpoint extends Endpoint {
         if(canSeePrivate) {
             availableCount = await Channel.findAndCountAll({ where: {}})
         } else {
-            availableCount = await Channel.findAndCountAll({ where: { isPublic: true }})
+            availableCount = await Channel.findAndCountAll({ where: { enabled: true }})
         }
         return { available: availableCount.count, entries: channels }
     }
@@ -243,6 +255,7 @@ class ChannelEndpoint extends Endpoint {
             return TrustedError.get("API_RESOURCE_NOT_DELETED")
         }
 
+        RedisClient.broadcast(RedisClient.CHANNEL_DELETED, JSON.stringify({ uuid: id}))
         return {}
     }
 
