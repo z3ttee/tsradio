@@ -1,56 +1,77 @@
-import { VueCookieNext } from 'vue-cookie-next'
+import apijs from '@/models/api.js'
+import socketjs from '@/models/socket.js'
 import store from '@/store/index.js'
-import api from '@/models/api.js'
+import config from '@/config/config.js'
 import router from '@/router/index.js'
-
-const sessionCookieName = "tsr_session"
+import { VueCookieNext } from 'vue-cookie-next'
 
 class User {
-    constructor(){
-        let token = VueCookieNext.getCookie(sessionCookieName)
-        store.state.user.isLoggedIn = token != undefined
-        store.state.user.token = token
-    }
+    async loginWithCredentials(username, password, setCookie = false) {
+        let result = await apijs.post('/auth/signin', {username, password})
 
-    isLoggedIn() {
-        return store.state.user.token != undefined && store.state.user.isLoggedIn
-    }
-
-    async loginWithCredentials(username, password){
-        await api.post('/auth/signin', { username, password }).then((response) => {
-            if(response.status == 200) {
-                this.setToken(response.data.token)
+        if(result.status == 200) {
+            if(setCookie) {
+                await this.setToken(result.data.token)
             }
-        });
-    }
+        }
 
-    async loginWithToken(){
-        let token = VueCookieNext.getCookie(sessionCookieName)
-        if(token) {
-            // TODO: Check if token is valid
-        } else {
+        result = await this.setupUser()
+        return result
+    }
+    async loginWithJWT() {
+        let jwt = VueCookieNext.getCookie(config.session.cookieName)
+        await this.setToken(jwt)
+        
+        let result = await apijs.get('/auth/verify')
+
+        if(result.status != 200 && !jwt) {
             this.logout()
         }
+
+        return result
+    }
+
+    async setupUser() {
+        let result = await apijs.get('/users/@me')
+
+        if(result.status != 200) {
+            this.logout()
+            return result
+        }
+
+        socketjs.setup()
+        store.state.user = result.data
+        return result
     }
 
     async logout() {
-        this.setToken(null).finally(() => {
-            if(router.currentRoute.name != 'login') router.push({name: 'login'})
+        this.setToken(undefined).finally(() => {
+            store.state.channels = {}
+            store.state.currentChannel = undefined
+            socketjs.disconnect()
+            
+            if(router.currentRoute.name != 'login') {
+                router.push({name: 'login'})
+            }
         })
     }
 
-    async setToken(value) {
+    isLoggedIn(){
+        return store.state.jwt != undefined
+    }
+
+    async setToken(value){
         if(value) {
-            store.state.user.token = value
-            store.state.user.isLoggedIn = true
-            VueCookieNext.setCookie(sessionCookieName, value, {
+            store.state.jwt = value
+            store.state.loggedIn = true
+            VueCookieNext.setCookie(config.session.cookieName, value, {
                 expire: "7d",
                 sameSite: "Lax"
             })
         } else {
-            store.state.user.token = undefined
-            store.state.user.isLoggedIn = false
-            VueCookieNext.removeCookie(sessionCookieName)
+            store.state.jwt = undefined
+            store.state.loggedIn = false
+            VueCookieNext.removeCookie(config.session.cookieName)
         }
     }
 }

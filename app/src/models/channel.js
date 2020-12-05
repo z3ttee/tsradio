@@ -1,36 +1,23 @@
-import api from '@/models/api.js'
-import store from '../store'
+import store from '@/store/index.js'
 
 class Channel {
 
-    async findOne(channelID) {
-        let result = await api.get('/channels/'+channelID)
-
-        if(result.status != 200) {
-            return undefined
-        } else {
-            return result.data
-        }
+    async remove(channelUUID) {
+        store.state.channels[channelUUID] = undefined
     }
 
-    async updateChannel(data){
-        let channelID = data.uuid
-        let channel = store.state.channels[channelID]
+    async setChannel(channelUUID, data) {
+        store.state.channels[channelUUID] = data
+    }
 
-        if(!channel){
-            channel = await this.findOne(channelID)
-            if(!channel) return
+    async update(channelUUID, data) {
+        let channel = store.state.channels[channelUUID]
+
+        if(!channel) {
+            return await this.setChannel(channelUUID, data)
         }
 
-        channel.info = {}
-        channel = {...channel, ...data.data}
-        let isActive = data.active ?? true
-        
-        if(isActive) {
-            store.state.channels[channelID] = channel
-        } else {
-            store.state.channels[channelID] = undefined
-        }        
+        this.setChannel(channelUUID, data)
     }
 
 }

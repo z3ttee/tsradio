@@ -2,7 +2,7 @@ package live.tsradio.streamer.repositories;
 
 import live.tsradio.streamer.database.MySQL;
 import live.tsradio.streamer.objects.Channel;
-import live.tsradio.streamer.objects.Playlist;
+import live.tsradio.streamer.objects.ChannelInfo;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -13,14 +13,11 @@ public class ChannelRepository extends Repository<Channel> {
     @Override
     public ArrayList<Channel> findAll() {
         ArrayList<Channel> channels = new ArrayList<>();
-        ResultSet rs = MySQL.getInstance().get(MySQL.TABLE_CHANNELS, "enabled = TRUE", new ArrayList<>(Arrays.asList("playlistUUID", "title", "uuid", "path")));
+        ResultSet rs = MySQL.getInstance().get(MySQL.TABLE_CHANNELS, "enabled = TRUE", new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured")));
 
         try {
             do {
-                PlaylistRepository repository = new PlaylistRepository();
-                Playlist playlist = repository.findOneByID(rs.getString("playlistUUID"));
-
-                Channel channel = new Channel(rs.getString("uuid"), rs.getString("title"), rs.getString("path"), playlist);
+                Channel channel = new Channel(rs.getString("uuid"), rs.getString("title"), rs.getString("path"), rs.getString("description"), rs.getBoolean("featured"), new ChannelInfo());
                 channels.add(channel);
             } while (rs.next());
         } catch (Exception ignored) { }
@@ -29,13 +26,10 @@ public class ChannelRepository extends Repository<Channel> {
 
     @Override
     public Channel findOneByID(String uuid) {
-        ResultSet rs = MySQL.getInstance().get(MySQL.TABLE_CHANNELS, "uuid = '"+uuid+"' AND enabled = TRUE", new ArrayList<>(Arrays.asList("playlistUUID", "title", "uuid", "path")));
+        ResultSet rs = MySQL.getInstance().get(MySQL.TABLE_CHANNELS, "uuid = '"+uuid+"' AND enabled = TRUE", new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured")));
 
         try {
-            PlaylistRepository repository = new PlaylistRepository();
-            Playlist playlist = repository.findOneByID(rs.getString("playlistUUID"));
-
-            return new Channel(rs.getString("uuid"), rs.getString("title"), rs.getString("path"), playlist);
+            return new Channel(rs.getString("uuid"), rs.getString("title"), rs.getString("path"), rs.getString("description"), rs.getBoolean("featured"), new ChannelInfo());
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;

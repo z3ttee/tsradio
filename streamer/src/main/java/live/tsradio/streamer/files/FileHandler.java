@@ -18,6 +18,8 @@ public class FileHandler {
     private static FileHandler instance;
 
     @Getter private JSONObject config = null;
+    @Getter private final File rootDirectory = new File(System.getProperty("user.dir"));
+    @Getter private final File channelsRootDirectory = new File(rootDirectory.getAbsolutePath()+"/channels/");
 
     public FileHandler(){
         this.loadConfig();

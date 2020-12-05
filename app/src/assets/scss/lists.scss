@@ -1,4 +1,4 @@
-@import '@/assets/scss/_variables.scss';
+@import '_variables';
 
 .list-grid-wrapper {
     display: grid;
@@ -9,7 +9,7 @@
         display: block;
         width: 100%;
         padding: 0 1em;
-        
+        overflow: hidden;
 
         &:nth-child(even) {
             padding-right: 0;
@@ -20,15 +20,25 @@
     }
 
     .list-item-covered {
+        position: relative;
         display: table;
         width: 100%;
 
         overflow: hidden;
         vertical-align: top;
-        box-shadow: $shadowNormal;
-        background-color: rgba($color: $colorPlaceholder, $alpha: 0.8);
+        background: $gradientBoxDark;
         border-radius: $borderRadSmall;
-        border: 2px solid rgba($color: $colorPlaceholder, $alpha: 0.8);
+        border: 3px solid $colorPrimaryDark;
+        transition: all $animSpeedFast*1s $cubicNorm;
+        cursor: pointer;
+
+        &.selected {
+            border-color: rgba($color: $colorPlaceholder, $alpha: 1);
+        }
+
+        &:active:not(.selected) {
+            transform: scale(0.98);
+        }
 
         .list-item-col {
             display: table-cell;
@@ -37,8 +47,10 @@
                 padding: 0;
                 width: 116px;
                 height: 116px;
-                background-color: $colorPrimary;
-                border-radius: $borderRadSmall;
+                background-color: $colorPlaceholder;
+                border-top-right-radius: $borderRadSmall;
+                border-bottom-right-radius: $borderRadSmall;
+                box-shadow: $shadowNormal;
             }
 
             &.list-item-content {

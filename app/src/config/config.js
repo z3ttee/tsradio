@@ -1,9 +1,8 @@
 export default {
     api: {
-        baseURL: "http://localhost:3000/",
-        streamsBase: "https://easternexploration.de:8000/"
+        baseURL: "http://localhost:3000/"
     },
-    socket: {
-        host: "localhost"
+    session: {
+        cookieName: "tsr_session"
     }
 }

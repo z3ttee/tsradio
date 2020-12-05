@@ -1,36 +1,51 @@
-@import '_variables';
+@import "_variables";
 
-.toast-enter-active {
-    animation: toastBounceIn $animSpeedLong*1s $cubicNorm;
+.animation_item_slide-enter-active {
+    animation: slide $animSpeedLong*1s $cubicNorm;
 }
-.toast-leave-active {
-    animation: toastBounceOut $animSpeedNormal*1s $cubicNorm;
+.animation_item_slide-leave-active {
+    animation: slide $animSpeedLong*1s $cubicNorm reverse;
+}
+.animation_item_scale-enter-active {
+    animation: scaleRotate $animSpeedFast*1s $cubicNorm;
+}
+.animation_item_scale-leave-active {
+    animation: scaleRotate $animSpeedFast*1s $cubicNorm reverse;
+}
+.transition_page-enter-active {
+    animation: pageScale $animSpeedLong*1s $cubicNorm;
+}
+.transition_page-leave-active {
+    animation: pageScale $animSpeedLong*1s $cubicNorm reverse;
 }
 
-/*
-Toast
-*/
-@keyframes toastBounceIn {
-    0% {
+@keyframes slide {
+    from {
         opacity: 0;
-        transform: translateX(-50%) translateY(20px);
+        transform: translateY(10px);
     }
-    50% {
+    to {
         opacity: 1;
-        transform: translateX(-50%) translateY(-4px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
     }
 }
-@keyframes toastBounceOut {
-    0% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-    100% {
+@keyframes scaleRotate {
+    from {
         opacity: 0;
-        transform: translateX(-50%) translateY(20px);
+        transform: scale(0.6);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+@keyframes pageScale {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
