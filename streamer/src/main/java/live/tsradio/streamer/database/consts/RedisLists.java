@@ -4,8 +4,7 @@ import lombok.Getter;
 
 public enum RedisLists {
 
-    SET_ACTIVE_CHANNELS("set_active_channels"),
-    SET_CHANNEL_INFOS("set_channel_infos");
+    SET_ACTIVE_CHANNELS("set_active_channels");
 
     @Getter
     private final String listName;

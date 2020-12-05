@@ -1,5 +1,6 @@
 package live.tsradio.streamer.objects;
 
+import com.google.gson.Gson;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
@@ -8,6 +9,7 @@ import live.tsradio.streamer.listener.ChannelEventListener;
 import live.tsradio.streamer.protocol.IcecastConnection;
 import live.tsradio.streamer.protocol.IcecastMount;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,17 +30,18 @@ public class Channel extends Thread {
     @Getter private final String path;
     @Getter private final String description;
     @Getter private final boolean featured;
+    @Getter private final ChannelInfo info;
+    @Getter @Setter private boolean active;
 
     @Getter private AudioTrack currentTrack;
     @Getter private IcecastConnection connection;
 
-    @Getter private final ArrayList<AudioTrack> history = new ArrayList<>();
     @Getter private final LinkedBlockingQueue<AudioTrack> queue = new LinkedBlockingQueue<>();
     @Getter private final ArrayList<AudioTrack> tracks = new ArrayList<>();
 
     public boolean shutdown = false;
 
-    public Channel(String uuid, String title, String path, String description, boolean featured) {
+    public Channel(String uuid, String title, String path, String description, boolean featured, ChannelInfo info) {
         super("channel-"+path);
 
         this.uuid = uuid;
@@ -46,7 +49,9 @@ public class Channel extends Thread {
         this.title = title;
         this.description = description;
         this.featured = featured;
+        this.info = info;
         this.currentTrack = null;
+        this.active = false;
     }
 
     public void boot() {
@@ -149,5 +154,21 @@ public class Channel extends Thread {
         }
 
         logger.info("loadTracks(): Loaded "+this.tracks.size()+" tracks from channel '"+this.title+"'");
+    }
+
+    public String toJSON() {
+        return "{" +
+                "\"active\": \""+isActive()+"\"," +
+                "\"uuid\": \""+getUuid()+"\"," +
+                "\"title\": \""+getTitle()+"\"," +
+                "\"path\": \""+getPath()+"\"," +
+                "\"description\": \""+getDescription()+"\"," +
+                "\"featured\": "+isFeatured()+"," +
+                "\"info\": {" +
+                "\"title\": \""+getInfo().getTitle()+"\"," +
+                "\"artist\": \""+getInfo().getArtist()+"\"," +
+                "\"history\": " + new Gson().toJson(getInfo().getHistory()) +
+                "}" +
+                "}";
     }
 }

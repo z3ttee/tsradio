@@ -47,27 +47,11 @@ public class Redis {
         }
     }
 
-    public void addToSet(RedisLists set, String value) {
-        try (Jedis jedis = this.jedisPool.getResource()) {
-            jedis.sadd(set.getListName(), value);
-        } catch (Exception ex) {
-            logger.error("addToSet(): Error occured: "+ex.getMessage());
-        }
-    }
-
     public void setInMap(RedisLists map, String field, String value) {
         try (Jedis jedis = this.jedisPool.getResource()) {
             jedis.hset(map.getListName(), field, value);
         } catch (Exception ex) {
-            logger.error("addToSet(): Error occured: "+ex.getMessage());
-        }
-    }
-
-    public void removeFromSet(RedisLists set, String value) {
-        try (Jedis jedis = this.jedisPool.getResource()) {
-            jedis.srem(set.getListName(), value);
-        } catch (Exception ex) {
-            logger.error("removeFromSet(): Error occured: "+ex.getMessage());
+            logger.error("setInMap(): Error occured: "+ex.getMessage());
         }
     }
 
@@ -75,7 +59,7 @@ public class Redis {
         try (Jedis jedis = this.jedisPool.getResource()) {
             jedis.hdel(map.getListName(), field);
         } catch (Exception ex) {
-            logger.error("addToSet(): Error occured: "+ex.getMessage());
+            logger.error("removeFromMap(): Error occured: "+ex.getMessage());
         }
     }
 
