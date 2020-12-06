@@ -62,12 +62,12 @@ public class FileHandler {
     }
 
     private static void createFile(File file) throws IOException {
-        if(!file.setReadable(true) && !file.setWritable(true)) {
+        /*if(!file.setReadable(true) && !file.setWritable(true)) {
             logger.error("loadConfig(): Could not set read/write permissions for file '"+file.getAbsolutePath()+"'.");
             logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");
             System.exit(0);
             return;
-        }
+        }*/
 
         if(!file.createNewFile()) {
             logger.error("loadConfig(): Could not create file '"+file.getAbsolutePath()+"'.");

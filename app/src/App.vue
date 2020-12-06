@@ -1,9 +1,11 @@
 <template>
   <app-header-view></app-header-view>
-  <div class="content-container">
-    <transition name="transition_page" mode="out-in">
-      <router-view></router-view>
-    </transition>
+  <div class="content-container" v-if="$store.state.loggedIn">
+    <router-view v-slot="{ Component }">
+      <transition name="transition_page" mode="out-in">
+        <component :is="Component"></component>
+      </transition>
+    </router-view>
   </div>
   <app-player-view v-if="$store.state.currentChannel"></app-player-view>
   <app-splash-screen-view></app-splash-screen-view>

@@ -1,5 +1,6 @@
 package live.tsradio.streamer.objects;
 
+import live.tsradio.streamer.utils.JsonEscaper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,6 @@ public class ChannelInfo {
             history.remove(0);
         }
 
-        history.add(new HistoryTrack(track.getTitle(), track.getArtist()));
+        history.add(new HistoryTrack(JsonEscaper.getInstance().escape(track.getTitle()), JsonEscaper.getInstance().escape(track.getArtist())));
     }
 }

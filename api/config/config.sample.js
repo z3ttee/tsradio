@@ -8,8 +8,7 @@ module.exports = {
         jwt_expiry: 1000*60*60*24*7 // 7 days
     },
     ports: {
-        default: 3000,
-        ssl: 3443
+        default: 3000
     },
     mysql: {
         host: 'localhost',

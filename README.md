@@ -32,8 +32,8 @@ Because ``backend`` is a nodejs project, you have to start the nodejs server as 
 2. Open terminal and type in ``npm run start``
 
 #### 2. Setting up SSL
-To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory 
-and place ``server.key`` and ``server.crt`` inside the newly created folder. <br><br>
+To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory of the api
+and place ``privkey.pem`` and ``fullchain.pem`` inside the newly created folder. <br><br>
 When setting up SSL on icecast2 using letsencrypt, the following command can come in handy when bundling the certificate:<br>
 ``sudo bash -c 'cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem >> /etc/icecast2/cert.bundle.pem' && sudo service icecast2 restart`` <br>
 You can write this command in your domains renewal config under ``post_hook``. Example:<br>

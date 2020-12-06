@@ -83,23 +83,30 @@ class AuthEndpoint {
      * @apiVersion 1.0.0
      */
     async actionListenerLogin(route) {
+        console.log("listener login")
+
         try {
             let cookies = cookieParser.parse(route.req.body.cookie)
             let token = cookies.tsr_session
             let authenticator = await Authenticator.validateJWTString(token)
+
+            console.log("token: "+token)
     
             if(authenticator.passed) {
                 route.res.set('icecast-auth-user', '1');
+                console.log("authenticated")
                 return {}
             } else {
                 route.res.set('icecast-auth-user', '0');
                 route.res.set('Icecast-Auth-Message', authenticator.error.message);
+                console.log("error: "+authenticator.error)
                 return authenticator.error
             }
         } catch (exception) {
             let error = TrustedError.get("API_INTERNAL_ERROR")
             route.res.set('icecast-auth-user', '0');
             route.res.set('Icecast-Auth-Message', error.message);
+            console.log("not authenticated: "+error.message)
             return error
         }
         
