@@ -44,8 +44,6 @@ public class Redis {
         this.publish(channel.getChannelName(), message);
     }
     public void publish(String channel, String message){
-        logger.info("publish(): "+channel+" "+message);
-
         try (Jedis jedis = this.jedisPool.getResource()) {
             jedis.publish(channel, message);
         } catch (Exception ex) {
