@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import live.tsradio.streamer.database.Redis;
 import live.tsradio.streamer.files.FileHandler;
 import live.tsradio.streamer.listener.ChannelEventListener;
 import live.tsradio.streamer.protocol.IcecastConnection;
@@ -15,15 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Channel extends Thread {
     public final Logger logger = LoggerFactory.getLogger(Channel.class);
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int PING_INTERVAL = 1000;
 
     @Getter private final String uuid;
     @Getter private final String title;
@@ -32,6 +33,7 @@ public class Channel extends Thread {
     @Getter private final boolean featured;
     @Getter private final ChannelInfo info;
     @Getter @Setter private boolean active;
+    @Getter private long lastPingSent;
 
     @Getter private AudioTrack currentTrack;
     @Getter private IcecastConnection connection;
@@ -52,6 +54,7 @@ public class Channel extends Thread {
         this.info = info;
         this.currentTrack = null;
         this.active = false;
+        this.lastPingSent = System.currentTimeMillis();
     }
 
     public void boot() {
@@ -64,6 +67,15 @@ public class Channel extends Thread {
     @SuppressWarnings("BusyWait")
     @Override
     public void run() {
+
+        // Send a ping every 10s
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sendPing();
+            }
+        }, 0, PING_INTERVAL);
+
         while (!shutdown ) {
             logger.info("start(): Starting channel '"+this.title+"'...");
             this.reload();
@@ -169,5 +181,10 @@ public class Channel extends Thread {
                 "\"history\": " + new Gson().toJson(getInfo().getHistory()) +
                 "}" +
                 "}";
+    }
+
+    public void sendPing() {
+        this.lastPingSent = System.currentTimeMillis();
+        Redis.getInstance().publish("channel_ping", "{\"uuid\": \""+this.uuid+"\", \"timestamp\": "+this.lastPingSent+"}");
     }
 }

@@ -3,7 +3,7 @@ import store from '@/store/index.js'
 class Channel {
 
     async remove(channelUUID) {
-        store.state.channels[channelUUID] = undefined
+        delete store.state.channels[channelUUID]
     }
 
     async setChannel(channelUUID, data) {

@@ -31,7 +31,7 @@ class SocketClient {
         })
 
         // Register events
-        this.socket.on(this.CHANNEL_STATUS_UPDATE, async (data) => {
+        this.socket.on(this.CHANNEL_STATUS_UPDATE, async (data) => {            
             if(!data.active) {
                 channeljs.remove(data.uuid)
             }

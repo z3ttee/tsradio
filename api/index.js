@@ -29,6 +29,7 @@ Redis.on("ready", () => {
 
     // Initially load all active channels from redis
     Channel.loadActiveChannels()
+    Channel.setupInterval()
 })
 
 Redis.on("error", (error) => console.log("A redis error occured:", error))
