@@ -46,3 +46,4 @@ api_old/
 *.MF
 api/config/config.js
 apidoc/
+app/src/config/config.js
