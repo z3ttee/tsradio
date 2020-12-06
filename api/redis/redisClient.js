@@ -7,6 +7,7 @@ class RedisClient {
     CHANNEL_CREATED = "channel_created"
     CHANNEL_DELETED = "channel_deleted"
     CHANNEL_STATUS_UPDATE = "channel_update_status"
+    CHANNEL_PING = "channel_ping"
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"
 
     constructor(){
@@ -15,7 +16,7 @@ class RedisClient {
             port: config.redis.port,
             password: config.redis.pass
         })
-        this.reader = redis.createClient({
+        this.client = redis.createClient({
             host: config.redis.host,
             port: config.redis.port,
             password: config.redis.pass
@@ -29,6 +30,7 @@ class RedisClient {
         this.subscriber.on("message", (channel, message) => this.handleMessage(channel, message))
         this.subscriber.subscribe(this.CHANNEL_STATUS_UPDATE)
         this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
+        this.subscriber.subscribe(this.CHANNEL_PING)
     }
 
     on(event, callback) {
@@ -47,6 +49,9 @@ class RedisClient {
             case this.CHANNEL_UPDATE_METADATA:
                 this.onChannelMetadataUpdate(message)
                 break
+            case this.CHANNEL_PING: 
+                this.onChannelPing(message)
+                break
             default:
                 break
         }
@@ -55,20 +60,17 @@ class RedisClient {
     onChannelStatusUpdate(data) {
         let json = JSON.parse(data)
         if(!json.active) Channel.setInactive(json.uuid)
-
         Socket.broadcast(this.CHANNEL_STATUS_UPDATE, json)
     }
     onChannelMetadataUpdate(data) {
         let json = JSON.parse(data)
-
-        console.log(json)
-        
         let channel = Channel.update(json.uuid, json)
-
         Socket.broadcast(this.CHANNEL_UPDATE_METADATA, channel)
     }
+    onChannelPing(data) {
+        let json = JSON.parse(data)
+        Channel.setPingTime(json.uuid)
+    }
 }
-
-
 
 export default new RedisClient()
