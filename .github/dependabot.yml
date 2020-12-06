@@ -6,13 +6,13 @@
 version: 2
 updates:
 
-  // Maintain web api dependancies
+  # Maintain web api dependancies
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
       interval: "daily"
       
-  // Maintain web app dependancies
+  # Maintain web app dependancies
   - package-ecosystem: "npm"
     directory: "/app"
     schedule:
