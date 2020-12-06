@@ -52,22 +52,20 @@ socket.setup(socketio).then(() => {
 })
 
 async function startServer() {
-
     // Starting secure webserver if certificate exists
-    if(fs.existsSync('sslcert/server.key') && fs.existsSync('sslcert/server.crt')) {
-        var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-        var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+    if(fs.existsSync('sslcert/privkey.pem') && fs.existsSync('sslcert/fullchain.pem')) {
+        var privateKey  = fs.readFileSync('sslcert/privkey.pem');
+        var certificate = fs.readFileSync('sslcert/fullchain.pem');
 
         const credentials = {key: privateKey, cert: certificate}
         const httpsServer = https.createServer(credentials, app)
 
         socketio.attach(httpsServer, options)
         
-        httpsServer.listen(cfg.ports.ssl, () => {
-            console.log('App started and listening on port '+cfg.ports.ssl)
+        httpsServer.listen(cfg.ports.default, () => {
+            console.log('App started and listening on port '+cfg.ports.default + ' over SSL protocol.')
         })
     } else {
-        // Starting insecure webserver if certificate does not exist
         const httpServer = http.createServer(app)
         socketio.attach(httpServer, options)
 
@@ -75,4 +73,6 @@ async function startServer() {
             console.log('App started and listening on port '+cfg.ports.default)
         })
     }
+
+    
 }

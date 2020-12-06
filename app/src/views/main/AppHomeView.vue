@@ -17,14 +17,27 @@
             </template>
         </app-channel-showcase>-->
 
-        <h3>Hervorgehobene Channels</h3>
-        <div class="list-grid-wrapper">
-            <transition-group name="animation_item_slide">
-                <app-channel-item v-for="(channel) in $store.state.channels" :key="channel.uuid" :channel="channel"></app-channel-item>
-            </transition-group>
-        </div>
+        <transition name="animation_item_slide">
+            <div class="container" v-if="featuredChannels.length > 0">
+                <h3>Hervorgehobene Channels</h3>
+                <div class="list-grid-wrapper">
+                    <transition-group name="animation_item_slide" mode="out-in">
+                        <app-channel-item v-for="(channel) in featuredChannels" :key="channel.uuid" :channel="channel"></app-channel-item>
+                    </transition-group>
+                </div>
+            </div>
+        </transition>
 
-        <h3>Sonstige Channels</h3>
+        <transition name="animation_item_slide">
+            <div class="container" v-if="otherChannels.length > 0">
+                <h3>Sonstige Channels</h3>
+                <div class="list-grid-wrapper">
+                    <transition-group name="animation_item_slide" mode="out-in">
+                        <app-channel-item v-for="(channel) in otherChannels" :key="channel.uuid" :channel="channel"></app-channel-item>
+                    </transition-group>
+                </div>
+            </div>
+        </transition>
     </section>
 </template>
 
@@ -36,6 +49,16 @@ export default {
     components: {
         AppChannelItem
         //AppChannelShowcase
+    },
+    computed: {
+        featuredChannels() {
+            let channels = Object.values(this.$store.state.channels);
+            return channels.filter(c => c.featured)
+        },
+        otherChannels() {
+            let channels = Object.values(this.$store.state.channels);
+            return channels.filter(c => !c.featured)
+        }
     }
 }
 </script>

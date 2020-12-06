@@ -58,18 +58,30 @@ class RedisClient {
     }
 
     onChannelStatusUpdate(data) {
-        let json = JSON.parse(data)
-        if(!json.active) Channel.setInactive(json.uuid)
-        Socket.broadcast(this.CHANNEL_STATUS_UPDATE, json)
+        try {
+            let json = JSON.parse(data)
+            if(!json.active) Channel.setInactive(json.uuid)
+            Socket.broadcast(this.CHANNEL_STATUS_UPDATE, json)
+        } catch (error) {
+            console.log(error)
+        }
     }
     onChannelMetadataUpdate(data) {
-        let json = JSON.parse(data)
-        let channel = Channel.update(json.uuid, json)
-        Socket.broadcast(this.CHANNEL_UPDATE_METADATA, channel)
+        try {
+            let json = JSON.parse(data)
+            let channel = Channel.update(json.uuid, json)
+            Socket.broadcast(this.CHANNEL_UPDATE_METADATA, channel)
+        } catch (error) {
+            console.log(error)
+        }
     }
     onChannelPing(data) {
-        let json = JSON.parse(data)
-        Channel.setPingTime(json.uuid)
+        try {
+            let json = JSON.parse(data)
+            Channel.setPingTime(json.uuid)
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
 

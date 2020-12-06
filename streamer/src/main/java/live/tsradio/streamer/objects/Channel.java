@@ -9,6 +9,7 @@ import live.tsradio.streamer.files.FileHandler;
 import live.tsradio.streamer.listener.ChannelEventListener;
 import live.tsradio.streamer.protocol.IcecastConnection;
 import live.tsradio.streamer.protocol.IcecastMount;
+import live.tsradio.streamer.utils.JsonEscaper;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -119,13 +120,13 @@ public class Channel extends Thread {
         this.queue.addAll(shuffledQueue);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    //@SuppressWarnings("ResultOfMethodCallIgnored")
     private void loadTracks(){
         this.tracks.clear();
 
         File channelDirectory = new File(FileHandler.getInstance().getChannelsRootDirectory().getAbsolutePath()+"/"+this.path.replace("/", "")+"-"+this.uuid);
-        channelDirectory.setWritable(true);
-        channelDirectory.setReadable(true);
+        /*channelDirectory.setWritable(true);
+        channelDirectory.setReadable(true);*/
 
         if(!FileHandler.getInstance().getChannelsRootDirectory().exists() && !FileHandler.getInstance().getChannelsRootDirectory().mkdirs() || !channelDirectory.exists() && !channelDirectory.mkdirs()) {
             logger.error("loadTracks(): Could not load tracks of channel '"+this.title+"': Directory not found.");
@@ -171,13 +172,13 @@ public class Channel extends Thread {
         return "{" +
                 "\"active\": \""+isActive()+"\"," +
                 "\"uuid\": \""+getUuid()+"\"," +
-                "\"title\": \""+getTitle()+"\"," +
+                "\"title\": \""+JsonEscaper.getInstance().escape(getTitle())+"\"," +
                 "\"path\": \""+getPath()+"\"," +
-                "\"description\": \""+getDescription()+"\"," +
+                "\"description\": \""+JsonEscaper.getInstance().escape(getDescription())+"\"," +
                 "\"featured\": "+isFeatured()+"," +
                 "\"info\": {" +
-                "\"title\": \""+getInfo().getTitle()+"\"," +
-                "\"artist\": \""+getInfo().getArtist()+"\"," +
+                "\"title\": \""+ JsonEscaper.getInstance().escape(getInfo().getTitle()) +"\"," +
+                "\"artist\": \""+JsonEscaper.getInstance().escape(getInfo().getArtist())+"\"," +
                 "\"history\": " + new Gson().toJson(getInfo().getHistory()) +
                 "}" +
                 "}";

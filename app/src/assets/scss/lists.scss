@@ -4,11 +4,12 @@
     display: grid;
     width: 100%;
     grid-template-columns: 50% 50%;
+    padding-bottom: 3em;
 
     .list-item-covered-wrapper {
         display: block;
         width: 100%;
-        padding: 0 1em;
+        padding: 0.5em 0.5em;
         overflow: hidden;
 
         &:nth-child(even) {

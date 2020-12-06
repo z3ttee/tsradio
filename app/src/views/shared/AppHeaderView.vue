@@ -16,7 +16,7 @@
                     <div class="header-profile">
                         <span id="username">{{ $store.state.user.username }}</span> <div class="profile-avatar align-right"></div>
                         <app-popuplist :width="300">
-                            <router-link custom v-slot="{ navigate }" :to="{name: 'viewProfile'}"><li @click="navigate">Profil ansehen</li></router-link>
+                            <!--<router-link custom v-slot="{ navigate }" :to="{name: 'viewProfile'}"><li @click="navigate">Profil ansehen</li></router-link>-->
                             <li @click="$user.logout()"><img src="@/assets/images/icons/power.svg"> Abmelden</li>
                         </app-popuplist>
                     </div>

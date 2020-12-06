@@ -24,6 +24,7 @@ class SocketClient {
                 console.log("Disconnected. Not trying to reconnect because user is not logged in.")
             }
 
+            channeljs.clearAll()
             this.disconnectInitiated = false
         })
         this.socket.on("connect", async () => {

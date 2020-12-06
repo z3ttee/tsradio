@@ -1,6 +1,6 @@
 <template>
-    <div class="list-item-covered-wrapper" @click="select">
-        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}">
+    <div class="list-item-covered-wrapper">
+        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}" @click="select">
             <transition name="animation_item_slide">
                 <span class="playingIndicator"><v-lottie-player width="20px" height="20px" loop autoplay :animationData="playingIndicatorData" v-if="isSelected"></v-lottie-player></span>
             </transition>
