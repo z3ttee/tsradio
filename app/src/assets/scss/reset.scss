@@ -8,6 +8,11 @@ img {
     min-width: 16px;
     min-height: 16px;
 
+    &.tiny {
+        min-height: 4px;
+        min-width: 4px;
+    }
+
     &::after {
         content: "";
         background-color: $colorPrimaryDark;

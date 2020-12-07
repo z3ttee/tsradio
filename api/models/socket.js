@@ -3,14 +3,16 @@ import { Channel } from "../models/channel.js"
 
 class Socket {
     CHANNEL_METADATA_UPDATE = ""
+    CHANNEL_LISTENER_UPDATE = "channel_listener_update"
     CHANNEL_INITIAL_TRANSPORT = "channel_initial_transport"
 
     async setup(socketio) {
         this.socketio = socketio
 
-        await this.socketio.use(async (socket, next) => {
+        this.socketio.use(async (socket, next) => {
             let handshakeData = socket.handshake
             let token = handshakeData.query.token
+            let userUUID = handshakeData.query.uuid
 
             if(!token) {
                 socket.disconnect(true)
@@ -24,7 +26,14 @@ class Socket {
                 return
             }
 
-            socket.emit(this.CHANNEL_INITIAL_TRANSPORT, Channel.activeChannels)
+            setTimeout(() => {
+                socket.emit(this.CHANNEL_INITIAL_TRANSPORT, Channel.activeChannels)
+            }, 300)
+            
+            socket.on("disconnect", () => {
+                Channel.moveListenerTo(userUUID, undefined)
+            })
+
             next()
         })
     }
