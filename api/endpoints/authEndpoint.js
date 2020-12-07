@@ -1,6 +1,7 @@
 import Authenticator from '../models/authenticator.js'
 import cookieParser from 'cookie'
 import { TrustedError } from '../error/trustedError.js'
+import { Channel } from '../models/channel.js'
 
 class AuthEndpoint {
 
@@ -83,18 +84,21 @@ class AuthEndpoint {
      * @apiVersion 1.0.0
      */
     async actionListenerLogin(route) {
-        console.log("listener login")
-
         try {
-            let cookies = cookieParser.parse(route.req.body.cookie)
-            let token = cookies.tsr_session
-            let authenticator = await Authenticator.validateJWTString(token)
+            let mountpoint = route.req.body.mount
 
-            console.log("token: "+token)
+            let path = mountpoint.split("?")[0]
+            let query = mountpoint.split("?")[1].split("&")
+
+            let token = query[0]
+            let userUUID = query[1]
+
+            let authenticator = await Authenticator.validateJWTString(token)
     
             if(authenticator.passed) {
                 route.res.set('icecast-auth-user', '1');
                 console.log("authenticated")
+                Channel.moveListenerTo(userUUID, path)
                 return {}
             } else {
                 route.res.set('icecast-auth-user', '0');

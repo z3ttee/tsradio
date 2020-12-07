@@ -7,13 +7,15 @@ class SocketClient {
     CHANNEL_STATUS_UPDATE = "channel_update_status"
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"
     CHANNEL_INITIAL_TRANSPORT = "channel_initial_transport"
+    CHANNEL_LISTENER_UPDATE = "channel_listener_update"
 
     setup() {
         this.disconnectInitiated = false
         this.socket = io(config.api.baseURL, {
             reconnection: false,
             query: {
-                token: store.state.jwt
+                token: store.state.jwt,
+                uuid: store.state.user.uuid
             }
         })
 
@@ -44,6 +46,12 @@ class SocketClient {
             Object.values(data).forEach((channel) => {
                 channeljs.update(channel.uuid, channel)
             })
+        })
+        this.socket.on(this.CHANNEL_LISTENER_UPDATE, async (data) => {
+            let destination = data.to ? data.to : ""
+            let previous = data.from ? data.from : ""
+
+            channeljs.moveListener(destination, previous)
         })
     }
 
