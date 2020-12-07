@@ -66,7 +66,7 @@ export default {
         },
         getStreamURL(){
             let path = this.selectedChannel.path
-            let streamURL = config.api.streamBase + path.replace("/", "")+"?"+this.$store.state.jwt;
+            let streamURL = config.api.streamBase + path.replace("/", "")+"?"+this.$store.state.jwt+"&"+this.$store.state.user.uuid;
             return streamURL
         },
         changeSource(clear = false){

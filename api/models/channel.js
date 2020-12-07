@@ -2,12 +2,14 @@ import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 import redis from '../redis/redisClient.js'
 import Socket from '../models/socket.js'
+import Authenticator from './authenticator.js'
 
 class Channel extends Model {
     static SET_CHANNELS = "set_active_channels"
 
     static activeChannels = {}
     static lastPingTimes = {}
+    static listeners = {}
 
     static setupInterval() {
         let interval = () => {
@@ -27,6 +29,10 @@ class Channel extends Model {
         setInterval(interval, 1000)
     }
 
+    static get(channelUUID) {
+        return this.activeChannels[channelUUID]
+    }
+
     static setInactive(channelUUID) {
         this.update(channelUUID, undefined)
     }
@@ -36,6 +42,15 @@ class Channel extends Model {
             delete this.lastPingTimes[channelUUID]
             this.removePing(channelUUID)
         } else {
+            // Preserve current listener count
+            let channel = this.activeChannels[channelUUID]
+            let listeners = 0
+
+            if(channel) {
+                listeners = channel.listeners
+            }
+
+            data.listeners = listeners
             this.activeChannels[channelUUID] = data
         }
     }
@@ -72,6 +87,38 @@ class Channel extends Model {
         Socket.broadcast(redis.CHANNEL_STATUS_UPDATE, { uuid: channelUUID, active: false})
 
         console.log("Zombie channel "+channelUUID+" removed.")
+    }
+
+    static async moveListenerTo(userUUID, destPath) {
+        let prevChannelUUID = this.listeners[userUUID]
+        let destChannel = undefined
+
+        if(destPath) {
+            destChannel = await this.findOne({ where: { path: destPath }})
+
+            if(destChannel) {
+                // Set new channel for listener if destination exists
+                this.listeners[userUUID] = destChannel.uuid
+
+                if(!prevChannelUUID) {
+                    // If user has not listened to channel before during current session, add one to destination channel
+                    this.activeChannels[destChannel.uuid].listeners += 1
+                } else {
+                    // If user has listened to channel before, remove one from prev and add one to dest
+                    this.activeChannels[prevChannelUUID].listeners -= 1
+                    this.activeChannels[destChannel.uuid].listeners += 1
+                }
+            }
+        } else {
+            // undefined destPath means disconnect
+            if(prevChannelUUID) {
+                if(this.activeChannels[prevChannelUUID]) this.activeChannels[prevChannelUUID].listeners -= 1
+            }
+            delete this.listeners[userUUID]
+        }
+
+        // Broadcast change to clients
+        Socket.broadcast(Socket.CHANNEL_LISTENER_UPDATE, {from: prevChannelUUID ? prevChannelUUID : undefined, to: destChannel ? destChannel.uuid : undefined })
     }
 
 }

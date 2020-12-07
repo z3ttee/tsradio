@@ -39,8 +39,8 @@ class User {
             return result
         }
 
-        socketjs.setup()
         store.state.user = result.data
+        socketjs.setup()
         return result
     }
 

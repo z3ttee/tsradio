@@ -16,6 +16,7 @@
                         <span :id="itemID+'artist'" :key="itemID+'artist'">{{ channel.info.artist }}</span>
                     </transition>
                 </div>
+                <span class="listener-details">{{ channel.listeners }}<img class="tiny" src="@/assets/images/icons/headphone.svg"></span>
             </div>
         </div>
     </div>
@@ -73,6 +74,25 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/assets/scss/lists.scss';
+
+.listener-details {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 0;
+    right: 0.5em;
+    font-size: 0.85em;
+    font-weight: 500;
+    color: $colorAccent;
+    opacity: 0.6;
+
+    img {
+        height: 12px;
+        margin-left: 0.5em;
+        vertical-align: middle;
+        margin-top: -0.25em;
+    }
+}
 
 .playingIndicator {
     position: absolute;
