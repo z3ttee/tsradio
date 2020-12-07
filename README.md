@@ -1,34 +1,64 @@
-# TSRadio Project
-This repository consists of multiple projects together building the system behind TSRadio. The project is a private project of mine (not intended for public usage in near future).
+<img src="attachments/project_banner.png" alt="Project Banner" style="display: block; margin: 0 auto 64px auto;" />
 
-#### Daemon
-WiP
+The next version of TSRadio. Completely re-written from scratch using modern techniques, enabling a better experience than before.
 
-#### Master
-The master is build upon a socketio implementation for netty, so listeners to the radio connect to this socket to receive metadata updates in realtime.\
-Daemons also connect to the same socket to provide these updates.
-Because the daemon and the master are sharing the file ``preferences.json`` it is necessary to place these jars into the same directory.\
-If a daemon is detected by the master on startup, it will automatically be executed.
-Additionally you should create a java keystore, holding a certificate, in the same directory (make sure to name it exactly ``keystore.jks``). Otherwise ssl wont be supported.\
- \
-##### Install as service
-Before installing as a service, make sure that the ``screen``-package is installed.
-Installation can be done as follows (Make sure to execute this as root (or using sudo before the actual command), or make sure the application can write to ``/etc/systemd/system/``):
-```
-screen java -jar master.jar -installService -user YOUR_USERNAME
-```
-This only works on linux. A ``.service`` file will be created and starting the service can be done using ``systemd``. The service name will be ``tsrm`` or ``tsrm.service``\
-The start and stop scripts can then be found in the ``/scripts/`` directory in the root of the application. \
-You can open the console using ``screen -r tsrm`` when logged in as the same user the master is started with
- \
-##### Executing the master as a non-service application:
-How to run the ``master.jar`` (non-service):
-```
-java -Xmx256M -jar master.jar
-```
+## Planned Features
+To see the current state of development in detail, please visit the following page: [https://github.com/z3ttee/tsradio/projects/2](https://github.com/z3ttee/tsradio/projects/2)
+- [ ] Play audio streams (Front-end)
+- [ ] Stream audio to icecast (Back-end)
+- [ ] Create / Manage channels
+- [ ] Create / Manage users
 
-##### First time startup
-When first starting up the master.jar, some files will be created. One of them will be ``preferences.json`` which you will need to configure before using the application.
-If you want to use ssl, make sure to insert a ``fullchain.pem`` and a ``privkey.pem``(when using letsencrypt) into the ``ssl/`` folder (NOTE: Only working on linux, for windows insert a java keystore file (``.jks``) directly into that folder (make sure to name it ``keystore.jks``)). \
- \
-Also NOTE: In order for the application to install the ssl certificate, you have to configure the private key password, which was used to sign the certs.
+## Prerequisites
+* OS: Linux (Win will be supported in the late future)
+* NodeJS v12
+* MySQL as database
+* Python installed
+* Redis for pub/sub (Is used for exchanging radio meta data in real-time)
+
+## Setup / Installation
+1. [Installation](#1-installation)
+2. [Setting up SSL](#2-setting-up-ssl)
+3. [Setup listener authentication in icecast](#3-setup-listener-authentication-in-icecast)
+
+#### 1. Installation
+TBD
+
+First, download the newest release (there is no release yet).
+After unzipping the file, you will find several files of which the folders ``frontend`` and ``backend`` are needed. <br>
+Ideally you put all the contents of ``frontend`` into your webservers's directory.
+Because ``backend`` is a nodejs project, you have to start the nodejs server as follows:
+1. Go into the ``backend`` directory
+2. Open terminal and type in ``npm run start``
+
+#### 2. Setting up SSL
+To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory of the api
+and place ``privkey.pem`` and ``fullchain.pem`` inside the newly created folder. <br><br>
+When setting up SSL on icecast2 using letsencrypt, the following command can come in handy when bundling the certificate:<br>
+``sudo bash -c 'cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem >> /etc/icecast2/cert.bundle.pem' && sudo service icecast2 restart`` <br>
+You can write this command in your domains renewal config under ``post_hook``. Example:<br>
+```
+sudo nano /etc/letsencrypt/renewal/example.com.conf
+
+Add the line:
+post_hook = sudo bash -c 'cat /etc/letsencrypt/live/example.com/fullchain.pem /etc/letsencrypt/live/example.com/privkey.pem >> /etc/icecast2/cert.bundle.pem' && sudo service icecast2 restart
+```
+Now when using ``sudo certbot renew`` the certificate should automatically renew for icecast too.
+
+#### 3. Setup listener authentication in icecast
+TSRadio API supports icecast listener authentication through url. It is recommended to setup authentication following the official docs of icecast: 
+[Icecast 2.4.1 Listener Authentication Docs](https://icecast.org/docs/icecast-2.4.1/auth.html) <br>
+Given the following configuration
+```
+<mount>
+    <mount-name>/example</mount-name>
+    <authentication type="url">
+        <option name="listener_add" value="<YOUR_URL>"/>
+        <option name="headers" value="cookie"/>
+    </authentication>
+</mount>
+```
+you only need to adjust ``<YOUR_URL>`` to something that points to the /auth/listener endpoint of TSRadio's API.
+This could look something like <br>
+* ``https://example.org/api/auth/listener``
+* ``http://example.org/auth/listener`` (Non-SSL connections are not recommended, because of missing encryption)

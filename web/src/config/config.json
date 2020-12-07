@@ -1,7 +1,0 @@
-{
-    "dataserver": {
-        "dev": false,
-        "host": "localhost",
-        "port": 9092
-    }
-}
