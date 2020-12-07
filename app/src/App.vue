@@ -1,6 +1,6 @@
 <template>
   <app-header-view></app-header-view>
-  <div class="content-container" v-if="$store.state.loggedIn">
+  <div class="content-container">
     <router-view v-slot="{ Component }">
       <transition name="transition_page" mode="out-in">
         <component :is="Component"></component>

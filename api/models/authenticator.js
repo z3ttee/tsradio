@@ -57,6 +57,10 @@ class Authenticator {
         return { passed, data, error }
     }
 
+    static async decode(token) {
+        return jwt.decode(token)
+    }
+
     static async validateJWTString(token) {
 
         let passed = false
@@ -83,7 +87,7 @@ class Authenticator {
                     data = undefined
                 } else {
                     passed = true
-                    data.group.permissions = data.group.permissions
+                    //data.group.permissions = data.group.permissions
                 }
 
             } catch (exception) {
