@@ -1,11 +1,8 @@
 <template>
     <section>
         <app-messagebox :banner="false">
-            <template #title>Willkommen zurück!</template>
+            <template #title>{{ timeOfDay }}, <span>{{ $store.state.user.username }}</span></template>
             <template #subtitle>TSRadio >> NEXT</template>
-            <template #content>
-                <p>TSRadio ist wieder zurück mit der besten Musik und den besten Channels! Zudem hat die Seite einen völlig überarbeiteten Look. <br>Beachte: Die Seite befindet sich noch immer in der BETA.</p>
-            </template>
         </app-messagebox>
 
         <!--<app-channel-showcase>
@@ -58,6 +55,17 @@ export default {
         otherChannels() {
             let channels = Object.values(this.$store.state.channels);
             return channels.filter(c => !c.featured)
+        },
+        timeOfDay() {
+            let time = new Date().getHours();
+
+            if(time >= 18) {
+                return "Guten Abend"
+            } else if(time >= 0 && time <= 11) {
+                return "Guten morgen"
+            } else {
+                return "Guten Tag"
+            }
         }
     }
 }
