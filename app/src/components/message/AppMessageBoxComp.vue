@@ -8,10 +8,9 @@
                 <div class="layout-col">
                     <h6><slot name="subtitle"></slot></h6>
                     <h3><slot name="title"></slot></h3>
-                    <div class="content"><slot name="content"></slot></div>
+                    <div class="content" v-if="hasContentSlot"><slot name="content"></slot></div>
                 </div>
             </div>
-            <slot></slot>
         </div>
     </div>
 </template>
@@ -22,6 +21,11 @@ export default {
         banner: {
             type: Boolean,
             default: true
+        }
+    },
+    computed: {
+        hasContentSlot() {
+            return !!this.$slots['content']
         }
     }
 }
@@ -42,6 +46,12 @@ export default {
     h6 {
         color: $colorAccentLight;
         line-height: 1em;
+    }
+
+    h3 {
+        span {
+            color: $colorAccent;
+        }
     }
 
     .content {
