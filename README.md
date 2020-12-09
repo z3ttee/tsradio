@@ -22,14 +22,16 @@ To see the current state of development in detail, please visit the following pa
 3. [Setup listener authentication in icecast](#3-setup-listener-authentication-in-icecast)
 
 #### 1. Installation
-TBD
-
-First, download the newest release (there is no release yet).
-After unzipping the file, you will find several files of which the folders ``frontend`` and ``backend`` are needed. <br>
-Ideally you put all the contents of ``frontend`` into your webservers's directory.
-Because ``backend`` is a nodejs project, you have to start the nodejs server as follows:
+First, download the newest release.
+After unzipping the file, you will find several files of which the folders ``app`` and ``api`` are needed. <br>
+Ideally you put all the contents of ``app`` into your webservers's directory.
+Because ``api`` is a nodejs project, you have to start the nodejs server as follows:
 1. Go into the ``backend`` directory
-2. Open terminal and type in ``npm run start``
+2. Open the terminal and install all dependencies using ``npm i``
+2. Type in ``npm run start`` to start the node app
+
+To ensure all artworks are placed correctly after extracting from mp3 files via the streamer app, make sure the ``api`` folder is placed inside 
+the exact root directory the ``streamer.jar`` is in. Otherwise the api will not find the album artworks embedded in mp3 files.
 
 #### 2. Setting up SSL
 To use ssl, you need nothing to do but to create the folder ``sslcert`` in the root directory of the api
