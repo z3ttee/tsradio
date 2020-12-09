@@ -2,21 +2,27 @@
     <div class="playerbar-wrapper">
         <div class="content-container playerbar-container">
             <div class="player-col player-details">
-                <h6>{{ selectedChannel.title }}</h6>
-                <h4>{{ selectedChannel.info.title }} <span> {{ selectedChannel.info.artist }}</span></h4>
+                <h4 :id="itemID+'title'">{{ selectedChannel.info.title }} </h4>
+                <span :id="itemID+'artist'">{{ selectedChannel.info.artist }}</span>
             </div>
-            <div class="player-col player-controls">
-                <audio :id="audioElementID" :src="getStreamURL()" hidden autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay"></audio>
-                <button class="btn btn-icon btn-m btn-noscale" @click="toggle">
-                    <transition name="animation_item_scale" mode="out-in">
-                        <img src="@/assets/images/icons/pause.svg" v-if="!paused">
-                        <img src="@/assets/images/icons/play.svg" v-else>
-                    </transition>
-                    <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
-                </button>
-                <button class="btn btn-icon btn-m btn-noscale">
-                    <img src="@/assets/images/icons/speaker.svg">
-                </button>
+            <div class="player-col" :id="itemID+'col'">
+                <div class="player-controls">
+                    <audio :id="audioElementID" :src="getStreamURL()" hidden autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay"></audio>
+                    <button class="btn btn-icon btn-m btn-noscale" @click="toggle">
+                        <transition name="animation_item_scale" mode="out-in">
+                            <img src="@/assets/images/icons/pause.svg" v-if="!paused">
+                            <img src="@/assets/images/icons/play.svg" v-else>
+                        </transition>
+                        <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
+                    </button>
+                    <button class="btn btn-icon btn-m btn-noscale" @click="toggleMute">
+                        <transition name="animation_item_scale" mode="out-in">
+                            <img src="@/assets/images/icons/speaker.svg" v-if="volume > 0">
+                            <img src="@/assets/images/icons/mute-speaker.svg" v-else>
+                        </transition>
+                    </button>
+                    <input orient="vertical" type="range" max="100" min="0" v-model="volume">
+                </div>
             </div>
         </div>
     </div>
@@ -25,6 +31,7 @@
 <script>
 import loader from '@/assets/animated/primary_loader_light.json'
 import config from '@/config/config.js'
+import clamp from 'clamp-js'
 
 export default {
     data() {
@@ -32,8 +39,10 @@ export default {
             loader,
             paused: false,
             loading: true,
-            volume: 20,
-            audioElementID: this.makeid(6)
+            volume: 50,
+            audioElementID: this.makeid(6),
+            observer: undefined,
+            itemID: this.makeid(6)
         }
     },
     methods: {
@@ -53,7 +62,6 @@ export default {
             this.loading = true
             this.changeSource(false)
         },
-
         toggle() {
             this.loading = false
             this.paused = !this.paused
@@ -63,6 +71,9 @@ export default {
             } else {
                 this.changeSource(true)
             }
+        },
+        toggleMute() {
+            this.volume = this.volume == 0 ? 50 : 0
         },
         getStreamURL(){
             let path = this.selectedChannel.path
@@ -97,18 +108,19 @@ export default {
         volume(val) {
             let element = document.getElementById(this.audioElementID)
             if(!element) return
-
-            var delay = 50;
             
             setTimeout(() => {
                 localStorage.setItem('tsr_volume_'+this.selectedChannel.uuid, val);
                 element.volume = val/100;
-            }, delay);
+            }, 50);
         },
         selectedChannel() {
             if(this.selectedChannel) {
                 var volume = localStorage.getItem('tsr_volume_'+this.selectedChannel.uuid);
                 if(volume) this.volume = volume;
+                else this.volume = 50;
+
+                console.log(volume);
 
                 this.loading = true
             }
@@ -121,12 +133,62 @@ export default {
     },
     mounted(){
         this.changeSource(false)
+
+        this.observer = new ResizeObserver(() => {
+            try {
+                clamp(document.getElementById(this.itemID+'title'), {clamp: 0, useNativeClamp: true, animate: true})
+                clamp(document.getElementById(this.itemID+'title'), {clamp: 1, useNativeClamp: true, animate: true})
+                clamp(document.getElementById(this.itemID+'artist'), {clamp: 0, useNativeClamp: true, animate: true})
+                clamp(document.getElementById(this.itemID+'artist'), {clamp: 1, useNativeClamp: true, animate: true})
+            } catch (error) { 
+                /* Do nothing */ 
+                this.observer = undefined
+            }
+        })
+        this.observer.observe(document.getElementById(this.itemID+'col'))
+    },
+    unmounted() {
+        try {
+            this.observer.unobserve(document.getElementById(this.itemID+'col'))
+        } catch (error) { /* Do nothing */ }
     }
 }
 </script>
 
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
+
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 4px;
+    background: $colorPlaceholder;
+    outline: none;
+    
+    &:hover {
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        background: $colorAccent;
+        border-radius: 50%;
+        transition: all $animSpeedFast*1s $cubicNorm;
+    }
+        
+    &::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: $colorAccent;
+        transition: all $animSpeedFast*1s $cubicNorm;
+    }
+}
 
 .loadingIndicator {
     position: absolute;
@@ -161,44 +223,62 @@ export default {
             padding-right: 3em;
         }
         &:last-of-type {
+            position: relative;
             text-align: right;
-            width: 100px;
+            width: 200px;
         }
     }
 }
 
 .player-details {
-    h6 {
-        color: $colorAccent;
-        line-height: 2em;
-        letter-spacing: 1px;
-    }
+    line-height: 1.2em;
+    font-size: 0.95em;
+    letter-spacing: 0.4px;
 
     h4 {
         font-weight: 600;
-        letter-spacing: 0;
-        line-height: 1em;
+    }
 
-        span {
-            font-weight: 500;
-            font-size: 0.7em;
-            vertical-align: middle;
-            letter-spacing: 0.3px;
-            line-height: 1.5em;
-            opacity: 0.3;
-            margin-left: 0.5em;
-        }
+    span {
+        font-weight: 600;
+        font-size: 0.85em;
+        vertical-align: middle;
+        letter-spacing: 0.6px;
+        opacity: 0.7;
+        color: $colorAccent;
+    }
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+
+    input {
+        margin-left: 0.5em;
     }
 }
 
 @media screen and (max-width: 950px) {
     .playerbar-wrapper {
-        height: 70px;
+        height: 75px;
     }
 }
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 580px) {
     .playerbar-wrapper {
-        height: 60px;
+        height: 65px;
+    }
+    .player-controls {
+        display: flex;
+        align-items: center;
+
+        input {
+            display: none;
+        }
+    }
+    .player-col {
+        &:last-of-type {
+            width: 90px !important;
+        }
     }
 }
 

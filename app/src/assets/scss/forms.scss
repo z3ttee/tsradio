@@ -132,3 +132,39 @@ input[type=checkbox] {
         }
     }
 }
+
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: $colorPlaceholder;
+    outline: none;
+    
+    &:hover {
+        opacity: 1;
+        cursor: pointer;
+
+        &::-webkit-slider-thumb,&::-moz-range-thumb {
+            transform: scale(1.15);
+        }
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        background: $colorAccent;
+        border-radius: 50%;
+        transition: all $animSpeedNormal*1s $cubicNorm;
+    }
+        
+    &::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: $colorAccent;
+        transition: all $animSpeedNormal*1s $cubicNorm;
+    }
+}
