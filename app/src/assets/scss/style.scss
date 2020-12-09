@@ -563,7 +563,7 @@ $badgePadding: (
 */
 @media screen and (max-width: 1300px) {
     * {
-        font-size: 0.985em;
+        font-size: 0.99em;
     }
     .content-container {
         width: 850px;
@@ -572,7 +572,7 @@ $badgePadding: (
 
 @media screen and (max-width: 950px) {
     * {
-        font-size: 0.96em;
+        font-size: 0.97em;
     }
     
     .content-container {
@@ -618,10 +618,10 @@ $badgePadding: (
         
     }
 }
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 580px) {
     .content-container {
         width: 100%;
-        padding: 0 $windowPad;
+        padding: 0 1em;
     }
 
     .layout-table {

@@ -81,6 +81,7 @@
 
         .list-item-covered-wrapper {
             padding: 0.5em 0;
+            
 
             &:first-of-type {
                 padding-top: 0;
@@ -91,6 +92,8 @@
         }
 
         .list-item-covered {
+            border-width: 2px !important;
+            
             .list-item-cover {
                 width: 84px !important;
                 height: 84px !important;
