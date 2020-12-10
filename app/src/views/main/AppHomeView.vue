@@ -61,7 +61,7 @@ export default {
 
             if(time >= 18) {
                 return "Guten Abend"
-            } else if(time >= 0 && time <= 11) {
+            } else if(time >= 3 && time <= 11) {
                 return "Guten morgen"
             } else {
                 return "Guten Tag"
