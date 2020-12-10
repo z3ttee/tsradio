@@ -15,13 +15,13 @@
                         </transition>
                         <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
                     </button>
-                    <button class="btn btn-icon btn-m btn-noscale" @click="toggleMute">
+                    <button id="buttonSpeaker" class="btn btn-icon btn-m btn-noscale" @click="toggleMute">
                         <transition name="animation_item_scale" mode="out-in">
                             <img src="@/assets/images/icons/speaker.svg" v-if="volume > 0">
                             <img src="@/assets/images/icons/mute-speaker.svg" v-else>
                         </transition>
                     </button>
-                    <input orient="vertical" type="range" max="100" min="0" v-model="volume">
+                    <input orient="vertical" type="range" max="60" min="0" v-model="volume">
                 </div>
             </div>
         </div>
@@ -39,7 +39,7 @@ export default {
             loader,
             paused: false,
             loading: true,
-            volume: 50,
+            volume: 30,
             audioElementID: this.makeid(6),
             observer: undefined,
             itemID: this.makeid(6)
@@ -73,7 +73,7 @@ export default {
             }
         },
         toggleMute() {
-            this.volume = this.volume == 0 ? 50 : 0
+            this.volume = this.volume == 0 ? 30 : 0
         },
         getStreamURL(){
             let path = this.selectedChannel.path
@@ -279,6 +279,9 @@ input[type=range] {
         &:last-of-type {
             width: 90px !important;
         }
+    }
+    #buttonSpeaker {
+        display: none;
     }
 }
 

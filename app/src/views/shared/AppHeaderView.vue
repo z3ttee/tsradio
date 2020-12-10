@@ -89,7 +89,7 @@ export default {
     }
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 580px) {
     span#username {
         display: none;
     }
