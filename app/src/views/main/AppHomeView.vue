@@ -15,6 +15,12 @@
         </app-channel-showcase>-->
 
         <transition name="animation_item_slide">
+            <app-textbox v-if="featuredChannels.length <= 0 && otherChannels.length <= 0">
+                Derzeit sind keine Channels aktiv. Hält dieses Problem länger an, dann kontaktiere bitte einen Administrator.
+            </app-textbox>
+        </transition>
+
+        <transition name="animation_item_slide">
             <div class="container" v-if="featuredChannels.length > 0">
                 <h3>Hervorgehobene Channels</h3>
                 <div class="list-grid-wrapper">

@@ -128,8 +128,10 @@ export default {
         margin: 0;
         line-height: 1.5em;
         font-weight: 800;
+        letter-spacing: -0.5px;
+        color: $colorAccent;
 
-        background: linear-gradient($colorAccent, $colorPrimaryDark);
+        background: linear-gradient($colorAccent, $colorPrimary);
         background-clip: text;
         -webkit-text-fill-color: transparent;
     }
