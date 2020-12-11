@@ -10,6 +10,7 @@ public class ChannelInfo {
 
     @Getter @Setter private String title;
     @Getter @Setter private String artist;
+    @Getter @Setter private AudioTrack.AlbumArtwork artwork;
     @Getter @Setter private ArrayList<HistoryTrack> history;
 
     public ChannelInfo() {
@@ -19,6 +20,7 @@ public class ChannelInfo {
     public void clear() {
         this.title = "null";
         this.artist = "null";
+        this.artwork = null;
         this.history = new ArrayList<>();
     }
 
