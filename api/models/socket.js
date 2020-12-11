@@ -2,8 +2,9 @@ import Authenticator from "./authenticator"
 import { Channel } from "../models/channel.js"
 
 class Socket {
-    CHANNEL_METADATA_UPDATE = ""
-    CHANNEL_LISTENER_UPDATE = "channel_listener_update"
+    CHANNEL_UPDATE_METADATA = "channel_update_metadata"
+    CHANNEL_UPDATE_HISTORY = "channel_update_history"
+    CHANNEL_UPDATE_LISTENER = "channel_update_listener"
     CHANNEL_INITIAL_TRANSPORT = "channel_initial_transport"
 
     async setup(socketio) {

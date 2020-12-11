@@ -22,34 +22,35 @@ global.cfg = config
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+app.use('/artworks', express.static('artworks'))
 
 // Establish redis connection
-Redis.on("ready", () => {
+Redis.on("ready", async () => {
     console.log("Connected to redis successfully.")
 
     // Initially load all active channels from redis
-    Channel.loadActiveChannels()
+    await Channel.loadChannels()
     Channel.setupInterval()
-})
 
+    // Setup custom router
+    Router.setup(app)
+    Database.setup().finally(startServer)
+
+    
+
+    const socket = Socket
+    socket.setup(socketio).then(() => {
+        app.ioHandler = socket
+    })
+})
 Redis.on("error", (error) => console.log("A redis error occured:", error))
 
-
-// Setup custom router
-Router.setup(app)
-Database.setup().finally(startServer)
-
-// Setup socket handler
+// Setup cors
 const options = {
     cors: {
         origin: '*'
     }
 }
-
-const socket = Socket
-socket.setup(socketio).then(() => {
-    app.ioHandler = socket
-})
 
 async function startServer() {
     // Starting secure webserver if certificate exists

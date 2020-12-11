@@ -6,9 +6,10 @@ import Socket from '../models/socket.js'
 class RedisClient {
     CHANNEL_CREATED = "channel_created"
     CHANNEL_DELETED = "channel_deleted"
-    CHANNEL_STATUS_UPDATE = "channel_update_status"
+    CHANNEL_UPDATE_STATUS = "channel_update_status"
     CHANNEL_PING = "channel_ping"
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"
+    CHANNEL_UPDATE_HISTORY = "channel_update_history"
 
     constructor(){
         this.subscriber = redis.createClient({
@@ -28,7 +29,8 @@ class RedisClient {
         })
 
         this.subscriber.on("message", (channel, message) => this.handleMessage(channel, message))
-        this.subscriber.subscribe(this.CHANNEL_STATUS_UPDATE)
+        this.subscriber.subscribe(this.CHANNEL_UPDATE_STATUS)
+        this.subscriber.subscribe(this.CHANNEL_UPDATE_HISTORY)
         this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
         this.subscriber.subscribe(this.CHANNEL_PING)
     }
@@ -43,11 +45,11 @@ class RedisClient {
 
     handleMessage(channel, message) {
         switch (channel) {
-            case this.CHANNEL_STATUS_UPDATE:
-                this.onChannelStatusUpdate(message)
+            case this.CHANNEL_UPDATE_STATUS:
+                this.onChannelUpdateStatus(message)
                 break
             case this.CHANNEL_UPDATE_METADATA:
-                this.onChannelMetadataUpdate(message)
+                this.onChannelUpdateMetadata(message)
                 break
             case this.CHANNEL_PING: 
                 this.onChannelPing(message)
@@ -57,16 +59,27 @@ class RedisClient {
         }
     }
 
-    onChannelStatusUpdate(data) {
+    onChannelUpdateStatus(data) {
         try {
-            let json = JSON.parse(data)
-            if(!json.active) Channel.setInactive(json.uuid)
-            Socket.broadcast(this.CHANNEL_STATUS_UPDATE, json)
+            console.log(data)
+            let parsedData = JSON.parse(data)
+            let updatedData = Channel.updateStatus(parsedData.uuid, parsedData)
+            Socket.broadcast(this.CHANNEL_UPDATE_STATUS, updatedData)
         } catch (error) {
             console.log(error)
         }
     }
-    onChannelMetadataUpdate(data) {
+    onChannelUpdateMetadata(data) {
+        try {
+            console.log(data)
+            let parsedData = JSON.parse(data)
+            let updatedData = Channel.updateMetadata(parsedData.uuid, parsedData)
+            Socket.broadcast(this.CHANNEL_UPDATE_METADATA, updatedData)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    /*onChannelHistoryUpdate(data) {
         try {
             let json = JSON.parse(data)
             let channel = Channel.update(json.uuid, json)
@@ -74,7 +87,7 @@ class RedisClient {
         } catch (error) {
             console.log(error)
         }
-    }
+    }*/
     onChannelPing(data) {
         try {
             let json = JSON.parse(data)
