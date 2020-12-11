@@ -10,10 +10,10 @@
                 <h4 :id="itemID+'title'">{{ channel.title }}</h4>
                 <div>
                     <transition name="animation_item_slide" mode="out-in">
-                        <p :id="itemID+'song'" :key="itemID+'song'">{{ channel.info.title }}</p>
+                        <p :id="itemID+'song'" :key="itemID+'song'" class="info-title"><span v-if="channel.info">{{ channel.info.title }}</span></p>
                     </transition>
                      <transition name="animation_item_slide" mode="out-in">
-                        <span :id="itemID+'artist'" :key="itemID+'artist'">{{ channel.info.artist }}</span>
+                        <span :id="itemID+'artist'" :key="itemID+'artist'" class="info-artist"><span v-if="channel.info">{{ channel.info.artist }}</span></span>
                     </transition>
                 </div>
                 <span class="listener-details">{{ channel.listeners }}<img class="tiny" src="@/assets/images/icons/headphone.svg"></span>
@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
 
@@ -37,6 +38,11 @@ export default {
             playingIndicatorData
         }
     },
+    watch: {
+        'channel.info'() {
+            this.updateCoverImage()
+        }
+    },
     computed: {
         isSelected() {
             return this.$store.state.currentChannel && this.$store.state.currentChannel.uuid == this.channel.uuid
@@ -47,6 +53,12 @@ export default {
             if(!this.isSelected) {
                 this.$store.state.currentChannel = this.channel
             }
+        },
+        updateCoverImage(){
+            let coverElement = document.getElementById(this.itemID+'cover')
+            let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png'
+            
+            coverElement.style.backgroundImage = "url('"+coverURL+"')"
         }
     },
     mounted() {
@@ -63,6 +75,7 @@ export default {
         })
 
         this.observer.observe(document.getElementById(this.itemID+'content'))
+        this.updateCoverImage()
     },
     unmounted() {
         try {
@@ -124,12 +137,12 @@ export default {
     div {
         color: $colorWhite;
 
-        p {
+        p.info-title {
             font-weight: 600;
             letter-spacing: 0;
         }
 
-        span {
+        span.info-artist {
             display: block;
             font-weight: 400;
             font-size: 0.7em;

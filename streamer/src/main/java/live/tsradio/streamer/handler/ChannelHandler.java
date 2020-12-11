@@ -1,20 +1,21 @@
 package live.tsradio.streamer.handler;
 
+import live.tsradio.streamer.database.Redis;
 import live.tsradio.streamer.files.FileHandler;
 import live.tsradio.streamer.objects.Channel;
 import live.tsradio.streamer.repositories.ChannelRepository;
 import lombok.Getter;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.HashMap;
 
 public class ChannelHandler {
     private static final Logger logger = LoggerFactory.getLogger(ChannelHandler.class);
 
-    @Getter private static ArrayList<Channel> channels = new ArrayList<>();
+    @Getter private static HashMap<String, Channel> channels = new HashMap<>();
 
     public static void loadChannels() {
         logger.info("loadChannels(): Loading channels from database...");
@@ -27,19 +28,19 @@ public class ChannelHandler {
     public static void startChannels() {
         if(channels.size() > 0) {
             logger.info("startChannels(): Starting all channels...");
-            for (Channel channel : channels) {
+            for (Channel channel : channels.values()) {
                 channel.boot();
             }
         } else {
             logger.warn("startChannels(): Can not start any channel: Nothing found.");
         }
     }
-    public static void unloadChannel(Channel channel) {
-        channels.remove(channel);
+    public static void unloadChannel(String channelUUID) {
+        channels.remove(channelUUID);
     }
 
     public static Channel getChannel(String channelUUID) {
-        return channels.stream().filter(c -> c.getUuid().equals(channelUUID)).collect(Collectors.toList()).get(0);
+        return channels.get(channelUUID);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -68,7 +69,7 @@ public class ChannelHandler {
                 logger.warn("removeChannel(): Could not disable channel folder '"+channelDir.getAbsolutePath()+"'");
             }
 
-            channels.remove(channel);
+            channels.remove(channelUUID);
         }
     }
     public static void registerChannel(String channelUUID) {
@@ -76,10 +77,30 @@ public class ChannelHandler {
         Channel channel = repository.findOneByID(channelUUID);
 
         if(channel != null) {
-            channels.add(channel);
+            channels.put(channelUUID, channel);
             logger.info("registerChannel(): Registered new channel '"+channel.getTitle()+"'");
             channel.boot();
         }
+    }
+    public static void updateOrRegisterChannel(String channelUUID, JSONObject jsonData) {
+        Channel channel = getChannel(channelUUID);
+
+        if(channel == null) {
+            registerChannel(channelUUID);
+            return;
+        }
+
+        if(!(boolean) jsonData.get("enabled")) {
+            channel.shutdown();
+            unloadChannel(channelUUID);
+            return;
+        }
+
+        channel.setTitle((String) jsonData.get("title"));
+        channel.setDescription((String) jsonData.get("description"));
+        channel.setFeatured((boolean) jsonData.get("featured"));
+
+        logger.info("updateOrRegisterChannel(): Updated channel "+getChannel(channelUUID).getTitle());
     }
 
 }
