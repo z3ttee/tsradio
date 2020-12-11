@@ -56,7 +56,7 @@ export default {
         },
         updateCoverImage(){
             let coverElement = document.getElementById(this.itemID+'cover')
-            let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png'
+            let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
             
             coverElement.style.backgroundImage = "url('"+coverURL+"')"
         }
