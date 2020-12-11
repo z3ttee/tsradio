@@ -20,6 +20,8 @@ public class FileHandler {
     @Getter private JSONObject config = null;
     @Getter private final File rootDirectory = new File(System.getProperty("user.dir"));
     @Getter private final File channelsRootDirectory = new File(rootDirectory.getAbsolutePath()+"/channels/");
+    @Getter private final File apiRootDirectory = new File(rootDirectory.getAbsolutePath()+"/api/");
+    @Getter private final File artworksDir = new File(apiRootDirectory.getAbsolutePath()+"/artworks/");
 
     public FileHandler(){
         this.loadConfig();
@@ -62,13 +64,6 @@ public class FileHandler {
     }
 
     private static void createFile(File file) throws IOException {
-        /*if(!file.setReadable(true) && !file.setWritable(true)) {
-            logger.error("loadConfig(): Could not set read/write permissions for file '"+file.getAbsolutePath()+"'.");
-            logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");
-            System.exit(0);
-            return;
-        }*/
-
         if(!file.createNewFile()) {
             logger.error("loadConfig(): Could not create file '"+file.getAbsolutePath()+"'.");
             logger.error("loadConfig(): This is a fatal error. Please resolve this issue, otherwise this service is unavailable.");

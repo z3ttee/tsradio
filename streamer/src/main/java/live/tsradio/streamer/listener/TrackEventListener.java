@@ -16,6 +16,7 @@ public class TrackEventListener {
     public static void onTrackStart(Channel channel, AudioTrack track){
         channel.getInfo().setTitle(track.getTitle());
         channel.getInfo().setArtist(track.getArtist());
+        channel.extractArtworkToApi(track.getMp3Data());
 
         sendMetadataUpdate(channel, track);
         channel.logger.info("onTrackStart(): Now playing: \""+track.getTitle()+"\" - "+track.getArtist());
@@ -23,6 +24,8 @@ public class TrackEventListener {
 
     public static void onTrackEnd(Channel channel, AudioTrack track, int endReason, Exception exception){
         channel.getInfo().addToHistory(track);
+        Redis.getInstance().setInMap(RedisLists.MAP_CHANNEL_HISTORY, channel.getUuid(), channel.getHistoryAsJSON());
+        Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_HISTORY, channel.getHistoryAsJSON());
 
         switch (endReason) {
             case REASON_MAY_START_NEXT:
@@ -42,6 +45,7 @@ public class TrackEventListener {
             default:
                 sendMetadataUpdate(channel, null);
                 channel.logger.error("onTrackEnd(): A track has ended because of an exception: "+exception.getMessage());
+                channel.reload();
                 break;
         }
     }
@@ -52,16 +56,15 @@ public class TrackEventListener {
         if(track == null) {
             channel.getInfo().clear();
             channel.setActive(false);
-            jsonData = channel.toJSON();
-
-            Redis.getInstance().removeFromMap(RedisLists.SET_ACTIVE_CHANNELS, channel.getUuid());
-            Redis.getInstance().publish(RedisChannels.CHANNEL_STATUS_UPDATE, jsonData);
+            jsonData = channel.getMetadataAsJSON();
+            Redis.getInstance().removeFromMap(RedisLists.MAP_CHANNEL_METADATA, channel.getUuid());
         } else {
             channel.setActive(true);
-            jsonData = channel.toJSON();
-            Redis.getInstance().setInMap(RedisLists.SET_ACTIVE_CHANNELS, channel.getUuid(), jsonData);
-            Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);
+            jsonData = channel.getMetadataAsJSON();
+            Redis.getInstance().setInMap(RedisLists.MAP_CHANNEL_METADATA, channel.getUuid(), jsonData);
         }
+
+        Redis.getInstance().publish(RedisChannels.CHANNEL_UPDATE_METADATA, jsonData);
     }
 
 }
