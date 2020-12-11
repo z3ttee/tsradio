@@ -2,10 +2,11 @@ import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 import redis from '../redis/redisClient.js'
 import Socket from '../models/socket.js'
-import Authenticator from './authenticator.js'
 
 class Channel extends Model {
-    static SET_CHANNELS = "set_active_channels"
+    static MAP_CHANNEL_STATUS = "map_channel_status"
+    static MAP_CHANNEL_METADATA = "map_channel_metadata"
+    static MAP_CHANNEL_HISTORY = "map_channel_history"
 
     static activeChannels = {}
     static lastPingTimes = {}
@@ -22,7 +23,6 @@ class Channel extends Model {
                     console.log("Found zombie channel: "+key)
                     this.removeZombieChannel(key)
                 }
-                
             })
         }
         
@@ -34,13 +34,13 @@ class Channel extends Model {
     }
 
     static setInactive(channelUUID) {
-        this.update(channelUUID, undefined)
+        this.setChannel(channelUUID, undefined)
     }
 
     static setChannel(channelUUID, data) {
         if(!data) {
-            delete this.lastPingTimes[channelUUID]
-            this.removePing(channelUUID)
+            this.removeChannel(channel)
+            return null
         } else {
             // Preserve current listener count
             let channel = this.activeChannels[channelUUID]
@@ -52,25 +52,96 @@ class Channel extends Model {
 
             data.listeners = listeners
             this.activeChannels[channelUUID] = data
+            return this.activeChannels[channelUUID]
         }
     }
 
-    static update(channelUUID, data) {
-        this.setChannel(channelUUID, data)
+    static updateStatus(channelUUID, data) {
+        let channel = this.activeChannels[channelUUID]
+        if(!channel) {
+            if(data.active) {
+                data.listeners = 0
+                this.activeChannels[channelUUID] = data
+                return data
+            }
+            return data
+        }
+
+        if(!data.active) {
+            this.setInactive(channelUUID)
+            return data
+        }
+
+        channel.active = data.active
+        channel.title = data.title
+        channel.description = data.description
+        channel.featured = data.featured
+        // channel.uuid and channel.path is not updated, because this action is not allowed
+
+        this.activeChannels[channelUUID] = channel
         return this.activeChannels[channelUUID]
     }
+    static updateMetadata(channelUUID, data) {
+        let channel = this.activeChannels[channelUUID]
+        if(!channel) return
 
-    static loadActiveChannels() {
-        redis.client.hgetall(this.SET_CHANNELS, (err, res) => {
-            if(!res) return
+        channel.info = {
+            title: data.title,
+            artist: data.artist
+        }
 
-            Object.keys(res).forEach((key) => {
-                let channel = res[key]
-                
-                try {
-                    channel = JSON.parse(channel)
-                    this.setChannel(channel.uuid, channel)
-                } catch (error) {  }
+        this.activeChannels[channelUUID] = channel
+        return data
+    }
+
+    static async loadChannels() {
+        let statuses = await this.loadMap(this.MAP_CHANNEL_STATUS)
+        let metadatas = await this.loadMap(this.MAP_CHANNEL_METADATA)
+        //let histories = this.loadActiveHistories()
+
+        Object.values(statuses).forEach((activeChannel) => {
+            let status = activeChannel
+            let metadata = metadatas[activeChannel.uuid]
+            //let history = histories[activeChannel.uuid]
+
+            let channel = {
+                uuid: status.uuid,
+                active: status.active,
+                title: status.title,
+                description: status.description,
+                path: status.path,
+                info: {
+                    title: metadata.title,
+                    artist: metadata.artist,
+                    //history: history.history
+                },
+                listeners: 0
+            }
+
+            this.setChannel(status.uuid, channel)
+        })
+    }
+
+    static async loadMap(mapname) {
+        return new Promise((resolve, reject) => {
+            let entries = {}
+
+            redis.client.hgetall(mapname, (err, res) => {
+                if(!res) {
+                    resolve({})
+                    return
+                }
+
+                Object.keys(res).forEach((key) => {
+                    let entry = res[key]
+                    
+                    try {
+                        entry = JSON.parse(entry)
+                        entries[entry.uuid] = entry
+                    } catch (error) {  }
+                })
+
+                resolve(entries)
             })
         })
     }
@@ -78,24 +149,28 @@ class Channel extends Model {
     static setPingTime(channelUUID) {
         this.lastPingTimes[channelUUID] = Date.now()
     }
-    static removePing(channelUUID) {
-        delete this.lastPingTimes[channelUUID]
-    }
     static removeZombieChannel(channelUUID) {
-        this.update(channelUUID, undefined)
-        redis.client.hdel(this.SET_CHANNELS, channelUUID)
-        Socket.broadcast(redis.CHANNEL_STATUS_UPDATE, { uuid: channelUUID, active: false})
+        console.log("Found zombie channel "+channelUUID+".")
+        this.removeChannel(channelUUID)
+    }
+    static removeChannel(channelUUID) {
+        delete this.lastPingTimes[channelUUID]
+        delete this.activeChannels[channelUUID]
 
-        console.log("Zombie channel "+channelUUID+" removed.")
+        redis.client.hdel(this.MAP_CHANNEL_STATUS, channelUUID, () => {
+            Socket.broadcast(redis.CHANNEL_UPDATE_STATUS, { uuid: channelUUID, active: false})
+            console.log("Channel "+channelUUID+" removed.")
+
+            redis.client.hdel(this.MAP_CHANNEL_METADATA, channelUUID, () => {})
+            redis.client.hdel(this.MAP_CHANNEL_HISTORY, channelUUID, () => {})
+        })
     }
 
-    static async moveListenerTo(userUUID, destPath) {
+    static async moveListenerTo(userUUID, destChannelUUID) {
         let prevChannelUUID = this.listeners[userUUID]
-        let destChannel = undefined
+        let destChannel = this.activeChannels[destChannelUUID]
 
-        if(destPath) {
-            destChannel = await this.findOne({ where: { path: destPath }})
-
+        if(destChannelUUID) {
             if(destChannel) {
                 // Set new channel for listener if destination exists
                 this.listeners[userUUID] = destChannel.uuid
@@ -105,20 +180,22 @@ class Channel extends Model {
                     this.activeChannels[destChannel.uuid].listeners += 1
                 } else {
                     // If user has listened to channel before, remove one from prev and add one to dest
-                    this.activeChannels[prevChannelUUID].listeners -= 1
+                    if(this.activeChannels[prevChannelUUID].listeners >= 1) this.activeChannels[prevChannelUUID].listeners -= 1
                     this.activeChannels[destChannel.uuid].listeners += 1
                 }
             }
         } else {
             // undefined destPath means disconnect
             if(prevChannelUUID) {
-                if(this.activeChannels[prevChannelUUID]) this.activeChannels[prevChannelUUID].listeners -= 1
+                if(this.activeChannels[prevChannelUUID] && this.activeChannels[prevChannelUUID].listeners >= 1) {
+                    this.activeChannels[prevChannelUUID].listeners -= 1
+                }
             }
             delete this.listeners[userUUID]
         }
 
         // Broadcast change to clients
-        Socket.broadcast(Socket.CHANNEL_LISTENER_UPDATE, {from: prevChannelUUID ? prevChannelUUID : undefined, to: destChannel ? destChannel.uuid : undefined })
+        Socket.broadcast(Socket.CHANNEL_UPDATE_LISTENER, {from: prevChannelUUID ? prevChannelUUID : undefined, to: destChannelUUID })
     }
 
 }

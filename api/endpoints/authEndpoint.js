@@ -92,13 +92,14 @@ class AuthEndpoint {
 
             let token = query[0]
             let userUUID = query[1]
+            let channelUUID = query[2]
 
             let authenticator = await Authenticator.validateJWTString(token)
     
             if(authenticator.passed) {
                 route.res.set('icecast-auth-user', '1');
                 console.log("authenticated")
-                Channel.moveListenerTo(userUUID, path)
+                Channel.moveListenerTo(userUUID, channelUUID)
                 return {}
             } else {
                 route.res.set('icecast-auth-user', '0');
