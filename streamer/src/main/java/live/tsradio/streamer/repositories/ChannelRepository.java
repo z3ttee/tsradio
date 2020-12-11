@@ -7,18 +7,19 @@ import live.tsradio.streamer.objects.ChannelInfo;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ChannelRepository extends Repository<Channel> {
 
     @Override
-    public ArrayList<Channel> findAll() {
-        ArrayList<Channel> channels = new ArrayList<>();
+    public HashMap<String, Channel> findAll() {
+        HashMap<String, Channel> channels = new HashMap<>();
         ResultSet rs = MySQL.getInstance().get(MySQL.TABLE_CHANNELS, "enabled = TRUE", new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured")));
 
         try {
             do {
                 Channel channel = new Channel(rs.getString("uuid"), rs.getString("title"), rs.getString("path"), rs.getString("description"), rs.getBoolean("featured"), new ChannelInfo());
-                channels.add(channel);
+                channels.put(channel.getUuid(), channel);
             } while (rs.next());
         } catch (Exception ignored) { }
         return channels;
