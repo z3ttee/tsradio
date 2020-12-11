@@ -77,7 +77,7 @@ export default {
         },
         getStreamURL(){
             let path = this.selectedChannel.path
-            let streamURL = config.api.streamBase + path.replace("/", "")+"?"+this.$store.state.jwt+"&"+this.$store.state.user.uuid;
+            let streamURL = config.api.streamBase + path.replace("/", "")+"?"+this.$store.state.jwt+"&"+this.$store.state.user.uuid+"&"+this.selectedChannel.uuid;
             return streamURL
         },
         changeSource(clear = false){
@@ -119,8 +119,6 @@ export default {
                 var volume = localStorage.getItem('tsr_volume_'+this.selectedChannel.uuid);
                 if(volume) this.volume = volume;
                 else this.volume = 50;
-
-                console.log(volume);
 
                 this.loading = true
             }

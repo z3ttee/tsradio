@@ -4,10 +4,11 @@ import store from '@/store/index.js'
 import { io } from 'socket.io-client'
 
 class SocketClient {
-    CHANNEL_STATUS_UPDATE = "channel_update_status"
+    CHANNEL_UPDATE_STATUS = "channel_update_status"
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"
+    CHANNEL_UPDATE_HISTORY = "channel_update_history"
+    CHANNEL_UPDATE_LISTENER = "channel_update_listener"
     CHANNEL_INITIAL_TRANSPORT = "channel_initial_transport"
-    CHANNEL_LISTENER_UPDATE = "channel_listener_update"
 
     setup() {
         this.disconnectInitiated = false
@@ -34,20 +35,18 @@ class SocketClient {
         })
 
         // Register events
-        this.socket.on(this.CHANNEL_STATUS_UPDATE, async (data) => {            
-            if(!data.active) {
-                channeljs.remove(data.uuid)
-            }
+        this.socket.on(this.CHANNEL_UPDATE_STATUS, async (data) => {     
+            channeljs.updateStatus(data.uuid, data)
         })
         this.socket.on(this.CHANNEL_UPDATE_METADATA, async (data) => {
-            channeljs.update(data.uuid, data)
+            channeljs.updateMetadata(data.uuid, data)
         })
         this.socket.on(this.CHANNEL_INITIAL_TRANSPORT, async (data) => {
             Object.values(data).forEach((channel) => {
-                channeljs.update(channel.uuid, channel)
+                channeljs.setChannel(channel.uuid, channel)
             })
         })
-        this.socket.on(this.CHANNEL_LISTENER_UPDATE, async (data) => {
+        this.socket.on(this.CHANNEL_UPDATE_LISTENER, async (data) => {
             let destination = data.to ? data.to : ""
             let previous = data.from ? data.from : ""
 

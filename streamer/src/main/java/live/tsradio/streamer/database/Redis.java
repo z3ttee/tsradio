@@ -88,6 +88,12 @@ public class Redis {
         }).start();
     }
 
+    public void clearChannelData(String channelUUID) {
+        this.removeFromMap(RedisLists.MAP_CHANNEL_STATUS, channelUUID);
+        this.removeFromMap(RedisLists.MAP_CHANNEL_METADATA, channelUUID);
+        this.removeFromMap(RedisLists.MAP_CHANNEL_HISTORY, channelUUID);
+    }
+
     public static Redis getInstance() {
         if(instance == null) instance = new Redis();
         return instance;
