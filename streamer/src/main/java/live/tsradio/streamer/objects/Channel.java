@@ -12,6 +12,7 @@ import live.tsradio.streamer.protocol.IcecastMount;
 import live.tsradio.streamer.utils.JsonEscaper;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +29,10 @@ public class Channel extends Thread {
     private final int PING_INTERVAL = 1000;
 
     @Getter private final String uuid;
-    @Getter private final String title;
+    @Getter @Setter private String title;
     @Getter private final String path;
-    @Getter private final String description;
-    @Getter private final boolean featured;
+    @Getter @Setter private String description;
+    @Getter @Setter private boolean featured;
     @Getter private final ChannelInfo info;
     @Getter @Setter private boolean active;
     @Getter private long lastPingSent;
@@ -120,13 +121,10 @@ public class Channel extends Thread {
         this.queue.addAll(shuffledQueue);
     }
 
-    //@SuppressWarnings("ResultOfMethodCallIgnored")
     private void loadTracks(){
         this.tracks.clear();
 
         File channelDirectory = new File(FileHandler.getInstance().getChannelsRootDirectory().getAbsolutePath()+"/"+this.path.replace("/", "")+"-"+this.uuid);
-        /*channelDirectory.setWritable(true);
-        channelDirectory.setReadable(true);*/
 
         if(!FileHandler.getInstance().getChannelsRootDirectory().exists() && !FileHandler.getInstance().getChannelsRootDirectory().mkdirs() || !channelDirectory.exists() && !channelDirectory.mkdirs()) {
             logger.error("loadTracks(): Could not load tracks of channel '"+this.title+"': Directory not found.");
@@ -147,17 +145,19 @@ public class Channel extends Thread {
 
             try {
                 Mp3File mp3File = new Mp3File(file);
+                AudioTrack.AlbumArtwork artwork = null;
 
-                if(mp3File.hasId3v1Tag()) {
-                    title = mp3File.getId3v1Tag().getTitle();
-                    artist = mp3File.getId3v1Tag().getArtist();
-                }
                 if(mp3File.hasId3v2Tag()) {
                     title = mp3File.getId3v2Tag().getTitle();
                     artist = mp3File.getId3v2Tag().getArtist();
+
+                    artwork = new AudioTrack.AlbumArtwork(mp3File.getId3v2Tag().getAlbumImageMimeType(), mp3File.getId3v2Tag().getAlbumImage());
+                } else if(mp3File.hasId3v1Tag()) {
+                    title = mp3File.getId3v1Tag().getTitle();
+                    artist = mp3File.getId3v1Tag().getArtist();
                 }
 
-                AudioTrack track = new AudioTrack(title, artist, file, mp3File);
+                AudioTrack track = new AudioTrack(title, artist, file, mp3File, artwork);
                 this.tracks.add(track);
             } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                 e.printStackTrace();
@@ -168,19 +168,62 @@ public class Channel extends Thread {
         logger.info("loadTracks(): Loaded "+this.tracks.size()+" tracks from channel '"+this.title+"'");
     }
 
-    public String toJSON() {
+    public void extractArtworkToApi(Mp3File mp3Data){
+        File dir = FileHandler.getInstance().getArtworksDir();
+        if(dir.exists()) {
+            File artworkFile = new File(dir.getAbsolutePath(), getUuid() + ".png");
+
+            try {
+                if(artworkFile.exists()) FileUtils.forceDelete(artworkFile);
+            } catch (IOException ignored) {}
+
+            if (mp3Data.hasId3v2Tag()) {
+                try {
+                    String mimeType = mp3Data.getId3v2Tag().getAlbumImageMimeType();
+                    byte[] bytes = mp3Data.getId3v2Tag().getAlbumImage();
+
+                    if(bytes == null) {
+                        logger.warn("extractArtworkToApi(): No bytes found.");
+                        return;
+                    }
+
+                    if(mimeType != null) {
+                        if (!mimeType.equalsIgnoreCase("image/jpeg") && !mimeType.equalsIgnoreCase("image/png")) {
+                            logger.warn("extractArtworkToApi(): Unsupported mime type for artwork. Found: " + mimeType);
+                            return;
+                        }
+                    }
+
+                    FileUtils.writeByteArrayToFile(artworkFile, bytes);
+                } catch (Exception ex) {
+                    logger.error("extractArtworkToApi(): Could not extract artwork: " + ex.getMessage());
+
+                }
+            }
+        }
+    }
+
+    public String getStatusAsJSON() {
         return "{" +
-                "\"active\": \""+isActive()+"\"," +
                 "\"uuid\": \""+getUuid()+"\"," +
-                "\"title\": \""+JsonEscaper.getInstance().escape(getTitle())+"\"," +
-                "\"path\": \""+getPath()+"\"," +
-                "\"description\": \""+JsonEscaper.getInstance().escape(getDescription())+"\"," +
-                "\"featured\": "+isFeatured()+"," +
-                "\"info\": {" +
+                "\"title\": \""+ JsonEscaper.getInstance().escape(getTitle()) +"\"," +
+                "\"description\": \""+ JsonEscaper.getInstance().escape(getDescription()) +"\"," +
+                "\"path\": \""+ JsonEscaper.getInstance().escape(getPath()) +"\"," +
+                "\"featured\": "+ isFeatured() +"," +
+                "\"active\": "+isActive()+"" +
+                "}";
+    }
+    public String getMetadataAsJSON() {
+        return "{" +
+                "\"uuid\": \""+getUuid()+"\"," +
                 "\"title\": \""+ JsonEscaper.getInstance().escape(getInfo().getTitle()) +"\"," +
-                "\"artist\": \""+JsonEscaper.getInstance().escape(getInfo().getArtist())+"\"," +
+                "\"artist\": \""+JsonEscaper.getInstance().escape(getInfo().getArtist())+"\"" +
+                "}";
+    }
+    public String getHistoryAsJSON() {
+        return "{" +
+                "\"uuid\": \""+getUuid()+"\"," +
                 "\"history\": " + new Gson().toJson(getInfo().getHistory()) +
-                "}" +
                 "}";
     }
 
