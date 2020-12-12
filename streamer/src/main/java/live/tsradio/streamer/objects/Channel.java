@@ -110,6 +110,7 @@ public class Channel extends Thread {
     public void next() {
         AudioTrack track = this.queue.poll();
         this.currentTrack = track;
+        logger.info("next(): next song triggered");
         this.connection.stream(track);
     }
 
@@ -145,19 +146,16 @@ public class Channel extends Thread {
 
             try {
                 Mp3File mp3File = new Mp3File(file);
-                AudioTrack.AlbumArtwork artwork = null;
 
                 if(mp3File.hasId3v2Tag()) {
                     title = mp3File.getId3v2Tag().getTitle();
                     artist = mp3File.getId3v2Tag().getArtist();
-
-                    artwork = new AudioTrack.AlbumArtwork(mp3File.getId3v2Tag().getAlbumImageMimeType(), mp3File.getId3v2Tag().getAlbumImage());
                 } else if(mp3File.hasId3v1Tag()) {
                     title = mp3File.getId3v1Tag().getTitle();
                     artist = mp3File.getId3v1Tag().getArtist();
                 }
 
-                AudioTrack track = new AudioTrack(title, artist, file, mp3File, artwork);
+                AudioTrack track = new AudioTrack(title, artist, file, mp3File);
                 this.tracks.add(track);
             } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                 e.printStackTrace();
