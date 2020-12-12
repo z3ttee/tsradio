@@ -14,6 +14,8 @@ const errorCodes = {
     "API_ACCOUNT_NOT_FOUND": { code: 403, message: 'The account you are using does not exist anymore' },
     "API_TRACK_IN_PLAYLIST": { code: 400, message: 'This track already is in this playlist.' },
     "API_TRACK_NOT_FOUND": { code: 404, message: 'This track does not exist.' },
+    "API_CHANNEL_NOT_RUNNING": { code: 400, message: 'This channel is not registered as active.' },
+    "API_CHANNEL_NO_VOTE_ACTIVE": { code: 400, message: 'There is no voting in progress.' },
 }
 
 class TrustedError {
