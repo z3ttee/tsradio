@@ -9,7 +9,8 @@ public enum RedisChannels {
     CHANNEL_STATUS_UPDATE("channel_update_status"),
     CHANNEL_DELETE("channel_deleted"),
     CHANNEL_UPDATE("channel_updated"),
-    CHANNEL_CREATE("channel_created");
+    CHANNEL_CREATE("channel_created"),
+    CHANNEL_SKIP("channel_skipped");
 
     @Getter private final String channelName;
     RedisChannels(String channelName){
