@@ -16,7 +16,20 @@
                         <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
                     </button>
                     <button class="btn btn-icon btn-m btn-noscale" @click="sendVote">
-                        <img src="@/assets/images/icons/skip.svg">
+                        <transition name="animation_item_scale" mode="out-in">
+                            <img src="@/assets/images/icons/skip.svg" v-if="!voting">
+                            <radial-progress-bar class="radial-progress-bar" v-else 
+                                :diameter="32"
+                                :completed-steps="30"
+                                :total-steps="30"
+                                :strokeWidth="3"
+                                :innerStrokeWidth="3"
+                                :stopColor="'#FF4848'"
+                                :startColor="'#fd6a6a'"
+                                :isClockwise="false">
+                                30
+                            </radial-progress-bar>
+                        </transition>
                     </button>
                     <button id="buttonSpeaker" class="btn btn-icon btn-m btn-noscale" @click="toggleMute">
                         <transition name="animation_item_scale" mode="out-in">
@@ -36,6 +49,7 @@ import channeljs from '@/models/channel.js'
 import loader from '@/assets/animated/primary_loader_light.json'
 import config from '@/config/config.js'
 import clamp from 'clamp-js'
+import RadialProgressBar from 'vue-radial-progress'
 
 export default {
     data() {
@@ -46,8 +60,12 @@ export default {
             volume: 30,
             audioElementID: this.makeid(6),
             observer: undefined,
-            itemID: this.makeid(6)
+            itemID: this.makeid(6),
+            voting: false
         }
+    },
+    components: {
+        RadialProgressBar
     },
     methods: {
         eventPaused() {
@@ -173,6 +191,10 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
+
+.radial-progress-bar {
+    font-weight: 500;
+}
 
 input[type=range] {
     -webkit-appearance: none;

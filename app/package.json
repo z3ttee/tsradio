@@ -17,6 +17,7 @@
     "vue": "^3.0.0",
     "vue-cookie-next": "^1.0.3",
     "vue-lottie-player": "^0.1.9",
+    "vue-radial-progress": "^0.3.2",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
   },
