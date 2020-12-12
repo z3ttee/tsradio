@@ -35,6 +35,10 @@ class SocketClient {
             console.log("Connected to socket.")
         })
 
+        /*this.socket.onAny((event, data) => {
+            
+        })*/
+
         // Register events
         this.socket.on(this.CHANNEL_UPDATE_STATUS, async (data) => {     
             channeljs.updateStatus(data.uuid, data)
