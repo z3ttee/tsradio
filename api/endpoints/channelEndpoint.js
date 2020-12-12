@@ -259,6 +259,38 @@ class ChannelEndpoint extends Endpoint {
         return {}
     }
 
+    /**
+     * @api {get} /channels/:id/skip Init/Add Vote
+     * @apiGroup Channels
+     * @apiDescription Endpoint for initializing or adding a vote to voteskip for current song
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} id Channels unique ID.
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {  }
+     * 
+     * @apiError 404 The requested channel was not found.
+     * @apiVersion 1.0.0
+     */
+    async actionRequestSkip(route) {
+        let id = route.params.id
+        let channel = Channel.get(id)
+        let userUUID = route.user.uuid
+
+        if(!channel) {
+            return TrustedError.get("API_CHANNEL_NOT_RUNNING")
+        }
+
+        if(Channel.hasPendingVoting(id)) {
+            return Channel.addVote(id, userUUID)
+        } else {
+            return Channel.initSkip(id, userUUID)
+        }
+    }
+
 }
 
 export default new ChannelEndpoint();

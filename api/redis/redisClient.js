@@ -41,6 +41,7 @@ class RedisClient {
     }
 
     broadcast(channel, message) {
+        console.log(channel, message)
         this.publisher.publish(channel, message)
     }
 

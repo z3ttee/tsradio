@@ -2,6 +2,7 @@ import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 import redis from '../redis/redisClient.js'
 import Socket from '../models/socket.js'
+import { TrustedError } from '../error/trustedError.js'
 
 class Channel extends Model {
     static MAP_CHANNEL_STATUS = "map_channel_status"
@@ -11,7 +12,7 @@ class Channel extends Model {
     static activeChannels = {}
     static lastPingTimes = {}
     static listeners = {}
-    static activeVotes = {}
+    static activeVotings = {}
 
     static setupInterval() {
         let interval = () => {
@@ -111,6 +112,7 @@ class Channel extends Model {
                 title: status.title,
                 description: status.description,
                 path: status.path,
+                featured: status.featured,
                 info: {
                     title: metadata.title,
                     artist: metadata.artist,
@@ -147,64 +149,102 @@ class Channel extends Model {
         })
     }
 
-    static skipOrInitSkip(channelUUID, userUUID) {
-        if(!this.activeChannels[channelUUID]) return
+    static initSkip(channelUUID, userUUID){
+        let clientSocket = Socket.getClient(userUUID)
+        
+        if(this.activeVotings[channelUUID]) {
+            return TrustedError.get("API_CHANNEL_VOTE_ACTIVE")
+        }
 
-        if(!this.activeVotes[channelUUID]) {
-            let timeout = setTimeout(() => {
-                if(this.activeVotes[channelUUID]) {
-                    this.endVoting(channelUUID, true)
-                }
-            }, 31*1000) // Voting for 31s
+        let createdAt = Date.now()
+        let expiresAt = createdAt + (31 * 1000)
 
-            // Init skip voting
-            this.activeVotes[channelUUID] = {
-                voters: [userUUID],
-                timeout
+        let expiryManager = setTimeout(() => {
+            this.endVote(channelUUID, false)
+        }, 31*1000)
+
+        this.activeVotings[channelUUID] = {
+            createdAt,
+            expiresAt,
+            voters: [userUUID],
+            expiryManager
+        }
+
+        console.log("Vote has been initiated for channel "+channelUUID)
+        clientSocket.join("channel-"+channelUUID)
+        Socket.broadcastToRoom("channel-"+channelUUID, "skip", {
+            status: 'init',
+            createdAt,
+            expiresAt,
+            votes: 1
+        })
+
+        this.checkVotePassed(channelUUID)
+        return {}
+    }
+    static addVote(channelUUID, userUUID){
+        if(this.hasPendingVoting(channelUUID)) {
+            let voting = this.getVoting(channelUUID)
+
+            if(!voting.voters.includes(channelUUID)) {
+                this.activeVotings[channelUUID].voters.push(userUUID)
             }
             
-            Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'init', votes: this.activeVotes[channelUUID].voters.length })
-        } else {
-            // Add vote
-            if(!this.activeVotes[channelUUID].voters.includes(userUUID)) {
-                this.activeVotes[channelUUID].voters.push[userUUID]
-                Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'voting', votes: this.activeVotes[channelUUID].voters.length })
-            }
+            this.checkVotePassed(channelUUID)
         }
+        return {}
+    }
+    static removeVote(channelUUID, userUUID){
+        if(this.hasPendingVoting(channelUUID)) {
+            let voting = this.getVoting(channelUUID)
+            let index = voting.voters.indexOf(userUUID)
 
-        let listeners = this.activeChannels[channelUUID].listeners
-        let votes = this.activeVotes[channelUUID].voters.length
-        let percentage = 0.0
-
-        if(listeners <= 0) {
-            percentage = 1.0
-        } else {
-            percentage = votes/listeners
+            this.activeVotings[channelUUID].voters.splice(index, 1)
+            this.checkVotePassed(channelUUID)
         }
-
-        console.log("votes for "+channelUUID+": "+this.activeVotes[channelUUID].voters.length)
-
-        if(percentage > 0.5) {
-            console.log("Voting succeeded: "+percentage)
-            this.endVoting(channelUUID, false)
+        return {}
+    }
+    static checkVotePassed(channelUUID) {
+        if(!this.activeChannels[channelUUID] || !this.activeVotings[channelUUID]) {
             return
         }
-    }
-    static endVoting(channelUUID, failed = false){
-        let voting = this.activeVotes[channelUUID]
 
-        if(voting) {
-            clearTimeout(voting.timeout)
+        let listenerCount = this.activeChannels[channelUUID].listeners
+        let votes = this.activeVotings[channelUUID].voters.length
+        let percentage = 0.0
 
-            if(!failed) {
-                Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'success', votes: this.activeVotes[channelUUID].voters.length })
-                redis.broadcast(redis.CHANNEL_SKIP, { uuid: channelUUID })
-            } else {
-                Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'failed', votes: this.activeVotes[channelUUID].voters.length })
-            }
-    
-            delete this.activeVotes[channelUUID]
+        if(listenerCount <= 0){
+            percentage = 1.0
+        } else {
+            percentage = votes/listenerCount
         }
+
+        if(percentage > 0.5) {
+            console.log("voting passed: "+percentage)
+            // Send to streamer
+            redis.broadcast(redis.CHANNEL_SKIP, {uuid: channelUUID})
+            this.endVoting(channelUUID, true)
+        }
+    }
+
+    static endVoting(channelUUID, success) {
+        let voting = this.activeVotings[channelUUID]
+        if(!voting) return
+
+        if(success) {
+            Socket.broadcastToRoom("channel-"+channelUUID, "skip", { status: 'success' })
+        } else {
+            Socket.broadcastToRoom("channel-"+channelUUID, "skip", { status: 'failed' })
+        }
+
+        clearTimeout(voting.expiryManager)
+        delete this.activeVotings[channelUUID]
+    }
+    static hasPendingVoting(channelUUID) {
+        return !!this.activeVotings[channelUUID]
+    }
+    static getVoting(channelUUID) {
+        return this.activeVotings[channelUUID]
     }
 
     static setPingTime(channelUUID) {
@@ -217,7 +257,7 @@ class Channel extends Model {
     static removeChannel(channelUUID) {
         delete this.lastPingTimes[channelUUID]
         delete this.activeChannels[channelUUID]
-        delete this.activeVotes[channelUUID]
+        this.endVoting(channelUUID, false)
 
         redis.client.hdel(this.MAP_CHANNEL_STATUS, channelUUID, () => {
             Socket.broadcast(redis.CHANNEL_UPDATE_STATUS, { uuid: channelUUID, active: false})
@@ -244,11 +284,32 @@ class Channel extends Model {
                     // If user has listened to channel before, remove one from prev and add one to dest
                     if(this.activeChannels[prevChannelUUID].listeners >= 1) this.activeChannels[prevChannelUUID].listeners -= 1
                     this.activeChannels[destChannel.uuid].listeners += 1
+
+                    Socket.getClient(userUUID).leave(Socket.CHANNEL_UUID+prevChannelUUID)
+                    this.removeVote(prevChannelUUID, userUUID)
+                }
+
+                this.checkVotePassed(prevChannelUUID)
+                Socket.getClient(userUUID).join("channel-"+destChannelUUID)
+
+                if(this.hasPendingVoting(destChannelUUID)) {
+                    let voting = this.getVoting(channelUUID)
+                    
+                    Socket.getClient(userUUID).emit("skip", {
+                        room: "channel-"+channelUUID,
+                        status: 'init',
+                        votes: voting.voters.length,
+                        createdAt: voting.createdAt,
+                        expiresAt: voting.expiresAt
+                    })
                 }
             }
         } else {
             // undefined destPath means disconnect
             if(prevChannelUUID) {
+                Socket.getClient(userUUID).leave(Socket.CHANNEL_UUID+prevChannelUUID)
+                this.removeVote(prevChannelUUID, userUUID)
+
                 if(this.activeChannels[prevChannelUUID] && this.activeChannels[prevChannelUUID].listeners >= 1) {
                     this.activeChannels[prevChannelUUID].listeners -= 1
                 }
