@@ -6,6 +6,7 @@ import Socket from '../models/socket.js'
 class RedisClient {
     CHANNEL_CREATED = "channel_created"
     CHANNEL_DELETED = "channel_deleted"
+    CHANNEL_SKIP = "channel_skipped"
     CHANNEL_UPDATE_STATUS = "channel_update_status"
     CHANNEL_PING = "channel_ping"
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"

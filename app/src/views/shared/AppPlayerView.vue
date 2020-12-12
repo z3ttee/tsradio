@@ -15,6 +15,9 @@
                         </transition>
                         <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
                     </button>
+                    <button class="btn btn-icon btn-m btn-noscale" @click="sendVote">
+                        <img src="@/assets/images/icons/skip.svg">
+                    </button>
                     <button id="buttonSpeaker" class="btn btn-icon btn-m btn-noscale" @click="toggleMute">
                         <transition name="animation_item_scale" mode="out-in">
                             <img src="@/assets/images/icons/speaker.svg" v-if="volume > 0">
@@ -29,6 +32,7 @@
 </template>
 
 <script>
+import channeljs from '@/models/channel.js'
 import loader from '@/assets/animated/primary_loader_light.json'
 import config from '@/config/config.js'
 import clamp from 'clamp-js'
@@ -92,6 +96,16 @@ export default {
                 element.volume = this.volume / 100
                 element.load()
             }
+        },
+        changePageBackground() {
+            if(this.selectedChannel) {
+                let pageBackground = document.getElementById("pageBackground")
+                let coverURL = config.api.baseURL+'artworks/'+this.selectedChannel.uuid+'.png?key='+this.makeid(4)
+                pageBackground.style.backgroundImage = "url('"+coverURL+"')"
+            }
+        },
+        sendVote(){
+            channeljs.sendVoteSkip(this.$store.state.currentChannel.uuid)
         }
     },
     watch: {
@@ -122,6 +136,9 @@ export default {
 
                 this.loading = true
             }
+        },
+        'selectedChannel.info'() {
+            this.changePageBackground()
         }
     },
     computed: {
@@ -144,6 +161,7 @@ export default {
             }
         })
         this.observer.observe(document.getElementById(this.itemID+'col'))
+        this.changePageBackground()
     },
     unmounted() {
         try {
@@ -211,7 +229,6 @@ input[type=range] {
     display: flex;
     align-items: center;
     justify-content: center;
-
     height: 100%;
 
     .player-col {
@@ -223,7 +240,7 @@ input[type=range] {
         &:last-of-type {
             position: relative;
             text-align: right;
-            width: 200px;
+            width: 250px;
         }
     }
 }

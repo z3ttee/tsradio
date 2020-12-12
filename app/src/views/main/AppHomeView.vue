@@ -46,6 +46,7 @@
 
 <script>
 import AppChannelItem from '@/components/lists/AppChannelItemComp.vue'
+
 //import AppChannelShowcase from '@/components/message/AppChannelShowcaseComp.vue'
 
 export default {
@@ -65,7 +66,7 @@ export default {
         timeOfDay() {
             let time = new Date().getHours();
 
-            if(time >= 18) {
+            if(time >= 18 || time >= 0 && time < 3) {
                 return "Guten Abend"
             } else if(time >= 3 && time <= 11) {
                 return "Guten morgen"

@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import channeljs from '@/models/channel.js'
+import socketjs from '@/models/socket.js'
 import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
@@ -51,7 +53,12 @@ export default {
     methods: {
         select() {
             if(!this.isSelected) {
+                let previous = this.$store.state.currentChannel
+                let next = this.channel
+
+                if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
                 this.$store.state.currentChannel = this.channel
+                socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => channeljs.onChannelSkipListener(data))
             }
         },
         updateCoverImage(){

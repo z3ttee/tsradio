@@ -11,6 +11,7 @@ class Channel extends Model {
     static activeChannels = {}
     static lastPingTimes = {}
     static listeners = {}
+    static activeVotes = {}
 
     static setupInterval() {
         let interval = () => {
@@ -146,6 +147,66 @@ class Channel extends Model {
         })
     }
 
+    static skipOrInitSkip(channelUUID, userUUID) {
+        if(!this.activeChannels[channelUUID]) return
+
+        if(!this.activeVotes[channelUUID]) {
+            let timeout = setTimeout(() => {
+                if(this.activeVotes[channelUUID]) {
+                    this.endVoting(channelUUID, true)
+                }
+            }, 31*1000) // Voting for 31s
+
+            // Init skip voting
+            this.activeVotes[channelUUID] = {
+                voters: [userUUID],
+                timeout
+            }
+            
+            Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'init', votes: this.activeVotes[channelUUID].voters.length })
+        } else {
+            // Add vote
+            if(!this.activeVotes[channelUUID].voters.includes(userUUID)) {
+                this.activeVotes[channelUUID].voters.push[userUUID]
+                Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'voting', votes: this.activeVotes[channelUUID].voters.length })
+            }
+        }
+
+        let listeners = this.activeChannels[channelUUID].listeners
+        let votes = this.activeVotes[channelUUID].voters.length
+        let percentage = 0.0
+
+        if(listeners <= 0) {
+            percentage = 1.0
+        } else {
+            percentage = votes/listeners
+        }
+
+        console.log("votes for "+channelUUID+": "+this.activeVotes[channelUUID].voters.length)
+
+        if(percentage > 0.5) {
+            console.log("Voting succeeded: "+percentage)
+            this.endVoting(channelUUID, false)
+            return
+        }
+    }
+    static endVoting(channelUUID, failed = false){
+        let voting = this.activeVotes[channelUUID]
+
+        if(voting) {
+            clearTimeout(voting.timeout)
+
+            if(!failed) {
+                Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'success', votes: this.activeVotes[channelUUID].voters.length })
+                redis.broadcast(redis.CHANNEL_SKIP, { uuid: channelUUID })
+            } else {
+                Socket.broadcast(Socket.CHANNEL_SKIP+channelUUID, { uuid: channelUUID, status: 'failed', votes: this.activeVotes[channelUUID].voters.length })
+            }
+    
+            delete this.activeVotes[channelUUID]
+        }
+    }
+
     static setPingTime(channelUUID) {
         this.lastPingTimes[channelUUID] = Date.now()
     }
@@ -156,6 +217,7 @@ class Channel extends Model {
     static removeChannel(channelUUID) {
         delete this.lastPingTimes[channelUUID]
         delete this.activeChannels[channelUUID]
+        delete this.activeVotes[channelUUID]
 
         redis.client.hdel(this.MAP_CHANNEL_STATUS, channelUUID, () => {
             Socket.broadcast(redis.CHANNEL_UPDATE_STATUS, { uuid: channelUUID, active: false})

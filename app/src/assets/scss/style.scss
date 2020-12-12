@@ -19,10 +19,10 @@
 
 html,
 body {
+    position: relative;
     height: 100%;
     width: 100%;
     background-color: $colorPrimary;
-
     background-image: url(assets/images/background/background_blurred.png);
     background-position: center;
     background-size: cover;
@@ -30,11 +30,26 @@ body {
     background-attachment: fixed;
 }
 
+#pageBackground {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+    background-image: url(assets/images/background/background_blurred.png);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    filter: blur(30px);
+    opacity: 0.1;
+}
+
 #wrapper {
     position: relative;
     height: 100%;
     width: 100%;
     overflow-x: hidden;
+    z-index: 1;
 }
 
 .content-container {
