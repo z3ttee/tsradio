@@ -8,6 +8,7 @@ class SocketClient {
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"
     CHANNEL_UPDATE_HISTORY = "channel_update_history"
     CHANNEL_UPDATE_LISTENER = "channel_update_listener"
+    CHANNEL_SKIP = "channel_skipped"
     CHANNEL_INITIAL_TRANSPORT = "channel_initial_transport"
 
     setup() {
@@ -60,6 +61,16 @@ class SocketClient {
         if(this.socket.disconnected) {
             this.socket.connect()
         }
+    }
+
+    async emit(eventName, message) {
+        this.socket.emit(eventName, message)
+    }
+    async on(eventName, callback) {
+        this.socket.on(eventName, callback)
+    }
+    async off(eventName) {
+        this.socket.off(eventName)
     }
 
     async disconnect() {

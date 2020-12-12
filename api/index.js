@@ -36,8 +36,6 @@ Redis.on("ready", async () => {
     Router.setup(app)
     Database.setup().finally(startServer)
 
-    
-
     const socket = Socket
     socket.setup(socketio).then(() => {
         app.ioHandler = socket

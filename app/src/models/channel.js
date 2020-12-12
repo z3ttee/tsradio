@@ -1,4 +1,5 @@
 import store from '@/store/index.js'
+import socket from './socket'
 
 class Channel {
 
@@ -18,25 +19,16 @@ class Channel {
         }
         
         store.state.channels[channelUUID] = data
-
-        /*let currentChannel = store.state.currentChannel
-        if(currentChannel && currentChannel.uuid == data.uuid) {
-            if(currentChannel.title != data.title) currentChannel.title = data.title
-            if(currentChannel.path != data.path) currentChannel.path = data.path
-            if(currentChannel.info != data.info) currentChannel.info = data.info
-            if(currentChannel.listeners != data.listeners) currentChannel.listeners = data.listeners
-        }*/
     }
 
-    /*async update(channelUUID, data) {
-        let channel = store.state.channels[channelUUID]
+    async sendVoteSkip(channelUUID) {
+        socket.emit(socket.CHANNEL_SKIP, {uuid: channelUUID})
+    }
 
-        if(!channel) {
-            return await this.setChannel(channelUUID, data)
-        }
+    async onChannelSkipListener(data) {
+        console.log(data)
+    }
 
-        this.setChannel(channelUUID, data)
-    }*/
     async updateMetadata(channelUUID, data) {
         let channel = store.state.channels[channelUUID]
         let currentChannel = store.state.currentChannel
