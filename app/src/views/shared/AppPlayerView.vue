@@ -1,6 +1,16 @@
 <template>
     <div class="playerbar-wrapper">
         <div class="content-container playerbar-container">
+            <div class="voting-container layout-table">
+                <div class="layout-col">
+                    <h6>Abstimmung</h6>
+                    <p>Lied überspringen?</p>
+                </div>
+                <div class="layout-col">
+                    <button class="btn btn-circular btn-s btn-primary btn-icon"><img src="@/assets/images/icons/check.svg"></button>
+                </div>
+            </div>
+
             <div class="player-col player-details">
                 <h4 :id="itemID+'title'">{{ selectedChannel.info.title }} </h4>
                 <span :id="itemID+'artist'">{{ selectedChannel.info.artist }}</span>
@@ -13,7 +23,7 @@
                             <img src="@/assets/images/icons/pause.svg" v-if="!paused">
                             <img src="@/assets/images/icons/play.svg" v-else>
                         </transition>
-                        <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
+                        <span class="loadingIndicator" v-if="loading"><v-lottie-player width="50px" height="50px" loop autoplay :animationData="loader"></v-lottie-player></span>
                     </button>
                     <button class="btn btn-icon btn-m btn-noscale" @click="sendVote">
                         <transition name="animation_item_scale" mode="out-in">
@@ -41,6 +51,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 </template>
 
@@ -196,6 +207,43 @@ export default {
     font-weight: 500;
 }
 
+.voting-container {
+    position: absolute;
+    top: -1em;
+    transform: translateY(-100%);
+
+    background-color: $colorPrimaryDark;
+    padding: 0.5em;
+    font-size: 0.85em;
+    width: 300px;
+    border: 2px solid $colorPlaceholder;
+    border-radius: $borderRadTiny;
+    box-shadow: $shadowHeavy;
+
+    .layout-col {
+        vertical-align: middle;
+
+        h6 {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: $colorAccent;
+        }
+        p {
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        &:last-of-type {
+            button {
+                margin-left: 0.5em;
+            }
+            
+            width: 70px;
+            text-align: right;
+        }
+    }
+}
+
 input[type=range] {
     -webkit-appearance: none;
     appearance: none;
@@ -232,8 +280,8 @@ input[type=range] {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 64px;
-    height: 64px;
+    width: 50px;
+    height: 50px;
     transform: translate(-50%,-50%);
 }
 
@@ -320,6 +368,10 @@ input[type=range] {
     #buttonSpeaker {
         display: none;
     }
+}
+
+@media screen and (max-width: 350px) {
+    
 }
 
 </style>
