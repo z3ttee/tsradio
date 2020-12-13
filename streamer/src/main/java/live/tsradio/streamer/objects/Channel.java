@@ -37,6 +37,7 @@ public class Channel extends Thread {
     @Getter @Setter private boolean active;
     @Getter @Setter private boolean special;
     @Getter private long lastPingSent;
+    @Getter @Setter private boolean skippingCurrent;
 
     @Getter private AudioTrack currentTrack;
     @Getter private IcecastConnection connection;
@@ -114,6 +115,11 @@ public class Channel extends Thread {
         this.currentTrack = track;
         logger.info("next(): next song triggered");
         this.connection.stream(track);
+    }
+
+    public void skip() {
+        logger.info("skip(): skip triggered");
+        this.skippingCurrent = true;
     }
 
     public void reload() {

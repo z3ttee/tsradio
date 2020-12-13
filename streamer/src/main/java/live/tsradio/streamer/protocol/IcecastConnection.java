@@ -90,7 +90,7 @@ public class IcecastConnection {
         try (InputStream inStream = new FileInputStream(track.getFile())) {
             TrackEventListener.onTrackStart(this.channel, track);
 
-            while (!channel.shutdown) {
+            while (!channel.shutdown && !channel.isSkippingCurrent()) {
                 int read = inStream.read(buffer, 0, bufferSize);
 
                 if(read < 0) {
@@ -104,6 +104,10 @@ public class IcecastConnection {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ignored) { }
+            }
+
+            if(channel.isSkippingCurrent()) {
+                channel.setSkippingCurrent(false);
             }
 
             if(channel.shutdown) {
