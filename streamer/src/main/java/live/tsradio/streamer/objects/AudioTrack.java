@@ -2,11 +2,8 @@ package live.tsradio.streamer.objects;
 
 import com.mpatric.mp3agic.Mp3File;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Base64;
 
 public class AudioTrack {
 
@@ -14,29 +11,12 @@ public class AudioTrack {
     @Getter private final String artist;
     @Getter private final File file;
     @Getter private final Mp3File mp3Data;
-    @Getter private final AlbumArtwork artwork;
 
-    public AudioTrack(String title, String artist, File file, Mp3File mp3Data, AlbumArtwork artwork) {
+    public AudioTrack(String title, String artist, File file, Mp3File mp3Data) {
         this.title = title;
         this.artist = artist;
         this.file = file;
         this.mp3Data = mp3Data;
-        this.artwork = artwork;
     }
 
-    public static class AlbumArtwork {
-        @Getter private final String mimeType;
-        @Getter private final String asBase64;
-
-        public AlbumArtwork(String mimeType, byte[] data) {
-            this.mimeType = mimeType;
-
-            if(data != null) {
-                this.asBase64 = Base64.getEncoder().encodeToString(data);
-            } else {
-                this.asBase64 = "";
-            }
-
-        }
-    }
 }

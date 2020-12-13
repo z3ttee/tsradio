@@ -35,7 +35,9 @@ public class Channel extends Thread {
     @Getter @Setter private boolean featured;
     @Getter private final ChannelInfo info;
     @Getter @Setter private boolean active;
+    @Getter @Setter private boolean special;
     @Getter private long lastPingSent;
+    @Getter @Setter private boolean skippingCurrent;
 
     @Getter private AudioTrack currentTrack;
     @Getter private IcecastConnection connection;
@@ -45,7 +47,7 @@ public class Channel extends Thread {
 
     public boolean shutdown = false;
 
-    public Channel(String uuid, String title, String path, String description, boolean featured, ChannelInfo info) {
+    public Channel(String uuid, String title, String path, String description, boolean featured, boolean special, ChannelInfo info) {
         super("channel-"+path);
 
         this.uuid = uuid;
@@ -53,6 +55,7 @@ public class Channel extends Thread {
         this.title = title;
         this.description = description;
         this.featured = featured;
+        this.special = special;
         this.info = info;
         this.currentTrack = null;
         this.active = false;
@@ -110,7 +113,13 @@ public class Channel extends Thread {
     public void next() {
         AudioTrack track = this.queue.poll();
         this.currentTrack = track;
+        logger.info("next(): next song triggered");
         this.connection.stream(track);
+    }
+
+    public void skip() {
+        logger.info("skip(): skip triggered");
+        this.skippingCurrent = true;
     }
 
     public void reload() {
@@ -145,19 +154,16 @@ public class Channel extends Thread {
 
             try {
                 Mp3File mp3File = new Mp3File(file);
-                AudioTrack.AlbumArtwork artwork = null;
 
                 if(mp3File.hasId3v2Tag()) {
                     title = mp3File.getId3v2Tag().getTitle();
                     artist = mp3File.getId3v2Tag().getArtist();
-
-                    artwork = new AudioTrack.AlbumArtwork(mp3File.getId3v2Tag().getAlbumImageMimeType(), mp3File.getId3v2Tag().getAlbumImage());
                 } else if(mp3File.hasId3v1Tag()) {
                     title = mp3File.getId3v1Tag().getTitle();
                     artist = mp3File.getId3v1Tag().getArtist();
                 }
 
-                AudioTrack track = new AudioTrack(title, artist, file, mp3File, artwork);
+                AudioTrack track = new AudioTrack(title, artist, file, mp3File);
                 this.tracks.add(track);
             } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                 e.printStackTrace();
@@ -210,6 +216,7 @@ public class Channel extends Thread {
                 "\"description\": \""+ JsonEscaper.getInstance().escape(getDescription()) +"\"," +
                 "\"path\": \""+ JsonEscaper.getInstance().escape(getPath()) +"\"," +
                 "\"featured\": "+ isFeatured() +"," +
+                "\"special\": "+ isSpecial() +"," +
                 "\"active\": "+isActive()+"" +
                 "}";
     }

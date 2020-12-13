@@ -1,22 +1,51 @@
 <template>
     <div class="playerbar-wrapper">
         <div class="content-container playerbar-container">
+
+            <transition name="animation_item_slide">
+                <div class="voting-container layout-table table-nobreak" v-if="voting.active">
+                    <div class="layout-col">
+                        <h6>Abstimmung</h6>
+                        <p>{{ voting.text }}</p>
+                    </div>
+                    <div class="layout-col">
+                        <button :class="{'btn btn-circular btn-s btn-primary btn-icon': true, 'btn-success': voting.hasVoted }" @click="addVote"><img src="@/assets/images/icons/check.svg"></button>
+                    </div>
+                </div>
+            </transition>
+
             <div class="player-col player-details">
                 <h4 :id="itemID+'title'">{{ selectedChannel.info.title }} </h4>
                 <span :id="itemID+'artist'">{{ selectedChannel.info.artist }}</span>
             </div>
             <div class="player-col" :id="itemID+'col'">
                 <div class="player-controls">
-                    <audio :id="audioElementID" :src="getStreamURL()" hidden autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay"></audio>
+                    <audio :id="audioElementID" :src="getStreamURL()" hidden autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay" @error.prevent="eventError"></audio>
                     <button class="btn btn-icon btn-m btn-noscale" @click="toggle">
                         <transition name="animation_item_scale" mode="out-in">
                             <img src="@/assets/images/icons/pause.svg" v-if="!paused">
                             <img src="@/assets/images/icons/play.svg" v-else>
                         </transition>
-                        <span class="loadingIndicator" v-if="loading"><v-lottie-player width="64px" height="64px" loop autoplay :animationData="loader"></v-lottie-player></span>
+                        <span class="loadingIndicator" v-if="loading"><v-lottie-player width="50px" height="50px" loop autoplay :animationData="loader"></v-lottie-player></span>
                     </button>
-                    <button class="btn btn-icon btn-m btn-noscale" @click="sendVote">
-                        <img src="@/assets/images/icons/skip.svg">
+                    <button class="btn btn-icon btn-m btn-noscale" @click="addVote">
+                        <span class="loadingIndicator" v-if="voting.isInitializing"><v-lottie-player width="50px" height="50px" loop autoplay :animationData="loader"></v-lottie-player></span>
+                        <transition name="animation_item_scale" mode="out-in">
+                            <img src="@/assets/images/icons/skip.svg" v-if="!voting.active">
+                            <radial-progress-bar class="radial-progress-bar" v-else 
+                                :diameter="32"
+                                :completed-steps="voting.timeLeft"
+                                :total-steps="voting.maxTime"
+                                :strokeWidth="3"
+                                :innerStrokeWidth="3"
+                                :stopColor="'#FF4848'"
+                                :startColor="'#fd6a6a'"
+                                :isClockwise="false">
+
+                                <span>{{ voting.timeLeft }}</span>
+
+                            </radial-progress-bar>
+                        </transition>
                     </button>
                     <button id="buttonSpeaker" class="btn btn-icon btn-m btn-noscale" @click="toggleMute">
                         <transition name="animation_item_scale" mode="out-in">
@@ -28,14 +57,17 @@
                 </div>
             </div>
         </div>
+        
     </div>
 </template>
 
 <script>
+import socketjs from '@/models/socket.js'
 import channeljs from '@/models/channel.js'
 import loader from '@/assets/animated/primary_loader_light.json'
 import config from '@/config/config.js'
 import clamp from 'clamp-js'
+import RadialProgressBar from 'vue-radial-progress'
 
 export default {
     data() {
@@ -46,10 +78,26 @@ export default {
             volume: 30,
             audioElementID: this.makeid(6),
             observer: undefined,
-            itemID: this.makeid(6)
+            itemID: this.makeid(6),
+            voting: {
+                active: false,
+                isInitializing: false,
+                hasVoted: false,
+                maxTime: 30,
+                timeLeft: 30,
+                interval: undefined,
+                text: "Lied überspringen?"
+            }
         }
     },
+    components: {
+        RadialProgressBar
+    },
     methods: {
+        eventError() {
+            this.paused = true
+            this.loading = false
+        },
         eventPaused() {
             this.paused = true
             this.loading = false
@@ -104,8 +152,89 @@ export default {
                 pageBackground.style.backgroundImage = "url('"+coverURL+"')"
             }
         },
-        sendVote(){
-            channeljs.sendVoteSkip(this.$store.state.currentChannel.uuid)
+        addVote(){
+            if(this.voting.isInitializing || this.voting.hasVoted) return
+
+            this.voting.isInitializing = true
+            channeljs.initSkip(this.selectedChannel.uuid).then((result) => {
+                console.log(result)
+                
+                if(result.status == 200) {
+                    this.voting.active = true
+                    this.voting.hasVoted = true
+                } else {
+                    this.voting.active = false
+                    this.voting.hasVoted = false
+                }
+            }).finally(() => {
+                this.voting.isInitializing = false
+            })
+        },
+        setSocketRoom() {
+            let channelRoom = "channel-"+this.selectedChannel.uuid
+            socketjs.on("skip", async (data) => {
+                let room = data.room
+
+                if(room == channelRoom) {
+                    console.log(data)
+                    let status = data.status
+
+                    if(status == 'init') {
+                        if(this.voting.active){
+                            this.endVote(false, true)
+                        }
+
+                        let createdAt = data.createdAt
+                        let expiresAt = data.expiresAt
+                        let currentTime = Date.now()
+
+                        let timeOffset = currentTime-createdAt
+                        let maxDurationSeconds = (expiresAt-createdAt-1000) / 1000
+                        let timeLeftSeconds = ((expiresAt-createdAt-1000) - timeOffset) / 1000
+
+                        this.voting.maxTime = Math.round(maxDurationSeconds)
+                        this.voting.timeLeft = Math.round(timeLeftSeconds)
+
+                        this.voting.interval = setInterval(() => {
+                            this.voting.timeLeft -= 1
+                        }, 1000)
+
+                        this.voting.active = true
+
+                        this.voting.timeout = setTimeout(() => {
+                            this.endVote(false)
+                        }, (timeLeftSeconds+1)*1000)
+                    } else if(status == 'success') {
+                        this.endVote(true)
+                    } else if(status == 'failed'){
+                        this.endVote(false)
+                    }
+                }
+            })
+        },
+        endVote(success = false, force = false) {
+            clearInterval(this.voting.interval)
+            clearTimeout(this.voting.timeout)
+
+            if(force) {
+                this.resetVoting()
+            } else {
+                if(success){
+                    this.voting.text = "Erfolgreich"
+                } else {
+                    this.voting.text = "Fehlgeschlagen"
+                }
+
+                setTimeout(() => {
+                    this.resetVoting()
+                }, 3000)
+            }
+        },
+        resetVoting() {
+            this.voting.active = false
+            this.voting.isInitializing = false
+            this.voting.hasVoted = false
+            this.voting.text = "Lied überspringen?"
         }
     },
     watch: {
@@ -135,6 +264,10 @@ export default {
                 else this.volume = 50;
 
                 this.loading = true
+
+                this.voting = false
+                this.setSocketRoom()
+                this.resetVoting()
             }
         },
         'selectedChannel.info'() {
@@ -162,6 +295,8 @@ export default {
         })
         this.observer.observe(document.getElementById(this.itemID+'col'))
         this.changePageBackground()
+        this.setSocketRoom()
+        this.resetVoting()
     },
     unmounted() {
         try {
@@ -173,6 +308,47 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
+
+.radial-progress-bar {
+    font-weight: 500;
+}
+
+.voting-container {
+    position: absolute;
+    top: -1em;
+    transform: translateY(-100%);
+
+    background-color: $colorPrimaryDark;
+    padding: 0.5em;
+    font-size: 0.85em;
+    width: 300px;
+    border: 2px solid $colorPlaceholder;
+    border-radius: $borderRadTiny;
+    box-shadow: $shadowHeavy;
+
+    .layout-col {
+        vertical-align: middle;
+
+        h6 {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: $colorAccent;
+        }
+        p {
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        &:last-of-type {
+            button {
+                margin-left: 0.5em;
+            }
+            
+            width: 70px;
+            text-align: right;
+        }
+    }
+}
 
 input[type=range] {
     -webkit-appearance: none;
@@ -210,8 +386,8 @@ input[type=range] {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 64px;
-    height: 64px;
+    width: 50px;
+    height: 50px;
     transform: translate(-50%,-50%);
 }
 
@@ -297,6 +473,12 @@ input[type=range] {
     }
     #buttonSpeaker {
         display: none;
+    }
+}
+
+@media screen and (max-width: 340px) {
+    .voting-container {
+        width: 190px;
     }
 }
 

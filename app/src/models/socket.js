@@ -22,6 +22,7 @@ class SocketClient {
         })
 
         this.socket.on("disconnect", async () => {
+            console.log("Disconnected from Socket")
             if(store.state.loggedIn && !this.disconnectInitiated) {
                 this.socket.connect()
             } else {

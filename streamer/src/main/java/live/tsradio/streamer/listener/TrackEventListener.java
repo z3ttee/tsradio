@@ -45,6 +45,9 @@ public class TrackEventListener {
             default:
                 sendMetadataUpdate(channel, null);
                 channel.logger.error("onTrackEnd(): A track has ended because of an exception: "+exception.getMessage());
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ignored) {}
                 channel.reload();
                 break;
         }

@@ -1,6 +1,8 @@
 [Unit]
 Description=TSRadio NodeJS API
 After=network.target
+After=redis-server.service
+After=mysql.service
 
 [Service]
 Type=simple

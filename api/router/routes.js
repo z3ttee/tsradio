@@ -35,6 +35,7 @@ const routes = [
             {name: 'ChannelsGetOne', path: '/channels/:id', action: 'getOne', method: 'get'},
             {name: 'ChannelsGetMultiple', path: '/channels', action: 'getMultiple', method: 'get'},
             {name: 'ChannelsRemoveOne', path: '/channels/:id', action: 'removeOne', method: 'delete', permission: 'permission.channels.canDelete'},
+            {name: 'ChannelsRequestVoteskip', path: '/channels/:id/skip', action: 'requestSkip', method: 'get'},
         ]
     },
     {

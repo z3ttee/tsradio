@@ -88,7 +88,7 @@ export default {
         try {
             this.observer.unobserve(document.getElementById(this.itemID+'content'))
         } catch (error) { /* Do nothing */ }
-   }
+    }
 }
 </script>
 

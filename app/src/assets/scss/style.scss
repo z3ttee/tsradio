@@ -50,6 +50,7 @@ body {
     width: 100%;
     overflow-x: hidden;
     z-index: 1;
+    padding-bottom: 6em;
 }
 
 .content-container {
@@ -58,6 +59,7 @@ body {
 }
 
 section {
+    margin-top: 3em;
     margin-bottom: 4em;
 
     h1,h2,h3,h4,h5,h6 {
@@ -268,6 +270,14 @@ $buttonIconScales: (
         background-color: darken($color: $colorAccent, $amount: 2);
     }
 }
+.btn-success {
+    background-color: $colorSuccess;
+    color: $colorWhite;
+
+    &:hover {
+        background-color: darken($color: $colorSuccess, $amount: 2);
+    }
+}
 
 .btn-s {
     padding: 0 1em;
@@ -333,8 +343,8 @@ $buttonIconScales: (
     
     img {
         display: inline-block;
-        height: 45%;
-        width: 45%;
+        height: 40%;
+        width: 40%;
         vertical-align: middle;
         margin: 0;
     }
@@ -368,9 +378,6 @@ $buttonIconScales: (
         }
     }
 }
-.btn-icon-circle {
-    border-radius: 50%;
-}
 .btn-text-left {
     text-align: left;
 }
@@ -379,6 +386,9 @@ $buttonIconScales: (
 }
 .btn-text-right {
     text-align: right;
+}
+.btn-circular {
+    border-radius: 50%;
 }
 
 /*
@@ -391,7 +401,6 @@ $buttonIconScales: (
     .layout-col {
         display: table-cell;
         vertical-align: top;
-        padding: 1.5em;
     }
 
     .banner-col {
@@ -640,7 +649,7 @@ $badgePadding: (
         padding: 0 1em;
     }
 
-    .layout-table {
+    .layout-table:not(.table-nobreak) {
         display: block;
         width: 100%;
     

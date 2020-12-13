@@ -7,7 +7,9 @@
       </transition>
     </router-view>
   </div>
-  <app-player-view v-if="$store.state.currentChannel"></app-player-view>
+  <transition name="animation_item_slide">
+    <app-player-view v-if="$store.state.currentChannel"></app-player-view>
+  </transition>
   <app-splash-screen-view></app-splash-screen-view>
 </template>
 
