@@ -290,15 +290,15 @@ class Channel extends Model {
                     if(this.activeChannels[prevChannelUUID].listeners >= 1) this.activeChannels[prevChannelUUID].listeners -= 1
                     this.activeChannels[destChannel.uuid].listeners += 1
 
-                    Socket.getClient(userUUID).leave(Socket.CHANNEL_UUID+prevChannelUUID)
                     this.removeVote(prevChannelUUID, userUUID)
+                    Socket.getClient(userUUID).leave("channel-"+prevChannelUUID)
                 }
 
                 this.checkVotePassed(prevChannelUUID)
                 Socket.getClient(userUUID).join("channel-"+destChannelUUID)
 
                 if(this.hasPendingVoting(destChannelUUID)) {
-                    let voting = this.getVoting(channelUUID)
+                    let voting = this.getVoting(destChannelUUID)
                     
                     Socket.getClient(userUUID).emit("skip", {
                         room: "channel-"+channelUUID,
@@ -312,8 +312,8 @@ class Channel extends Model {
         } else {
             // undefined destPath means disconnect
             if(prevChannelUUID) {
-                Socket.getClient(userUUID).leave(Socket.CHANNEL_UUID+prevChannelUUID)
                 this.removeVote(prevChannelUUID, userUUID)
+                Socket.getClient(userUUID).leave("channel-"+prevChannelUUID)
 
                 if(this.activeChannels[prevChannelUUID] && this.activeChannels[prevChannelUUID].listeners >= 1) {
                     this.activeChannels[prevChannelUUID].listeners -= 1
