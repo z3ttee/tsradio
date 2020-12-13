@@ -10,9 +10,9 @@
             <span class="listener-details">{{ channel.listeners }}<img class="tiny" src="@/assets/images/icons/headphone.svg"></span>
 
             <div class="showcase-description" v-if="channel">
-                <div class="showcase-table">
-                    <div class="showcase-col" :id="itemID+'cover'"></div>
-                    <div class="showcase-col">
+                <div class="layout-table table-nobreak">
+                    <div class="layout-col" :id="itemID+'cover'"></div>
+                    <div class="layout-col">
                         <h2>{{ channel.title }}</h2>
 
                         <div class="showcase-track-details">
@@ -94,11 +94,7 @@ export default {
 <style lang="scss" scoped>
 @import '@/assets/scss/_variables.scss';
 
-.showcase-table {
-    display: table;
-    width: 100%;
-}
-.showcase-col {
+.layout-col {
     display: table-cell;
     vertical-align: middle;
 
@@ -127,7 +123,7 @@ export default {
     left: 0;
     height: 100%;
     width: 100%;
-    filter: blur(15px);
+    filter: blur(8px);
     z-index: 0;
     background-position: center;
     background-size: cover;
@@ -173,7 +169,8 @@ h2 {
     top: 0;
     left: 0;
     padding: 1em;
-    background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 0%, rgba($color: $colorPrimary, $alpha: 0.8) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 100%);
+    background-color: rgba($color: $colorPrimaryDark, $alpha: 0.9);
+    //background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 0%, rgba($color: $colorPrimary, $alpha: 0.8) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 100%);
 
     .showcase-description {
         padding: 1.5em;
@@ -224,7 +221,7 @@ h2 {
 }
 
 @media screen and (max-width: 1300px) {
-    .showcase-col {
+    .layout-col {
         &:first-of-type {
             width: 100px;
             height: 100px;
@@ -240,7 +237,7 @@ h2 {
     .showcase-wrapper {
         padding-top: 35%;
     }
-    .showcase-col {
+    .layout-col {
         &:first-of-type {
             width: 70px;
             height: 70px;
@@ -270,7 +267,7 @@ h2 {
     .showcase-wrapper {
         padding-top: 40%;
     }
-    .showcase-col {
+    .layout-col {
         &:first-of-type {
             width: 64px;
             height: 64px;
@@ -286,7 +283,7 @@ h2 {
     .showcase-wrapper {
         padding-top: 45%;
     }
-    .showcase-col {
+    .layout-col {
         &:first-of-type {
             width: 50px;
             height: 50px;
