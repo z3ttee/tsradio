@@ -1,15 +1,18 @@
 <template>
     <div class="playerbar-wrapper">
         <div class="content-container playerbar-container">
-            <div class="voting-container layout-table">
-                <div class="layout-col">
-                    <h6>Abstimmung</h6>
-                    <p>Lied überspringen?</p>
+
+            <transition name="animation_item_slide">
+                <div class="voting-container layout-table table-nobreak">
+                    <div class="layout-col">
+                        <h6>Abstimmung</h6>
+                        <p>Lied überspringen?</p>
+                    </div>
+                    <div class="layout-col">
+                        <button class="btn btn-circular btn-s btn-primary btn-icon"><img src="@/assets/images/icons/check.svg"></button>
+                    </div>
                 </div>
-                <div class="layout-col">
-                    <button class="btn btn-circular btn-s btn-primary btn-icon"><img src="@/assets/images/icons/check.svg"></button>
-                </div>
-            </div>
+            </transition>
 
             <div class="player-col player-details">
                 <h4 :id="itemID+'title'">{{ selectedChannel.info.title }} </h4>

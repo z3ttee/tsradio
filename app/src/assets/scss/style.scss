@@ -649,7 +649,7 @@ $badgePadding: (
         padding: 0 1em;
     }
 
-    .layout-table {
+    .layout-table:not(.table-nobreak) {
         display: block;
         width: 100%;
     
