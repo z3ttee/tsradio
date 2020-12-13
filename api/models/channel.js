@@ -160,7 +160,7 @@ class Channel extends Model {
         }
 
         let createdAt = Date.now()
-        let expiresAt = createdAt + (31 * 1000)
+        let expiresAt = createdAt + (30 * 1000)
 
         let expiryManager = setTimeout(() => {
             this.endVoting(channelUUID, false)
