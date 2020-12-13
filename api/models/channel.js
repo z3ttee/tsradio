@@ -350,6 +350,10 @@ const dbModel = {
     enabled: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+    },
+    special: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }
 
