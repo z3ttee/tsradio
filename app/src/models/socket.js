@@ -22,6 +22,7 @@ class SocketClient {
         })
 
         this.socket.on("disconnect", async () => {
+            console.log("Disconnected from Socket")
             if(store.state.loggedIn && !this.disconnectInitiated) {
                 this.socket.connect()
             } else {
@@ -34,10 +35,6 @@ class SocketClient {
         this.socket.on("connect", async () => {
             console.log("Connected to socket.")
         })
-
-        /*this.socket.onAny((event, data) => {
-            
-        })*/
 
         // Register events
         this.socket.on(this.CHANNEL_UPDATE_STATUS, async (data) => {     

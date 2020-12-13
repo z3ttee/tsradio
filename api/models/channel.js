@@ -78,6 +78,7 @@ class Channel extends Model {
         channel.title = data.title
         channel.description = data.description
         channel.featured = data.featured
+        channel.special = data.special
         // channel.uuid and channel.path is not updated, because this action is not allowed
 
         this.activeChannels[channelUUID] = channel
@@ -104,6 +105,7 @@ class Channel extends Model {
         Object.values(statuses).forEach((activeChannel) => {
             let status = activeChannel
             let metadata = metadatas[activeChannel.uuid]
+
             //let history = histories[activeChannel.uuid]
 
             let channel = {
@@ -113,9 +115,10 @@ class Channel extends Model {
                 description: status.description,
                 path: status.path,
                 featured: status.featured,
+                special: status.special || false,
                 info: {
-                    title: metadata.title,
-                    artist: metadata.artist,
+                    title: metadata.title || undefined,
+                    artist: metadata.artist || undefined,
                     //history: history.history
                 },
                 listeners: 0
@@ -160,7 +163,7 @@ class Channel extends Model {
         let expiresAt = createdAt + (31 * 1000)
 
         let expiryManager = setTimeout(() => {
-            this.endVote(channelUUID, false)
+            this.endVoting(channelUUID, false)
         }, 31*1000)
 
         this.activeVotings[channelUUID] = {
@@ -221,8 +224,6 @@ class Channel extends Model {
 
         if(percentage > 0.5) {
             console.log("voting passed: "+percentage)
-            // Send to streamer
-            redis.broadcast(redis.CHANNEL_SKIP, {uuid: channelUUID})
             this.endVoting(channelUUID, true)
         }
     }
@@ -232,6 +233,10 @@ class Channel extends Model {
         if(!voting) return
 
         if(success) {
+            // Send to streamer
+            redis.broadcast(redis.CHANNEL_SKIP, JSON.stringify({uuid: channelUUID}))
+
+            // Send to listeners
             Socket.broadcastToRoom("channel-"+channelUUID, "skip", { status: 'success' })
         } else {
             Socket.broadcastToRoom("channel-"+channelUUID, "skip", { status: 'failed' })
