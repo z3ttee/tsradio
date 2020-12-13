@@ -127,7 +127,7 @@ export default {
     left: 0;
     height: 100%;
     width: 100%;
-    filter: blur(12px);
+    filter: blur(15px);
     z-index: 0;
     background-position: center;
     background-size: cover;
@@ -173,7 +173,7 @@ h2 {
     top: 0;
     left: 0;
     padding: 1em;
-    background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 5%, rgba($color: $colorPrimary, $alpha: 0.85) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 90%);
+    background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 0%, rgba($color: $colorPrimary, $alpha: 0.8) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 100%);
 
     .showcase-description {
         padding: 1.5em;
