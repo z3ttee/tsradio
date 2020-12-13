@@ -4,10 +4,10 @@ The next version of TSRadio. Completely re-written from scratch using modern tec
 
 ## Planned Features
 To see the current state of development in detail, please visit the following page: [https://github.com/z3ttee/tsradio/projects/2](https://github.com/z3ttee/tsradio/projects/2)
-- [ ] Play audio streams (Front-end)
-- [ ] Stream audio to icecast (Back-end)
-- [ ] Create / Manage channels
-- [ ] Create / Manage users
+- [x] Play audio streams (Front-end)
+- [x] Stream audio to icecast (Back-end)
+- [ ] Create / Manage channels through webinterface
+- [ ] Create / Manage users through webinterface
 
 ## Prerequisites
 * OS: Linux (Win will be supported in the late future)
