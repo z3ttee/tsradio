@@ -24,7 +24,7 @@ public class OnChannelSkipListener implements RedisEvent {
 
             if(c != null) {
                 logger.info("onEvent(): triggering skip...");
-                c.next();
+                c.skip();
             }
         } catch (Exception e) {
             logger.warn("onEvent(): Could not properly handle event received by redis["+channel+"]: "+e.getMessage());
