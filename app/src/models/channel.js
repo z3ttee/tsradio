@@ -65,6 +65,7 @@ class Channel {
         channel.description = data.description
         channel.featured = data.featured
         channel.listeners = data.listeners
+        channel.special = data.special
 
         if(currentChannel && currentChannel.uuid == channelUUID) {
             store.state.currentChannel.active = data.active
@@ -72,6 +73,7 @@ class Channel {
             store.state.currentChannel.description = data.description
             store.state.currentChannel.featured = data.featured
             store.state.currentChannel.listeners = data.listeners
+            store.state.currentChannel.special = data.special
         }
     }
 

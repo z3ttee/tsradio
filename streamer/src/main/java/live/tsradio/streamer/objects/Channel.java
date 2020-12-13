@@ -35,6 +35,7 @@ public class Channel extends Thread {
     @Getter @Setter private boolean featured;
     @Getter private final ChannelInfo info;
     @Getter @Setter private boolean active;
+    @Getter @Setter private boolean special;
     @Getter private long lastPingSent;
 
     @Getter private AudioTrack currentTrack;
@@ -45,7 +46,7 @@ public class Channel extends Thread {
 
     public boolean shutdown = false;
 
-    public Channel(String uuid, String title, String path, String description, boolean featured, ChannelInfo info) {
+    public Channel(String uuid, String title, String path, String description, boolean featured, boolean special, ChannelInfo info) {
         super("channel-"+path);
 
         this.uuid = uuid;
@@ -53,6 +54,7 @@ public class Channel extends Thread {
         this.title = title;
         this.description = description;
         this.featured = featured;
+        this.special = special;
         this.info = info;
         this.currentTrack = null;
         this.active = false;
@@ -208,6 +210,7 @@ public class Channel extends Thread {
                 "\"description\": \""+ JsonEscaper.getInstance().escape(getDescription()) +"\"," +
                 "\"path\": \""+ JsonEscaper.getInstance().escape(getPath()) +"\"," +
                 "\"featured\": "+ isFeatured() +"," +
+                "\"special\": "+ isSpecial() +"," +
                 "\"active\": "+isActive()+"" +
                 "}";
     }
