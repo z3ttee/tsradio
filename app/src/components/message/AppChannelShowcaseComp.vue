@@ -95,7 +95,6 @@ export default {
 @import '@/assets/scss/_variables.scss';
 
 .layout-col {
-    display: table-cell;
     vertical-align: middle;
 
     &:first-of-type {
@@ -169,8 +168,8 @@ h2 {
     top: 0;
     left: 0;
     padding: 1em;
-    background-color: rgba($color: $colorPrimaryDark, $alpha: 0.9);
-    //background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 0%, rgba($color: $colorPrimary, $alpha: 0.8) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 100%);
+    background-color: rgba($color: $colorPrimaryDark, $alpha: 0.92);
+    background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 0%, rgba($color: $colorPrimary, $alpha: 0.8) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 100%);
 
     .showcase-description {
         padding: 1.5em;

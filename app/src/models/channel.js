@@ -1,5 +1,6 @@
 import store from '@/store/index.js'
-import socket from './socket'
+import apijs from '@/models/api.js'
+//import socket from './socket'
 
 class Channel {
 
@@ -21,8 +22,9 @@ class Channel {
         store.state.channels[channelUUID] = data
     }
 
-    async sendVoteSkip(channelUUID) {
-        socket.emit(socket.CHANNEL_SKIP, {uuid: channelUUID})
+    async initSkip(channelUUID) {
+        return apijs.get('/channels/'+channelUUID+'/skip')
+        //socket.emit(socket.CHANNEL_SKIP, {uuid: channelUUID})
     }
 
     async onChannelSkipListener(data) {
