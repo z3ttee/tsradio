@@ -1,8 +1,10 @@
 <template>
     <section>
-        <app-channel-showcase v-if="!!getSpecialChannel" :channel="getSpecialChannel">
-            <template #title><span class="badge badge-s">Special Edition</span> Channel Showcase</template>
-        </app-channel-showcase>
+        <transition name="animation_item_slide">
+            <app-channel-showcase v-if="!!getSpecialChannel" :channel="getSpecialChannel">
+                <template #title><span class="badge badge-s">Special Edition</span> Channel Showcase</template>
+            </app-channel-showcase>
+        </transition>
 
         <transition name="animation_item_slide">
             <app-textbox v-if="featuredChannels.length <= 0 && otherChannels.length <= 0">
