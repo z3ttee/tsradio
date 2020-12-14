@@ -12,7 +12,6 @@ function deleteFolderRecursive(path) {
       }
     });
 
-    console.log(`Deleting directory "${path}"...`);
     fs.rmdirSync(path);
   }
 };
