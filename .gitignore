@@ -34,17 +34,17 @@ appinfo.json
 # Directories
 .gradle/
 .idea/
-streamer/build/
 out/
 vendor/
 dist/
 node_modules/
 .firebase
-api_old/
 *_old/
 *.jks
 *.dev.*
 *.MF
-api/config/config.js
 apidoc/
+
+streamer/build/
+api/src/config/config.js
 app/src/config/config.js
