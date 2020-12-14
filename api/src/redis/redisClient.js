@@ -35,7 +35,11 @@ class RedisClient {
         this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
         this.subscriber.subscribe(this.CHANNEL_PING)
 
-        this.subscriber.on('error', () => {})
+        /*this.subscriber.on('error', (error) => {
+            if(error.code == 'ETIMEDOUT') {
+                console.log("Could not connect to redis server on '"+error.address+":"+error.port+"'")
+            }
+        })*/
         this.client.on('error', () => {})
         this.publisher.on('error', () => {})
     }
