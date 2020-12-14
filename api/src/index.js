@@ -1,3 +1,6 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
 import express from 'express'
 import http from 'http'
 import https from 'https'
@@ -41,7 +44,13 @@ Redis.on("ready", async () => {
         app.ioHandler = socket
     })
 })
-Redis.on("error", (error) => console.log("A redis error occured:", error))
+Redis.on("error", (error) => {
+    if(error.code == 'ETIMEDOUT') {
+        console.log("Could not connect to redis server on '"+error.address+":"+error.port+"'")
+    } else {
+        //console.log(error)
+    }
+})
 
 // Setup cors
 const options = {

@@ -35,9 +35,9 @@ class RedisClient {
         this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
         this.subscriber.subscribe(this.CHANNEL_PING)
 
-        this.subscriber.on('error', (err) => console.error(err))
-        this.client.on('error', (err) => console.error(err))
-        this.publisher.on('error', (err) => console.error(err))
+        this.subscriber.on('error', () => {})
+        this.client.on('error', () => {})
+        this.publisher.on('error', () => {})
     }
 
     on(event, callback) {
@@ -45,7 +45,6 @@ class RedisClient {
     }
 
     broadcast(channel, message) {
-        console.log(channel, message)
         this.publisher.publish(channel, message)
     }
 
