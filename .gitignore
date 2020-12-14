@@ -34,9 +34,10 @@ appinfo.json
 # Directories
 .gradle/
 .idea/
-build/
+streamer/build/
 out/
 vendor/
+dist/
 node_modules/
 .firebase
 api_old/
