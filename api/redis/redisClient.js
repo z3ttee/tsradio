@@ -34,6 +34,10 @@ class RedisClient {
         this.subscriber.subscribe(this.CHANNEL_UPDATE_HISTORY)
         this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
         this.subscriber.subscribe(this.CHANNEL_PING)
+
+        this.subscriber.on('error', (err) => console.error(err))
+        this.client.on('error', (err) => console.error(err))
+        this.publisher.on('error', (err) => console.error(err))
     }
 
     on(event, callback) {
@@ -63,7 +67,6 @@ class RedisClient {
 
     onChannelUpdateStatus(data) {
         try {
-            console.log(data)
             let parsedData = JSON.parse(data)
             let updatedData = Channel.updateStatus(parsedData.uuid, parsedData)
             Socket.broadcast(this.CHANNEL_UPDATE_STATUS, updatedData)
@@ -73,7 +76,6 @@ class RedisClient {
     }
     onChannelUpdateMetadata(data) {
         try {
-            console.log(data)
             let parsedData = JSON.parse(data)
             let updatedData = Channel.updateMetadata(parsedData.uuid, parsedData)
             Socket.broadcast(this.CHANNEL_UPDATE_METADATA, updatedData)
