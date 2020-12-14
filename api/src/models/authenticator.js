@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 
 import config from '../config/config.js'
 import { TrustedError } from '../error/trustedError.js'
-import { User } from '../models/user.js'
+import { User } from './user.js'
 import { Group } from './group.js'
 
 class Authenticator {
@@ -39,7 +39,7 @@ class Authenticator {
                     data = undefined
                 } else {
                     passed = true
-                    data.group.permissions = data.group.permissions
+                    //data.group.permissions = data.group.permissions
                 }
 
             } catch (exception) {

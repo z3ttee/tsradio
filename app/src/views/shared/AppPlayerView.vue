@@ -265,9 +265,8 @@ export default {
 
                 this.loading = true
 
-                this.voting = false
-                this.setSocketRoom()
                 this.resetVoting()
+                this.setSocketRoom()
             }
         },
         'selectedChannel.info'() {

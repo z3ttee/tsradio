@@ -4,15 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon --exec babel-node index.js",
-    "docs": "apidoc -i endpoints/ -o ../apidoc/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm install && node index.js",
+    "dev": "nodemon --exec babel-node ./src/index.js",
+    "build": "node ./build/clean.js && babel ./src --out-dir ./dist && node ./build/copy.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cookie": "^0.4.1",
@@ -32,8 +30,11 @@
     "@babel/cli": "^7.11.6",
     "@babel/core": "^7.11.6",
     "@babel/node": "^7.10.5",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/preset-env": "^7.11.5",
+    "core-js": "^3.8.1",
+    "cpx": "^1.5.0",
     "nodemon": "^2.0.4",
-    "webpack": "^5.3.2"
+    "regenerator-runtime": "^0.13.7"
   }
 }
