@@ -41,6 +41,9 @@ class Socket {
             })
             next()
         })
+        this.socketio.on('disconnect', async () => {
+            console.log('Socket server closed')
+        })
     }
 
     broadcast(event, message){
