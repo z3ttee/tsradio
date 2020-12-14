@@ -1,7 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import config from '../config/config.js'
 import redis from '../redis/redisClient.js'
-import Socket from '../models/socket.js'
+import Socket from './socket.js'
 import { TrustedError } from '../error/trustedError.js'
 
 class Channel extends Model {
@@ -104,7 +104,7 @@ class Channel extends Model {
 
         Object.values(statuses).forEach((activeChannel) => {
             let status = activeChannel
-            let metadata = metadatas[activeChannel.uuid]
+            let metadata = metadatas[activeChannel.uuid] || {}
 
             //let history = histories[activeChannel.uuid]
 

@@ -1,5 +1,5 @@
 import Authenticator from "./authenticator"
-import { Channel } from "../models/channel.js"
+import { Channel } from "./channel.js"
 
 class Socket {
     CHANNEL_UPDATE_METADATA = "channel_update_metadata"
