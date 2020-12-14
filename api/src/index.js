@@ -27,6 +27,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use('/artworks', express.static('artworks'))
 
+console.log("Starting api...")
+
 // Establish redis connection
 Redis.on("ready", async () => {
     console.log("Connected to redis successfully.")
