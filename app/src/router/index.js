@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from '@/router/routes.js'
 import appjs from '@/models/app.js'
-//import userjs from '@/models/user.js'
-//import store from '@/store/index.js'
+import userjs from '@/models/user.js'
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
@@ -13,10 +12,14 @@ const router = createRouter({
 // If no jwt exists, redirect to login page
 router.beforeEach((to, from, next) => {
     let setup = async () => {
-        if (to.meta.needsAuth) {
-            appjs.setupApp(next)
+        if(!userjs.isLoggedIn()) {
+            if (to.meta.needsAuth) {
+                appjs.setupApp(next)
+            } else {
+                appjs.skipSetup(next)
+            }
         } else {
-            appjs.skipSetup(next)
+            next()
         }
     }
 
