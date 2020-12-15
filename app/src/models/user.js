@@ -24,8 +24,12 @@ class User {
         
         let result = await apijs.get('/auth/verify')
 
-        if(result.status != 200 && !jwt) {
-            this.logout()
+        if(result.status != 200) {
+            store.state.jwt = undefined
+
+            if(!jwt) {
+                this.logout()
+            }
         }
 
         return result

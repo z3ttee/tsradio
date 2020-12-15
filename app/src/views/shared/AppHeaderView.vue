@@ -2,7 +2,7 @@
     <div class="header">
         <div class="content-container">
             <div class="header-bar-section">
-                <button class="btn btn-icon btn-l btn-inline" @click="toggleSidebar" v-if="$store.state.loggedIn"><img src="@/assets/images/icons/menu.svg"></button>
+                <button class="btn btn-icon btn-l btn-inline" @click="toggleSidebar" v-if="!!$store.state.jwt"><img src="@/assets/images/icons/menu.svg"></button>
             </div>
 
             <div class="header-bar-section">
@@ -11,8 +11,7 @@
             </div>
 
             <div class="header-bar-section">
-                <div v-show="$route.name != 'login'">
-                    <button class="btn btn-primary btn-m btn-inline" v-if="!$store.state.loggedIn"><img src="@/assets/images/icons/key.svg"> Anmelden</button>
+                <div v-if="!!$store.state.jwt">
                     <div class="header-profile">
                         <span id="username">{{ $store.state.user.username }}</span> <div class="profile-avatar align-right"></div>
                         <app-popuplist :width="300">

@@ -3,6 +3,7 @@ package live.tsradio.streamer.listener;
 import live.tsradio.streamer.database.Redis;
 import live.tsradio.streamer.database.consts.RedisChannels;
 import live.tsradio.streamer.database.consts.RedisLists;
+import live.tsradio.streamer.handler.ChannelHandler;
 import live.tsradio.streamer.objects.AudioTrack;
 import live.tsradio.streamer.objects.Channel;
 
@@ -44,11 +45,13 @@ public class TrackEventListener {
 
             default:
                 sendMetadataUpdate(channel, null);
+
                 channel.logger.error("onTrackEnd(): A track has ended because of an exception: "+exception.getMessage());
+                channel.logger.error("onTrackEnd(): The channel is being restarted...");
                 try {
                     Thread.sleep(10000);
+                    ChannelHandler.restartChannel(channel.getUuid());
                 } catch (InterruptedException ignored) {}
-                channel.reload();
                 break;
         }
     }

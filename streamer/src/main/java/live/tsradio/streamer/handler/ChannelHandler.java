@@ -29,11 +29,28 @@ public class ChannelHandler {
         if(channels.size() > 0) {
             logger.info("startChannels(): Starting all channels...");
             for (Channel channel : channels.values()) {
-                channel.boot();
+                startChannel(channel.getUuid());
             }
         } else {
             logger.warn("startChannels(): Can not start any channel: Nothing found.");
         }
+    }
+    public static void stopChannelSync(String channelUUID) throws InterruptedException {
+        Channel channel = getChannel(channelUUID);
+        if(channel != null && !channel.shutdown) {
+            channel.shutdown();
+            channel.join();
+        }
+    }
+    public static void startChannel(String channelUUID) {
+        Channel channel = getChannel(channelUUID);
+        if(channel != null && !channel.isActive()) {
+            channel.boot();
+        }
+    }
+    public static void restartChannel(String channelUUID) throws InterruptedException {
+        stopChannelSync(channelUUID);
+        startChannel(channelUUID);
     }
     public static void unloadChannel(String channelUUID) {
         channels.remove(channelUUID);

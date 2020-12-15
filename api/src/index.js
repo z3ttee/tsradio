@@ -47,10 +47,17 @@ Redis.on("ready", async () => {
     })
 })
 Redis.on("error", (error) => {
-    if(error.code == 'ETIMEDOUT') {
+    if(error.command == 'AUTH' && error.code == 'ERR') {
+        console.log("Login credentials are invalid for redis connection")
+        process.exit()
+    } else if(error.code == 'ETIMEDOUT') {
         console.log("Could not connect to redis server on '"+error.address+":"+error.port+"'")
+        process.exit()
+    } else if(error.code == 'NOAUTH' ) {
+        console.log("Failed to authenticate on redis database.")
+        process.exit()
     } else {
-        //console.log(error)
+        console.log(error)
     }
 })
 

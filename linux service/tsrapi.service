@@ -10,7 +10,7 @@ Type=simple
 User=user
 Group=group
 
-ExecStart=/usr/bin/npm --prefix /path/to/api run dev
+ExecStart=/usr/bin/npm --prefix /path/to/api run start
 
 Restart=always
 RestartSec=3

@@ -35,7 +35,6 @@ class RedisClient {
         this.subscriber.subscribe(this.CHANNEL_UPDATE_METADATA)
         this.subscriber.subscribe(this.CHANNEL_PING)
 
-        this.subscriber.on('error', () => {})
         this.client.on('error', () => {})
         this.publisher.on('error', () => {})
     }
