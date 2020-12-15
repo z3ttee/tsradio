@@ -459,7 +459,7 @@ $buttonIconScales: (
     width: 100%;
     padding: 0.5em;
     font-weight: 500;
-    font-size: 0.8em;
+    font-size: 0.9em;
     letter-spacing: 0.5px;
     background-color: $colorPrimaryDark;
     border-radius: $borderRadTiny;
@@ -468,7 +468,7 @@ $buttonIconScales: (
     overflow: hidden;
 
     .inner-box {
-        padding: 1em;
+        padding: 2em;
         background-color: $colorPrimaryDark;
         border: 3px solid $colorPlaceholder;
         border-radius: $borderRadTiny;
@@ -486,6 +486,27 @@ $buttonIconScales: (
         .inner-box {
             background-color: $colorAccent;
             border: 2px solid $colorAccentLight;
+        }
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 1em 0;
+        font-size: inherit;
+
+        li {
+            font-size: inherit;
+            padding: 0.3em 1em;
+            font-size: 0.8em;
+            letter-spacing: 0.4px;
+
+            &.label {
+                letter-spacing: 0;
+                padding-left: 0;
+                color: $colorAccentLight;
+                font-size: inherit;
+            }
         }
     }
 }

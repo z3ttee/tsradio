@@ -1,8 +1,8 @@
 <template>
-        <button @click.prevent="onClicked" :disabled="loading">
-            <span :class="{'hidden': loading}"><slot></slot></span>
-            <v-lottie-player :class="{'animation': true, 'hidden': !loading}" width="24px" height="24px" loop autoplay :animationData="loaderData"></v-lottie-player>
-        </button>
+    <button @click.prevent="onClicked" :disabled="loading">
+        <span :class="{'hidden': loading}"><slot></slot></span>
+        <v-lottie-player :class="{'animation': true, 'hidden': !loading}" width="24px" height="24px" loop autoplay :animationData="loaderData" @animControl="animationHook"></v-lottie-player>
+    </button>
 </template>
 
 <script>
@@ -21,6 +21,9 @@ export default {
 
             this.loading = true
             this.$emit('clicked', event, () => this.loading = false)
+        },
+        animationHook() {
+            //console.log(event)
         }
     }
 }
