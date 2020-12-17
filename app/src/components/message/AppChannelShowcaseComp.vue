@@ -63,6 +63,9 @@ export default {
         select() {
             if(!this.isSelected) {
                 this.$store.state.currentChannel = this.channel
+            }
+
+            if(this.$route.name != 'channelDetails') {
                 this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
             }
         },
