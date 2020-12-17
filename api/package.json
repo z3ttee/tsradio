@@ -18,6 +18,7 @@
     "ejs": "^3.1.5",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
+    "genius-lyrics-api": "^3.0.3",
     "joi": "^17.3.0",
     "joi-password-complexity": "^5.0.2",
     "jsonwebtoken": "^8.5.1",

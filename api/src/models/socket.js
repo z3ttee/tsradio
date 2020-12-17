@@ -32,7 +32,17 @@ class Socket {
             this.connectedClients[userUUID] = socket
 
             setTimeout(() => {
-                socket.emit(this.CHANNEL_INITIAL_TRANSPORT, Channel.activeChannels)
+                let channels = {}
+
+                Object.keys(Channel.activeChannels).forEach((uuid) => {
+                    let channel = { ...Channel.activeChannels[uuid] }
+
+                    // Remove history from initial transport
+                    channel.history = undefined
+                    channels[uuid] = channel
+                })
+
+                socket.emit(this.CHANNEL_INITIAL_TRANSPORT, channels)
             }, 300)
             
             socket.on("disconnect", async() => {
