@@ -1,6 +1,11 @@
 <template>
     <section v-if="channel">
 
+        <router-link custom v-slot="{ navigate }" :to="{name: 'home'}">
+            <button class="btn btn-primary btn-m" @click="navigate">Zurück zur Startseite</button>
+        </router-link>
+        <br><br>
+
         <app-channel-showcase :small="true" :channel="channel"></app-channel-showcase>
 
         <div class="layout-grid">
@@ -15,7 +20,7 @@
                 </div>
             </div>
             <div class="section-field transparent">
-                <h4>Die Lyrics zum Song <v-lottie-player class="loader" width="24px" height="24px" loop autoplay :animationData="loaderData" v-if="lyrics.loading"></v-lottie-player></h4>
+                <h4>Die Lyrics zum Song <span class="badge badge-s">Beta</span><v-lottie-player class="loader" width="24px" height="24px" loop autoplay :animationData="loaderData" v-if="lyrics.loading"></v-lottie-player></h4>
                 <app-textbox class="box-small" v-if="!lyrics.loading && !lyrics.data">Für diesen Song sind keine Lyrics verfügbar</app-textbox>
 
                 <transition name="animation_item_slide">
@@ -67,14 +72,16 @@ export default {
     },
     watch: {
         channel(val) {
-            let history = val.history
+            if(val) {
+                let history = val.history
 
-            if(history){
-                this.history.loading = false
-                this.history.data = history
+                if(history){
+                    this.history.loading = false
+                    this.history.data = history
+                }
+
+                this.getAndSubscribeHistory()
             }
-
-            this.getAndSubscribeHistory()
         },
         'channel.info'() {
             this.getLyrics()
@@ -95,16 +102,18 @@ export default {
             })
         },
         getLyrics() {
-            this.lyrics.loading = true
-            this.lyrics.data = undefined
+            if(this.channel) {
+                this.lyrics.loading = true
+                this.lyrics.data = undefined
 
-            this.$channel.getLyrics(this.channel.info.title, this.channel.info.artist).then((result) => {
-                if(result.status == 200) {
-                    this.lyrics.data = result.data.lyrics.replace("\n", "<br>")
-                }
-            }).finally(() => {
-                this.lyrics.loading = false
-            })
+                this.$channel.getLyrics(this.channel.info.title, this.channel.info.artist).then((result) => {
+                    if(result.status == 200) {
+                        this.lyrics.data = result.data.lyrics.replace("\n", "<br>")
+                    }
+                }).finally(() => {
+                    this.lyrics.loading = false
+                })
+            }
         }
     },
     mounted() {
