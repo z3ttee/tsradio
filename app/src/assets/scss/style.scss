@@ -475,6 +475,15 @@ $buttonIconScales: (
         overflow: hidden;
     }
 
+    &.box-small {
+        padding: 0.3em;
+        
+        .inner-box {
+            border-width: 2px !important;
+            padding: 1em;
+        }
+    }
+
     &.box-error {
         background-color: $colorAccent;
         text-shadow: 1px 1px 6px rgba($color: $colorPrimaryDark, $alpha: 0.7);

@@ -38,7 +38,6 @@
 
 <script>
 import AppChannelItem from '@/components/lists/AppChannelItemComp.vue'
-
 import AppChannelShowcase from '@/components/message/AppChannelShowcaseComp.vue'
 
 export default {
