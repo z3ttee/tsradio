@@ -58,6 +58,7 @@ export default {
 
                 if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
                 this.$store.state.currentChannel = this.channel
+                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
                 socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => channeljs.onChannelSkipListener(data))
             }
         },

@@ -56,6 +56,7 @@ export default {
         select() {
             if(!this.isSelected) {
                 this.$store.state.currentChannel = this.channel
+                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
             }
         },
         updateCoverImage(){
