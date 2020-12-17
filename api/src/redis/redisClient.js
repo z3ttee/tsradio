@@ -58,6 +58,9 @@ class RedisClient {
             case this.CHANNEL_PING: 
                 this.onChannelPing(message)
                 break
+            case this.CHANNEL_UPDATE_HISTORY: 
+                this.onChannelHistoryUpdate(message)
+                break
             default:
                 break
         }
@@ -81,15 +84,15 @@ class RedisClient {
             console.log(error)
         }
     }
-    /*onChannelHistoryUpdate(data) {
+    onChannelHistoryUpdate(data) {
         try {
             let json = JSON.parse(data)
-            let channel = Channel.update(json.uuid, json)
-            Socket.broadcast(this.CHANNEL_UPDATE_METADATA, channel)
+            Channel.updateHistory(json.uuid, json)
+            Socket.broadcastToRoom("channel-"+json.uuid, "history", json)
         } catch (error) {
             console.log(error)
         }
-    }*/
+    }
     onChannelPing(data) {
         try {
             let json = JSON.parse(data)

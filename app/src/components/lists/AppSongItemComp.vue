@@ -1,37 +1,33 @@
 <template>
     <div class="list-item-covered-wrapper">
-        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}" @click="select">
-            <transition name="animation_item_slide">
-                <span class="playingIndicator"><v-lottie-player width="20px" height="20px" loop autoplay :animationData="playingIndicatorData" v-if="isSelected"></v-lottie-player></span>
-            </transition>
+        <div :id="itemID+'content'" class="list-item-covered">
 
             <div :id="itemID+'cover'" class="list-item-col list-item-cover"></div>
             <div :id="itemID+'info'" class="list-item-col list-item-content channel-info">
-                <h4 :id="itemID+'title'">{{ channel.title }}</h4>
+                <h4 :id="itemID+'title'">{{ formatTime(song.timestamp) }} Uhr</h4>
                 <div>
                     <transition name="animation_item_slide" mode="out-in">
-                        <p :id="itemID+'song'" :key="itemID+'song'" class="info-title"><span v-if="channel.info">{{ channel.info.title }}</span></p>
+                        <p :id="itemID+'song'" :key="itemID+'song'" class="info-title"><span>{{ song.title }}</span></p>
                     </transition>
                      <transition name="animation_item_slide" mode="out-in">
-                        <span :id="itemID+'artist'" :key="itemID+'artist'" class="info-artist"><span v-if="channel.info">{{ channel.info.artist }}</span></span>
+                        <span :id="itemID+'artist'" :key="itemID+'artist'" class="info-artist"><span>{{ song.artist }}</span></span>
                     </transition>
                 </div>
-                <span class="listener-details">{{ channel.listeners }}<img class="tiny" src="@/assets/images/icons/headphone.svg"></span>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import channeljs from '@/models/channel.js'
-import socketjs from '@/models/socket.js'
-import config from '@/config/config.js'
+//import socketjs from '@/models/socket.js'
+//import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
 
 export default {
     props: {
-        channel: Object
+        song: Object,
+        channelUUID: String
     },
     data() {
         return {
@@ -45,31 +41,36 @@ export default {
             this.updateCoverImage()
         }
     },
-    computed: {
-        isSelected() {
-            return this.$store.state.currentChannel && this.$store.state.currentChannel.uuid == this.channel.uuid
-        }
-    },
     methods: {
-        select() {
+        /*select() {
             if(!this.isSelected) {
                 let previous = this.$store.state.currentChannel
                 let next = this.channel
 
                 if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
                 this.$store.state.currentChannel = this.channel
+                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
                 socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => channeljs.onChannelSkipListener(data))
             }
-
-            if(this.$route.name != 'channelDetails') {
-                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
-            }
-        },
+        },*/
         updateCoverImage(){
-            let coverElement = document.getElementById(this.itemID+'cover')
-            let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
+            // TODO
+
+            //let coverElement = document.getElementById(this.itemID+'cover')
+            //let coverURL = config.api.baseURL+'artworks/'+this.channelUUID+'.png?key='+this.makeid(4)
             
-            coverElement.style.backgroundImage = "url('"+coverURL+"')"
+            //coverElement.style.backgroundImage = "url('"+coverURL+"')"
+        },
+        formatTime(timestamp) {
+            var date = new Date(parseInt(timestamp));
+            var hours = this.formatInt(date.getHours());
+            var mins = this.formatInt(date.getMinutes());
+            return hours+":"+mins;
+        },
+        formatInt(val) {
+            var s = val+"";
+            while (s.length < 2) s = "0" + s;
+            return s;
         }
     },
     mounted() {

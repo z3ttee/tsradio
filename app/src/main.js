@@ -13,6 +13,8 @@ import AppPopupListComp from '@/components/lists/AppPopupListComp.vue'
 import AppMessageBoxComp from '@/components/message/AppMessageBoxComp.vue'
 
 // Import api models
+import channeljs from '@/models/channel.js'
+import socketjs from '@/models/socket.js'
 import userjs from '@/models/user.js'
 import errorjs from '@/models/error.js'
 
@@ -20,6 +22,8 @@ const app = createApp(App)
 
 app.config.globalProperties.$user = userjs
 app.config.globalProperties.$error = errorjs
+app.config.globalProperties.$channel = channeljs
+app.config.globalProperties.$socket = socketjs
 
 app.use(store)
 app.use(router)

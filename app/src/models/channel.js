@@ -110,6 +110,17 @@ class Channel {
         }
     }
 
+    async getHistory(channelUUID) {
+        let result = await apijs.get('/channels/'+channelUUID+'/history')
+        return result
+    }
+    async getLyrics(title, artist) {
+        let result = await apijs.post('/songs/lyrics', {
+            title, artist
+        })
+        return result
+    }
+
     async clearAll() {
         store.state.channels = {}
         store.state.currentChannel = undefined

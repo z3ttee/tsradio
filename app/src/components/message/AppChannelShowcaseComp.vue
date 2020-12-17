@@ -1,5 +1,5 @@
 <template>
-    <div :class="{'showcase-wrapper': true, 'selected': isSelected}" :id="itemID+'content'" @click="select">
+    <div :class="{'showcase-wrapper': true, 'selected': isSelected, 'showcase-small': small}" :id="itemID+'content'" @click="select">
         <div class="background-overlay" :id="itemID+'background'">dev</div>
         <div class="showcase-container">
             <h4>
@@ -34,7 +34,11 @@ import playingIndicatorData from '@/assets/animated/audio.json'
 export default {
     props: {
         channel: Object,
-        default: {}
+        default: {},
+        small: {
+            type: Boolean,
+            default: false
+        }
     },
     data() {
         return {
@@ -45,6 +49,9 @@ export default {
     watch: {
         'channel.info'() {
             this.updateCoverImage()
+        },
+        channel() {
+            this.initResizeObserver()
         }
     },
     computed: {
@@ -57,6 +64,10 @@ export default {
             if(!this.isSelected) {
                 this.$store.state.currentChannel = this.channel
             }
+
+            if(this.$route.name != 'channelDetails') {
+                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
+            }
         },
         updateCoverImage(){
             let containerElement = document.getElementById(this.itemID+'background')
@@ -65,23 +76,30 @@ export default {
             
             coverElement.style.backgroundImage = "url('"+coverURL+"')"
             containerElement.style.backgroundImage = "url('"+coverURL+"')"
+        },
+        initResizeObserver() {
+            if(!document.getElementById(this.itemID+'title')) return
+            
+            if(!this.observer) {
+                this.observer = new ResizeObserver(() => {
+                    try {
+                        clamp(document.getElementById(this.itemID+'title'), {clamp: 0, useNativeClamp: true, animate: true})
+                        clamp(document.getElementById(this.itemID+'title'), {clamp: 1, useNativeClamp: true, animate: true})
+                        clamp(document.getElementById(this.itemID+'artist'), {clamp: 0, useNativeClamp: true, animate: true})
+                        clamp(document.getElementById(this.itemID+'artist'), {clamp: 1, useNativeClamp: true, animate: true})
+                    } catch (error) { 
+                        /* Do nothing */ 
+                        this.observer = undefined
+                    }
+                })
+
+                this.observer.observe(document.getElementById(this.itemID+'content'))
+                this.updateCoverImage()
+            }
         }
     },
     mounted() {
-        this.observer = new ResizeObserver(() => {
-            try {
-                clamp(document.getElementById(this.itemID+'title'), {clamp: 0, useNativeClamp: true, animate: true})
-                clamp(document.getElementById(this.itemID+'title'), {clamp: 1, useNativeClamp: true, animate: true})
-                clamp(document.getElementById(this.itemID+'artist'), {clamp: 0, useNativeClamp: true, animate: true})
-                clamp(document.getElementById(this.itemID+'artist'), {clamp: 1, useNativeClamp: true, animate: true})
-            } catch (error) { 
-                /* Do nothing */ 
-                this.observer = undefined
-            }
-        })
-
-        this.observer.observe(document.getElementById(this.itemID+'content'))
-        this.updateCoverImage()
+        this.initResizeObserver()
     },
     unmounted() {
         try {

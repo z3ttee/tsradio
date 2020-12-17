@@ -291,6 +291,34 @@ class ChannelEndpoint extends Endpoint {
         }
     }
 
+    /**
+     * @api {get} /channels/:id/history Get History
+     * @apiGroup Channels
+     * @apiDescription Endpoint for getting history of channel. Also subscribes to socket for updates
+     * 
+     * @apiHeader {String} Authorization Users Bearer Token (JWT)
+     * 
+     * @apiParam {String} id Channels unique ID.
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {  }
+     * 
+     * @apiError 404 The requested channel was not found.
+     * @apiVersion 1.0.0
+     */
+    async actionHistory(route) {
+        let id = route.params.id
+        let channel = Channel.get(id)
+        let userUUID = route.user.uuid
+
+        if(!channel) {
+            return TrustedError.get("API_CHANNEL_NOT_RUNNING")
+        }
+
+        return Channel.getAndSubscribeHistory(id, userUUID)
+    }
+
 }
 
 export default new ChannelEndpoint();

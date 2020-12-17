@@ -10,7 +10,7 @@ class App {
                 await userjs.setupUser()
                 
                 store.state.appIsReady = true
-                next({ name: 'home' })
+                next()
             } else if (jwtValid.status == 503) {
                 next({ name: 'error503' })
             } else {

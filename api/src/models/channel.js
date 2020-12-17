@@ -96,17 +96,24 @@ class Channel extends Model {
         this.activeChannels[channelUUID] = channel
         return data
     }
+    static updateHistory(channelUUID, data) {
+        let channel = this.activeChannels[channelUUID]
+        if(!channel) return
+
+        channel.history = data.history
+        this.activeChannels[channelUUID] = channel
+        return data
+    }
 
     static async loadChannels() {
         let statuses = await this.loadMap(this.MAP_CHANNEL_STATUS)
         let metadatas = await this.loadMap(this.MAP_CHANNEL_METADATA)
-        //let histories = this.loadActiveHistories()
+        let histories = await this.loadMap(this.MAP_CHANNEL_HISTORY)
 
         Object.values(statuses).forEach((activeChannel) => {
             let status = activeChannel
             let metadata = metadatas[activeChannel.uuid] || {}
-
-            //let history = histories[activeChannel.uuid]
+            let history = histories[activeChannel.uuid]
 
             let channel = {
                 uuid: status.uuid,
@@ -119,8 +126,8 @@ class Channel extends Model {
                 info: {
                     title: metadata.title || undefined,
                     artist: metadata.artist || undefined,
-                    //history: history.history
                 },
+                history: history.history || [],
                 listeners: 0
             }
 
@@ -250,6 +257,14 @@ class Channel extends Model {
     }
     static getVoting(channelUUID) {
         return this.activeVotings[channelUUID]
+    }
+
+    static getAndSubscribeHistory(channelUUID, userUUID) {
+        let clientSocket = Socket.getClient(userUUID)
+        if(clientSocket) clientSocket.join("channel-"+channelUUID)
+
+        let channel = this.activeChannels[channelUUID]
+        return channel.history
     }
 
     static setPingTime(channelUUID) {

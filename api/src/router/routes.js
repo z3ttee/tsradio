@@ -3,6 +3,7 @@ import authEndpoint from '../endpoints/authEndpoint.js'
 import userEndpoint from '../endpoints/userEndpoint.js'
 import groupEndpoint from '../endpoints/groupEndpoint.js'
 import channelEndpoint from '../endpoints/channelEndpoint.js'
+import songEndpoint from '../endpoints/songEndpoint.js'
 
 const routes = [
     {
@@ -36,6 +37,7 @@ const routes = [
             {name: 'ChannelsGetMultiple', path: '/channels', action: 'getMultiple', method: 'get'},
             {name: 'ChannelsRemoveOne', path: '/channels/:id', action: 'removeOne', method: 'delete', permission: 'permission.channels.canDelete'},
             {name: 'ChannelsRequestVoteskip', path: '/channels/:id/skip', action: 'requestSkip', method: 'get'},
+            {name: 'ChannelsGetHistory', path: '/channels/:id/history', action: 'history', method: 'get'},
         ]
     },
     {
@@ -45,6 +47,13 @@ const routes = [
             {name: 'AuthSignin', path: '/auth/signin', action: 'signin', method: 'post'},
             {name: 'AuthVerify', path: '/auth/verify', action: 'verify', method: 'get'},
             {name: 'AuthListenerLogin', path: '/auth/listener', action: 'listenerLogin', method: 'post'}
+        ]
+    },
+    {
+        groupname: 'song',
+        handler: songEndpoint,
+        actions: [
+            {name: 'SongGetLyrics', path: '/songs/lyrics', action: 'lyrics', method: 'post'},
         ]
     },
     {
