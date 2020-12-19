@@ -25,7 +25,7 @@ global.cfg = config
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-app.use('/artworks', express.static('artworks'))
+app.use('/artworks', express.static(__dirname+'/artworks'))
 
 console.log("Starting api...")
 

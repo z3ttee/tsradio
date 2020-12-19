@@ -48,7 +48,8 @@
                 padding: 0;
                 width: 116px;
                 height: 116px;
-                background: url("/assets/images/branding/ts_logo_padding.png"), $colorPlaceholder;
+                transition: background-image 2s ease;
+                background-image: url("/assets/images/branding/ts_logo_padding.png"), $colorPlaceholder;
                 background-size: cover;
                 background-position: center;
                 border-top-right-radius: $borderRadSmall;

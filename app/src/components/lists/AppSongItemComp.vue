@@ -19,8 +19,7 @@
 </template>
 
 <script>
-//import socketjs from '@/models/socket.js'
-//import config from '@/config/config.js'
+import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
 
@@ -42,24 +41,19 @@ export default {
         }
     },
     methods: {
-        /*select() {
-            if(!this.isSelected) {
-                let previous = this.$store.state.currentChannel
-                let next = this.channel
-
-                if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
-                this.$store.state.currentChannel = this.channel
-                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
-                socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => channeljs.onChannelSkipListener(data))
-            }
-        },*/
         updateCoverImage(){
-            // TODO
+            setTimeout(() => {
+                let coverElement = document.getElementById(this.itemID+'cover')
+                let coverURL = config.api.baseURL+'artworks/'+this.channelUUID+'/'+this.song.timestamp+'.png?key='+this.makeid(4)
 
-            //let coverElement = document.getElementById(this.itemID+'cover')
-            //let coverURL = config.api.baseURL+'artworks/'+this.channelUUID+'.png?key='+this.makeid(4)
-            
-            //coverElement.style.backgroundImage = "url('"+coverURL+"')"
+                let downloadImage = new Image()
+                downloadImage.onload = (event) => {
+                    let image = event.path[0]
+                    coverElement.style.backgroundImage = "url('"+image.src+"')"
+                }
+                
+                downloadImage.src = coverURL
+            }, 10)
         },
         formatTime(timestamp) {
             var date = new Date(parseInt(timestamp));
