@@ -174,10 +174,15 @@ public class Channel extends Thread {
         logger.info("loadTracks(): Loaded "+this.tracks.size()+" tracks from channel '"+this.title+"'");
     }
 
+    public File getArtworkFile() {
+        File dir = FileHandler.getInstance().getArtworksDir();
+        return new File(dir.getAbsolutePath(), getUuid() + ".png");
+    }
+
     public void extractArtworkToApi(Mp3File mp3Data){
         File dir = FileHandler.getInstance().getArtworksDir();
         if(dir.exists()) {
-            File artworkFile = new File(dir.getAbsolutePath(), getUuid() + ".png");
+            File artworkFile = getArtworkFile();
 
             try {
                 if(artworkFile.exists()) FileUtils.forceDelete(artworkFile);

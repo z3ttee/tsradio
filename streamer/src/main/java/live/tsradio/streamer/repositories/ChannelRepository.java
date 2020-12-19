@@ -45,15 +45,16 @@ public class ChannelRepository extends Repository<Channel> {
     }
 
     private Channel resultToChannel(ResultSet rs) throws SQLException {
+        String channelUUID = rs.getString("uuid");
         return new Channel(
-                rs.getString("uuid"),
+                channelUUID,
                 rs.getString("title"),
                 rs.getString("path"),
                 rs.getString("description"),
                 rs.getBoolean("featured"),
                 rs.getBoolean("special"),
                 rs.getBoolean("showLyrics"),
-                new ChannelInfo()
+                new ChannelInfo(channelUUID)
         );
     }
 
