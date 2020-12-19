@@ -11,7 +11,7 @@
 
             <div class="showcase-description" v-if="channel">
                 <div class="layout-table table-nobreak">
-                    <div class="layout-col" :id="itemID+'cover'"></div>
+                    <div class="layout-col layout-cover" :id="itemID+'cover'"></div>
                     <div class="layout-col">
                         <h2>{{ channel.title }}</h2>
 
@@ -131,6 +131,7 @@ export default {
         border-radius: $borderRadSmall;
         box-shadow: $shadowHeavy;
 
+        transition: background-image 1s ease-in-out;
         background: url("/assets/images/branding/ts_logo_padding.png"), $colorPlaceholder;
         background-size: cover;
         background-position: center;
@@ -151,6 +152,7 @@ export default {
     width: 100%;
     filter: blur(8px);
     z-index: 0;
+    transition: background-image 1s ease-in-out;
     background-position: center;
     background-size: cover;
 }
