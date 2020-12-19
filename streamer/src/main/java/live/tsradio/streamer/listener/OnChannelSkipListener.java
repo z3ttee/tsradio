@@ -14,8 +14,6 @@ public class OnChannelSkipListener implements RedisEvent {
     @Override
     public void onEvent(String channel, String message) {
         try {
-            logger.info("onEvent(): "+message);
-
             JSONParser parser = new JSONParser();
             JSONObject json = (JSONObject) parser.parse(message);
 
@@ -23,7 +21,6 @@ public class OnChannelSkipListener implements RedisEvent {
             Channel c = ChannelHandler.getChannel(channelUUID);
 
             if(c != null) {
-                logger.info("onEvent(): triggering skip...");
                 c.skip();
             }
         } catch (Exception e) {
