@@ -11,7 +11,7 @@
         <div class="layout-grid">
             <div class="section-field transparent">
                 <h4>Zuvor gespielt <v-lottie-player class="loader" width="24px" height="24px" loop autoplay :animationData="loaderData" v-if="history.loading"></v-lottie-player></h4>
-                <app-textbox class="box-small" v-if="!history.loading && history.data.length == 0">Dieser Channel hat keine bereits gespielten Songs</app-textbox>
+                <app-textbox class="box-small" v-if="!history.loading && (!history.data || history.data.length == 0)">Dieser Channel hat keine bereits gespielten Songs</app-textbox>
 
                 <div class="list-grid-wrapper">
                     <transition-group name="animation_item_slide" mode="out-in">
@@ -66,6 +66,7 @@ export default {
         },
         sortedHistory() {
             let history = this.history.data
+            if(!history) return []
             return history.sort((x,y) => {
                 return y.timestamp - x.timestamp
             })
