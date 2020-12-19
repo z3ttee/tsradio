@@ -16,7 +16,7 @@
     <!-- Log to a file as well, including size and time based rolling -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/tsrstreamer.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/tsrstreamer.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>10MB</maxFileSize>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
