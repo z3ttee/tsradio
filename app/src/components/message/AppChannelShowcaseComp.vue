@@ -16,8 +16,8 @@
                         <h2>{{ channel.title }}</h2>
 
                         <div class="showcase-track-details">
-                            <p class="info-title" :id="itemID+'title'">{{ channel.info.title }}</p>
-                            <p class="info-artist" :id="itemID+'artist'">{{ channel.info.artist }}</p>
+                            <p class="info-title" :id="itemID+'title'"><span v-if="channel.info">{{ channel.info.title }}</span></p>
+                            <p class="info-artist" :id="itemID+'artist'"><span v-if="channel.info">{{ channel.info.artist }}</span></p>
                         </div>
                     </div>
                 </div>
@@ -70,12 +70,14 @@ export default {
             }
         },
         updateCoverImage(){
-            let containerElement = document.getElementById(this.itemID+'background')
-            let coverElement = document.getElementById(this.itemID+'cover')
-            let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
-            
-            coverElement.style.backgroundImage = "url('"+coverURL+"')"
-            containerElement.style.backgroundImage = "url('"+coverURL+"')"
+            setTimeout(() => {
+                let containerElement = document.getElementById(this.itemID+'background')
+                let coverElement = document.getElementById(this.itemID+'cover')
+                let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
+                
+                coverElement.style.backgroundImage = "url('"+coverURL+"')"
+                containerElement.style.backgroundImage = "url('"+coverURL+"')"
+            }, 100)
         },
         initResizeObserver() {
             if(!document.getElementById(this.itemID+'title')) return
