@@ -74,10 +74,17 @@ export default {
                 let containerElement = document.getElementById(this.itemID+'background')
                 let coverElement = document.getElementById(this.itemID+'cover')
                 let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
+
+                let downloadImage = new Image()
+                downloadImage.onload = (event) => {
+                    let image = event.path[0]
+
+                    coverElement.style.backgroundImage = "url('"+image.src+"')"
+                    containerElement.style.backgroundImage = "url('"+image.src+"')"
+                }
                 
-                coverElement.style.backgroundImage = "url('"+coverURL+"')"
-                containerElement.style.backgroundImage = "url('"+coverURL+"')"
-            }, 100)
+                downloadImage.src = coverURL
+            }, 10)
         },
         initResizeObserver() {
             if(!document.getElementById(this.itemID+'title')) return

@@ -156,9 +156,7 @@ export default {
             if(this.voting.isInitializing || this.voting.hasVoted) return
 
             this.voting.isInitializing = true
-            channeljs.initSkip(this.selectedChannel.uuid).then((result) => {
-                console.log(result)
-                
+            channeljs.initSkip(this.selectedChannel.uuid).then((result) => {                
                 if(result.status == 200) {
                     this.voting.active = true
                     this.voting.hasVoted = true
@@ -176,7 +174,6 @@ export default {
                 let room = data.room
 
                 if(room == channelRoom) {
-                    console.log(data)
                     let status = data.status
 
                     if(status == 'init') {

@@ -66,10 +66,18 @@ export default {
             }
         },
         updateCoverImage(){
-            let coverElement = document.getElementById(this.itemID+'cover')
-            let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
-            
-            coverElement.style.backgroundImage = "url('"+coverURL+"')"
+            setTimeout(() => {
+                let coverElement = document.getElementById(this.itemID+'cover')
+                let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
+
+                let downloadImage = new Image()
+                downloadImage.onload = (event) => {
+                    let image = event.path[0]
+                    coverElement.style.backgroundImage = "url('"+image.src+"')"
+                }
+                
+                downloadImage.src = coverURL
+            }, 10)
         }
     },
     mounted() {
