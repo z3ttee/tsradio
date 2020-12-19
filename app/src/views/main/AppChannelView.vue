@@ -15,7 +15,7 @@
 
                 <div class="list-grid-wrapper">
                     <transition-group name="animation_item_slide" mode="out-in">
-                        <app-song-item v-for="(song) in sortedHistory" :key="song.title" :song="song"></app-song-item>
+                        <app-song-item v-for="(song) in sortedHistory" :key="song.title" :song="song" :channelUUID="channel.uuid"></app-song-item>
                     </transition-group>
                 </div>
             </div>
@@ -31,6 +31,22 @@
                 </transition>
             </div>
         </div>
+    </section>
+    <section v-else>
+         <app-messagebox>
+            <template #title>Da ist etwas schief gelaufen!</template>
+            <template #subtitle>Whooops!</template>
+            <template #content>
+                <p>Der Channel, den du suchst, ist gerade nicht aktiv oder existiert nicht!</p>
+                <ul>
+                    <li class="label">
+                        <router-link custom v-slot="{ navigate }" :to="{name: 'home'}">
+                            <button class="btn btn-primary btn-m" @click="navigate">Zurück zur Startseite</button>
+                        </router-link>
+                    </li>
+                </ul>
+            </template>
+        </app-messagebox>
     </section>
 </template>
 
