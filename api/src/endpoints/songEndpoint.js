@@ -1,5 +1,5 @@
 import Endpoint from './endpoint.js'
-import { getSong, getLyrics } from 'genius-lyrics-api'
+import { getLyrics } from 'genius-lyrics-api'
 import Joi from 'joi'
 import Validator from '../models/validator.js'
 import config from '../config/config.js'
@@ -16,12 +16,17 @@ class SongEndpoint extends Endpoint {
         let title = route.req.body.title
         let artist = route.req.body.artist
 
-        console.log(route.req.body)
-
         const validationSchema = Joi.object({
             title: Joi.string().required(),
             artist: Joi.string().required()
         })
+
+        // If multiple artists are present, choose the first
+        artist = artist.split(",")[0] 
+
+        // Normalize title (remove "Remaster" or anything like that)
+        // Mostly such things appear after a -, so it can be filtered out easily
+        title = title.split("-")[0]
 
         let validation = await Validator.validate(validationSchema, {title, artist})
 
