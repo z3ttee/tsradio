@@ -36,6 +36,7 @@ public class Channel extends Thread {
     @Getter private final ChannelInfo info;
     @Getter @Setter private boolean active;
     @Getter @Setter private boolean special;
+    @Getter @Setter private boolean showLyrics;
     @Getter private long lastPingSent;
     @Getter @Setter private boolean skippingCurrent;
 
@@ -47,7 +48,7 @@ public class Channel extends Thread {
 
     public boolean shutdown = false;
 
-    public Channel(String uuid, String title, String path, String description, boolean featured, boolean special, ChannelInfo info) {
+    public Channel(String uuid, String title, String path, String description, boolean featured, boolean special, boolean showLyrics, ChannelInfo info) {
         super("channel-"+path);
 
         this.uuid = uuid;
@@ -56,6 +57,7 @@ public class Channel extends Thread {
         this.description = description;
         this.featured = featured;
         this.special = special;
+        this.showLyrics = showLyrics;
         this.info = info;
         this.currentTrack = null;
         this.active = false;
@@ -113,12 +115,10 @@ public class Channel extends Thread {
     public void next() {
         AudioTrack track = this.queue.poll();
         this.currentTrack = track;
-        logger.info("next(): next song triggered");
         this.connection.stream(track);
     }
 
     public void skip() {
-        logger.info("skip(): skip triggered");
         this.skippingCurrent = true;
     }
 
@@ -217,6 +217,7 @@ public class Channel extends Thread {
                 "\"path\": \""+ JsonEscaper.getInstance().escape(getPath()) +"\"," +
                 "\"featured\": "+ isFeatured() +"," +
                 "\"special\": "+ isSpecial() +"," +
+                "\"showLyrics\": "+ isShowLyrics() +"," +
                 "\"active\": "+isActive()+"" +
                 "}";
     }

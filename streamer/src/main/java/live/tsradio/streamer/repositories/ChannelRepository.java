@@ -17,7 +17,7 @@ public class ChannelRepository extends Repository<Channel> {
         HashMap<String, Channel> channels = new HashMap<>();
         ResultSet rs = MySQL.getInstance().get(
                 MySQL.TABLE_CHANNELS, "enabled = TRUE",
-                new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured", "special"))
+                new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured", "special", "showLyrics"))
         );
 
         try {
@@ -33,7 +33,7 @@ public class ChannelRepository extends Repository<Channel> {
     public Channel findOneByID(String uuid) {
         ResultSet rs = MySQL.getInstance().get(
                 MySQL.TABLE_CHANNELS, "uuid = '"+uuid+"' AND enabled = TRUE",
-                new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured", "special"))
+                new ArrayList<>(Arrays.asList("title", "uuid", "path", "description", "featured", "special", "showLyrics"))
         );
 
         try {
@@ -52,6 +52,7 @@ public class ChannelRepository extends Repository<Channel> {
                 rs.getString("description"),
                 rs.getBoolean("featured"),
                 rs.getBoolean("special"),
+                rs.getBoolean("showLyrics"),
                 new ChannelInfo()
         );
     }
