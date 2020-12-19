@@ -21,10 +21,11 @@
             </div>
             <div class="section-field transparent">
                 <h4>Die Lyrics zum Song <span class="badge badge-s">Beta</span><v-lottie-player class="loader" width="24px" height="24px" loop autoplay :animationData="loaderData" v-if="lyrics.loading"></v-lottie-player></h4>
-                <app-textbox class="box-small" v-if="!lyrics.loading && !lyrics.data">Für diesen Song sind keine Lyrics verfügbar</app-textbox>
+                <app-textbox class="box-small" v-if="!lyrics.loading && !lyrics.data && channel.showLyrics">Für diesen Song sind keine Lyrics verfügbar</app-textbox>
+                <app-textbox class="box-small" v-if="!lyrics.loading && !lyrics.data && !channel.showLyrics">Für diesen Channel wurden Lyrics deaktiviert</app-textbox>
 
-                <transition name="animation_item_slide">
-                    <div class="section-field inner" v-if="lyrics.data">
+                <transition name="animation_item_slide" mode="out-in">
+                    <div class="section-field inner" v-if="channel.showLyrics && lyrics.data">
                         <p v-html="lyrics.data"></p>
                     </div>
                 </transition>
@@ -104,15 +105,22 @@ export default {
         getLyrics() {
             if(this.channel) {
                 this.lyrics.loading = true
-                this.lyrics.data = undefined
+                //this.lyrics.data = undefined
 
-                this.$channel.getLyrics(this.channel.info.title, this.channel.info.artist).then((result) => {
-                    if(result.status == 200) {
-                        this.lyrics.data = result.data.lyrics.replace("\n", "<br>")
-                    }
-                }).finally(() => {
+                if(this.channel.showLyrics) {
+                    this.$channel.getLyrics(this.channel.info.title, this.channel.info.artist).then((result) => {
+                        if(result.status == 200) {
+                            this.lyrics.data = result.data.lyrics.replace("\n", "<br>")
+                        } else {
+                            this.lyrics.data = undefined
+                        }
+                    }).finally(() => {
+                        this.lyrics.loading = false
+                    })
+                } else {
                     this.lyrics.loading = false
-                })
+                    this.lyrics.data = undefined
+                }
             }
         }
     },
@@ -155,7 +163,6 @@ export default {
 
 .section-field {
     background-color: rgba($color: $colorPrimaryDark, $alpha: 0.7);
-    //box-shadow: $shadowNormal;
     border-radius: $borderRadSmall;
     padding: 1.2em;
     margin: 0;

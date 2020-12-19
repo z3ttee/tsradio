@@ -1,6 +1,5 @@
 import store from '@/store/index.js'
 import apijs from '@/models/api.js'
-//import socket from './socket'
 
 class Channel {
 
@@ -24,7 +23,6 @@ class Channel {
 
     async initSkip(channelUUID) {
         return apijs.get('/channels/'+channelUUID+'/skip')
-        //socket.emit(socket.CHANNEL_SKIP, {uuid: channelUUID})
     }
 
     async onChannelSkipListener(data) {
