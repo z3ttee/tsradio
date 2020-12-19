@@ -65,17 +65,19 @@ class Channel {
         channel.active = data.active
         channel.title = data.title
         channel.description = data.description
-        channel.featured = data.featured
-        channel.listeners = data.listeners
-        channel.special = data.special
+        channel.featured = data.featured || false
+        channel.listeners = data.listeners || 0
+        channel.special = data.special || false
+        channel.showLyrics = data.showLyrics || true
 
         if(currentChannel && currentChannel.uuid == channelUUID) {
             store.state.currentChannel.active = data.active
             store.state.currentChannel.title = data.title
             store.state.currentChannel.description = data.description
-            store.state.currentChannel.featured = data.featured
-            store.state.currentChannel.listeners = data.listeners
-            store.state.currentChannel.special = data.special
+            store.state.currentChannel.featured = data.featured || false
+            store.state.currentChannel.listeners = data.listeners || 0
+            store.state.currentChannel.special = data.special || false
+            store.state.currentChannel.showLyrics = data.showLyrics || true 
         }
     }
 
