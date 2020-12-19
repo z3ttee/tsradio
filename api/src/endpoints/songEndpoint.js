@@ -28,6 +28,11 @@ class SongEndpoint extends Endpoint {
         // Mostly such things appear after a -, so it can be filtered out easily
         title = title.split("-")[0]
 
+        // There are cases where a remix name is inside brackets or a feat. is 
+        // in title
+        title = title.replace(/\((.*?)\)/, "")
+        title = title.replace(/(?<=feat).*$/, "").replace("feat", "")
+
         let validation = await Validator.validate(validationSchema, {title, artist})
 
         if(!validation.passed) {
