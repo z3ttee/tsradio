@@ -79,6 +79,7 @@ class Channel extends Model {
         channel.description = data.description
         channel.featured = data.featured
         channel.special = data.special
+        channel.showLyrics = data.showLyrics
         // channel.uuid and channel.path is not updated, because this action is not allowed
 
         this.activeChannels[channelUUID] = channel
@@ -123,6 +124,7 @@ class Channel extends Model {
                 path: status.path,
                 featured: status.featured,
                 special: status.special || false,
+                showLyrics: status.showLyrics || true,
                 info: {
                     title: metadata.title || undefined,
                     artist: metadata.artist || undefined,
@@ -180,7 +182,6 @@ class Channel extends Model {
             expiryManager
         }
 
-        console.log("Vote has been initiated for channel "+channelUUID)
         clientSocket.join("channel-"+channelUUID)
         Socket.broadcastToRoom("channel-"+channelUUID, "skip", {
             status: 'init',
@@ -230,7 +231,6 @@ class Channel extends Model {
         }
 
         if(percentage > 0.5) {
-            console.log("voting passed: "+percentage)
             this.endVoting(channelUUID, true)
         }
     }
@@ -374,6 +374,10 @@ const dbModel = {
     special: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    showLyrics: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }
 
