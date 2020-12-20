@@ -147,9 +147,18 @@ export default {
         },
         changePageBackground() {
             if(this.selectedChannel) {
-                let pageBackground = document.getElementById("pageBackground")
-                let coverURL = config.api.baseURL+'artworks/'+this.selectedChannel.uuid+'.png?key='+this.makeid(4)
-                pageBackground.style.backgroundImage = "url('"+coverURL+"')"
+                setTimeout(() => {
+                    let pageBackground = document.getElementById("pageBackground")
+                    let coverURL = config.api.baseURL+'artworks/'+this.selectedChannel.uuid+'.png?key='+this.makeid(4)
+
+                    let downloadImage = new Image()
+                    downloadImage.onload = (event) => {
+                        let image = event.path[0]
+                        pageBackground.style.backgroundImage = "url('"+image.src+"')"
+                    }
+                    
+                    downloadImage.src = coverURL
+                }, 10)
             }
         },
         addVote(){
