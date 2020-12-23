@@ -114,7 +114,7 @@ class Channel extends Model {
         Object.values(statuses).forEach((activeChannel) => {
             let status = activeChannel
             let metadata = metadatas[activeChannel.uuid] || {}
-            let history = histories[activeChannel.uuid]
+            let history = histories[activeChannel.uuid] || {} 
 
             let channel = {
                 uuid: status.uuid,
