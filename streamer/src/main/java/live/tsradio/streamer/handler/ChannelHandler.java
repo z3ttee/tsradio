@@ -1,6 +1,5 @@
 package live.tsradio.streamer.handler;
 
-import live.tsradio.streamer.database.Redis;
 import live.tsradio.streamer.files.FileHandler;
 import live.tsradio.streamer.objects.Channel;
 import live.tsradio.streamer.repositories.ChannelRepository;
@@ -37,14 +36,18 @@ public class ChannelHandler {
     }
     public static void stopChannelSync(String channelUUID) throws InterruptedException {
         Channel channel = getChannel(channelUUID);
-        if(channel != null && !channel.shutdown) {
+        if(channel != null) {
+            logger.warn("stopChannelSync(): Shutting down channel "+channelUUID);
+
             channel.shutdown();
             channel.join();
+            logger.warn("stopChannelSync(): Done. ");
         }
     }
     public static void startChannel(String channelUUID) {
         Channel channel = getChannel(channelUUID);
         if(channel != null && !channel.isActive()) {
+            logger.warn("stopChannelSync(): Starting channel "+channelUUID);
             channel.boot();
         }
     }

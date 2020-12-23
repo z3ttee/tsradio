@@ -47,7 +47,7 @@ public class TrackEventListener {
                 sendMetadataUpdate(channel, null);
 
                 channel.logger.error("onTrackEnd(): A track has ended because of an exception: "+exception.getMessage());
-                channel.logger.error("onTrackEnd(): The channel is being restarted...");
+                channel.logger.error("onTrackEnd(): The channel is being restarted in 10s...");
                 try {
                     Thread.sleep(10000);
                     ChannelHandler.restartChannel(channel.getUuid());
