@@ -37,7 +37,7 @@
             border-color: rgba($color: $colorPlaceholder, $alpha: 1);
         }
 
-        &:active:not(.selected) {
+        &:active {
             transform: scale(0.98);
         }
 

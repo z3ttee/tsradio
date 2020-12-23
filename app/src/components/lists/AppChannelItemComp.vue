@@ -1,6 +1,6 @@
 <template>
     <div class="list-item-covered-wrapper">
-        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}" @click="select">
+        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}" @click="$channel.select(channel, true)">
             <transition name="animation_item_slide">
                 <span class="playingIndicator"><v-lottie-player width="20px" height="20px" loop autoplay :animationData="playingIndicatorData" v-if="isSelected"></v-lottie-player></span>
             </transition>
@@ -23,8 +23,6 @@
 </template>
 
 <script>
-import channeljs from '@/models/channel.js'
-import socketjs from '@/models/socket.js'
 import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
@@ -51,20 +49,6 @@ export default {
         }
     },
     methods: {
-        select() {
-            if(!this.isSelected) {
-                let previous = this.$store.state.currentChannel
-                let next = this.channel
-
-                if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
-                this.$store.state.currentChannel = this.channel
-                socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => channeljs.onChannelSkipListener(data))
-            }
-
-            if(this.$route.name != 'channelDetails') {
-                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
-            }
-        },
         updateCoverImage(){
             setTimeout(() => {
                 let coverElement = document.getElementById(this.itemID+'cover')

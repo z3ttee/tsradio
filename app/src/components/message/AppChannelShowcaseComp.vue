@@ -1,5 +1,5 @@
 <template>
-    <div :class="{'showcase-wrapper': true, 'selected': isSelected, 'showcase-small': small}" :id="itemID+'content'" @click="select">
+    <div :class="{'showcase-wrapper': true, 'selected': isSelected, 'showcase-small': small}" :id="itemID+'content'" @click="$channel.select(channel, true)">
         <div class="background-overlay" :id="itemID+'background'">dev</div>
         <div class="showcase-container">
             <h4>
@@ -60,15 +60,6 @@ export default {
         }
     },
     methods: {
-        select() {
-            if(!this.isSelected) {
-                this.$store.state.currentChannel = this.channel
-            }
-
-            if(this.$route.name != 'channelDetails') {
-                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
-            }
-        },
         updateCoverImage(){
             setTimeout(() => {
                 let containerElement = document.getElementById(this.itemID+'background')

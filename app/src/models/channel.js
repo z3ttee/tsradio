@@ -1,5 +1,7 @@
 import store from '@/store/index.js'
 import apijs from '@/models/api.js'
+import socketjs from '@/models/socket.js'
+import router from '../router'
 
 class Channel {
 
@@ -27,6 +29,21 @@ class Channel {
 
     async onChannelSkipListener(data) {
         console.log(data)
+    }
+
+    async select(channel, routerPush = false) {
+        let previous = store.state.currentChannel || {}
+        let next = channel || {}
+
+        if(next.uuid != previous.uuid) {
+            if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
+            store.state.currentChannel = channel
+            socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => this.onChannelSkipListener(data))
+        }
+
+        if(routerPush && router.currentRoute.name != 'channelDetails') {
+            router.push({name: 'channelDetails', params: {id: channel.uuid}})
+        }
     }
 
     async updateMetadata(channelUUID, data) {
