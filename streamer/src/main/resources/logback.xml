@@ -22,7 +22,7 @@
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
-            <Pattern>%d{HH:mm:ss.SSS} [Thread: %thread] [%-5level] %logger{40} >> %msg%n</Pattern>
+            <Pattern>%d{HH:mm:ss.SSS} [%-5level] [Thread: %thread] %logger{40} >> %msg%n</Pattern>
         </encoder>
         <prudent>true</prudent>
     </appender>
