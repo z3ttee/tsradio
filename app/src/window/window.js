@@ -1,14 +1,18 @@
 import {BrowserWindow} from 'electron'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 
-async function createWindow(options = {
-    width: 1600, 
-    height: 900,
-    minWidth: 600,
-    minHeight: 600
-}) {
+async function createWindow(options = {}) {
+    let defaultOptions = {
+        width: 1600, 
+        height: 900,
+        minWidth: 600,
+        minHeight: 600,
+        backgroundColor: "#262D37",
+        ...options
+    }
+
     const win = new BrowserWindow({
-        ...options,
+        ...defaultOptions,
         frame: false,
         webPreferences: {
             nodeIntegration: true
