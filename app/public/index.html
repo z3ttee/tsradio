@@ -11,9 +11,7 @@
 </head>
 
 <body>
-    <noscript>
-        <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
+    <div id="pageBackground"></div>
 
     <% if (process.env.IS_ELECTRON) { %>
         <header id="titlebar">
@@ -37,20 +35,17 @@
                 </div>
             </div>
         </header>
-    <% } %>
-
-    <div id="pageBackground"></div>
-
-    <% if (process.env.IS_ELECTRON) { %>
         <div id="wrapper"></div>
+        <script src="window/windowControls.js"></script>
     <% } else { %>
+        <noscript>
+            <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+        </noscript>
+
         <div id="wrapper" class="web"></div>
     <% } %>
 
     <!-- built files will be auto injected -->
-    <% if (process.env.IS_ELECTRON) { %>
-        <script src="window/windowControls.js"></script>
-    <% } %>
 </body>
 
 </html>
