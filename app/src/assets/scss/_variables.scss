@@ -15,6 +15,11 @@ $colorSuccess: #538d4a;
 $colorInfo: #277cad;
 
 /*
+[]========== Titlebar ==========[]
+*/
+$titlebarHeight: 28px;
+
+/*
 []========== Gradients ==========[]
 */
 $gradientBox: linear-gradient(135deg, rgba($color: $colorPrimary, $alpha: 1) 10%, rgba($color: $colorPlaceholder, $alpha: 1) 110%);
