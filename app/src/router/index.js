@@ -1,12 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from '@/router/routes.js'
 import appjs from '@/models/app.js'
 import userjs from '@/models/user.js'
 
-const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+var router = createRouter({
+    history: process.env.IS_ELECTRON ? createWebHashHistory(process.env.BASE_URL) : createWebHistory(process.env.BASE_URL),
     routes
 })
+
 
 // Before accessing routes, check if user is logged in, otherwise try to login with previously request jwt.
 // If no jwt exists, redirect to login page
