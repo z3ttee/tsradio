@@ -2,6 +2,7 @@
 
 import { app, protocol, BrowserWindow } from 'electron'
 import { createWindow } from './window/window'
+import Discord from './models/discordRPC'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -55,3 +56,6 @@ if (isDevelopment) {
     })
   }
 }
+
+
+new Discord()

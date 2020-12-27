@@ -3,6 +3,11 @@ import apijs from '@/models/api.js'
 import socketjs from '@/models/socket.js'
 import router from '../router'
 
+let ipcRenderer = undefined
+if(process.env.IS_ELECTRON) {
+    ipcRenderer = window.require("electron").ipcRenderer
+}
+
 class Channel {
 
     async remove(channelUUID) {
@@ -39,6 +44,10 @@ class Channel {
             if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
             store.state.currentChannel = channel
             socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => this.onChannelSkipListener(data))
+
+            if(ipcRenderer) {
+                ipcRenderer.send('discord-activity-update', {uuid: channel.uuid, title: channel.title})
+            }
         }
 
         if(routerPush && router.currentRoute.name != 'channelDetails') {

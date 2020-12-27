@@ -12,11 +12,12 @@ async function createWindow(options = {}) {
     }
 
     const win = new BrowserWindow({
-        ...defaultOptions,
         frame: false,
         webPreferences: {
-            nodeIntegration: true
-        }
+            nodeIntegration: true,
+            enableRemoteModule: true
+        },
+        ...defaultOptions,
     })
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {

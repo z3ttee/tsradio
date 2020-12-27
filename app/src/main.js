@@ -18,12 +18,6 @@ import socketjs from '@/models/socket.js'
 import userjs from '@/models/user.js'
 import errorjs from '@/models/error.js'
 
-// Import Discord RPC Client if it is desktop app
-let discord = undefined;
-if(process.env.IS_ELECTRON) {
-    discord = import('@/models/discordRPC.js')
-}
-
 const app = createApp(App)
 
 app.config.globalProperties.$user = userjs
@@ -56,7 +50,3 @@ app.mixin({
 })
 
 app.mount('#wrapper')
-
-if(discord) {
-    discord.setDiscordActivity()
-}
