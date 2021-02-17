@@ -1,6 +1,8 @@
 <template>
     <div :class="{'showcase-wrapper': true, 'selected': isSelected, 'showcase-small': small}" :id="itemID+'content'" @click="$channel.select(channel, true)">
-        <div class="background-overlay" :id="itemID+'background'">dev</div>
+        <div class="background-overlay-container">
+            <div class="background-overlay" :id="itemID+'background'"></div>
+        </div>
         <div class="showcase-container">
             <h4>
                 <slot name="title"></slot>
@@ -11,7 +13,9 @@
 
             <div class="showcase-description" v-if="channel">
                 <div class="layout-table table-nobreak">
-                    <div class="layout-col layout-cover" :id="itemID+'cover'"></div>
+                    <div class="layout-col layout-cover" :id="itemID+'cover'">
+                        <app-reveal-cover :reveal="true" :mainImage="mainImageUrl" :secondaryImage="secondaryImageUrl" :secondaryEnabled="true"></app-reveal-cover>
+                    </div>
                     <div class="layout-col">
                         <h2>{{ channel.title }}</h2>
 
@@ -31,7 +35,13 @@ import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
 
+import AppRevealCover from '@/components/image/AppRevealCover.vue'
+import * as url from '@/assets/images/branding/ts_logo_padding.png'
+
 export default {
+    components: {
+        AppRevealCover
+    },
     props: {
         channel: Object,
         default: {},
@@ -43,7 +53,11 @@ export default {
     data() {
         return {
             itemID: this.makeid(6),
-            playingIndicatorData
+            playingIndicatorData,
+
+            coverReveal: false,
+            mainImageUrl: "",
+            secondaryImageUrl: ""
         }
     },
     watch: {
@@ -63,19 +77,23 @@ export default {
         updateCoverImage(){
             setTimeout(() => {
                 let containerElement = document.getElementById(this.itemID+'background')
-                let coverElement = document.getElementById(this.itemID+'cover')
+                let channelCoverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.jpg'
                 let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
 
-                let downloadImage = new Image()
-                downloadImage.onload = (event) => {
-                    let image = event.path[0]
-
-                    coverElement.style.backgroundImage = "url('"+image.src+"')"
-                    containerElement.style.backgroundImage = "url('"+image.src+"')"
-                }
-                
-                downloadImage.src = coverURL
+                this.downloadImage(channelCoverURL, (url) => {
+                    this.secondaryImageUrl = url
+                })
+                this.downloadImage(coverURL, (url) => {
+                    this.mainImageUrl = url
+                    containerElement.style.backgroundImage = "url('"+url+"')"
+                })
             }, 10)
+        },
+        downloadImage(src, onload) {
+            let downloadImage = new Image()
+            downloadImage.onload = (event) => onload(event?.path[0]?.src)
+            downloadImage.onerror = () => onload(url)
+            downloadImage.src = src
         },
         initResizeObserver() {
             if(!document.getElementById(this.itemID+'title')) return
@@ -119,30 +137,28 @@ export default {
         width: 128px;
         height: 128px;
 
-        border-radius: $borderRadSmall;
-        box-shadow: $shadowHeavy;
 
-        transition: background-image 1s ease-in-out;
-        background: url("/assets/images/branding/ts_logo_padding.png"), $colorPlaceholder;
-        background-size: cover;
-        background-position: center;
-
-        overflow: hidden;
     }
     &:last-of-type {
         padding-left: 1em;
     }
 }
 
-.background-overlay {
+.background-overlay-container {
     position: absolute;
-    
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
-    filter: blur(8px);
     z-index: 0;
+    overflow: hidden;
+    border-radius: $borderRadSmall;
+}
+.background-overlay {
+    display: block;
+    width: 100%;
+    height: 100%;
+
     transition: background-image 1s ease-in-out;
     background-position: center;
     background-size: cover;
@@ -150,11 +166,9 @@ export default {
 
 h2 {
     font-weight: 700;
-
     background: linear-gradient($colorAccent, $colorPrimary 130%);
     background-clip: text;
     -webkit-text-fill-color: transparent;
-
     text-shadow: 1px 1px 0px rgba($color: $colorPrimaryDarker, $alpha: 0.1);
 }
 
@@ -165,12 +179,9 @@ h2 {
     width: 100%;
     padding-top: 30%;
 
-    background: $gradientBox;
     box-shadow: $shadowNormal;
     
-    border: 3px solid $colorPrimary;
     border-radius: $borderRadSmall;
-    overflow: hidden;
     margin-bottom: 3em;
     transition: all $animSpeedFast*1s $cubicNorm;
 
@@ -190,6 +201,7 @@ h2 {
     padding: 1em;
     background-color: rgba($color: $colorPrimaryDark, $alpha: 0.92);
     background: linear-gradient(180deg, rgba($color: $colorPrimary, $alpha: 1.0) 0%, rgba($color: $colorPrimary, $alpha: 0.8) 50%, rgba($color: $colorPrimary, $alpha: 1.0) 100%);
+    border-radius: $borderRadSmall;
 
     .showcase-description {
         padding: 1.5em;

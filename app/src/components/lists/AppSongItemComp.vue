@@ -2,7 +2,9 @@
     <div class="list-item-covered-wrapper">
         <div :id="itemID+'content'" class="list-item-covered">
 
-            <div :id="itemID+'cover'" class="list-item-col list-item-cover"></div>
+            <div :id="itemID+'cover'" class="list-item-col list-item-cover">
+                <app-reveal-cover :mainImage="mainImageUrl" :secondaryEnabled="false"></app-reveal-cover>
+            </div>
             <div :id="itemID+'info'" class="list-item-col list-item-content channel-info">
                 <h4 :id="itemID+'title'">{{ formatTime(song.timestamp) }} Uhr</h4>
                 <div>
@@ -23,7 +25,13 @@ import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
 
+import AppRevealCover from '@/components/image/AppRevealCover.vue'
+import * as url from '@/assets/images/branding/ts_logo_padding.png'
+
 export default {
+    components: {
+        AppRevealCover
+    },
     props: {
         song: Object,
         channelUUID: String
@@ -32,7 +40,10 @@ export default {
         return {
             itemID: this.makeid(6),
             observer: undefined,
-            playingIndicatorData
+            playingIndicatorData,
+
+            coverReveal: false,
+            mainImageUrl: "",
         }
     },
     watch: {
@@ -43,17 +54,18 @@ export default {
     methods: {
         updateCoverImage(){
             setTimeout(() => {
-                let coverElement = document.getElementById(this.itemID+'cover')
                 let coverURL = config.api.baseURL+'artworks/'+this.channelUUID+'/'+this.song.timestamp+'.png?key='+this.makeid(4)
 
-                let downloadImage = new Image()
-                downloadImage.onload = (event) => {
-                    let image = event.path[0]
-                    coverElement.style.backgroundImage = "url('"+image.src+"')"
-                }
-                
-                downloadImage.src = coverURL
+                this.downloadImage(coverURL, (url) => {
+                    this.mainImageUrl = url
+                })
             }, 10)
+        },
+        downloadImage(src, onload) {
+            let downloadImage = new Image()
+            downloadImage.onload = (event) => onload(event?.path[0]?.src)
+            downloadImage.onerror = () => onload(url)
+            downloadImage.src = src
         },
         formatTime(timestamp) {
             var date = new Date(parseInt(timestamp));
