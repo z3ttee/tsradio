@@ -1,12 +1,8 @@
 <template>
-    <div class="header">
+    <div class="header" id="app-header">
         <div class="content-container">
             <div class="header-bar-section">
-                <button class="btn btn-icon btn-l btn-inline" @click="toggleSidebar" v-if="!!$store.state.jwt"><img src="@/assets/images/icons/menu.svg"></button>
-            </div>
-
-            <div class="header-bar-section">
-                <img id="desktop-banner" src="@/assets/images/branding/ts_radio_banner.svg" alt="" srcset="">
+                <img id="desktop-banner" src="@/assets/images/branding/ts_radio_logo.svg" alt="" srcset="">
                 <img id="mobile-banner" src="@/assets/images/branding/ts_logo_svg.svg" alt="" srcset="">
             </div>
 
@@ -26,13 +22,31 @@
 </template>
 
 <script>
-//import sidebarEventListener from '@/events/SidebarEventListener.js'
-
 export default {
     methods: {
-        toggleSidebar() {
-            //sidebarEventListener.emit('toggle')
+        setHeaderStateScrolling(scrolling = false) {
+            const element = document.getElementById("app-header")
+
+            if(scrolling) {
+                if(!element.classList.contains("state-scrolling")) {
+                    element.classList.add("state-scrolling")
+                }
+            } else {
+                element.classList.remove("state-scrolling")
+            }
         }
+    },
+    mounted() {
+        document.getElementById("wrapper").addEventListener("scroll", (event) => {
+            if(event.target.scrollTop <= 50) {
+                this.setHeaderStateScrolling(false)
+            } else {
+                this.setHeaderStateScrolling(true)
+            }
+        })
+    },
+    unmounted() {
+        
     }
 }
 </script>
@@ -41,17 +55,34 @@ export default {
 @import '@/assets/scss/_variables.scss';
 
 .header {
-    padding: $boxPad 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: $boxPad*1.5 0;
+    border-bottom: 2px solid transparent;
+    transition: all $animSpeedFast*1s $cubicNorm;
+
+    &.state-scrolling {
+        background-color: $colorPrimary;
+        box-shadow: $shadowNormal;
+        padding: $boxPad/1.5 0;
+        border-bottom: 2px solid $colorPlaceholder;
+
+        #desktop-banner,
+        #mobile-banner {
+            height: 40px !important;
+        }
+    }
 
     .header-bar-section {
         vertical-align: middle;
         display: inline-block;
-        width: 33%;
+        width: 50%;
         text-align: center;
 
         img#desktop-banner,
         img#mobile-banner {
-            height: 50px;
+            height: 40px;
         }
 
         img#mobile-banner {
@@ -67,6 +98,7 @@ export default {
     }
 
     .header-profile {
+        display: inline-block;
         position: relative;
         font-size: 0.7em;
         font-weight: 600;
@@ -75,20 +107,16 @@ export default {
     }
 }
 
-@media screen and (max-width: 950px) {
+@media screen and (max-width: 580px) {
     .header {
-        img#desktop-banner {
-            display: none;
-        }
-        img#mobile-banner {
-            display: inline-block !important;
-            width: 32px;
-            height: 32px;
+
+        &.state-scrolling {
+            padding: $boxPad/1.5 0;
         }
     }
 }
 
-@media screen and (max-width: 580px) {
+@media screen and (max-width: 380px) {
     span#username {
         display: none;
     }
