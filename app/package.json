@@ -18,14 +18,15 @@
     "axios": "^0.21.0",
     "clamp-js": "^0.7.0",
     "core-js": "^3.6.5",
+    "discord-rpc": "^3.1.4",
+    "electron-store": "^6.0.1",
     "socket.io-client": "^3.0.3",
     "vue": "^3.0.0",
     "vue-cookie-next": "^1.0.3",
     "vue-lottie-player": "^0.1.9",
     "vue-radial-progress": "^0.3.2",
     "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0",
-    "discord-rpc": "^3.1.4"
+    "vuex": "^4.0.0-0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
