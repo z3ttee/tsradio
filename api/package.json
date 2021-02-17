@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon --exec babel-node ./src/index.js",
-    "build": "node ./build/clean.js && babel ./src --out-dir ./dist && node ./build/copy.js"
+    "build": "node ./build/clean.js && babel ./src --out-dir ./dist"
   },
   "author": "",
   "license": "ISC",
