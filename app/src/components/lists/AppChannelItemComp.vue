@@ -1,11 +1,13 @@
 <template>
-    <div class="list-item-covered-wrapper">
-        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}" @click="select">
+    <div class="list-item-covered-wrapper" @mouseenter="coverReveal = true" @mouseleave="coverReveal = false">
+        <div :id="itemID+'content'" :class="{'list-item-covered': true, 'selected': isSelected}" @click="$channel.select(channel, true)">
             <transition name="animation_item_slide">
                 <span class="playingIndicator"><v-lottie-player width="20px" height="20px" loop autoplay :animationData="playingIndicatorData" v-if="isSelected"></v-lottie-player></span>
             </transition>
 
-            <div :id="itemID+'cover'" class="list-item-col list-item-cover"></div>
+            <div :id="itemID+'cover'" class="list-item-col list-item-cover">
+                <app-reveal-cover :reveal="coverReveal" :mainImage="mainImageUrl" :secondaryImage="secondaryImageUrl" :secondaryEnabled="true"></app-reveal-cover>
+            </div>
             <div :id="itemID+'info'" class="list-item-col list-item-content channel-info">
                 <h4 :id="itemID+'title'">{{ channel.title }}</h4>
                 <div>
@@ -23,13 +25,17 @@
 </template>
 
 <script>
-import channeljs from '@/models/channel.js'
-import socketjs from '@/models/socket.js'
 import config from '@/config/config.js'
 import clamp from 'clamp-js'
 import playingIndicatorData from '@/assets/animated/audio.json'
 
+import AppRevealCover from '@/components/image/AppRevealCover.vue'
+import * as url from '@/assets/images/branding/ts_logo_padding.png'
+
 export default {
+    components: {
+        AppRevealCover
+    },
     props: {
         channel: Object
     },
@@ -37,7 +43,11 @@ export default {
         return {
             itemID: this.makeid(6),
             observer: undefined,
-            playingIndicatorData
+            playingIndicatorData,
+
+            coverReveal: false,
+            mainImageUrl: "",
+            secondaryImageUrl: ""
         }
     },
     watch: {
@@ -51,33 +61,24 @@ export default {
         }
     },
     methods: {
-        select() {
-            if(!this.isSelected) {
-                let previous = this.$store.state.currentChannel
-                let next = this.channel
-
-                if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
-                this.$store.state.currentChannel = this.channel
-                socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => channeljs.onChannelSkipListener(data))
-            }
-
-            if(this.$route.name != 'channelDetails') {
-                this.$router.push({name: 'channelDetails', params: {id: this.channel.uuid}})
-            }
-        },
         updateCoverImage(){
             setTimeout(() => {
-                let coverElement = document.getElementById(this.itemID+'cover')
+                let channelCoverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.jpg'
                 let coverURL = config.api.baseURL+'artworks/'+this.channel.uuid+'.png?key='+this.makeid(4)
 
-                let downloadImage = new Image()
-                downloadImage.onload = (event) => {
-                    let image = event.path[0]
-                    coverElement.style.backgroundImage = "url('"+image.src+"')"
-                }
-                
-                downloadImage.src = coverURL
+                this.downloadImage(channelCoverURL, (url) => {
+                    this.secondaryImageUrl = url
+                })
+                this.downloadImage(coverURL, (url) => {
+                    this.mainImageUrl = url
+                })
             }, 10)
+        },
+        downloadImage(src, onload) {
+            let downloadImage = new Image()
+            downloadImage.onload = (event) => onload(event?.path[0]?.src)
+            downloadImage.onerror = () => onload(url)
+            downloadImage.src = src
         }
     },
     mounted() {

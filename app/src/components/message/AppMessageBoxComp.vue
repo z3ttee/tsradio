@@ -3,7 +3,7 @@
         <div class="inner-box">
             <div class="layout-table">
                 <div class="layout-col banner-col banner-col-xl" v-if="banner">
-                    <slot name="banner"><img src="@/assets/images/branding/ts_radio_banner.svg" alt=""></slot>
+                    <slot name="banner"><img src="@/assets/images/branding/ts_radio_logo.svg" alt=""></slot>
                 </div>
                 <div class="layout-col">
                     <h6><slot name="subtitle"></slot></h6>
@@ -11,6 +11,7 @@
                     <div class="content" v-if="hasContentSlot"><slot name="content"></slot></div>
                 </div>
             </div>
+            
         </div>
     </div>
 </template>

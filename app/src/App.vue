@@ -30,4 +30,5 @@ export default {
 <style lang="scss">
 @import "@/assets/scss/animations.scss";
 @import "@/assets/scss/style.scss";
+@import '@/assets/scss/elements/titlebar.scss';
 </style>

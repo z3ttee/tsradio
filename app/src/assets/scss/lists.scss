@@ -24,7 +24,7 @@
         display: table;
         width: 100%;
 
-        overflow: hidden;
+        //overflow: hidden;
         vertical-align: top;
         background: $gradientBoxDark;
         border-radius: $borderRadSmall;
@@ -37,24 +37,18 @@
             border-color: rgba($color: $colorPlaceholder, $alpha: 1);
         }
 
-        &:active:not(.selected) {
+        &:active {
             transform: scale(0.98);
         }
 
         .list-item-col {
             display: table-cell;
+            vertical-align: middle;
 
             &.list-item-cover {
                 padding: 0;
                 width: 116px;
                 height: 116px;
-                transition: background-image 1s ease-in-out;
-                background-image: url("/assets/images/branding/ts_logo_padding.png"), $colorPlaceholder;
-                background-size: cover;
-                background-position: center;
-                border-top-right-radius: $borderRadSmall;
-                border-bottom-right-radius: $borderRadSmall;
-                box-shadow: $shadowNormal;
             }
 
             &.list-item-content {

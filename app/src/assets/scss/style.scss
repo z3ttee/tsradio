@@ -7,28 +7,45 @@
 */
 * {
     margin: 0 auto;
+    padding: 0;
+    border: 0;
     box-sizing: border-box;
     font-family: 'Poppins';
     color: $colorWhite;
 }
 
-::selection {
-    background-color: rgba($color: $colorAccent, $alpha: 0.5);
-    color: $colorWhite;
+html {
+    box-sizing: border-box;
 }
 
-html,
+*, 
+*:before, 
+*:after {
+    box-sizing: inherit;
+}
+
+html, 
+body {
+    height: 100%; 
+    margin: 0;
+    overflow: hidden;
+}
+
 body {
     position: relative;
-    height: 100%;
-    width: 100%;
-    transition: background-image 1s ease-in-out;
     background-color: $colorPrimary;
     background-image: url(assets/images/background/background_blurred.png);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    transition: background-image 1s ease-in-out;
+    
+}
+
+::selection {
+    background-color: rgba($color: $colorAccent, $alpha: 0.5);
+    color: $colorWhite;
 }
 
 #pageBackground {
@@ -47,11 +64,14 @@ body {
 
 #wrapper {
     position: relative;
-    height: 100%;
-    width: 100%;
-    overflow-x: hidden;
-    z-index: 1;
-    padding-bottom: 6em;
+    height: calc(100% - #{$titlebarHeight});
+    //margin-top: $titlebarHeight;
+    overflow-y: auto;
+
+    &.web {
+        margin-top: 0;
+        height: 100%;
+    }
 }
 
 .content-container {
@@ -60,7 +80,7 @@ body {
 }
 
 section {
-    margin-top: 3em;
+    margin-top: 2em;
     margin-bottom: 4em;
 
     h1,h2,h3,h4,h5,h6 {

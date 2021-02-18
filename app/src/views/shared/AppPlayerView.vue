@@ -405,6 +405,7 @@ input[type=range] {
     height: 80px;
     border-top: 2px solid $colorPlaceholder;
     box-shadow: $shadowHeavy;
+    z-index: 10000;
 }
 .playerbar-container {
     display: flex;
