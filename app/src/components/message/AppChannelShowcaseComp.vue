@@ -14,7 +14,7 @@
             <div class="showcase-description" v-if="channel">
                 <div class="layout-table table-nobreak">
                     <div class="layout-col layout-cover" :id="itemID+'cover'">
-                        <app-reveal-cover :reveal="true" :mainImage="mainImageUrl" :secondaryImage="secondaryImageUrl" :secondaryEnabled="true"></app-reveal-cover>
+                        <app-reveal-cover :reveal="false" :mainImage="mainImageUrl" :secondaryEnabled="false"></app-reveal-cover>
                     </div>
                     <div class="layout-col">
                         <h2>{{ channel.title }}</h2>
@@ -152,7 +152,7 @@ export default {
     width: 100%;
     z-index: 0;
     overflow: hidden;
-    border-radius: $borderRadSmall;
+    border-radius: $borderRadSmall+3px;
 }
 .background-overlay {
     display: block;
