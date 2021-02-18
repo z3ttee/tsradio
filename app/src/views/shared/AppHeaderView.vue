@@ -1,5 +1,5 @@
 <template>
-    <div class="header" id="app-header">
+    <div :class="'header ' + getHeaderStateClass" id="app-header">
         <div class="content-container">
             <div class="header-bar-section">
                 <img id="desktop-banner" src="@/assets/images/branding/ts_radio_logo.svg" alt="" srcset="">
@@ -23,30 +23,41 @@
 
 <script>
 export default {
-    methods: {
-        setHeaderStateScrolling(scrolling = false) {
-            const element = document.getElementById("app-header")
-
-            if(scrolling) {
-                if(!element.classList.contains("state-scrolling")) {
-                    element.classList.add("state-scrolling")
-                }
+    data() {
+        return {
+            headerState: 0
+        }
+    },
+    computed: {
+        getHeaderStateClass() {
+            if(this.headerState == 1) {
+                return "state-scrolling"
+            } else if(this.headerState == 2) {
+                return "state-hide"
             } else {
-                element.classList.remove("state-scrolling")
+                return "state-default"
+            }
+        }
+    },
+    methods: {
+        changeHeaderState() {
+            const scrolledValue = window.scrollY
+            const windowPageScrollValue = window.innerHeight/2
+
+            if(scrolledValue >= 20 && scrolledValue < windowPageScrollValue) {
+                this.headerState = 1
+            } else if(scrolledValue >= windowPageScrollValue) {
+                this.headerState = 2
+            } else {
+                this.headerState = 0
             }
         }
     },
     mounted() {
-        document.getElementById("wrapper").addEventListener("scroll", (event) => {
-            if(event.target.scrollTop <= 50) {
-                this.setHeaderStateScrolling(false)
-            } else {
-                this.setHeaderStateScrolling(true)
-            }
-        })
+        document.addEventListener("scroll", this.changeHeaderState)
     },
     unmounted() {
-        
+        document.removeEventListener("scroll", this.changeHeaderState)
     }
 }
 </script>
@@ -55,9 +66,10 @@ export default {
 @import '@/assets/scss/_variables.scss';
 
 .header {
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 100;
+    width: 100%;
     padding: $boxPad*1.5 0;
     border-bottom: 2px solid transparent;
     transition: all $animSpeedFast*1s $cubicNorm;
@@ -72,6 +84,10 @@ export default {
         #mobile-banner {
             height: 40px !important;
         }
+    }
+
+    &.state-hide {
+        transform: translateY(-100%);
     }
 
     .header-bar-section {

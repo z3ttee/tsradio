@@ -28,7 +28,6 @@ html,
 body {
     height: 100%; 
     margin: 0;
-    overflow: hidden;
 }
 
 body {
@@ -40,7 +39,6 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     transition: background-image 1s ease-in-out;
-    
 }
 
 ::selection {
@@ -49,7 +47,7 @@ body {
 }
 
 #pageBackground {
-    position: absolute;
+    position: fixed;
     height: 100%;
     width: 100%;
     z-index: 0;
@@ -64,9 +62,10 @@ body {
 
 #wrapper {
     position: relative;
-    height: calc(100% - #{$titlebarHeight});
+    min-height: 100%;
+    padding-top: 5em;
     //margin-top: $titlebarHeight;
-    overflow-y: auto;
+    //overflow-y: auto;
 
     &.web {
         margin-top: 0;
