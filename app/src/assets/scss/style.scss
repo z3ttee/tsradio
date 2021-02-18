@@ -64,12 +64,10 @@ body {
     position: relative;
     min-height: 100%;
     padding-top: 5em;
-    //margin-top: $titlebarHeight;
-    //overflow-y: auto;
+    padding-bottom: 5em;
 
     &.web {
         margin-top: 0;
-        height: 100%;
     }
 }
 

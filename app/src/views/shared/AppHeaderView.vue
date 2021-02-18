@@ -42,7 +42,7 @@ export default {
     methods: {
         changeHeaderState() {
             const scrolledValue = window.scrollY
-            const windowPageScrollValue = window.innerHeight/2
+            const windowPageScrollValue = window.innerHeight+100
 
             if(scrolledValue >= 20 && scrolledValue < windowPageScrollValue) {
                 this.headerState = 1
