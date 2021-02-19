@@ -50,3 +50,4 @@ api/src/config/config.js
 app/src/config/config.js
 app/src/config/config.js
 dist_electron/
+api/src/config/config.ts
