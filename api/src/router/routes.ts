@@ -1,8 +1,20 @@
+import ChannelEndpoint from "../endpoint/channelEndpoint"
 import { Endpoint } from "../endpoint/endpoint"
 
 export namespace Routes {
     export const list: Array<RouteGroup> =  [
-        
+        {
+            handler: ChannelEndpoint,
+            groupname: "channels",
+            routes: [
+                { name: 'ChannelCreateOne', path: '/channels', method: 'post', action: 'createOne' },
+                { name: 'ChannelDeleteOne', path: '/channels/:uuid', method: 'delete', action: 'deleteOne' },
+                { name: 'ChannelGetOne', path: '/channels/:uuid', method: 'get', action: 'getOne' },
+                { name: 'ChannelGetAll', path: '/channels', method: 'get', action: 'getAll' },
+                { name: 'ChannelGetAll', path: '/channels/:filter', method: 'get', action: 'getAll' }
+
+            ]
+        }
     ]
 
     /**

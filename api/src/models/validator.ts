@@ -18,77 +18,16 @@ export class Validator {
         return validationResult
     }
 
-    static async validatePassword(input): Promise<Validator.ValidationResult> {
-        let validationResult = new Validator.ValidationResult()
-        
-        let result = await passwordComplexity({
-            min: 6,
-            max: 32,
-            lowerCase: 1,
-            upperCase: 1,
-            numeric: 1,
-            symbol: 1,
-            requirementCount: 4
-        }).validate(input)
-        
-        if(result.error) {
-            validationResult.setError(new ValidationError(result.error.details[0].message, result.error.details[0].path[0] as string, result.error.details[0].type.split(".", 1)[1]))
-        }
-
-        validationResult.setPassed(!result.error)
-        return validationResult
-    }
-
     /**
      * Validate member data object on creation
      * @param data Member data
      */
-    static async validateMemberCreate(data: Object): Promise<Validator.ValidationResult> {
+    static async validateChannelCreate(data: Object): Promise<Validator.ValidationResult> {
         const validationSchema = Joi.object({
-            name: Joi.string().alphanum().min(3).max(16).required(),
-            password: Joi.string().min(3).max(32).required(),
-            email: Joi.string().email().max(254).required(),
-            role: Joi.string().uuid()
-        })
-
-        return await Validator.validate(validationSchema, data)
-    }
-
-    /**
-     * Validate member data object on update
-     * @param data Member data
-     */
-    static async validateMemberUpdate(data: Object): Promise<Validator.ValidationResult> {
-        const validationSchema = Joi.object({
-            name: Joi.string().alphanum().min(3).max(16),
-            email: Joi.string().email().max(254),
-            role: Joi.string().uuid()
-        })
-
-        return await Validator.validate(validationSchema, data)
-    }
-
-    /**
-     * Validate system data object on creation
-     * @param data System data
-     */
-    static async validateSystemCreate(data: Object): Promise<Validator.ValidationResult> {
-        const validationSchema = Joi.object({
-            name: Joi.string().alphanum().min(3).max(16).required(),
-            url: Joi.string().uri().max(254).required()
-        })
-
-        return await Validator.validate(validationSchema, data)
-    }
-
-    /**
-     * Validate system data object on update
-     * @param data System data
-     */
-    static async validateSystemUpdate(data: Object): Promise<Validator.ValidationResult> {
-        const validationSchema = Joi.object({
-            name: Joi.string().alphanum().min(3).max(16),
-            url: Joi.string().uri().max(254)
+            title: Joi.string().min(3).max(16).required(),
+            mountpoint: Joi.string().min(3).max(32).alphanum().required(),
+            description: Joi.string().min(3).max(150),
+            creatorId: Joi.string().uuid().required(),
         })
 
         return await Validator.validate(validationSchema, data)
