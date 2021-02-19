@@ -77,33 +77,63 @@ export default class ChannelEndpoint extends Endpoint {
      */
     async actionCreateOne(route: Router.Route): Promise<Endpoint.Result> {
         if(route.member instanceof Member) {
-            let title = route.body?.["title"]
-            let description = route.body?.["description"] || undefined
-            let mountpoint = route.body?.["mountpoint"]
-            let creatorId = route.member?.uuid
-            let enabled = (route.body?.["enabled"] == undefined ? true : route.body?.["enabled"])
-            let featured = !!route.body?.["featured"]
-            let lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? true : route.body?.["lyricsEnabled"])
+            const title = route.body?.["title"]
+            const description = route.body?.["description"] || undefined
+            const mountpoint = route.body?.["mountpoint"]
+            const creatorId = route.member?.uuid
+            const enabled = (route.body?.["enabled"] == undefined ? true : route.body?.["enabled"])
+            const featured = !!route.body?.["featured"]
+            const lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? true : route.body?.["lyricsEnabled"])
+            const colorHex = route.body?.["colorHex"] || undefined
 
-            let channel = await Channel.createChannel(
+            const channel = await Channel.createChannel(
                 title,
                 mountpoint,
                 description,
                 creatorId,
                 enabled,
                 featured,
-                lyricsEnabled
+                lyricsEnabled,
+                colorHex
             )
 
-            if(channel instanceof TrustedError) {
-                return channel as TrustedError
-            } else {
-                return new Endpoint.ResultSingleton(200, channel)
-            }
+            return channel
         }
 
         return new Endpoint.ResultEmpty(400)
     }
+
+    /**
+     * @api {put} /channels/:uuid Update channel
+     */
+    async actionUpdateOne(route: Router.Route): Promise<Endpoint.Result> {
+        if(route.member instanceof Member) {
+            const targetUUID = route.params?.["uuid"] || ""
+
+            const title = route.body?.["title"] || undefined
+            const description = route.body?.["description"] || undefined
+            const creatorId = route.body?.["creatorId"] || undefined
+            const enabled = (route.body?.["enabled"] == undefined ? undefined : route.body?.["enabled"])
+            const featured = (route.body?.["featured"] == undefined ? undefined : route.body?.["featured"])
+            const lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? undefined : route.body?.["lyricsEnabled"])
+            const colorHex = route.body?.["colorHex"] || undefined
+
+            const channel = await Channel.updateChannel(targetUUID, {
+                title,
+                description,
+                creatorId,
+                enabled,
+                featured,
+                lyricsEnabled,
+                colorHex
+            })
+
+            return channel
+        }
+
+        return new Endpoint.ResultEmpty(400)
+    }
+
 
     /**
      * @api {delete} /channels Delete channel
