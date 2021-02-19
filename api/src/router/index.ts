@@ -7,7 +7,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import busboy from 'connect-busboy'
 import { ValidationError } from '../error/validationError'
-import { Member } from '../account/member'
+import { Member } from '../alliance/member'
 
 export class Router {
     private static instance: Router = undefined

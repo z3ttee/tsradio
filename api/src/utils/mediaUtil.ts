@@ -5,7 +5,7 @@ import sharp from 'sharp'
 
 import ffprobeStatic from 'ffprobe-static'
 import ffprobe from 'ffprobe'
-import { Member } from '../account/member'
+import { Member } from '../alliance/member'
 import { randomBytes } from 'crypto'
 import { Endpoint } from '../endpoint/endpoint'
 import { TrustedError } from '../error/trustedError'

@@ -2,13 +2,14 @@ import path from "path"
 
 export default {
     app: {
-        port: 3333,
+        port: 3334,
         rootDir: path.resolve(__dirname+"/../")
     },
     tsalliance: {
         clientId: '',
         clientSecret: '',
-        clientToken: ''
+        clientToken: '',
+        baseUrl: "https://api.tsalliance.eu"
     },
     mysql: {
         host: 'localhost',

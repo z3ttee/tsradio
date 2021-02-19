@@ -1,7 +1,8 @@
+import axios from 'axios';
 import config from '../config/config'
 import { TrustedError } from '../error/trustedError';
 import { Router } from '../router';
-import { Role } from './role';
+import { Alliance } from './alliance';
 
 export class Member {
     public accountType: Member.AccountType = Member.AccountType.ACCOUNT_MEMBER;
@@ -9,11 +10,15 @@ export class Member {
     public readonly uuid: string
     public readonly name: string
     public readonly email: string
-    public readonly role: Role
+    public readonly role: Member.Role
     public readonly avatar: string
 
-    constructor() {
-
+    constructor(uuid: string, name: string, email: string, role: Member.Role, avatar: string) {
+        this.uuid = uuid
+        this.name = name
+        this.email = email
+        this.role = role
+        this.avatar = avatar
     }
 
     /**
@@ -42,10 +47,10 @@ export class Member {
     /**
      * Sign in a member account using jsonwebtoken.
      * @param token jsonwebtoken
-     * @returns {Member} Member account object or TrustedError
+     * @returns Member account object or TrustedError
      */
-    static async signInWithToken(token: String): Promise<Member | TrustedError> {
-        return null
+    static async signInWithToken(token: string): Promise<Member | TrustedError> {
+        return Alliance.getInstance().authenticateMemberByToken(token)
     }
 
 }
@@ -74,5 +79,31 @@ export namespace Member {
 
     export async function findMember(targetUUID: string): Promise<TrustedError | Member> {
         return null
+    }
+
+    export class Role {
+        public readonly uuid: string
+        public readonly name: string
+        public readonly permissions: Array<String>
+        public readonly hierarchy: Number
+    
+        constructor(uuid: string, name: string, permissions: Array<String>, hierarchy: Number) {
+            this.uuid = uuid
+            this.name = name
+            this.permissions = permissions
+            this.hierarchy = hierarchy
+        }
+    }
+
+    export class Profile {
+        public readonly uuid: string
+        public readonly name: string
+        public readonly avatar: string
+    
+        constructor(uuid: string, name: string, avatar: string) {
+            this.uuid = uuid
+            this.name = name
+            this.avatar = avatar
+        }
     }
 }
