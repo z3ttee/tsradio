@@ -242,4 +242,22 @@ public class ChannelHandler {
             channel.notifyChannelStateChange();
         }
     }
+
+    /**
+     * Send channel state updates to socket server
+     */
+    public static void notifyAllChannelInfos() {
+        for(Channel channel : channels.values()) {
+            channel.notifyChannelInfoChange();
+        }
+    }
+
+    /**
+     * Send channel state updates to socket server
+     */
+    public static void notifyAllChannelHistories() {
+        for(Channel channel : channels.values()) {
+            channel.notifyChannelHistoryChange();
+        }
+    }
 }

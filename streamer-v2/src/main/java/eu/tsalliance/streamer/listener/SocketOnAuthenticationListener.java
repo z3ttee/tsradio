@@ -27,6 +27,8 @@ public class SocketOnAuthenticationListener implements Emitter.Listener {
             } else {
                 logger.info("Successfully authenticated on socket server at '" + SocketClient.getInstance().getBaseUri() + "'");
                 ChannelHandler.notifyAllChannelStates();
+                ChannelHandler.notifyAllChannelInfos();
+                ChannelHandler.notifyAllChannelHistories();
             }
         } catch (Exception ignored) { }
     }

@@ -3,6 +3,7 @@ package eu.tsalliance.streamer.channel;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import eu.tsalliance.streamer.files.ArtworkHandler;
 import eu.tsalliance.streamer.files.FileHandler;
 import eu.tsalliance.streamer.icecast.IcecastClient;
 import eu.tsalliance.streamer.listener.TrackEventListener;
@@ -53,7 +54,7 @@ public class Channel implements Runnable, TrackEventListener {
 
     @Override
     public void run() {
-        FileHandler.clearAllArtworks(this);
+        ArtworkHandler.clearAllArtworks(this.uuid);
         this.setChannelState(ChannelState.STATE_RUNNING);
         this.shutdown = false;
 
@@ -88,9 +89,9 @@ public class Channel implements Runnable, TrackEventListener {
 
     private void triggerRestart() {
         new Thread(() -> {
-            logger.info("Channel '" + this.mountpoint + "' stopped. Restarting in 30s");
+            logger.info("Channel '" + this.mountpoint + "' stopped. Restarting in 10s");
             try {
-                Thread.sleep(30000);
+                Thread.sleep(10000);
                 ChannelHandler.restartChannel(this.uuid);
             } catch (InterruptedException ignored) { }
         }).start();
@@ -167,11 +168,8 @@ public class Channel implements Runnable, TrackEventListener {
                     artist = mp3File.getId3v1Tag().getArtist();
                 }
 
-                long artwork = System.currentTimeMillis();
-                FileHandler.extractArtwork(mp3File, this.uuid, artwork);
-
-                AudioTrack track = new AudioTrack(title, artist, String.valueOf(artwork), file, mp3File);
-                this.queue.add(track);
+                AudioTrack track = new AudioTrack(title, artist, file, mp3File);
+                this.playlist.add(track);
             } catch (IOException | UnsupportedTagException | InvalidDataException e) {
                 e.printStackTrace();
                 logger.error("loadTracks(): Could not load track '"+file.getAbsolutePath()+"'");
@@ -222,6 +220,10 @@ public class Channel implements Runnable, TrackEventListener {
     @Override
     public void onTrackStarted(AudioTrack track) {
         this.currentlyPlaying = track;
+
+        track.setTimestamp(System.currentTimeMillis());
+        ArtworkHandler.extractArtwork(track.getMp3Data(), this.uuid, track.getTimestamp());
+
         this.notifyChannelInfoChange();
     }
 
@@ -252,13 +254,25 @@ public class Channel implements Runnable, TrackEventListener {
      * @param track AudioTrack to add
      */
     private void addToHistory(AudioTrack track) {
-        if(history.size() >= 8) {
-            history.remove(0);
-        }
+        this.removeFirstFromHistory();
 
+        long oldTimestamp = track.getTimestamp();
         track.setTimestamp(System.currentTimeMillis());
         this.history.add(track);
-        FileHandler.moveArtworkToHistory(this.uuid, track.getTimestamp());
+
+        ArtworkHandler.moveArtworkToHistory(this.uuid, oldTimestamp, track.getTimestamp());
         this.notifyChannelHistoryChange();
+    }
+
+    /**
+     * Remove first added track from history
+     */
+    private void removeFirstFromHistory() {
+        if(history.size() < 8) {
+            return;
+        }
+
+        AudioTrack track = history.remove(0);
+        ArtworkHandler.deleteArtwork(this.uuid, track.getTimestamp());
     }
 }

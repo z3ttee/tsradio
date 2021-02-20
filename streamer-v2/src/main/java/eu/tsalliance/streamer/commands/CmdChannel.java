@@ -90,6 +90,27 @@ public class CmdChannel extends Command {
                 }
                 return;
             }
+
+            if (args.get(0).equalsIgnoreCase("skip")) {
+                if(args.size() < 2) {
+                    this.sendUsage();
+                    return;
+                }
+
+                String channelId = args.get(1);
+                if(!ChannelHandler.channelExists(channelId)) {
+                    logger.info("This channel does not exist");
+                    return;
+                }
+
+                if(!ChannelHandler.isRunning(channelId)) {
+                    logger.info("This channel does not play any music");
+                    return;
+                }
+
+                ChannelHandler.getChannel(channelId).skip();
+                logger.info("Skipped current track");
+            }
         }
 
     }
