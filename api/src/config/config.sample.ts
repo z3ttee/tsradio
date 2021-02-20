@@ -21,5 +21,10 @@ export default {
     },
     socketio: {
         password: "hackme"
-    }
+    },
+    genius: {
+        client_secret: "ENTER_CLIENT_SECRET",
+        client_id: "ENTER_CLIENT_ID",
+        client_access_token: "ENTER_ACCESS_TOKEN"
+    },
 }

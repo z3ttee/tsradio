@@ -1,5 +1,6 @@
 import ChannelEndpoint from "../endpoint/channelEndpoint"
 import AuthEndpoint from "../endpoint/authEndpoint"
+import SongEndpoint from "../endpoint/songEndpoint"
 
 import { Endpoint } from "../endpoint/endpoint"
 
@@ -22,7 +23,15 @@ export namespace Routes {
             routes: [
                 { name: 'AuthListener', path: '/auth/listener', action: 'listenerLogin', method: 'post' }
             ]
-        }
+        },
+        {
+            
+            handler: SongEndpoint,
+            groupname: 'songs',
+            routes: [
+                { name: 'SongGetLyrics', path: '/songs/lyrics', action: 'getLyrics', method: 'post' },
+            ]
+        },
     ]
 
     /**
