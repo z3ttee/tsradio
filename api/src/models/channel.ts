@@ -11,6 +11,7 @@ import { SocketEvents } from '../sockets/socketEvents'
 import PacketOutChannelUpdate from '../packets/PacketOutChannelUpdate'
 import ChannelHandler from '../handler/channelHandler'
 import PacketOutChannelDelete from '../packets/PacketOutChannelDelete'
+import PacketOutChannelListeners from '../packets/PacketOutChannelListeners'
 
 @Table({
     modelName: 'channel',
@@ -113,6 +114,23 @@ export class Channel extends Model {
     public channelState: Channel.ChannelState = Channel.ChannelState.STATE_OFFLINE
     public channelInfo?: Channel.ChannelInfo
     public channelHistory?: Array<Channel.ChannelInfo>
+    public listeners: number = 0
+
+    /**
+     * Decrease listener count by one
+     */
+    public decreaseListeners() {
+        if(this.listeners >= 1) this.listeners -= 1;
+        SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
+    }
+
+    /**
+     * Increase listener count by one
+     */
+    public increaseListeners() {
+        this.listeners += 1;
+        SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
+    }
 
     /**
      * Create new channel based on given data

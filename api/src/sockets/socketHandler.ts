@@ -57,6 +57,18 @@ export class SocketHandler {
     }
 
     /**
+     * Broadcast to all listeners in specific room
+     * @param room Room
+     * @param event Event
+     * @param packet Data to be sent
+     */
+    public async broadcastToRoom(room: string, event: SocketEvents, packet: Packet) {
+        for(let client of this.connectedClients.values()) {
+            client.socket.to(room).emit(event, packet)
+        }
+    }
+
+    /**
      * Register a newly connected socket as client. Simultaneously authenticates client with given auth data
      * @param socket 
      */
@@ -94,6 +106,11 @@ export class SocketHandler {
             this.connectedStreamer = undefined
         } else {
             // TODO: When voting system is available: Remove user from voting
+            let socketClient = this.connectedClients[socket.id]
+            if(socketClient instanceof SocketClient.SocketMember) {
+                // Remove member from listeners
+                ChannelHandler.removeMember(socketClient)
+            }
             this.connectedClients.delete(socket.id)
         }
     }
@@ -137,6 +154,16 @@ export class SocketHandler {
         this.connectedStreamer.socket.on(SocketEvents.EVENT_CHANNEL_HISTORY, (args) => {
             OnChannelHistoryChange.onHistoryChange(JSON.parse(args) as OnChannelHistoryChange.ChannelHistoryPacket)
         })
+    }
+
+    /**
+     * Get SocketMember instance by Member id
+     * @param memberId Member's id
+     * @returns SocketMember
+     */
+    public getSocketMemberByMemberId(memberId: string): SocketClient.SocketMember {
+        return Object.values(this.connectedClients)
+                    .find((socketClient: SocketClient) => socketClient instanceof SocketClient.SocketMember && socketClient.profile.uuid == memberId)
     }
 
     public static getInstance() {

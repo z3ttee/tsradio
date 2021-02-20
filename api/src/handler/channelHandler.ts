@@ -3,6 +3,7 @@ import PacketOutChannelAdd from "../packets/PacketOutChannelAdd";
 import PacketOutChannelDelete from "../packets/PacketOutChannelDelete";
 import PacketOutChannelHistory from "../packets/PacketOutChannelHistory";
 import PacketOutChannelInfo from "../packets/PacketOutChannelInfo";
+import { SocketClient } from "../sockets/socketClient";
 import { SocketEvents } from "../sockets/socketEvents";
 import { SocketHandler } from "../sockets/socketHandler";
 
@@ -133,7 +134,7 @@ export default class ChannelHandler {
     public static setChannelHistory(channelId: string, history) {
         if(!this.isRegistered(channelId)) return
         this.getChannel(channelId).channelHistory = history
-        SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_HISTORY, new PacketOutChannelHistory(channelId, history))
+        SocketHandler.getInstance().broadcastToRoom("channel-" + channelId, SocketEvents.EVENT_CHANNEL_HISTORY, new PacketOutChannelHistory(channelId, history))
     }
 
     /**
@@ -156,6 +157,28 @@ export default class ChannelHandler {
             this.clearChannelInfo(key)
             this.updateState(key, Channel.ChannelState.STATE_OFFLINE)
         })
+    }
+
+    /**
+     * Move a member to another channel
+     * @param member Member
+     * @param channelId Destination channel id
+     */
+    public static moveMemberToChannel(member: SocketClient.SocketMember, destChannelId?: string) {
+        const currentChannel = member.getCurrentChannel()
+        const destChannel = ChannelHandler.getChannel(destChannelId)
+
+        currentChannel?.decreaseListeners()
+        destChannel?.increaseListeners()
+        member.setCurrentChannel(destChannel)
+    }
+
+    /**
+     * Remove member from listener list and reduce listener count from current channel
+     * @param memberId Member's id
+     */
+    public static removeMember(member: SocketClient.SocketMember) {
+        this.moveMemberToChannel(member, undefined)
     }
 
 }

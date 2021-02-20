@@ -1,4 +1,6 @@
 import ChannelEndpoint from "../endpoint/channelEndpoint"
+import AuthEndpoint from "../endpoint/authEndpoint"
+
 import { Endpoint } from "../endpoint/endpoint"
 
 export namespace Routes {
@@ -12,6 +14,13 @@ export namespace Routes {
                 { name: 'ChannelGetOne', path: '/channels/:uuid', method: 'get', action: 'getOne' },
                 { name: 'ChannelGetAll', path: '/channels', method: 'get', action: 'getAll' },
                 { name: 'ChannelUpdateOne', path: '/channels/:uuid', method: 'put', action: 'updateOne' }
+            ]
+        },
+        {
+            handler: AuthEndpoint,
+            groupname: "auth",
+            routes: [
+                { name: 'AuthListener', path: '/auth/listener', action: 'listenerLogin', method: 'post' }
             ]
         }
     ]
