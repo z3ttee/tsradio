@@ -18,5 +18,8 @@ export default {
         user: 'username',
         pass: 'password',
         prefix: 'ts_'
+    },
+    socketio: {
+        password: "hackme"
     }
 }

@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 
 import config from './config/config'
+import { SocketHandler } from './sockets/socketHandler';
 
 export class Webserver {
     static instance: Webserver = undefined
@@ -29,7 +30,7 @@ export class Webserver {
             const credentials = {key: privateKey, cert: certificate}
             const httpsServer = https.createServer(credentials, express)
     
-            //socketio.attach(httpsServer, options)
+            SocketHandler.getInstance().server.attach(httpsServer)
             
             httpsServer.listen(port, () => {
                 console.info('Listening on port '+port)
@@ -37,7 +38,7 @@ export class Webserver {
             })
         } else {
             const httpServer = http.createServer(express)
-            //socketio.attach(httpServer, options)
+            SocketHandler.getInstance().server.attach(httpServer)
     
             httpServer.listen(port, () => {
                 console.info('Listening on port '+port)

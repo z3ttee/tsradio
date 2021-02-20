@@ -6,6 +6,11 @@ import { randomBytes } from 'crypto'
 import { Validator } from './validator'
 import { TrustedError } from '../error/trustedError'
 import { Endpoint } from '../endpoint/endpoint'
+import { SocketHandler } from '../sockets/socketHandler'
+import { SocketEvents } from '../sockets/socketEvents'
+import PacketOutChannelUpdate from '../packets/PacketOutChannelUpdate'
+import ChannelHandler from '../handler/channelHandler'
+import PacketOutChannelDelete from '../packets/PacketOutChannelDelete'
 
 @Table({
     modelName: 'channel',
@@ -52,10 +57,6 @@ export class Channel extends Model {
     })
     public description?: string
 
-    @Unique({
-        name: "creatorId",
-        msg: ""
-    })
     @Column({
         type: DataType.UUID,
         allowNull: false
@@ -100,7 +101,7 @@ export class Channel extends Model {
         allowNull: false,
         defaultValue: true
     })
-    public lyricsEnabled: Date
+    public lyricsEnabled: Boolean
 
     @Column({
         type: DataType.STRING,
@@ -108,6 +109,11 @@ export class Channel extends Model {
         defaultValue: "#fd6a6a"
     })
     public colorHex: string
+
+
+    public channelState: Channel.ChannelState = Channel.ChannelState.STATE_OFFLINE
+    public channelInfo?: Channel.ChannelInfo
+    public channelHistory: Array<Channel.ChannelInfo> = []
 
     /**
      * Create new channel based on given data
@@ -156,7 +162,7 @@ export class Channel extends Model {
             return TrustedError.get(TrustedError.Errors.RESOURCE_EXISTS)
         }
 
-        let channel = Channel.create({
+        let channel = await Channel.create({
             title, 
             mountpoint, 
             description, 
@@ -170,7 +176,8 @@ export class Channel extends Model {
         if(!channel) {
             return TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
         } else {
-            // TODO: Send update to Redis for the streamer to recognize creation
+            ChannelHandler.registerChannel(channel)
+            SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(channel.uuid, channel.mountpoint, channel.enabled))
             return new Endpoint.ResultSingleton(200, channel)
         }
     }
@@ -183,54 +190,114 @@ export class Channel extends Model {
      * @returns Endpoint Result
      */
     static async updateChannel(targetUUID: string, data: Object): Promise<Endpoint.Result> {
-        // Validate data
-        let validationResult = await Validator.validateChannelUpdate({
-            title: data?.["title"], 
-            mountpoint: (data?.["mountpoint"] ? data?.["mountpoint"].replace("/", "") : undefined), 
-            description: data?.["description"],
-            creatorId: data?.["creatorId"]
+        return new Promise<Endpoint.Result>(async(resolve) => {
+            // Validate data
+            let validationResult = await Validator.validateChannelUpdate({
+                title: data?.["title"], 
+                mountpoint: (data?.["mountpoint"] ? data?.["mountpoint"].replace("/", "") : undefined), 
+                description: data?.["description"],
+                creatorId: data?.["creatorId"]
+            })
+
+            if(!validationResult.hasPassed()) {
+                resolve(validationResult.getError())
+                return
+            }
+
+            if(!!data?.["colorHex"]) {
+                if(!Validator.isHex(data?.["colorHex"])) {
+                    resolve(TrustedError.get(TrustedError.Errors.UNSUPPORTED_FORMAT))
+                    return
+                }
+            }
+
+            // Modify mountpoint: Remove slashes (front and end) and set front slash back for icecast compatability
+            let mountpoint = (data?.["mountpoint"] ? "/" + data?.["mountpoint"].replace("/", "").toLowerCase() : undefined)
+            let updatedData = {
+                ...data,
+                mountpoint
+            }
+
+            // Check if title or mountpoint exists
+            let exists = await Channel.findOne({ 
+                where: {
+                    uuid: {
+                        [Op.not]: targetUUID
+                    },
+                    [Op.or]: [
+                        { title: data?.["title"] || "" },
+                        { mountpoint: mountpoint || "" }
+                    ]
+                }
+            })
+
+            if(exists) {
+                resolve(TrustedError.get(TrustedError.Errors.RESOURCE_EXISTS))
+                return
+            }
+
+            Channel.findOne({ where: { uuid: targetUUID }}).then(async(result) => {
+                let updated = await result?.update(updatedData)
+
+                if(!!updatedData) {
+                    ChannelHandler.updateRegisteredChannel(updated)
+                    SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(updated.uuid, updated.mountpoint, updated.enabled))
+                    
+                    resolve(new Endpoint.ResultSingleton(200, undefined))
+                } else {
+                    resolve(TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND))
+                }
+            })
+
+            /*let affectedRows = await Channel.update(updatedData, { where: { uuid: targetUUID }})[0]
+            if(affectedRows == 0) {
+            return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
+            } else {
+                let sendUpdate = async() => {
+                    let channel = await Channel.findOne({ where: { uuid: targetUUID }, attributes: ['uuid', 'mountpoint', 'enabled']})
+                    ChannelHandler.updateRegisteredChannel(channel)
+                    console.log(channel["dataValues"])
+                    SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(channel.uuid, channel.mountpoint, channel.enabled))
+                }
+                sendUpdate()
+                return new Endpoint.ResultSingleton(200, undefined)
+            }*/
+
+        })
+        
+    }
+
+    /**
+     * Delete a channel
+     * @param targetUUID Channel's uuid 
+     * 
+     * @returns Endpoint Result
+     */
+    static async deleteChannel(targetUUID: string): Promise<Endpoint.Result> {
+        let affectedRows = await Channel.destroy({ 
+            where: { uuid: targetUUID }
         })
 
-        if(!validationResult.hasPassed()) {
-            return validationResult.getError()
-        }
-
-        if(!!data?.["colorHex"]) {
-            if(!Validator.isHex(data?.["colorHex"])) {
-                return TrustedError.get(TrustedError.Errors.UNSUPPORTED_FORMAT)
-            }
-        }
-
-        // Modify mountpoint: Remove slashes (front and end) and set front slash back for icecast compatability
-        let mountpoint = (data?.["mountpoint"] ? "/" + data?.["mountpoint"].replace("/", "").toLowerCase() : undefined)
-        let updatedData = {
-            ...data,
-            mountpoint
-        }
-
-        // Check if title or mountpoint exists
-        let exists = await Channel.findOne({ 
-            where: {
-                uuid: {
-                    [Op.not]: targetUUID
-                },
-                [Op.or]: [
-                    { title: data?.["title"] || "" },
-                    { mountpoint: mountpoint || "" }
-                ]
-            }
-        })
-
-        if(exists) {
-            return TrustedError.get(TrustedError.Errors.RESOURCE_EXISTS)
-        }
-
-        let affectedRows = await Channel.update(updatedData, { where: { uuid: targetUUID }})[0]
         if(affectedRows == 0) {
             return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
         } else {
-            // TODO: Send update to streamer
+            ChannelHandler.unregisterChannel(targetUUID)
+            SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_DELETE, new PacketOutChannelDelete(targetUUID))
             return new Endpoint.ResultSingleton(200, undefined)
         }
+    }
+}
+
+export namespace Channel {
+    export enum ChannelState {
+        STATE_RUNNING = 0,
+        STATE_STREAMING = 1,
+        STATE_OFFLINE = 2,
+    }
+
+    export class ChannelInfo {
+        public title?: string
+        public artist?: string
+        public artwork?: string
     }
 }
