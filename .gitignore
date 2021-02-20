@@ -44,10 +44,14 @@ node_modules/
 *.dev.*
 *.MF
 apidoc/
+logs/
 
 streamer/build/
+streamer-v2/build/
 api/src/config/config.js
 app/src/config/config.js
 app/src/config/config.js
 dist_electron/
 api/src/config/config.ts
+*/old
+**/config.ts

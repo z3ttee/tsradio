@@ -12,6 +12,7 @@ import eu.tsalliance.streamer.socket.SocketEvents;
 import eu.tsalliance.streamer.socket.packets.PacketOutHistoryChange;
 import eu.tsalliance.streamer.socket.packets.PacketOutInfoChange;
 import eu.tsalliance.streamer.socket.packets.PacketOutStateChange;
+import eu.tsalliance.streamer.utils.JsonEscaper;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -161,11 +162,11 @@ public class Channel implements Runnable, TrackEventListener {
                 Mp3File mp3File = new Mp3File(file);
 
                 if(mp3File.hasId3v2Tag()) {
-                    title = mp3File.getId3v2Tag().getTitle();
-                    artist = mp3File.getId3v2Tag().getArtist();
+                    title = JsonEscaper.getInstance().escape(mp3File.getId3v2Tag().getTitle());
+                    artist = JsonEscaper.getInstance().escape(mp3File.getId3v2Tag().getArtist());
                 } else if(mp3File.hasId3v1Tag()) {
-                    title = mp3File.getId3v1Tag().getTitle();
-                    artist = mp3File.getId3v1Tag().getArtist();
+                    title = JsonEscaper.getInstance().escape(mp3File.getId3v1Tag().getTitle());
+                    artist = JsonEscaper.getInstance().escape(mp3File.getId3v1Tag().getArtist());
                 }
 
                 AudioTrack track = new AudioTrack(title, artist, file, mp3File);
@@ -197,7 +198,7 @@ public class Channel implements Runnable, TrackEventListener {
      * Send an update to the socket server with the channel's info as payload
      */
     public void notifyChannelInfoChange() {
-        SocketClient.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_INFO, new PacketOutInfoChange(this.getUuid(), this.getCurrentlyPlaying().getTitle(), this.getCurrentlyPlaying().getArtist()));
+        SocketClient.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_INFO, new PacketOutInfoChange(this.getUuid(), this.getCurrentlyPlaying().getTitle(), this.getCurrentlyPlaying().getArtist(), this.getCurrentlyPlaying().getTimestamp()));
     }
 
     /**

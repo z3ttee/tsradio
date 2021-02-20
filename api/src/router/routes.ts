@@ -11,8 +11,7 @@ export namespace Routes {
                 { name: 'ChannelDeleteOne', path: '/channels/:uuid', method: 'delete', action: 'deleteOne' },
                 { name: 'ChannelGetOne', path: '/channels/:uuid', method: 'get', action: 'getOne' },
                 { name: 'ChannelGetAll', path: '/channels', method: 'get', action: 'getAll' },
-                { name: 'ChannelGetAll', path: '/channels/:filter', method: 'get', action: 'getAll' }
-
+                { name: 'ChannelUpdateOne', path: '/channels/:uuid', method: 'put', action: 'updateOne' }
             ]
         }
     ]

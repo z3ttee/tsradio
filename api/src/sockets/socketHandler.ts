@@ -3,6 +3,9 @@ import { Alliance } from "../alliance/alliance"
 import { Member } from "../alliance/member"
 import config from "../config/config"
 import { TrustedError } from "../error/trustedError"
+import ChannelHandler from "../handler/channelHandler"
+import { OnChannelHistoryChange } from "../listener/OnChannelHistoryChange"
+import { OnChannelInfoChange } from "../listener/OnChannelInfoChange"
 import { OnChannelStateChange } from "../listener/OnChannelStateChange"
 import Packet from "../packets/Packet"
 import PacketOutAuthentication from "../packets/PacketOutAuthentication"
@@ -48,7 +51,9 @@ export class SocketHandler {
      * @param packet Data to be sent
      */
     public async broadcast(event: SocketEvents, packet: Packet) {
-        this.server.emit(event, packet)
+        for(let client of this.connectedClients.values()) {
+            client.socket.emit(event, packet)
+        }
     }
 
     /**
@@ -85,7 +90,7 @@ export class SocketHandler {
      */
     private async removeSocketClient(socket: Socket) {
         if(socket.id == this.connectedStreamer?.socket.id) {
-            // TODO: Reset active channels
+            ChannelHandler.resetAllChannels()
             this.connectedStreamer = undefined
         } else {
             // TODO: When voting system is available: Remove user from voting
@@ -125,6 +130,12 @@ export class SocketHandler {
         this.connectedStreamer = new SocketClient.SocketStreamer(socket)
         this.connectedStreamer.socket.on(SocketEvents.EVENT_CHANNEL_STATE, (args) => {
             OnChannelStateChange.onStateChange(JSON.parse(args) as OnChannelStateChange.ChannelStatePacket)
+        })
+        this.connectedStreamer.socket.on(SocketEvents.EVENT_CHANNEL_INFO, (args) => {
+            OnChannelInfoChange.onInfoChange(JSON.parse(args) as OnChannelInfoChange.ChannelInfoPacket)
+        })
+        this.connectedStreamer.socket.on(SocketEvents.EVENT_CHANNEL_HISTORY, (args) => {
+            OnChannelHistoryChange.onHistoryChange(JSON.parse(args) as OnChannelHistoryChange.ChannelHistoryPacket)
         })
     }
 

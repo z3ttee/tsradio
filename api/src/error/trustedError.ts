@@ -24,6 +24,10 @@ export class TrustedError extends Endpoint.Result {
         return new TrustedError(error["errorId"] || "UNKNOWN_ERROR", error["statusCode"] || 400, message)
     }
 
+    static create(statusCode: number, message: string, errorId: string) {
+        return new TrustedError(errorId, statusCode, message)
+    }
+
 }
 
 export namespace TrustedError {

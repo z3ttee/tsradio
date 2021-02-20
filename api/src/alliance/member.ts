@@ -98,9 +98,9 @@ export namespace Member {
     export class Profile {
         public readonly uuid: string
         public readonly name: string
-        public readonly avatar: string
+        public readonly avatar?: string
     
-        constructor(uuid: string, name: string, avatar: string) {
+        constructor(uuid: string, name: string, avatar?: string) {
             this.uuid = uuid
             this.name = name
             this.avatar = avatar

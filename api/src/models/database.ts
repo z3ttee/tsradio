@@ -1,5 +1,6 @@
 import {Sequelize} from 'sequelize-typescript';
 import config from '../config/config'
+import ChannelHandler from '../handler/channelHandler';
 import { Channel } from './channel';
 
 export class Database {
@@ -28,6 +29,7 @@ export class Database {
             await this.sequelize.addModels([Channel])
 
             await this.setupNonDefaultTables()
+            await ChannelHandler.loadChannels()
         }).catch((error) => {
             console.error("Could not connect to database '"+config.mysql.user+"@"+config.mysql.host+":"+config.mysql.port+"/"+config.mysql.dbname+"': "+error.message)
         })

@@ -110,10 +110,9 @@ export class Channel extends Model {
     })
     public colorHex: string
 
-
     public channelState: Channel.ChannelState = Channel.ChannelState.STATE_OFFLINE
     public channelInfo?: Channel.ChannelInfo
-    public channelHistory: Array<Channel.ChannelInfo> = []
+    public channelHistory?: Array<Channel.ChannelInfo>
 
     /**
      * Create new channel based on given data
@@ -248,21 +247,6 @@ export class Channel extends Model {
                     resolve(TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND))
                 }
             })
-
-            /*let affectedRows = await Channel.update(updatedData, { where: { uuid: targetUUID }})[0]
-            if(affectedRows == 0) {
-            return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
-            } else {
-                let sendUpdate = async() => {
-                    let channel = await Channel.findOne({ where: { uuid: targetUUID }, attributes: ['uuid', 'mountpoint', 'enabled']})
-                    ChannelHandler.updateRegisteredChannel(channel)
-                    console.log(channel["dataValues"])
-                    SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(channel.uuid, channel.mountpoint, channel.enabled))
-                }
-                sendUpdate()
-                return new Endpoint.ResultSingleton(200, undefined)
-            }*/
-
         })
         
     }
@@ -298,6 +282,6 @@ export namespace Channel {
     export class ChannelInfo {
         public title?: string
         public artist?: string
-        public artwork?: string
+        public cover?: string
     }
 }

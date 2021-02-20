@@ -4,6 +4,7 @@ import { Channel } from "../models/channel";
 import { Router } from "../router";
 import { Endpoint } from "./endpoint";
 import { Op } from "sequelize"
+import ChannelHandler from "../handler/channelHandler";
 
 export default class ChannelEndpoint extends Endpoint {
 
@@ -23,53 +24,48 @@ export default class ChannelEndpoint extends Endpoint {
     */
     async actionGetOne(route: Router.Route): Promise<Endpoint.Result> {
         let targetUUID = route.params?.["uuid"] || ""
-        let whereClause = { 
-            uuid: targetUUID,
-            activeSince: {
-                [Op.not]: null
-            }
-        }
 
-        if(route.member instanceof Member) {
-            if(route.member.hasPermission("permission.channels.read")) {
-                delete whereClause.activeSince
+        if(ChannelHandler.isStreaming(targetUUID)) {
+            // TODO: Send channel with info as response
+            const c = ChannelHandler.getChannel(targetUUID)
+            const channel = {
+                ...c["dataValues"],
+                info: c.channelInfo
             }
-        }
 
-        let channel = await Channel.findOne({ where: whereClause })
-        if(!channel) {
-            return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
-        } else {
             return new Endpoint.ResultSingleton(200, channel)
+        } else {
+            if(route.member instanceof Member && route.member.hasPermission("permission.channels.read")) {
+                let channel = await Channel.findOne({ where: { uuid: targetUUID }})
+                return new Endpoint.ResultSingleton(200, channel)
+            } else {
+                return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
+            }
         }
     }
 
     /**
-    * @api {get} /channels/:filter Get all channels
+    * @api {get} /channels Get all channels
     */
     async actionGetAll(route: Router.Route): Promise<Endpoint.Result> {
-        let filter = route.params?.["filter"]?.toLowerCase() || "active"
-        let whereClause = {
-            activeSince: {
-                [Op.not]: null
-            }
-        }
-
-        if(filter == "all" && route.member instanceof Member) {
-            if(route.member.hasPermission("permission.channels.read")) {
-                delete whereClause.activeSince
-            }
-        }
-
-        let channel = await Channel.findOne({
-            where: whereClause
+        let activeChannels = []
+        Object.values(ChannelHandler.channels).filter((element: Channel) => element.channelState == Channel.ChannelState.STATE_STREAMING).forEach((channel: Channel) => {
+            activeChannels.push({
+                ...channel["dataValues"],
+                info: channel.channelInfo
+            })
         })
+        let inactiveChannels = Object.values(ChannelHandler.channels).filter((element: Channel) => element.channelState != Channel.ChannelState.STATE_STREAMING)
 
-        if(!channel) {
-            return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
-        } else {
-            return new Endpoint.ResultSingleton(200, channel)
+        let channels = [
+            ...activeChannels
+        ]
+
+        if(route.member instanceof Member && route.member.hasPermission("permission.channels.read")) {
+            channels.push(...inactiveChannels)
         }
+
+        return new Endpoint.ResultSet(200, channels, channels.length)
     }
 
     /**
@@ -111,6 +107,7 @@ export default class ChannelEndpoint extends Endpoint {
             const targetUUID = route.params?.["uuid"] || ""
 
             const title = route.body?.["title"] || undefined
+            const mountpoint = route.body?.["mountpoint"] || undefined
             const description = route.body?.["description"] || undefined
             const creatorId = route.body?.["creatorId"] || undefined
             const enabled = (route.body?.["enabled"] == undefined ? undefined : route.body?.["enabled"])
@@ -118,8 +115,11 @@ export default class ChannelEndpoint extends Endpoint {
             const lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? undefined : route.body?.["lyricsEnabled"])
             const colorHex = route.body?.["colorHex"] || undefined
 
+            console.log(mountpoint)
+
             const channel = await Channel.updateChannel(targetUUID, {
                 title,
+                mountpoint,
                 description,
                 creatorId,
                 enabled,
@@ -141,16 +141,7 @@ export default class ChannelEndpoint extends Endpoint {
     async actionDeleteOne(route: Router.Route): Promise<Endpoint.Result> {
         if(route.member instanceof Member) {
             let targetUUID = route.params?.["uuid"] || ""
-
-            let affectedRows = await Channel.destroy({ 
-                where: { uuid: targetUUID }
-            })
-    
-            if(affectedRows == 0) {
-                return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
-            } else {
-                return new Endpoint.ResultSingleton(200, undefined)
-            }
+            return Channel.deleteChannel(targetUUID)
         }
 
         return new Endpoint.ResultEmpty(400)

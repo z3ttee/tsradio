@@ -34,13 +34,38 @@ export class Validator {
     }
 
     /**
+     * Validate member data object on update
+     * @param data Member data
+     */
+    static async validateChannelUpdate(data: Object): Promise<Validator.ValidationResult> {
+        const validationSchema = Joi.object({
+            title: Joi.string().min(3).max(16),
+            mountpoint: Joi.string().min(3).max(32).alphanum(),
+            description: Joi.string().min(3).max(150),
+            creatorId: Joi.string().uuid(),
+        })
+
+        return await Validator.validate(validationSchema, data)
+    }
+
+    /**
      * Check if a string is of type uuid
      * @param uuid UUID as string
      * @returns {Boolean} True or False
      */
     static isUUID(uuid: string): Boolean {
-        let regex = /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/
+        const regex = /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/
         return !!uuid.match(regex)
+    }
+
+    /**
+     * Check if string is hex color code
+     * @param value String
+     * @returns True or False
+     */
+    static isHex(value: string): Boolean {
+        const regex = /^#[A-Fa-f0-9]{6}/
+        return !!value.match(regex)
     }
 
 }
