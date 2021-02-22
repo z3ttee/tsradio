@@ -49,15 +49,23 @@ $itemHeaderHeight: 50px;
         left: 16px;
         bottom: 16px;
         right: 16px;
-        background-color: $colorPrimary;
-        box-shadow: $shadowButton;
-        border-radius: $borderRadSmall + 3px;
-        
         cursor: pointer;
-        background-color: $colorAccentLight;
+
+        &::after {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 1px;
+            bottom: 1px;
+            content: "";
+            background-color: $colorAccentLight;
+            transition: all 0.1s linear;
+            border-radius: $borderRadSmall+2px;
+        }
 
         .item-container {
             height: 100%;
+            z-index: 3;
             position: relative;
             background-color: $colorPrimary;
             border-radius: $borderRadSmall;
@@ -66,7 +74,12 @@ $itemHeaderHeight: 50px;
         }
 
         &:hover {
+            &::after {
+                right: 0;
+                bottom: 0;
+            }
             .item-container {
+                border-radius: $borderRadSmall + 3px;
                 transform: translate(5px, -5px);
             }
         }
@@ -106,8 +119,13 @@ $itemHeaderHeight: 50px;
         }
 
         .item-details {
-            padding: 0.3em $itemHeaderHeight/4;
+            position: absolute;
+            left: 0;
+            top: $itemHeaderHeight + 5px;
+            width: $itemHeaderHeight;
             color: $colorAccentLight;
+            
+            text-align: center;
             font-size: 0.8em;
 
             img {

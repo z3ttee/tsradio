@@ -36,7 +36,7 @@ export default {
             const scrolledValue = window.scrollY
             const windowPageScrollValue = window.innerHeight+100
 
-            if(scrolledValue >= 20 && scrolledValue < windowPageScrollValue) {
+            if(scrolledValue >= 10 && scrolledValue < windowPageScrollValue) {
                 this.headerState = 1
             } else if(scrolledValue >= windowPageScrollValue) {
                 this.headerState = 2
@@ -66,26 +66,24 @@ export default {
     transition: all $animSpeedNormal*1s $cubicNorm;
     border-bottom: 2px solid transparent;
 
-    &.state-scrolling {
+    &.state-scrolling,
+    &.state-hide {
         background-color: $colorPrimary;
         box-shadow: $shadowNormal;
         border-bottom: 2px solid $colorPlaceholder;
 
         .content-container {
-            padding: $windowPad/2 32px;
+            padding: $windowPad/2 48px;
         }
-    }
 
-    &.state-hide {
-        transform: translateY(-100%);
-
-        .content-container {
-            padding: $windowPad/2 32px;
+        &.state-hide {
+            transform: translateY(-100%);
         }
     }
 
     .content-container {
-        padding: $windowPad 32px;
+        padding: $windowPad 48px;
+        transition: all $animSpeedNormal*1s $cubicNorm;
     }
 
     .header-section {
@@ -108,6 +106,11 @@ export default {
     .header-wrapper {
         #desktop-logo {
             height: 32px;
+        }
+
+        .content-container {
+            padding: $windowPad/2 28px !important;
+            transition: all $animSpeedNormal*1s $cubicNorm;
         }
     }
 }
