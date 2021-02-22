@@ -3,6 +3,7 @@ import AuthEndpoint from "../endpoint/authEndpoint"
 import SongEndpoint from "../endpoint/songEndpoint"
 
 import { Endpoint } from "../endpoint/endpoint"
+import CoverEndpoint from "../endpoint/coverEndpoint"
 
 export namespace Routes {
     export const list: Array<RouteGroup> =  [
@@ -30,6 +31,15 @@ export namespace Routes {
             groupname: 'songs',
             routes: [
                 { name: 'SongGetLyrics', path: '/songs/lyrics', action: 'getLyrics', method: 'post' },
+            ]
+        },
+        {
+            handler: CoverEndpoint,
+            groupname: 'covers',
+            routes: [
+                { name: 'CoverGet', path: '/covers/:hash', action: 'getOne', method: 'get'},
+                { name: 'CoverSet', path: '/covers/:uuid', action: 'setOne', method: 'post'},
+                { name: 'CoverDelete', path: '/covers/:uuid', action: 'deleteOne', method: 'delete'}
             ]
         },
     ]
