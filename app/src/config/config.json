@@ -1,0 +1,17 @@
+{
+    "publicPath": "/",
+    "api": {
+        "protocol": "http",
+        "host": "localhost",
+        "port": 3334
+    },
+    "authService": {
+        "protocol": "https",
+        "host": "api.tsalliance.eu",
+        "port": 80
+    },
+    "authForm": {
+        "url": "https://tsalliance.eu/auth/login",
+        "redirectCode": "90322eb3-126b-4e70-b0ab-0b3595994ed3"
+    }
+}

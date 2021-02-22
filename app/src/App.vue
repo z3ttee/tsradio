@@ -1,34 +1,44 @@
 <template>
-  <app-header-view></app-header-view>
-  <div class="content-container">
-    <router-view v-slot="{ Component }">
-      <transition name="transition_page" mode="out-in">
-        <component :is="Component"></component>
-      </transition>
-    </router-view>
-  </div>
-  <transition name="animation_item_slide">
-    <app-player-view v-if="$store.state.currentChannel"></app-player-view>
-  </transition>
-  <app-splash-screen-view></app-splash-screen-view>
+    <transition name="anim_dialog" mode="out-in" appear>
+        <app-splash-screen></app-splash-screen>
+    </transition>
+    <transition name="anim_state_change" mode="out-in">
+        <component :is="getLayout" v-if="$store.state.app.appIsReady"></component>
+    </transition>
+
+    <div :class="{'modal-overlay': true, 'hidden': !$store.state.app.showModal}" @click="dismissModal"></div>
+    <div :class="{'hidden': !$store.state.app.showModal}" id="modal-wrapper" @click="dismissModal">
+        <transition-group name="anim_dialog" mode="out-in">
+            <div class="modal-container" v-for="modal in $store.state.modals" :key="modal.uuid" @click="dismissModal">
+                <component  :is="modal.component" :content="modal.content"></component>
+            </div>
+        </transition-group>
+    </div>
 </template>
 
 <script>
-import AppSplashScreenView from '@/views/AppSplashScreenView.vue'
-import AppPlayerView from '@/views/shared/AppPlayerView.vue'
-import AppHeaderView from '@/views/shared/AppHeaderView.vue'
+import AppSplashScreen from '@/views/shared/AppSplashScreenView.vue'
+import AppSpaLayout from "@/layouts/AppSPALayout.vue"
 
 export default {
-  components: {
-    AppSplashScreenView,
-    AppHeaderView,
-    AppPlayerView
-  }
+    components: {
+        AppSpaLayout,
+        AppSplashScreen
+    },
+    methods: {
+        dismissModal() {
+            this.$modal.triggerDismissEvent()
+            this.$modal.dismiss()
+        }
+    },
+    computed: {
+        getLayout() {
+            return this.$route.meta?.layout || AppSpaLayout;
+        }
+    }
 }
 </script>
 
 <style lang="scss">
-@import "@/assets/scss/animations.scss";
 @import "@/assets/scss/style.scss";
-@import '@/assets/scss/elements/titlebar.scss';
 </style>

@@ -1,4 +1,4 @@
-# tsradio-app
+# app
 
 ## Project setup
 ```

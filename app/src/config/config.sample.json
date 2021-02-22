@@ -1,0 +1,17 @@
+{
+    "publicPath": "/",
+    "api": {
+        "protocol": "https",
+        "host": "localhost",
+        "port": 3334
+    },
+    "authService": {
+        "protocol": "https",
+        "host": "localhost",
+        "port": 3333
+    },
+    "authForm": {
+        "url": "https://localhost/auth/login",
+        "redirectCode": "123"
+    }
+}

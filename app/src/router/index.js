@@ -1,30 +1,27 @@
-import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
-import routes from '@/router/routes.js'
-import appjs from '@/models/app.js'
-import userjs from '@/models/user.js'
+import { createRouter, createWebHistory } from 'vue-router'
+import routes from './routes'
+import store from '@/store'
+import { Account } from '@/models/account'
 
-var router = createRouter({
-    history: process.env.IS_ELECTRON ? createWebHashHistory(process.env.BASE_URL) : createWebHistory(process.env.BASE_URL),
-    routes
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes
 })
 
+router.beforeEach((to, from, next) => {  
+  if(store.state.account.isLoggedIn) {
+    store.state.app.appIsReady = true
+    next()
 
-// Before accessing routes, check if user is logged in, otherwise try to login with previously request jwt.
-// If no jwt exists, redirect to login page
-router.beforeEach((to, from, next) => {
-    let setup = async () => {
-        if(!userjs.isLoggedIn()) {
-            if (to.meta.needsAuth) {
-                appjs.setupApp(next)
-            } else {
-                appjs.skipSetup(next)
-            }
-        } else {
-            next()
-        }
-    }
-
-    setup()
+    Account.checkSession().then((isVerified) => {
+      if(!isVerified) {
+        window.location.href = store.state.authFormUrl
+      }
+    })
+    store.state.app.appIsReady = true
+  } else {
+    window.location.href = store.state.authFormUrl
+  }
 })
 
 export default router

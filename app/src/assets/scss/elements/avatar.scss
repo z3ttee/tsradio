@@ -1,0 +1,73 @@
+@import "../_variables";
+
+.avatar-round {
+    img {
+        border-radius: 50%;
+    }
+}
+
+.avatar-dubbed {
+    img {
+        border-radius: $borderRadNormal;
+    }
+}
+
+.avatar-s {
+    height: 24px !important;
+}
+
+.avatar-m {
+    height: 38px !important;
+
+    span {
+        display: inline;
+    }
+
+    img {
+        min-width: 38px;
+    }
+}
+
+.avatar-l {
+    height: 50px !important;
+
+    span {
+        display: inline;
+        font-size: 1.2em;
+        margin-left: 0.7em;
+    }
+
+    img {
+        min-width: 50px;
+    }
+}
+
+.avatar-xl {
+    height: 64px !important;
+
+    span {
+        display: inline;
+        font-size: 1.6em;
+        font-weight: 800;
+        margin-left: 1em;
+    }
+
+    img {
+        min-width: 64px;
+    }
+}
+
+.avatar-xxl {
+    height: 80px !important;
+
+    span {
+        display: inline;
+        font-size: 1.75em;
+        font-weight: 800;
+        margin-left: 1.1em;
+    }
+
+    img {
+        min-width: 80px;
+    }
+}

@@ -1,29 +1,23 @@
 <template>
     <button @click.prevent="onClicked" :disabled="loading">
         <span :class="{'hidden': loading}"><slot></slot></span>
-        <v-lottie-player :class="{'animation': true, 'hidden': !loading}" width="24px" height="24px" loop autoplay :animationData="loaderData" @animControl="animationHook"></v-lottie-player>
+        <app-loader :class="{'animation': true, 'hidden': !loading}" v-if="loading"></app-loader>
     </button>
 </template>
 
-<script>
-import loaderData from '@/assets/animated/primary_loader_light.json'
-
+<script lang="js">
 export default {
     data() {
         return {
-            loaderData,
             loading: false
         }
     },
+    emits: ['clicked'],
     methods: {
         onClicked(event) {
             if(this.loading) return
-
             this.loading = true
             this.$emit('clicked', event, () => this.loading = false)
-        },
-        animationHook() {
-            //console.log(event)
         }
     }
 }
@@ -32,7 +26,7 @@ export default {
 <style lang="scss" scoped>
 button {
     position: relative;
-
+    
     .animation {
         position: absolute;
         top: 50%;
@@ -41,7 +35,6 @@ button {
         pointer-events: none;
     }
 }
-
 .hidden {
     opacity: 0;
 }

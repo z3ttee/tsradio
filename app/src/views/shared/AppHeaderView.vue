@@ -1,22 +1,14 @@
 <template>
-    <div :class="'header ' + getHeaderStateClass" id="app-header">
+    <div :class="'header-wrapper ' + getHeaderStateClass">
         <div class="content-container">
-            <div class="header-bar-section">
-                <img id="desktop-banner" src="@/assets/images/branding/ts_radio_logo.svg" alt="" srcset="">
-                <img id="mobile-banner" src="@/assets/images/branding/ts_logo_svg.svg" alt="" srcset="">
+            <div class="header-section branding-section">
+                <img id="desktop-logo" src="@/assets/images/branding/ts_radio_logo.svg" alt="Alliance Logo">
             </div>
 
-            <div class="header-bar-section">
-                <div v-if="!!$store.state.jwt">
-                    <div class="header-profile">
-                        <span id="username">{{ $store.state.user.username }}</span> <div class="profile-avatar align-right"></div>
-                        <app-popuplist :width="300">
-                            <!--<router-link custom v-slot="{ navigate }" :to="{name: 'viewProfile'}"><li @click="navigate">Profil ansehen</li></router-link>-->
-                            <li @click="$user.logout()"><img src="@/assets/images/icons/power.svg"> Abmelden</li>
-                        </app-popuplist>
-                    </div>
-                </div>
+            <div class="header-section profile-section" v-if="$store.state.account.isLoggedIn">
+                <app-avatar class="avatar-m avatar-round" @click="$router.push({name: 'account'})" style="cursor: pointer;">{{ $store.state.account.name }}</app-avatar>
             </div>
+            
         </div>
     </div>
 </template>
@@ -62,79 +54,61 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@import '@/assets/scss/_variables.scss';
+<style lang="scss" scoped>
+@import "@/assets/scss/_variables.scss";
 
-.header {
+.header-wrapper {
+    display: inline-block;
     position: fixed;
     top: 0;
-    z-index: 100;
     width: 100%;
-    padding: $boxPad*1.5 0;
+    z-index: 10000;
+    transition: all $animSpeedNormal*1s $cubicNorm;
     border-bottom: 2px solid transparent;
-    transition: all $animSpeedFast*1s $cubicNorm;
 
     &.state-scrolling {
         background-color: $colorPrimary;
         box-shadow: $shadowNormal;
-        padding: $boxPad/1.5 0;
         border-bottom: 2px solid $colorPlaceholder;
 
-        #desktop-banner,
-        #mobile-banner {
-            height: 40px !important;
+        .content-container {
+            padding: $windowPad/2 32px;
         }
     }
 
     &.state-hide {
         transform: translateY(-100%);
+
+        .content-container {
+            padding: $windowPad/2 32px;
+        }
     }
 
-    .header-bar-section {
+    .content-container {
+        padding: $windowPad 32px;
+    }
+
+    .header-section {
+        display: inline-block;
         vertical-align: middle;
-        display: inline-block;
-        width: 50%;
-        text-align: center;
-
-        img#desktop-banner,
-        img#mobile-banner {
-            height: 40px;
-        }
-
-        img#mobile-banner {
-            display: none;
-        }
-
-        &:first-of-type {
-            text-align: left;
-        }
-        &:last-of-type {
-            text-align: right;
+        
+        &:last-of-type:not(:first-of-type) {
+            float: right;
         }
     }
 
-    .header-profile {
+    img {
         display: inline-block;
-        position: relative;
-        font-size: 0.7em;
-        font-weight: 600;
-        letter-spacing: 1px;
-        cursor: pointer;
+        height: 40px;
+        vertical-align: middle;
     }
 }
 
-@media screen and (max-width: 580px) {
-    .header {
-
-        &.state-scrolling {
-            padding: $boxPad/1.5 0;
+@media screen and (max-width: 540px) {
+    .header-wrapper {
+        #desktop-logo {
+            height: 32px;
         }
-    }
-}
-
-@media screen and (max-width: 380px) {
-    span#username {
-        display: none;
     }
 }
 </style>
