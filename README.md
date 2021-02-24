@@ -16,7 +16,18 @@ To see the current state of development in detail, please visit the following pa
 * Python installed
 * Redis for pub/sub (Is used for exchanging radio meta data in real-time)
 
-## Setup / Installation
+## Setup icecast to be configured by the api automatically
+For this to work, you need to have both icecast2 and the api running on the same machine. <br>
+First you create the configured icecast.xml in icecast's root directory (e.g.: /etc/icecast2/icecast.xml). You maybe want to configure your credentials and other options first.
+<br> Now that you have that file, create a symlink inside the api's root directory using the following command (please change some values to match your environment):
+```
+    (sudo) ln -s /etc/icecast2/icecast.xml /path/to/api/icecast.xml
+```
+
+The file needs read/write access for the user running the tsradio api.<br>
+Now whenever a new channel is created, the api modifies the icecast.xml with mount specific options (<b>SOON: </b>and automatically restart the icecast server).
+
+<!--## Setup / Installation
 1. [Installation](#1-installation)
 2. [Setting up SSL](#2-setting-up-ssl)
 3. [Setup listener authentication in icecast](#3-setup-listener-authentication-in-icecast)
@@ -63,4 +74,4 @@ Given the following configuration
 you only need to adjust ``<YOUR_URL>`` to something that points to the /auth/listener endpoint of TSRadio's API.
 This could look something like <br>
 * ``https://example.org/api/auth/listener``
-* ``http://example.org/auth/listener`` (Non-SSL connections are not recommended, because of missing encryption)
+* ``http://example.org/auth/listener`` (Non-SSL connections are not recommended, because of missing encryption)-->
