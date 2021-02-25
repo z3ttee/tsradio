@@ -49,13 +49,13 @@ export default class ChannelEndpoint extends Endpoint {
     */
     async actionGetAll(route: Router.Route): Promise<Endpoint.Result> {
         let activeChannels = []
-        Object.values(ChannelHandler.channels).filter((element: Channel) => element?.channelState == Channel.ChannelState.STATE_STREAMING).forEach((channel: Channel) => {
+        Object.values(ChannelHandler.channels).filter((element: Channel) => element && element.channelState == Channel.ChannelState.STATE_STREAMING).forEach((channel: Channel) => {
             activeChannels.push({
                 ...channel["dataValues"],
                 info: channel.channelInfo
             })
         })
-        let inactiveChannels = Object.values(ChannelHandler.channels).filter((element: Channel) => element?.channelState != Channel.ChannelState.STATE_STREAMING)
+        let inactiveChannels = Object.values(ChannelHandler.channels).filter((element: Channel) => element && element.channelState != Channel.ChannelState.STATE_STREAMING)
 
         let channels = [
             ...activeChannels
