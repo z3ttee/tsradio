@@ -115,8 +115,6 @@ export default class ChannelEndpoint extends Endpoint {
             const lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? undefined : route.body?.["lyricsEnabled"])
             const colorHex = route.body?.["colorHex"] || undefined
 
-            console.log(mountpoint)
-
             const channel = await Channel.updateChannel(targetUUID, {
                 title,
                 mountpoint,

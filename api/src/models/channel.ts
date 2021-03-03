@@ -12,6 +12,7 @@ import PacketOutChannelUpdate from '../packets/PacketOutChannelUpdate'
 import ChannelHandler from '../handler/channelHandler'
 import PacketOutChannelDelete from '../packets/PacketOutChannelDelete'
 import PacketOutChannelListeners from '../packets/PacketOutChannelListeners'
+import { IcecastUtil } from '../utils/icecastUtil'
 
 @Table({
     modelName: 'channel',
@@ -69,19 +70,6 @@ export class Channel extends Model {
         allowNull: true
     })
     public activeSince?: Date
-
-    @Unique({
-        name: "coverHash",
-        msg: ""
-    })
-    @Column({
-        type: DataType.STRING(16),
-        allowNull: true,
-        defaultValue: () => {
-            return randomBytes(8).toString('hex')
-        }
-    })
-    public coverHash?: string
 
     @Column({
         type: DataType.BOOLEAN,
@@ -194,6 +182,7 @@ export class Channel extends Model {
             return TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
         } else {
             ChannelHandler.registerChannel(channel)
+            IcecastUtil.addChannel(channel)
             SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(channel.uuid, channel.mountpoint, channel.enabled))
             return new Endpoint.ResultSingleton(200, channel)
         }
@@ -229,7 +218,7 @@ export class Channel extends Model {
             }
 
             // Modify mountpoint: Remove slashes (front and end) and set front slash back for icecast compatability
-            let mountpoint = (data?.["mountpoint"] ? "/" + data?.["mountpoint"].replace("/", "").toLowerCase() : undefined)
+            let mountpoint = (data?.["mountpoint"] ? IcecastUtil.formatMountpoint(data?.["mountpoint"]) : undefined)
             let updatedData = {
                 ...data,
                 mountpoint
@@ -254,16 +243,23 @@ export class Channel extends Model {
             }
 
             Channel.findOne({ where: { uuid: targetUUID }}).then(async(result) => {
-                let updated = await result?.update(updatedData)
+                if(result) {
+                    var prevMountpoint = result.mountpoint
+                    let updated = await result.update(updatedData)
 
-                if(!!updatedData) {
-                    ChannelHandler.updateRegisteredChannel(updated)
-                    SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(updated.uuid, updated.mountpoint, updated.enabled))
-                    
-                    resolve(new Endpoint.ResultSingleton(200, undefined))
+                    if(updatedData) {
+                        ChannelHandler.updateRegisteredChannel(updated)
+                        IcecastUtil.updateChannel(prevMountpoint, updated)
+                        SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_UPDATE, new PacketOutChannelUpdate(updated.uuid, updated.mountpoint, updated.enabled))
+                        
+                        resolve(new Endpoint.ResultSingleton(200, undefined))
+                    } else {
+                        resolve(TrustedError.get(TrustedError.Errors.INTERNAL_ERROR))
+                    }
                 } else {
                     resolve(TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND))
                 }
+                
             })
         })
         
@@ -276,14 +272,18 @@ export class Channel extends Model {
      * @returns Endpoint Result
      */
     static async deleteChannel(targetUUID: string): Promise<Endpoint.Result> {
+        let channel = await Channel.findOne({ where: { uuid: targetUUID || "" }, attributes: ['uuid', 'mountpoint']})
+        if(!channel) return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
+
         let affectedRows = await Channel.destroy({ 
             where: { uuid: targetUUID }
         })
 
         if(affectedRows == 0) {
-            return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
+            return TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
         } else {
             ChannelHandler.unregisterChannel(targetUUID)
+            IcecastUtil.deleteChannel(channel?.mountpoint)
             SocketHandler.getInstance().broadcastToStreamer(SocketEvents.EVENT_CHANNEL_DELETE, new PacketOutChannelDelete(targetUUID))
             return new Endpoint.ResultSingleton(200, undefined)
         }
