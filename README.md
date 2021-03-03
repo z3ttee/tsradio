@@ -25,3 +25,13 @@ First you create the configured icecast.xml in icecast's root directory (e.g.: /
 The file needs read/write access for the user running the tsradio api.<br>
 Now whenever a new channel is created, the api modifies the icecast.xml with mount specific options (<b>SOON: </b>and automatically restart the icecast server). <br><br>
 Now a symlink is created to the original file through which, the nodejs application can access the file and configure new or updated mountpoints. You can even modify the file to your needs.
+
+## Using ssl
+SSL is supported when accessing api endpoints. It is believed, that you already have your certificate. <br>
+If you do, make sure they have the correct format. ``.pem`` files are supported for certs.
+
+* Create the folder ``sslcert/`` in the root directory of the api
+* Place your certificate inside that folder and name it ``fullchain.pem``
+* Place your private key inside that folder and name it ``privkey.pem``
+
+If the api is already running, restart the application. If everything worked you will not see the message ``Running in insecure mode. (SSL not enabled)`` in the console.
