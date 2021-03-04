@@ -4,6 +4,7 @@ import { Member } from "../alliance/member"
 import config from "../config/config"
 import { TrustedError } from "../error/trustedError"
 import ChannelHandler from "../handler/channelHandler"
+import { VoteHandler } from "../handler/voteHandler"
 import { OnChannelHistoryChange } from "../listener/OnChannelHistoryChange"
 import { OnChannelInfoChange } from "../listener/OnChannelInfoChange"
 import { OnChannelStateChange } from "../listener/OnChannelStateChange"
@@ -105,11 +106,11 @@ export class SocketHandler {
             ChannelHandler.resetAllChannels()
             this.connectedStreamer = undefined
         } else {
-            // TODO: When voting system is available: Remove user from voting
             let socketClient = this.connectedClients[socket.id]
             if(socketClient instanceof SocketClient.SocketMember) {
-                // Remove member from listeners
+                // Remove member from listeners and from votings
                 ChannelHandler.removeMember(socketClient)
+                VoteHandler.removeVote(socketClient.getCurrentChannel().uuid, socketClient.profile.uuid)
             }
             this.connectedClients.delete(socket.id)
         }

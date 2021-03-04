@@ -2,8 +2,13 @@ import path from "path"
 
 export default {
     app: {
+        host: 'http://localhost',
         port: 3334,
-        rootDir: path.resolve(__dirname+"/../")
+        rootDir: path.resolve(__dirname+"/../"),
+        voting: {
+            duration: 30,
+            cooldown: 10
+        }
     },
     tsalliance: {
         clientId: '',

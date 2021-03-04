@@ -15,4 +15,8 @@ export default {
     AUTH_REQUIRED: { errorId: "AUTH_REQUIRED", statusCode: 403, message: "Bitte melde dich vorher an" },
     INVALID_CREDENTIALS: { errorId: "INVALID_CREDENTIALS", statusCode: 403, message: "Die Anmeldedaten sind nicht korrekt" },
     INVALID_ACCOUNT: { errorId: "INVALID_ACCOUNT", statusCode: 403, message: "Das Konto konnte nicht gefunden werden" },
+
+    ALREADY_VOTED: { errorId: "ALREADY_VOTED", statusCode: 400, message: "Du hast bereits abgestimmt!" },
+    VOTE_COOLDOWN: { errorId: "COOLDOWN", statusCode: 400, message: "Bitte warte, bevor du diese Aktion erneut ausführen kannst." },
+    VOTE_PENDING: { errorId: "VOTE_PENDING", statusCode: 400, message: "Derzeit wird eine Abstimmung durchgeführt. Warte, bis du eine nächste starten kannst." }
 }

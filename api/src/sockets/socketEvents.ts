@@ -7,6 +7,7 @@ export enum SocketEvents {
     EVENT_CHANNEL_HISTORY = "event_channel_history",
     EVENT_CHANNEL_INFO = "event_channel_info",
     EVENT_CHANNEL_LISTENERS = "event_channel_listeners",
+    EVENT_CHANNEL_VOTING = "event_channel_voting",
 
     EVENT_TRACK_SKIP = "event_track_skip",
 }

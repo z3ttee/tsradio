@@ -6,6 +6,7 @@ import PacketOutChannelInfo from "../packets/PacketOutChannelInfo";
 import { SocketClient } from "../sockets/socketClient";
 import { SocketEvents } from "../sockets/socketEvents";
 import { SocketHandler } from "../sockets/socketHandler";
+import { VoteHandler } from "./voteHandler";
 
 export default class ChannelHandler {
 
@@ -37,6 +38,7 @@ export default class ChannelHandler {
      */
     public static unregisterChannel(uuid: string) {
         this.channels[uuid] = undefined
+        VoteHandler.abort(uuid)
     }
 
     /**
@@ -55,7 +57,6 @@ export default class ChannelHandler {
         old.featured = channel.featured
         old.lyricsEnabled = channel.lyricsEnabled
         old.colorHex = channel.colorHex
-        old.coverHash = channel.coverHash
         old.creatorId = channel.creatorId
 
         return this.registerChannel(old)
@@ -156,6 +157,7 @@ export default class ChannelHandler {
             this.clearChannelHistory(key)
             this.clearChannelInfo(key)
             this.updateState(key, Channel.ChannelState.STATE_OFFLINE)
+            VoteHandler.abortAll()
         })
     }
 
@@ -170,6 +172,9 @@ export default class ChannelHandler {
 
         currentChannel?.decreaseListeners()
         destChannel?.increaseListeners()
+
+        VoteHandler.removeVote(currentChannel?.uuid, member.profile.uuid)
+
         member.setCurrentChannel(destChannel)
     }
 

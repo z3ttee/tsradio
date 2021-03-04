@@ -4,6 +4,7 @@ import SongEndpoint from "../endpoint/songEndpoint"
 
 import { Endpoint } from "../endpoint/endpoint"
 import CoverEndpoint from "../endpoint/coverEndpoint"
+import VoteEndpoint from "../endpoint/voteEndpoint"
 
 export namespace Routes {
     export const list: Array<RouteGroup> =  [
@@ -37,9 +38,16 @@ export namespace Routes {
             handler: CoverEndpoint,
             groupname: 'covers',
             routes: [
-                { name: 'CoverGet', path: '/covers/:hash', action: 'getOne', method: 'get'},
-                { name: 'CoverSet', path: '/covers/:uuid', action: 'setOne', method: 'post'},
-                { name: 'CoverDelete', path: '/covers/:uuid', action: 'deleteOne', method: 'delete'}
+                { name: 'CoverGet', path: '/covers/:type/:cover', action: 'getOne', method: 'get'},
+                { name: 'CoverSet', path: '/covers/channel/:type/:uuid', action: 'setOne', method: 'post'},
+                { name: 'CoverDelete', path: '/covers/channel/:uuid', action: 'deleteOne', method: 'delete'}
+            ]
+        },
+        {
+            handler: VoteEndpoint,
+            groupname: 'votes',
+            routes: [
+                { name: 'VoteAdd', path: '/votes/:uuid/add', action: 'addVote', method: 'put'}
             ]
         },
     ]
