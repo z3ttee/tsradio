@@ -69,9 +69,10 @@ public class Channel implements Runnable, TrackEventListener {
 
             // If Client is connected to icecast -> Start streaming
             if(this.connection.isConnected()) {
-                this.setChannelState(ChannelState.STATE_STREAMING);
+
 
                 while (!shutdown && this.queue.peek() != null) {
+                    this.setChannelState(ChannelState.STATE_STREAMING);
                     this.next();
                 }
             }
@@ -183,6 +184,8 @@ public class Channel implements Runnable, TrackEventListener {
      * @param state Channel's new state
      */
     private void setChannelState(ChannelState state) {
+        if(this.channelState == state) return;
+
         this.channelState = state;
         this.notifyChannelStateChange();
     }
@@ -198,7 +201,9 @@ public class Channel implements Runnable, TrackEventListener {
      * Send an update to the socket server with the channel's info as payload
      */
     public void notifyChannelInfoChange() {
-        SocketClient.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_INFO, new PacketOutInfoChange(this.getUuid(), this.getCurrentlyPlaying().getTitle(), this.getCurrentlyPlaying().getArtist(), this.getCurrentlyPlaying().getTimestamp()));
+        if(this.getCurrentlyPlaying() != null) {
+            SocketClient.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_INFO, new PacketOutInfoChange(this.getUuid(), this.getCurrentlyPlaying().getTitle(), this.getCurrentlyPlaying().getArtist(), this.getCurrentlyPlaying().getTimestamp()));
+        }
     }
 
     /**
