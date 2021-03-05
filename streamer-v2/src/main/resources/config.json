@@ -15,6 +15,7 @@
     },
     "socketio": {
         "baseUrl": "http://localhost:3334",
+        "path": "/",
         "password": "hackme"
     }
 }
