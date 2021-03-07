@@ -35,19 +35,11 @@ export class IcecastUtil {
             let mounts = icecastOptions.mount || []
             let newMount = this.buildMountpoint(channel.mountpoint)
 
-            console.log(mounts)
-
-            /*if(!mounts) {
-
-            }*/
-
             if(Array.isArray(mounts)) {
                 mounts.push(newMount)
             } else {
                 mounts = [ icecastOptions.mount, newMount ]
             }
-
-            
             
             icecastOptions.mount = mounts
             fileContent["icecast"] = icecastOptions
