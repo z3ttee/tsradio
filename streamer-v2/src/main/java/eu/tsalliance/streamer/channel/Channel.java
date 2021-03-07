@@ -96,7 +96,7 @@ public class Channel implements Runnable, TrackEventListener {
         logger.info("Channel '" + getMountpoint() + "' stopped.");
     }
 
-    private void triggerRestart() {
+    public void triggerRestart() {
         new Thread(() -> {
             logger.info("Channel '" + this.mountpoint + "' stopped. Restarting in 10s");
             try {

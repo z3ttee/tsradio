@@ -87,9 +87,10 @@ public class IcecastClient {
             String data = reader.readLine();
 
             this.handleResponse(data);
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (Exception e) {
             logger.error("connect(): Connecting to icecast server failed: "+e.getMessage());
             this.stream = null;
+            this.channel.triggerRestart();
         }
     }
 
