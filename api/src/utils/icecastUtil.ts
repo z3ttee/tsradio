@@ -33,14 +33,22 @@ export class IcecastUtil {
 
         if(icecastOptions && channel) {
             let mounts = icecastOptions.mount || []
-
-            if(typeof icecastOptions.mount == "object") {
-                mounts = [ icecastOptions.mount ]
-            }
-
             let newMount = this.buildMountpoint(channel.mountpoint)
 
-            mounts.push(newMount)
+            console.log(mounts)
+
+            /*if(!mounts) {
+
+            }*/
+
+            if(Array.isArray(mounts)) {
+                mounts.push(newMount)
+            } else {
+                mounts = [ icecastOptions.mount, newMount ]
+            }
+
+            
+            
             icecastOptions.mount = mounts
             fileContent["icecast"] = icecastOptions
 
@@ -180,8 +188,8 @@ export class IcecastUtil {
      */
     private static async restartIcecastService() {
         if(process.platform == "linux") {
-            var stdin: Buffer = execSync("sudo service icecast2 restart")
-
+            var userPassword = config.app.sudoUserPassword
+            var stdin: Buffer = execSync("echo '" + userPassword + "' | sudo -S service icecast2 restart")
             console.log(stdin.toString())
         }
         
