@@ -15,6 +15,7 @@ import eu.tsalliance.streamer.socket.packets.PacketOutStateChange;
 import eu.tsalliance.streamer.utils.JsonEscaper;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -62,6 +64,13 @@ public class Channel implements Runnable, TrackEventListener {
         logger.info("Channel '" + getMountpoint() + "' started.");
 
         while(!shutdown) {
+            // Wait till some files are detected to be played
+            while(hasEmptyPlaylist() && !shutdown) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {}
+            }
+
             this.reload();
 
             this.connection = new IcecastClient(this);
@@ -69,8 +78,6 @@ public class Channel implements Runnable, TrackEventListener {
 
             // If Client is connected to icecast -> Start streaming
             if(this.connection.isConnected()) {
-
-
                 while (!shutdown && this.queue.peek() != null) {
                     this.setChannelState(ChannelState.STATE_STREAMING);
                     this.next();
@@ -137,22 +144,30 @@ public class Channel implements Runnable, TrackEventListener {
     }
 
     /**
-     * Load tracks from the channels playlist
+     * Check if the playlist on drive is empty
+     * @return True or False
      */
-    private void loadTracks(){
-        this.playlist.clear();
-
+    private boolean hasEmptyPlaylist() {
         File channelDirectory = FileHandler.getDirOfChannel(this);
 
         if(!FileHandler.getInstance().getChannelsRootDirectory().exists() && !FileHandler.getInstance().getChannelsRootDirectory().mkdirs() || !channelDirectory.exists() && !channelDirectory.mkdirs()) {
-            return;
+            return true;
         }
 
+        List<File> files = Arrays.stream(channelDirectory.listFiles()).filter(File::isFile).collect(Collectors.toList());
+        return files.size() <= 0;
+    }
+
+    /**
+     * Load tracks from the channels playlist
+     */
+    private void loadTracks(){
+        if(hasEmptyPlaylist()) return;
+
+        this.playlist.clear();
+
+        File channelDirectory = FileHandler.getDirOfChannel(this);
         File[] files = channelDirectory.listFiles();
-
-        if(files == null) {
-            return;
-        }
 
         List<File> trackFiles = Stream.of(files).filter(file -> !file.isDirectory()).collect(Collectors.toList());
         for(File file : trackFiles) {

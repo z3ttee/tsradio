@@ -89,7 +89,10 @@ public class FileHandler {
 
         // Update old directory to new directory
         try {
-            FileUtils.moveDirectoryToDirectory(directory, newDirectory, true);
+            FileUtils.copyDirectoryToDirectory(directory, newDirectory);
+            FileUtils.cleanDirectory(directory);
+            FileUtils.forceDelete(directory);
+            //FileUtils.moveDirectoryToDirectory(directory, newDirectory, true);
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
