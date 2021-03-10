@@ -20,13 +20,20 @@ export default class AuthEndpoint extends Endpoint {
     async actionListenerLogin(route: Router.Route): Promise<Endpoint.Result> {
         try {
             let mountpoint = route.body?.["mount"]
-            console.log(mountpoint)
 
-            let path = mountpoint.split("?")[0]
-            let query = mountpoint.split("?")[1].split("&")
+            // Decode query String
+            let queryString = mountpoint.split("?")[1].split("&")
+            let query = []
 
-            let token = query[0]
-            let channelUUID = query[1]
+            for(const queryPart of queryString) {
+                const key = queryPart.split("=")[0]
+                const value = queryPart.split("=")[1]
+
+                query[key] = value
+            }
+
+            let token = query["token"]
+            let channelUUID = query["channel"]
 
             let member = await Alliance.getInstance().authenticateMemberByToken(token)
 
@@ -38,13 +45,13 @@ export default class AuthEndpoint extends Endpoint {
                 }
             }
 
-            route.response.set('icecast-auth-user', '1');
+            route.response.set('icecast-auth-user', '1');            
             ChannelHandler.moveMemberToChannel(SocketHandler.getInstance().getSocketMemberByMemberId(member.uuid), channelUUID)
             return new Endpoint.ResultEmpty(200)
-        } catch (exception) {
+        } catch (exception) {            
             let error = TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
             route.response.set('icecast-auth-user', '0');
-            route.response.set('Icecast-Auth-Message', error.message.toString());
+            route.response.set('Icecast-Auth-Message', error.message.toString());            
             return error
         }
         

@@ -16,7 +16,8 @@ export namespace Routes {
                 { name: 'ChannelDeleteOne', path: '/channels/:uuid', method: 'delete', action: 'deleteOne' },
                 { name: 'ChannelGetOne', path: '/channels/:uuid', method: 'get', action: 'getOne' },
                 { name: 'ChannelGetAll', path: '/channels', method: 'get', action: 'getAll' },
-                { name: 'ChannelUpdateOne', path: '/channels/:uuid', method: 'put', action: 'updateOne' }
+                { name: 'ChannelUpdateOne', path: '/channels/:uuid', method: 'put', action: 'updateOne' },
+                { name: 'ChannelGetHistory', path: '/channels/:uuid/history', method: 'get', action: 'getHistory' }
             ]
         },
         {
@@ -38,7 +39,7 @@ export namespace Routes {
             handler: CoverEndpoint,
             groupname: 'covers',
             routes: [
-                { name: 'CoverGet', path: '/covers/:type/:cover', action: 'getOne', method: 'get'},
+                { name: 'CoverGet', path: '/covers/:type/:channelId', action: 'getOne', method: 'get'},
                 { name: 'CoverSet', path: '/covers/channel/:type/:uuid', action: 'setOne', method: 'post'},
                 { name: 'CoverDelete', path: '/covers/channel/:uuid', action: 'deleteOne', method: 'delete'}
             ]

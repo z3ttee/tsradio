@@ -24,7 +24,7 @@ export class Validator {
      */
     static async validateChannelCreate(data: Object): Promise<Validator.ValidationResult> {
         const validationSchema = Joi.object({
-            title: Joi.string().min(3).max(16).required(),
+            title: Joi.string().min(3).max(32).required(),
             mountpoint: Joi.string().min(3).max(32).alphanum().required(),
             description: Joi.string().min(3).max(150),
             creatorId: Joi.string().uuid().required(),
@@ -39,7 +39,7 @@ export class Validator {
      */
     static async validateChannelUpdate(data: Object): Promise<Validator.ValidationResult> {
         const validationSchema = Joi.object({
-            title: Joi.string().min(3).max(16),
+            title: Joi.string().min(3).max(32),
             mountpoint: Joi.string().min(3).max(32).alphanum(),
             description: Joi.string().min(3).max(150),
             creatorId: Joi.string().uuid(),

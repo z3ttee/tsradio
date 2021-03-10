@@ -28,7 +28,7 @@ export class Alliance {
                         data.uuid,
                         data.name,
                         data.email,
-                        new Member.Role(data.role.uuid, data.role.name, data.role.permissions, data.role.hierarchy),
+                        data.role ? new Member.Role(data.role.uuid, data.role.name, data.role.permissions, data.role.hierarchy) : undefined,
                         data.avatar    
                     ))
                 }

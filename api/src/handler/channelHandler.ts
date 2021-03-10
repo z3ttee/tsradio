@@ -3,6 +3,7 @@ import PacketOutChannelAdd from "../packets/PacketOutChannelAdd";
 import PacketOutChannelDelete from "../packets/PacketOutChannelDelete";
 import PacketOutChannelHistory from "../packets/PacketOutChannelHistory";
 import PacketOutChannelInfo from "../packets/PacketOutChannelInfo";
+import PacketOutChannelState from "../packets/PacketOutChannelState";
 import { SocketClient } from "../sockets/socketClient";
 import { SocketEvents } from "../sockets/socketEvents";
 import { SocketHandler } from "../sockets/socketHandler";
@@ -58,6 +59,7 @@ export default class ChannelHandler {
         old.lyricsEnabled = channel.lyricsEnabled
         old.colorHex = channel.colorHex
         old.creatorId = channel.creatorId
+        old.mountpoint = channel.mountpoint
 
         return this.registerChannel(old)
     }
@@ -75,10 +77,11 @@ export default class ChannelHandler {
 
         if(state != Channel.ChannelState.STATE_STREAMING) {
             channel.update({ activeSince: null })
-            SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_DELETE, new PacketOutChannelDelete(channelId))
+            SocketHandler.getInstance().broadcastWithoutPermission(SocketEvents.EVENT_CHANNEL_DELETE, new PacketOutChannelDelete(channelId), "permission.channels.read")
+            SocketHandler.getInstance().broadcastWithPermission(SocketEvents.EVENT_CHANNEL_STATE, new PacketOutChannelState(channelId, state), "permission.channels.read")
         } else {
             channel.update({ activeSince: Date.now() })
-            SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_DELETE, new PacketOutChannelAdd(channelId))
+            SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_ADD, new PacketOutChannelAdd(channelId))
         }
     }
 
@@ -166,7 +169,9 @@ export default class ChannelHandler {
      * @param member Member
      * @param channelId Destination channel id
      */
-    public static moveMemberToChannel(member: SocketClient.SocketMember, destChannelId?: string) {
+    public static moveMemberToChannel(member?: SocketClient.SocketMember, destChannelId?: string) {
+        if(!member) return
+        
         const currentChannel = member.getCurrentChannel()
         const destChannel = ChannelHandler.getChannel(destChannelId)
 
@@ -174,7 +179,6 @@ export default class ChannelHandler {
         destChannel?.increaseListeners()
 
         VoteHandler.removeVote(currentChannel?.uuid, member.profile.uuid)
-
         member.setCurrentChannel(destChannel)
     }
 

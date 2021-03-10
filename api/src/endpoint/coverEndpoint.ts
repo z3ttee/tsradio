@@ -19,10 +19,32 @@ export default class CoverEndpoint extends Endpoint {
     }
 
     /**
-     * @api {get} /covers/:hash Get avatar
+     * @api {get} /covers/:type/:channelId/?timestamp=123 Get avatar
      */
     async actionGetOne(route: Router.Route): Promise<Endpoint.Result> {
-        let file = MediaUtil.getCoverFileByHash(route.params?.["hash"])
+        let type = route.params?.["type"]
+        let channelId = route.params?.["channelId"]
+        let timestamp = route.query?.["timestamp"]
+
+        if(!type || !channelId) {
+            return TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
+        }
+
+        let file
+        if(type == "channel") {
+            file = MediaUtil.getChannelCoverFile(channelId)
+        } else {
+            // coverIdentifier is now the channelId
+
+            if(type == "current") {
+                file = MediaUtil.getCurrentArtworkOfChannel(channelId)
+            } else if(type == "history") { 
+                if(!timestamp) return TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
+                file = MediaUtil.getHistoryArtworkOfChannel(channelId, timestamp)
+            } else {
+                return TrustedError.get(TrustedError.Errors.INTERNAL_ERROR)
+            }
+        }
 
         // Send cover
         MediaUtil.sendFileAsResponse(file, route.response);
@@ -52,7 +74,7 @@ export default class CoverEndpoint extends Endpoint {
 
                 route.request.pipe(busboy)
                 busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-                    MediaUtil.createCoverImage(channel, mimetype)
+                    MediaUtil.createCoverImage(channel, file, mimetype)
                         .then((result) => resolve(result))
                         .catch((error) => resolve(error))
                 })

@@ -2,8 +2,6 @@ import { Socket } from "socket.io";
 import { Member } from "../alliance/member";
 import ChannelHandler from "../handler/channelHandler";
 import { Channel } from "../models/channel";
-import { SocketEvents } from "./socketEvents";
-import { SocketHandler } from "./socketHandler";
 
 export abstract class SocketClient {
     public readonly socket: Socket
@@ -18,17 +16,17 @@ export abstract class SocketClient {
 export namespace SocketClient {
     export class SocketMember extends SocketClient {
         public readonly profile: Member.Profile
-        public readonly permissions: Array<String>
+        public readonly permissions?: Array<String>
         private currentChannelId?: string
 
-        constructor(socket: Socket, profile: Member.Profile, permissions: Array<String>) {
+        constructor(socket: Socket, profile: Member.Profile, permissions?: Array<String>) {
             super(socket)
             this.profile = profile
             this.permissions = permissions
         }
 
         public hasPermission(permission: string) {
-            return this.permissions.includes(permission)
+            return this?.permissions?.includes(permission)
         }
 
         public getCurrentChannel(): Channel {

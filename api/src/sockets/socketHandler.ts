@@ -57,6 +57,22 @@ export class SocketHandler {
         }
     }
 
+    public async broadcastWithoutPermission(event: SocketEvents, packet: Packet, permission: string) {
+        for(let client of this.connectedClients.values()) {
+            if(!client.hasPermission(permission)) {
+                client.socket.emit(event, packet)
+            }
+        }
+    }
+
+    public async broadcastWithPermission(event: SocketEvents, packet: Packet, permission: string) {
+        for(let client of this.connectedClients.values()) {
+            if(client.hasPermission(permission)) {
+                client.socket.emit(event, packet)
+            }
+        }
+    }
+
     /**
      * Broadcast to all listeners in specific room
      * @param room Room
@@ -81,11 +97,13 @@ export class SocketHandler {
                 if(handShakeData.auth["password"] != config.socketio.password) {
                     return this.registerAsGuest(socket)
                 } else {
+                    console.log("Registering as streamer...");
+                    
                     this.registerAsStreamer(socket);
                 }
             } else if(handShakeData.auth["token"]) {
                 // Login as member
-                let member = await Alliance.getInstance().authenticateMemberByToken(handShakeData.auth["token"])
+                let member = await Alliance.getInstance().authenticateMemberByToken(handShakeData.auth["token"])                
                 if(member instanceof TrustedError) {
                     return this.registerAsGuest(socket)
                 }
@@ -122,7 +140,7 @@ export class SocketHandler {
      * @param trustedError (Optional) Error that caused the socket to be classified as guest
      */
     private async registerAsGuest(socket: Socket, trustedError?: TrustedError) {
-        trustedError = !!trustedError ? trustedError : TrustedError.get(TrustedError.Errors.PERMISSION_DENIED)
+        trustedError = !!trustedError ? trustedError : TrustedError.get(TrustedError.Errors.AUTH_REQUIRED)
 
         socket.emit(SocketEvents.EVENT_AUTHENTICATION, new PacketOutAuthentication(false, trustedError.message, trustedError.errorId) )
         this.connectedClients.set(socket.id, new SocketClient.SocketGuest(socket))
@@ -135,7 +153,7 @@ export class SocketHandler {
      */
     private async registerAsMember(socket: Socket, member: Member) {
         socket.emit(SocketEvents.EVENT_AUTHENTICATION, new PacketOutAuthentication(true))
-        this.connectedClients.set(socket.id, new SocketClient.SocketMember(socket, new Member.Profile(member.uuid, member.name), member.role.permissions))
+        this.connectedClients.set(socket.id, new SocketClient.SocketMember(socket, new Member.Profile(member.uuid, member.name), member.role?.permissions))
     }
 
     /**

@@ -99,6 +99,13 @@ export class Channel extends Model {
     })
     public colorHex: string
 
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    })
+    public order: number
+
     public channelState: Channel.ChannelState = Channel.ChannelState.STATE_OFFLINE
     public channelInfo?: Channel.ChannelInfo
     public channelHistory?: Array<Channel.ChannelInfo>
@@ -108,8 +115,11 @@ export class Channel extends Model {
      * Decrease listener count by one
      */
     public decreaseListeners() {
-        if(this.listeners >= 1) this.listeners -= 1;
-        SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
+        if(this.listeners >= 1) {
+            this.listeners -= 1;
+            SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
+        }
+        console.log("Decrease: " + this.mountpoint + ": " + this.listeners)
     }
 
     /**
@@ -118,6 +128,7 @@ export class Channel extends Model {
     public increaseListeners() {
         this.listeners += 1;
         SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
+        console.log("Increase: " + this.mountpoint + ": " + this.listeners)
     }
 
     /**
@@ -132,7 +143,7 @@ export class Channel extends Model {
      * 
      * @returns Endpoint Result
      */
-    static async createChannel(title: string, mountpoint: string, description: string, creatorId: string, enabled: Boolean, featured: Boolean, lyricsEnabled: Boolean, colorHex: string): Promise<Endpoint.Result> {
+    static async createChannel(title: string, mountpoint: string, description: string, creatorId: string, enabled: Boolean, featured: Boolean, lyricsEnabled: Boolean, colorHex: string, order: number): Promise<Endpoint.Result> {
         // Validate data
         let validationResult = await Validator.validateChannelCreate({
             title, 
@@ -151,6 +162,15 @@ export class Channel extends Model {
         if(!!colorHex) {
             if(!Validator.isHex(colorHex)) {
                 return TrustedError.get(TrustedError.Errors.UNSUPPORTED_FORMAT)
+            }
+        }
+
+        if(order) {
+            if(order > 1000) {
+                order = 1000
+            }
+            if(order < 0) {
+                order = 0
             }
         }
 
@@ -175,7 +195,8 @@ export class Channel extends Model {
             enabled, 
             featured, 
             lyricsEnabled,
-            colorHex
+            colorHex,
+            order
         })
 
         if(!channel) {
@@ -214,6 +235,15 @@ export class Channel extends Model {
                 if(!Validator.isHex(data?.["colorHex"])) {
                     resolve(TrustedError.get(TrustedError.Errors.UNSUPPORTED_FORMAT))
                     return
+                }
+            }
+    
+            if(!!data?.["order"]) {
+                if(data["order"] > 1000) {
+                    data["order"] = 1000
+                }
+                if(data["order"] < 0) {
+                    data["order"] = 0
                 }
             }
 

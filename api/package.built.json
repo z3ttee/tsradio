@@ -16,9 +16,11 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "express": "^4.17.1",
+    "fast-xml-parser": "^3.18.0",
     "ffmpeg": "0.0.4",
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.0.0",
+    "genius-lyrics-api": "^3.0.6",
     "joi": "^17.3.0",
     "joi-password-complexity": "^5.0.2",
     "jsonwebtoken": "^8.5.1",
@@ -29,6 +31,7 @@
     "sequelize-typescript": "^2.0.0",
     "sharp": "^0.27.1",
     "socket.io": "^3.0.4",
+    "socket.io-client": "^3.1.1",
     "winston": "^3.3.3"
   }
 }

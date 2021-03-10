@@ -10,7 +10,7 @@ export default class ChannelEndpoint extends Endpoint {
 
     constructor() {
         super(
-            Endpoint.AuthenticationFlag.FLAG_REQUIRED,
+            Endpoint.AuthenticationFlag.FLAG_NO_AUTH,
             [
                 new Endpoint.Permission("createOne", "permission.channels.create"),
                 new Endpoint.Permission("deleteOne", "permission.channels.delete"),
@@ -26,11 +26,11 @@ export default class ChannelEndpoint extends Endpoint {
         let targetUUID = route.params?.["uuid"] || ""
 
         if(ChannelHandler.isStreaming(targetUUID)) {
-            // TODO: Send channel with info as response
             const c = ChannelHandler.getChannel(targetUUID)
             const channel = {
                 ...c["dataValues"],
-                info: c.channelInfo
+                info: c.channelInfo,
+                listeners: c.listeners
             }
 
             return new Endpoint.ResultSingleton(200, channel)
@@ -52,7 +52,8 @@ export default class ChannelEndpoint extends Endpoint {
         Object.values(ChannelHandler.channels).filter((element: Channel) => element && element.channelState == Channel.ChannelState.STATE_STREAMING).forEach((channel: Channel) => {
             activeChannels.push({
                 ...channel["dataValues"],
-                info: channel.channelInfo
+                info: channel.channelInfo,
+                listeners: channel.listeners
             })
         })
         let inactiveChannels = Object.values(ChannelHandler.channels).filter((element: Channel) => element && element.channelState != Channel.ChannelState.STATE_STREAMING)
@@ -81,6 +82,7 @@ export default class ChannelEndpoint extends Endpoint {
             const featured = !!route.body?.["featured"]
             const lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? true : route.body?.["lyricsEnabled"])
             const colorHex = route.body?.["colorHex"] || undefined
+            const order = route.body?.["order"] || undefined
 
             const channel = await Channel.createChannel(
                 title,
@@ -90,7 +92,8 @@ export default class ChannelEndpoint extends Endpoint {
                 enabled,
                 featured,
                 lyricsEnabled,
-                colorHex
+                colorHex,
+                order
             )
 
             return channel
@@ -143,6 +146,25 @@ export default class ChannelEndpoint extends Endpoint {
         }
 
         return new Endpoint.ResultEmpty(400)
+    }
+
+    /**
+    * @api {get} /channels/:uuid/history Get History of channel
+    */
+     async actionGetHistory(route: Router.Route): Promise<Endpoint.Result> {
+        let targetUUID = route.params?.["uuid"] || ""
+
+        if(ChannelHandler.isStreaming(targetUUID)) {
+            const c = ChannelHandler.getChannel(targetUUID)
+            const channel = {
+                uuid: c.uuid,
+                history: c.channelHistory
+            }
+
+            return new Endpoint.ResultSingleton(200, channel)
+        } else {
+            return TrustedError.get(TrustedError.Errors.RESOURCE_NOT_FOUND)
+        }
     }
 
 }

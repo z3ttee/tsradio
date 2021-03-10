@@ -8,7 +8,8 @@ export default {
         voting: {
             duration: 30,
             cooldown: 10
-        }
+        },
+        sudoUserPassword: "hackme"
     },
     tsalliance: {
         clientId: '',
