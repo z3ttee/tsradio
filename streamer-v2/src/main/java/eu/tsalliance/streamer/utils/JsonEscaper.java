@@ -13,6 +13,8 @@ public class JsonEscaper {
 
     public String escape(String content) {
         String escaped = content;
+
+        if(escaped == null) return "";
         for(Map.Entry<Character, String> pair : chars.entrySet()) {
             escaped = escaped.replace(pair.getKey().toString(), pair.getValue());
         }
