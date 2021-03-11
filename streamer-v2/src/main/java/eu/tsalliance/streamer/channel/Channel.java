@@ -15,13 +15,11 @@ import eu.tsalliance.streamer.socket.packets.PacketOutStateChange;
 import eu.tsalliance.streamer.utils.JsonEscaper;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -178,16 +176,16 @@ public class Channel implements Runnable, TrackEventListener {
                 Mp3File mp3File = new Mp3File(file);
 
                 if(mp3File.hasId3v2Tag()) {
-                    title = JsonEscaper.getInstance().escape(mp3File.getId3v2Tag().getTitle());
-                    artist = JsonEscaper.getInstance().escape(mp3File.getId3v2Tag().getArtist());
+                    title = JsonEscaper.getInstance().escape(mp3File.getId3v2Tag().getTitle(), "Unknown title");
+                    artist = JsonEscaper.getInstance().escape(mp3File.getId3v2Tag().getArtist(), "Unknown artist");
                 } else if(mp3File.hasId3v1Tag()) {
-                    title = JsonEscaper.getInstance().escape(mp3File.getId3v1Tag().getTitle());
-                    artist = JsonEscaper.getInstance().escape(mp3File.getId3v1Tag().getArtist());
+                    title = JsonEscaper.getInstance().escape(mp3File.getId3v1Tag().getTitle(), "Unknown title");
+                    artist = JsonEscaper.getInstance().escape(mp3File.getId3v1Tag().getArtist(), "Unknown artist");
                 }
 
                 AudioTrack track = new AudioTrack(title, artist, file, mp3File);
                 this.playlist.add(track);
-            } catch (IOException | UnsupportedTagException | InvalidDataException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 logger.error("loadTracks(): Could not load track '"+file.getAbsolutePath()+"'");
             }
