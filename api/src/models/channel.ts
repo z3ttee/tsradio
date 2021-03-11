@@ -325,6 +325,7 @@ export namespace Channel {
         STATE_RUNNING = 0,
         STATE_STREAMING = 1,
         STATE_OFFLINE = 2,
+        STATE_PREPARING = 3,
     }
 
     export class ChannelInfo {

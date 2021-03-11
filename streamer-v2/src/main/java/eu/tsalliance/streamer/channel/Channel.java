@@ -163,6 +163,7 @@ public class Channel implements Runnable, TrackEventListener {
         if(hasEmptyPlaylist()) return;
 
         this.playlist.clear();
+        setChannelState(ChannelState.STATE_PREPARING);
 
         File channelDirectory = FileHandler.getDirOfChannel(this);
         File[] files = channelDirectory.listFiles();
