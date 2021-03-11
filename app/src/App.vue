@@ -1,15 +1,17 @@
 <template>
-    <transition name="anim_dialog" mode="out-in" appear>
-        <app-splash-screen></app-splash-screen>
+
+    <transition name="anim_splashscreen" mode="out-in" appear>
+        <app-splash-screen key="key-comp-splashscreen" v-if="!$store.state.app.appIsReady || !$store.state.app.isSocketReady"></app-splash-screen>
     </transition>
-    <transition name="anim_state_change" mode="out-in">
-        <component :is="getLayout" v-if="$store.state.app.appIsReady"></component>
+    
+    <transition name="anim_state_change" mode="out-in" appear>
+        <component :is="getLayout" key="key-comp-layout" v-if="$store.state.app.appIsReady && $store.state.app.isSocketReady"></component>
     </transition>
 
-    <div :class="{'modal-overlay': true, 'hidden': !$store.state.app.showModal}" @click="dismissModal"></div>
+    <div :class="{'modal-overlay': true, 'hidden': !$store.state.app.showModal}" @click="dismissModal($event, true)"></div>
     <div :class="{'hidden': !$store.state.app.showModal}" id="modal-wrapper" @click="dismissModal">
         <transition-group name="anim_dialog" mode="out-in">
-            <div class="modal-container" v-for="modal in $store.state.modals" :key="modal.uuid" @click="dismissModal">
+            <div class="modal-container" v-for="modal in $store.state.modals" :key="modal.uuid">
                 <component  :is="modal.component" :content="modal.content"></component>
             </div>
         </transition-group>
@@ -26,9 +28,9 @@ export default {
         AppSplashScreen
     },
     methods: {
-        dismissModal() {
-            this.$modal.triggerDismissEvent()
-            this.$modal.dismiss()
+        dismissModal(event, overlay) {
+            console.log(overlay)
+            this.$modal.dismiss(event)
         }
     },
     computed: {

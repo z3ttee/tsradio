@@ -9,24 +9,22 @@ export class Modal {
                 return
             }
         }
+        
+        if(store.state.modals) {
+            let lastIndex = store.state.modals.length - 1
+            this.triggerDismissEvent(store.state.modals[lastIndex])
+            store.state.modals.splice(lastIndex, 1)
+        }
 
-        let lastIndex = store.state.modals?.length - 1
-        store.state.modals?.splice(lastIndex, 1)
-
-        if(!store.state.modal || store.state.modals?.length <= 0) {
+        if(!store.state.modal || store.state.modals.length <= 0) {
             setTimeout(() => {
                 store.state.app.showModal = false
             }, 200)
         }
     }
 
-    static triggerDismissEvent() {
-        let lastIndex = store.state.modals?.length - 1
-        let modal = store.state.modals?.[lastIndex]
-
-        if(modal?.content?.onDismiss) {
-            modal.content.onDismiss()
-        }
+    static triggerDismissEvent(modal) {
+        modal?.content?.onDismiss()
     }
 
     static async showInfoModal(message, title = undefined, onPositive = undefined, onNegative = undefined, onDismiss = onNegative) {

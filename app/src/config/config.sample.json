@@ -3,7 +3,9 @@
     "api": {
         "protocol": "https",
         "host": "localhost",
-        "port": 3334
+        "port": 3334,
+        "path": "/radio",
+        "connectionTimeout": 8000
     },
     "authService": {
         "protocol": "https",

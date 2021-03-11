@@ -10,9 +10,12 @@ import VueLottiePlayer from 'vue-lottie-player'
 // Import models
 import { Account } from '@/models/account'
 import { Modal } from '@/models/modal'
+import { Socket } from '@/socket/socket'
+import { Channel } from '@/models/channel'
 
 // Import utils 
 import { generateId } from '@/utils/generatorUtil'
+import { buildChannelCoverUrl, buildChannelCurrentUrl, buildChannelHistoryUrl } from '@/utils/imageUtil'
 
 // Import global Components
 import AppLoaderComp from '@/components/loader/AppLoaderComp.vue'
@@ -28,6 +31,7 @@ const app = createApp(App)
 app.config.globalProperties.$env = process.env
 app.config.globalProperties.$account = Account
 app.config.globalProperties.$modal = Modal
+app.config.globalProperties.$channel = Channel
 app.config.globalProperties.$isProduction = process.env.NODE_ENV === 'production'
 
 app.use(store)
@@ -46,11 +50,16 @@ app.component('app-modal', AppModal)
 app.mixin({
     methods: {
         generateId,
+        buildChannelCoverUrl,
+        buildChannelCurrentUrl,
+        buildChannelHistoryUrl,
         dateformat(date, format){
             return formatDate(date, format)
         }
     },
 })
+
+Socket.getInstance()
 
 // Mount app
 app.mount('#app')

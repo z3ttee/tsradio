@@ -1,9 +1,11 @@
 {
     "publicPath": "/",
     "api": {
-        "protocol": "http",
-        "host": "localhost",
-        "port": 3334
+        "protocol": "https",
+        "host": "api.tsalliance.eu",
+        "port": 80,
+        "path": "/radio",
+        "connectionTimeout": 8000
     },
     "authService": {
         "protocol": "https",

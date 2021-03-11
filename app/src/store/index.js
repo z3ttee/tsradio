@@ -5,17 +5,23 @@ import { version } from '../../package.json';
 if (config.api.port == 80 || config.api.port == 443) {
     config.api.port = 0
 }
+if (config.authService.port == 80 || config.authService.port == 443) {
+    config.authService.port = 0
+}
 
 const localStorageName = 'data'
-const apiBaseUrl = config.api.protocol+"://"+config.api.host + (config.api.port != 80 ? ":" + config.api.port : "")
+const apiBaseUrl = config.api.protocol+"://"+config.api.host + (config.api.port != 0 ? ":" + config.api.port : "") + config.api.path
+const apiSocketUrl = config.api.protocol+"://"+config.api.host + (config.api.port != 0 ? ":" + config.api.port : "")
 
-const allianceBaseUrl = config.authService.protocol+"://"+config.authService.host + (config.authService.port != 80 ? ":" + config.authService.port : "")
-const avatarBaseUrl = allianceBaseUrl + "/avatars/"
+const allianceBaseUrl = config.authService.protocol+"://"+config.authService.host + (config.authService.port != 0 ? ":" + config.authService.port : "")
 const authFormUrl = config.authForm.url + "?redirect=" + config.authForm.redirectCode
+const avatarBaseUrl = allianceBaseUrl + "/avatars/"
+const coverBaseUrl = apiBaseUrl + "/covers"
+
+const streamBaseUrl = (process.env.NODE_ENV == "development") ? "https://radio.tsalliance.eu/streams" : window.origin + "/streams"
 
 const dummyAccount = {
     session: undefined,
-    isLoggedIn: false,
     name: undefined,
     uuid: undefined,
     role: {
@@ -32,13 +38,20 @@ const dummyState = {
     avatarBaseUrl,
     apiBaseUrl,
     allianceBaseUrl,
+    apiSocketUrl,
     authFormUrl,
+    coverBaseUrl,
+    streamBaseUrl,
     account: dummyAccount,
     modals: [],
+    channels: {},
+    activeChannel: undefined,
     app: {
         appIsReady: false,
+        isSocketReady: false,
         appRequiresAuth: false,
-        showModal: false
+        showModal: false,
+        isTabletMode: false
     }
 }
 
@@ -60,6 +73,8 @@ const store = createStore({
             }
         },
         initialiseStore(state) {
+            checkScreenSize()
+
             if (localStorage.getItem(localStorageName)) {
                 const store = {
                     ...dummyState,
@@ -87,4 +102,18 @@ store.subscribe((mutation, state) => {
     localStorage.setItem(localStorageName, JSON.stringify(data));
 })
 
+
+function checkScreenSize() {
+    if(window.innerWidth <= 700) {
+        dummyState.app.isTabletMode = true
+    }
+
+    window.addEventListener('resize', () => {
+        if(window.innerWidth <= 700) {
+            store.state.app.isTabletMode = true
+        } else {
+            store.state.app.isTabletMode = false
+        }
+    })
+}
 export default store

@@ -1,15 +1,22 @@
 <template>
-    <div class="app-loader" v-if="!$store.state.app.appIsReady">
+    <div class="app-loader">
         <div class="app-loader-wrapper">
             <img class="icon icon-l" src="@/assets/images/branding/ts_logo.svg">
-            
-            <hr class="half">
-            <p><span><app-loader class="inline"></app-loader></span> {{ getRandomMessage() }}</p>
+
+            <div class="message-box">
+                <span><app-loader class="inline"></app-loader></span> {{ currentRandomMessage }}
+            </div>
+
+            <app-info-box class="message" v-if="showWarning">
+                Es sieht so aus, als wäre eine Verbindung zum Service derzeit nicht möglich. Sobald eine Verbindung aufgebaut wurde, wirst du weitergeleitet.
+            </app-info-box>
         </div>
     </div>
 </template>
 
 <script>
+import AppInfoBox from '@/components/message/AppInfoBox.vue'
+
 export default {
     data() {
         return {
@@ -17,16 +24,45 @@ export default {
                 "CAS wird aufgeladen...",
                 "Kalkuliere Matratzen...",
                 "Franklin wird geröstet...",
-                "Suche Reux-Mems..."
-            ]
+                "Suche Reux-Mems...",
+                "Drehverfahren nach Dustin Schällert anwenden...",
+                "Daten verbraucht. Beende Verbindung",
+                "Hirn wird verdreht...",
+                "Dreherin wendet Drehmomentschlüssel an..."
+            ],
+            showWarning: false,
+            timeout: undefined,
+            interval: undefined,
+            currentRandomMessage: undefined
         }
+    },
+    components: {
+        AppInfoBox
     },
     methods: {
         getRandomMessage() {
             let messages = this.hints
-            let random = Math.round(Math.random() * (messages.length-1))
+            let random
+
+            do {
+                random = Math.round(Math.random() * (messages.length-1))
+            } while(messages[random] == this.currentRandomMessage)
+
             return messages[random]
         }
+    },
+    mounted() {
+        this.currentRandomMessage = this.getRandomMessage()
+        this.timeout = setTimeout(() => {
+            this.showWarning = true
+        }, 6000)
+        this.interval = setInterval(() => {
+            this.currentRandomMessage = this.getRandomMessage()
+        }, 5000)
+    },
+    unmounted() {
+        clearTimeout(this.timeout)
+        clearInterval(this.interval)
     }
 }
 </script>
@@ -36,21 +72,21 @@ export default {
 
 .app-loader {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    z-index: 10000000;
+    top: 0;
+    left: 0;
+    z-index: 10000000000;
     background-color: $colorPrimaryDark;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-items: center;
 }
 .app-loader-wrapper {
     display: inline-block;
-    width: 300px;
+    width: 400px;
     text-align: center;
+
     img {
         margin-bottom: 1em;
     }
@@ -60,6 +96,20 @@ export default {
         span {
             margin-right: 0.5em;
         }
+    }
+}
+
+.message-box {
+    span {
+        margin-right: 0.5em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .app-loader-wrapper {
+        width: 100% !important;
+        padding: $windowPad;
+
     }
 }
 </style>

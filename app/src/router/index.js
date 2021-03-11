@@ -9,19 +9,42 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {  
-  if(store.state.account.isLoggedIn) {
-    store.state.app.appIsReady = true
-    next()
+  if(to.params.requestedPage == "auth/") {
+    
+    // Try login user
+    Account.resetData()
+    Account.setAccessToken(to.query.token)
+    checkSession(next)
 
-    Account.checkSession().then((isVerified) => {
-      if(!isVerified) {
-        window.location.href = store.state.authFormUrl
-      }
-    })
-    store.state.app.appIsReady = true
   } else {
-    window.location.href = store.state.authFormUrl
+    if(store.state.account.session) {
+      store.state.app.appIsReady = true
+      next()
+  
+      checkSession()
+      
+      store.state.app.appIsReady = true
+    } else {
+      if(process.env.NODE_ENV != "development") window.location.href = store.state.authFormUrl
+    }
   }
+  
 })
+
+function checkSession(next) {
+  Account.checkSession(true, true).then((isVerified) => {
+    if(!isVerified) {
+      if(process.env.NODE_ENV != "development") window.location.href = store.state.authFormUrl
+    } else {
+      store.state.app.appIsReady = true
+
+      if(next) {
+        next()
+      }
+    }
+
+    
+  })
+}
 
 export default router

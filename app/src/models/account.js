@@ -42,26 +42,29 @@ export class Account {
     /**
      * Verify session by trying to load account data and check for errors
      */
-    static async checkSession(handleError = true) {
-        return await this.loadAccount("@me", handleError)
+    static async checkSession(handleError = true, save = false) {
+        return await this.loadAccount("@me", handleError, save)
     }
 
     /**
      * Erases all loaded user data
      */
-    async resetData() {
+    static async resetData() {
         store.state.account = {}
-        store.state.user.session = undefined
-        store.state.user.loggedIn = false
+        store.state.account.session = undefined
     }
 
     /**
      * Loads current logged in user's data by sending GET request
      */
-    static async loadAccount(memberId, handleError = true) {
+    static async loadAccount(memberId, handleError = true, save = false) {
         let result = await Api.getInstance().get("/members/"+memberId, {}, handleError, true)
         if(result instanceof TrustedError) {
             return result
+        }
+
+        if(save) {
+            this.save(result.data)
         }
 
         return result.data
@@ -72,6 +75,18 @@ export class Account {
      */
     static async reloadAccount() {
         return this.loadAccount("@me")
+    }
+
+    /**
+     * Check if account has a permissions
+     * @param {*} permission Permission to check for
+     * @returns True or False
+     */
+    static hasPermission(permission) {
+        if(store.state.account?.role?.uuid == "*") return true
+        if(store.state.account?.role?.permissions?.contains("*")) return true
+
+        return store.state.account?.role?.permissions?.contains(permission)
     }
     
 }

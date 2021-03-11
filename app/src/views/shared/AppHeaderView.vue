@@ -5,10 +5,9 @@
                 <img id="desktop-logo" src="@/assets/images/branding/ts_radio_logo.svg" alt="Alliance Logo">
             </div>
 
-            <div class="header-section profile-section" v-if="$store.state.account.isLoggedIn">
+            <div class="header-section profile-section" v-if="$store.state.account.session">
                 <app-avatar class="avatar-m avatar-round" @click="$router.push({name: 'account'})" style="cursor: pointer;">{{ $store.state.account.name }}</app-avatar>
             </div>
-            
         </div>
     </div>
 </template>
@@ -72,17 +71,13 @@ export default {
         box-shadow: $shadowNormal;
         border-bottom: 2px solid $colorPlaceholder;
 
-        .content-container {
-            padding: $windowPad/2 48px;
-        }
-
         &.state-hide {
             transform: translateY(-100%);
         }
     }
 
     .content-container {
-        padding: $windowPad 48px;
+        padding: $windowPad/2 $windowPad;
         transition: all $animSpeedNormal*1s $cubicNorm;
     }
 
@@ -109,7 +104,6 @@ export default {
         }
 
         .content-container {
-            padding: $windowPad/2 28px !important;
             transition: all $animSpeedNormal*1s $cubicNorm;
         }
     }

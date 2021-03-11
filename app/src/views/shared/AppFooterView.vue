@@ -14,12 +14,10 @@
 
 .footer-wrapper {
     display: block;
-    position: fixed;
-    bottom: 0;
     width: 100%;
-    z-index: 100;
     padding: $boxPad;
     text-align: center;
+    background-color: $colorPrimary;
 
     ul {
         list-style: none;
@@ -27,12 +25,12 @@
 
         li {
             opacity: 0.8;
-            color: $colorPrimary;
+            color: $colorWhite;
             display: inline-block;
             padding: 0 $boxPad;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.8em;
-            border-right: 2px solid $colorPrimary;
+            border-right: 2px solid rgba($color: $colorWhite, $alpha: 0.1);
 
             &:last-of-type {
                 border-right: none;
@@ -42,10 +40,6 @@
         a {
             text-decoration: none ;
             color: inherit;
-
-            &:hover {
-                text-decoration: underline;
-            }
         }
     }
 }

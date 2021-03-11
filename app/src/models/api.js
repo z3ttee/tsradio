@@ -155,7 +155,8 @@ export class Api {
                     window.location.href = store.state.authFormUrl
                 })
             }
-            if(trustedError.errorId == "SERVICE_UNAVAILABLE") {
+
+            if(process.env.NODE_ENV != "development" && trustedError.errorId == "SERVICE_UNAVAILABLE") {
                 Modal.showMessage("Etwas ist schiefgelaufen", "Der Anmeldeserver ist derzeit nicht erreichbar. Bitte versuche' es später erneut.", () => window.location.reload())
             }
         }

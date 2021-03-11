@@ -3,5 +3,6 @@ import AppHomeView from '@/views/main/AppHomeView.vue'
 
 const routes = [
      { name: "home", path: "/", component: AppHomeView },
+     { name: "catchall", path: "/:requestedPage(.*)", redirect: { name: "home" }}
 ]
 export default routes;
