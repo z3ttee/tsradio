@@ -24,7 +24,9 @@ export class Modal {
     }
 
     static triggerDismissEvent(modal) {
-        modal?.content?.onDismiss()
+        if(modal?.content?.onDismiss) {
+            modal.content.onDismiss()
+        }
     }
 
     static async showInfoModal(message, title = undefined, onPositive = undefined, onNegative = undefined, onDismiss = onNegative) {
@@ -70,6 +72,10 @@ export class Modal {
             },
             uuid: generateId(6)
         })
+    }
+
+    static async showError(message, onPositive = undefined, onDismiss = onPositive) {
+        this.showMessage("Ein Fehler ist aufgetreten", message, onPositive, onDismiss)
     }
 
     static async mountModal(modal) {

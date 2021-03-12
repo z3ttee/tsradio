@@ -287,6 +287,7 @@ export default {
     .showcase {
         padding: 0 !important;
         margin: $windowPad/2 0 !important;
+        overflow: visible;
     }
 
     .item-divider {

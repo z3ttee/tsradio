@@ -27,6 +27,7 @@
 
 #modal-wrapper {
     @include absolutePosition;
+    position: fixed;
     display: inline-block;
     pointer-events: all;
     opacity: 1;

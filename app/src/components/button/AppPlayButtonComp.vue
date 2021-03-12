@@ -1,9 +1,9 @@
 <template>
-    <div class="button-wrapper">
+    <div class="button-wrapper" @click="toggle">
         <app-loader class="src-loader" v-if="loading"></app-loader>
         <transition name="animation_item_scale" mode="out-in">
-            <button class="btn btn-icon btn-m" v-if="paused" @click="resume"><img src="@/assets/icons/play.svg" alt=""></button>
-            <button class="btn btn-icon btn-m" v-else @click="pause"><img src="@/assets/icons/pause.svg" alt=""></button>
+            <button class="btn btn-icon btn-m" v-if="modelValue"><img src="@/assets/icons/play.svg" alt=""></button>
+            <button class="btn btn-icon btn-m" v-else><img src="@/assets/icons/pause.svg" alt=""></button>
         </transition>
     </div>
 </template>
@@ -11,16 +11,13 @@
 <script>
 export default {
     props: {
-        paused: Boolean,
+        modelValue: Boolean,
         loading: Boolean
     },
-    emits: ['paused', 'resumed'],
+    emits: ['update:modelValue'],
     methods: {
-        pause() {
-            this.$emit('paused')
-        },
-        resume() {
-            this.$emit('resumed')
+        toggle() {
+            this.$emit('update:modelValue', !this.modelValue)
         }
     }
 }

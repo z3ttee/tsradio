@@ -12,40 +12,38 @@
                 <div class="layout-col">
                     <div class="actions">
                         <div class="action-item">
-                            <app-play-button :paused="player?.paused" :loading="player?.loading" @paused="player.paused = true" @resumed="player.paused = false"></app-play-button>
+                            <app-play-button :loading="player?.loading" v-model="player.paused"></app-play-button>
                         </div>
 
                         <!--<div :class="{'action-item': true, 'state-loading': player?.loadingVote}">
                             <app-loader class="loader voting-loader"></app-loader>
                             <button class="btn btn-icon btn-m"><img src="@/assets/icons/next.svg" alt=""></button>
                         </div>-->
-                        <div class="action-item">
-                            <transition name="animation_item_scale" mode="out-in">
-                                <button class="btn btn-icon btn-m" @click="toggleMute" v-if="player.volume > 0"><img src="@/assets/icons/speaker.svg" alt=""></button>
-                                <button class="btn btn-icon btn-m" @click="toggleMute" v-else><img src="@/assets/icons/mute-speaker.svg" alt=""></button>
-                            </transition>
 
-                            <input orient="vertical" type="range" max="60" min="0" v-model="player.volume">
-                        </div>
+                        <app-volume-slider :max="VOLUME_MAX" :min="0" :step="1" v-model="player.volume"></app-volume-slider>
                     </div>
                 </div>
             </div>
         </div>
 
-        <audio :id="audioElementId" :src="getStreamUrl()" controls autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay" @error.prevent="eventError"></audio>
+        <audio :id="audioElementId" hidden autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay" @error.prevent="eventError"></audio>
     </div>
 </template>
 
 <script>
 import AppPlaceholderImage from '@/components/image/AppPlaceholderImage.vue'
 import AppPlayButton from '@/components/button/AppPlayButtonComp.vue'
+import AppVolumeSlider from '@/components/input/AppVolumeSlider.vue'
 
 import * as backgroundImagePlaceholder from "@/assets/images/branding/ts_cover_placeholder.jpeg"
 
+const VOLUME_MAX = 50
+const VOLUME_DEFAULT = parseInt(VOLUME_MAX/2)
 
 export default {
     components: {
         AppPlayButton,
+        AppVolumeSlider,
         AppPlaceholderImage
     },
     data() {
@@ -55,9 +53,10 @@ export default {
             player: {
                 paused: false,
                 loading: true,
-                volume: 30,
+                volume: VOLUME_DEFAULT,
                 loadingVote: false
-            }
+            },
+            VOLUME_MAX
         }
     },
     computed: {
@@ -69,55 +68,40 @@ export default {
         channel() {
             this.player.loading = true
             this.player.paused = false
-            this.player.volume = localStorage.getItem('tsr_volume_'+this.channel?.uuid) || 30
-        },
-        'player.paused'(val) {
-            let element = document.getElementById(this.audioElementId)
-            if(!element) return
-            if(val) {
-                element.pause()
-            } else {
-                element.play()
-            }
-        },
-        'player.volume'(val) {
-            let element = document.getElementById(this.audioElementId)
-            if(!element) return
-            
-            setTimeout(() => {
-                localStorage.setItem('tsr_volume_'+this.channel?.uuid, val);
-                element.volume = val/100;
-            }, 50);
-        }
-        /*'player.paused'(val) {
-            let element = document.getElementById(this.audioElementId)
+            this.player.volume = parseInt(localStorage.getItem('tsr_volume_'+this.channel?.uuid)) || VOLUME_DEFAULT
 
-            if(!element) return
-            if(val) {
-                element.pause()
+            this.loadSource()
+        },
+        'player.paused'(paused) {
+            if(paused) {
+                this.clearSource()
             } else {
-                element.play()
+                this.loadSource()
             }
         },
         'player.volume'(val) {
-            let element = document.getElementById(this.audioElementId)
-            if(!element) return
-            
-            setTimeout(() => {
-                localStorage.setItem('tsr_volume_'+this.channel.uuid, val);
-                element.volume = val/100;
-            }, 50);
-        },*/
+            this.setVolume(val)
+        }
     },
     methods: {
-        eventError() {
+        eventError(event) {
             this.player.paused = true
             this.player.loading = false
+
+            if(event.target.error) {
+                if(event.target.error.code == 2) {
+                    // MEDIA_ERR_NETWORK
+                    this.$modal.showError("Es liegt ein Problem mit deinem Internetzugang vor. Der Stream konnte daher nicht geladen werden. Bitte versuche es später erneut.")
+                } else if(event.target.error.code == 2) {
+                    // MEDIA_ERR_DECODE
+                    this.$modal.showError("Beim Decodieren des Streams ist ein Fehler aufgetreten. Bitte versuche den Stream erneut zu starten.")
+                }
+            }
         },
         eventPaused() {
             this.player.paused = true
             this.player.loading = false
-            this.changeSource(true)
+            this.clearSource()
         },
         eventPlay() {
             this.player.paused = false
@@ -128,85 +112,36 @@ export default {
         },
         eventEnded() {
             this.player.loading = true
-            this.changeSource(false)
-        },
-        toggle() {
-            this.player.loading = false
-            this.player.paused = !this.player.paused
-            if(!this.player.paused) {
-                this.changeSource(false)
-            } else {
-                this.changeSource(true)
-            }
-        },
-        toggleMute() {
-            this.player.volume = this.player.volume == 0 ? 30 : 0
+            this.clearSource()
         },
         getStreamUrl(){
-            if(!this.channel?.mountpoint) return ""
+            if(!this.channel?.mountpoint) return "/"
             return this.$store.state.streamBaseUrl + this.channel?.mountpoint + "?token=" + this.$store.state.account.session + "&channel=" + this.channel?.uuid
         },
-        changeSource(clear = false){
-            console.log("Change source. Clear?", clear)
-            /*let element = document.getElementById(this.audioElementId)
-            if(!element) return
-            if(clear) {
-                element.setAttribute('src', '')
-            } else {
-                this.player.loading = true
-                element.setAttribute('src', this.getStreamUrl())
-                element.volume = this.player.volume / 100
-                element.load()
-            }*/
-        }
-        /*eventPaused() {
-            this.player.paused = true
-            this.player.loading = false
-            console.log("eventPaused")
-            this.changeSource(true)
-        },
-        eventCanPlay(event) {
-            this.player.loading = false
-            event.target.play()
-        },
-        eventEnded() {
-            this.player.loading = true
-        },
-        eventPlay() {
-            //this.changeSource(false)
-            this.player.paused = false
-        },
-        eventError() {
-
-        },
-        toggleMute() {
-            this.player.volume = this.player.volume == 0 ? this.getChannelVolume() : 0
-        },
-        changeSource(clear = false){
+        clearSource() {
             let element = document.getElementById(this.audioElementId)
             if(!element) return
-            if(clear) {
-                element.setAttribute('src', '')
-            } else {
-                this.player.loading = true
-                element.setAttribute('src', this.getStreamUrl())
-                element.volume = this.player.volume / 100
-                element.load()
-            }
-        },
-        getChannelVolume() {
-            return localStorage.getItem('tsr_volume_'+this.channel.uuid) || 30
-        },
-        toggle() {
 
+            element.setAttribute('src', '')
         },
-        getStreamUrl() {
-            if(!this.channel?.mountpoint) {
-                return ""
-            }
+        loadSource(){
+            let element = document.getElementById(this.audioElementId)
+            if(!element) return
 
-            return this.$store.state.streamBaseUrl + this.channel?.mountpoint + "?token=" + this.$store.state.account.session + "&channel=" + this.channel.uuid
-        }*/
+            this.player.loading = true
+            element.setAttribute('src', this.getStreamUrl())
+            element.load()
+            element.volume = this.player.volume / 100
+        },
+        setVolume(value) {
+            if(value == undefined || value == null) return
+
+            let element = document.getElementById(this.audioElementId)
+            if(!element) return
+
+            element.volume = parseInt(value) / 100
+            localStorage.setItem('tsr_volume_'+this.channel?.uuid, value)
+        }
     }
 }
 </script>
@@ -216,7 +151,7 @@ export default {
 
 .player-wrapper {
     position: fixed;
-    bottom: 0;
+    top: 100%;
     left: 0;
     width: 100%;
     background-color: $colorPrimary;
@@ -224,9 +159,10 @@ export default {
     transition: all $animSpeedNormal*1s $cubicNorm;
 
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-100%);
 
     border-top: 2px solid $colorPlaceholder;
+    box-shadow: $shadowNormal;
 
     &.state-hidden {
         pointer-events: none;
@@ -236,9 +172,9 @@ export default {
 
     .layout-table {
         padding: 1em 0;
+
         .layout-col {
             vertical-align: middle;
-            border: 1px solid red;
 
             &:first-of-type {
                 width: 45px;
@@ -311,34 +247,5 @@ export default {
     transition: all $animSpeedFast*1s $cubicNorm;
 }
 
-input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 80px;
-    height: 4px;
-    background: $colorPlaceholder;
-    outline: none;
-    
-    &:hover {
-        opacity: 1;
-        cursor: pointer;
-    }
-    &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 12px;
-        height: 12px;
-        background: $colorAccent;
-        border-radius: 50%;
-        transition: all $animSpeedFast*1s $cubicNorm;
-    }
-        
-    &::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: $colorAccent;
-        transition: all $animSpeedFast*1s $cubicNorm;
-    }
-}
+
 </style>

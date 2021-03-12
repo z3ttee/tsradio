@@ -38,7 +38,10 @@ export default {
                 if(!this.placeholder) this.showBlank = true
             }
 
-            downloadImage.src = this.src + "?key=" + this.cache
+            if(this.src) {
+                downloadImage.src = this.src + "?key=" + this.cache
+            }
+            
         }
     },
     watch: {

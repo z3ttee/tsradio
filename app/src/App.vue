@@ -8,7 +8,7 @@
         <component :is="getLayout" key="key-comp-layout" v-if="$store.state.app.appIsReady && $store.state.app.isSocketReady"></component>
     </transition>
 
-    <div :class="{'modal-overlay': true, 'hidden': !$store.state.app.showModal}" @click="dismissModal($event, true)"></div>
+    <div :class="{'modal-overlay': true, 'hidden': !$store.state.app.showModal}" @click="dismissModal"></div>
     <div :class="{'hidden': !$store.state.app.showModal}" id="modal-wrapper" @click="dismissModal">
         <transition-group name="anim_dialog" mode="out-in">
             <div class="modal-container" v-for="modal in $store.state.modals" :key="modal.uuid">
@@ -28,8 +28,7 @@ export default {
         AppSplashScreen
     },
     methods: {
-        dismissModal(event, overlay) {
-            console.log(overlay)
+        dismissModal(event) {
             this.$modal.dismiss(event)
         }
     },

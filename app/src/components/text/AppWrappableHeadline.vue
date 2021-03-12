@@ -49,13 +49,13 @@ export default {
 <style lang="scss" scoped>
 
 .wrappable-text {
-    line-height: 1.8em;
+    line-height: 2em;
 
     .text-subtitle {
         font-family: 'Whitney';
         font-size: 1em;
         margin-bottom: 0.3em;
-        line-height: inherit;
+        line-height: 1.5em;
     }
     .text-title {
         line-height: inherit;
