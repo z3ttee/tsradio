@@ -192,12 +192,12 @@ export class MediaUtil {
     }
 
     /**
-     * Get the cover file of a given cover hash
-     * @param coverHash Cover's hash
+     * Get the cover file of a given channel
+     * @param channelId Channel's id
      * @returns File path
      */
     static getChannelCoverFile(channelId: string): string {
-        let file = COVER_CHANNEL_DIR + "/" + channelId + COVER_FILE_EXTENSION
+        let file = COVER_UPLOAD_DIR + "/" + channelId + COVER_FILE_EXTENSION
 
         if(!fs.existsSync(file)) {
             file = config.app.rootDir+"/assets/images/ts_logo_background.jpeg"
