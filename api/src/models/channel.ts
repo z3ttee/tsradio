@@ -119,7 +119,6 @@ export class Channel extends Model {
             this.listeners -= 1;
             SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
         }
-        console.log("Decrease: " + this.mountpoint + ": " + this.listeners)
     }
 
     /**
@@ -128,7 +127,6 @@ export class Channel extends Model {
     public increaseListeners() {
         this.listeners += 1;
         SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_LISTENERS, new PacketOutChannelListeners(this.uuid, this.listeners))
-        console.log("Increase: " + this.mountpoint + ": " + this.listeners)
     }
 
     /**

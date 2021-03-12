@@ -30,7 +30,6 @@ function onChannelUpdateListener(data) {
     Channel.setChannel(data)
 }
 function onChannelAddListener(data) {
-    console.log("add: ", data)
     Channel.load(data.uuid)
 }
 
@@ -42,7 +41,6 @@ function onChannelHistoryListener(data) {
     Channel.setChannelHistory(data.uuid, data.tracks)
 }
 function onChannelInfoListener(data) {
-    console.log("info: ", data)
     Channel.setChannelInfo(data.uuid, { title: data.title, artist: data.artist, cover: data.cover })
 }
 function onChannelListenersListener(data) {
