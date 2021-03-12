@@ -124,11 +124,12 @@ export class SocketHandler {
             ChannelHandler.resetAllChannels()
             this.connectedStreamer = undefined
         } else {
-            let socketClient = this.connectedClients[socket.id]
+            let socketClient = this.connectedClients.get(socket.id)
+
             if(socketClient instanceof SocketClient.SocketMember) {
-                // Remove member from listeners and from votings
-                ChannelHandler.removeMember(socketClient)
-                VoteHandler.removeVote(socketClient.getCurrentChannel().uuid, socketClient.profile.uuid)
+                // Remove member from listeners and from votings                
+                await ChannelHandler.removeMember(socketClient)
+                await VoteHandler.removeVote(socketClient.getCurrentChannel()?.uuid, socketClient.profile.uuid)
             }
             this.connectedClients.delete(socket.id)
         }
@@ -180,9 +181,14 @@ export class SocketHandler {
      * @param memberId Member's id
      * @returns SocketMember
      */
-    public getSocketMemberByMemberId(memberId: string): SocketClient.SocketMember {
-        return Object.values(this.connectedClients)
-                    .find((socketClient: SocketClient) => socketClient instanceof SocketClient.SocketMember && socketClient.profile.uuid == memberId)
+    public getSocketMemberByMemberId(memberId: string): SocketClient.SocketMember {        
+        var clients = this.connectedClients.values()
+
+        for(var c of clients) {
+            if(c instanceof SocketClient.SocketMember && c.profile.uuid == memberId) {
+                return c
+            }
+        }
     }
 
     public static getInstance() {

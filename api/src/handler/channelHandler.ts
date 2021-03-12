@@ -171,7 +171,7 @@ export default class ChannelHandler {
      */
     public static moveMemberToChannel(member?: SocketClient.SocketMember, destChannelId?: string) {
         if(!member) return
-        
+
         const currentChannel = member.getCurrentChannel()
         const destChannel = ChannelHandler.getChannel(destChannelId)
 
@@ -179,7 +179,7 @@ export default class ChannelHandler {
         destChannel?.increaseListeners()
 
         VoteHandler.removeVote(currentChannel?.uuid, member.profile.uuid)
-        member.setCurrentChannel(destChannel)
+        member?.setCurrentChannel(destChannel)
     }
 
     /**
