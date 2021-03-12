@@ -33,8 +33,8 @@ export default {
                     this.observer = undefined
                 }
             })
-            this.observer.observe(document.getElementById(this.itemId))
-        }, 100)
+            if(document.getElementById(this.itemId)) this.observer.observe(document.getElementById(this.itemId))
+        }, 500)
     },
     unmounted() {
         try {
@@ -49,16 +49,14 @@ export default {
 <style lang="scss" scoped>
 
 .wrappable-text {
-    line-height: 2em;
 
     .text-subtitle {
         font-family: 'Whitney';
         font-size: 1em;
-        margin-bottom: 0.3em;
-        line-height: 1.5em;
+        margin-bottom: -0.3em;
     }
     .text-title {
-        line-height: inherit;
+        line-height: initial;
         font-weight: 800;
     }
 }

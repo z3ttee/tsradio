@@ -82,25 +82,29 @@ export default {
         AppShowcaseItem
     },
     computed: {
+        getOrderedList() {
+            var values = Object.values(this.$store.state.channels).sort((a, b) => { return b.order - a.order })
+            return values
+        },
         getShowcased() {
-            var values = Object.values(this.$store.state.channels).filter((channel) => channel && channel.featured && channel.enabled && channel.activeSince)
+            var values = this.getOrderedList.filter((channel) => channel && channel.featured && channel.enabled && channel.activeSince)
             return values.slice(0, 2)
         },
         getTopFeatured() {
-            var values = Object.values(this.$store.state.channels).filter((channel) => channel && channel.featured && channel.enabled && channel.activeSince)
+            var values = this.getOrderedList.filter((channel) => channel && channel.featured && channel.enabled && channel.activeSince)
             return values.slice(2, values.length)
         },
         getNonFeatured() {
-            return Object.values(this.$store.state.channels).filter((channel) => channel && !channel.featured && channel.enabled && channel.activeSince)
+            return this.getOrderedList.filter((channel) => channel && !channel.featured && channel.enabled && channel.activeSince)
         },
         getDisabled() {
-            return Object.values(this.$store.state.channels).filter((channel) => channel && (!channel.enabled || !channel.activeSince))
+            return this.getOrderedList.filter((channel) => channel && (!channel.enabled || !channel.activeSince))
         },
         getPreparing() {
-            return Object.values(this.$store.state.channels).filter((channel) => channel && channel.enabled && channel.channelState == 3)
+            return this.getOrderedList.filter((channel) => channel && channel.enabled && channel.channelState == 3)
         },
         getAll() {
-            return Object.values(this.$store.state.channels).filter((channel) => channel && channel.activeSince)
+            return this.getOrderedList.filter((channel) => channel && channel.activeSince)
         }
     },
     watch: {

@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="item-divider"></div>
+        <div class="item-divider" :style="activeChannelColor ? 'background-color: ' + activeChannelColor : ''"></div>
 
         <div class="grid-wrapper" v-if="channels.length > 0">
             <div class="grid-container">
@@ -72,6 +72,19 @@ export default {
             backgroundImagePlaceholder
         }
     },
+    computed: {
+        activeChannelColor() {
+            var channel = this.$store.state.activeChannel
+            if(!channel) return undefined
+
+            if(this.channels.filter((c) => c.uuid == channel.uuid)) {
+                // Channel is one of the showcased items
+                return channel.colorHex
+            }
+
+            return undefined
+        }
+    },
     methods: {
         select(uuid) {
             this.$emit('selected', uuid)
@@ -109,9 +122,9 @@ export default {
     z-index: 1000;
 
     height: 150%;
-    transform: translate(-50%,-50%) skew(-34.5deg);
+    transform: translate(-50%,-50%) skew(-35.3deg);
 
-    padding: 0.3em;
+    padding: 0.15em;
     background-color: $colorAccent;
     transition: all $animSpeedFast*1s $cubicNorm;
 }
@@ -279,7 +292,7 @@ export default {
     }
 
     .item-divider {
-        transform: translate(-50%,-50%) skew(-29.5deg);
+        transform: translate(-50%,-50%) skew(-31deg);
     }
 }
 
