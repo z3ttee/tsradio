@@ -117,6 +117,7 @@ export default class ChannelEndpoint extends Endpoint {
             const featured = (route.body?.["featured"] == undefined ? undefined : route.body?.["featured"])
             const lyricsEnabled = (route.body?.["lyricsEnabled"] == undefined ? undefined : route.body?.["lyricsEnabled"])
             const colorHex = route.body?.["colorHex"] || undefined
+            const order = parseInt(route.body?.["order"]) || undefined
 
             const channel = await Channel.updateChannel(targetUUID, {
                 title,
@@ -126,7 +127,8 @@ export default class ChannelEndpoint extends Endpoint {
                 enabled,
                 featured,
                 lyricsEnabled,
-                colorHex
+                colorHex,
+                order
             })
 
             return channel
