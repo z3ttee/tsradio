@@ -38,8 +38,10 @@ export default {
                 if(!this.placeholder) this.showBlank = true
             }
 
-            if(this.src) {
+            if(this.src.search("undefined") == -1) {
                 downloadImage.src = this.src + "?key=" + this.cache
+            } else {
+                this.showBlank = true
             }
             
         }
