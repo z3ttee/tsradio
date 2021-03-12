@@ -1,7 +1,7 @@
 import ReadParser, { j2xParser as WriteParser } from 'fast-xml-parser'
 
 import { Channel } from '../models/channel'
-import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs'
+import { existsSync, readFileSync, writeFile } from 'fs'
 import config from '../config/config'
 import { execSync } from 'child_process'
 
@@ -105,7 +105,7 @@ export class IcecastUtil {
      * @returns Array of mounts
      */
     static async getFileContent(): Promise<Object> {
-        var jsonObject = ReadParser.parse(readFileSync(ICECAST_XML_FILE).toString(), XMLPARSER_READ_OPTIONS)
+        var jsonObject = ReadParser.parse(readFileSync(ICECAST_XML_FILE, 'utf-8').toString(), XMLPARSER_READ_OPTIONS)
 
         return jsonObject || {}
     }
@@ -181,8 +181,11 @@ export class IcecastUtil {
     private static async restartIcecastService() {
         if(process.platform == "linux") {
             var userPassword = config.app.sudoUserPassword
-            var stdin: Buffer = execSync("echo '" + userPassword + "' | sudo -S service icecast2 restart")
-            console.log(stdin.toString())
+            var stderr = execSync("echo '" + userPassword + "' | sudo -S service icecast2 restart")
+
+            if(stderr?.toString() || stderr?.toString() == "") {
+                console.error("Could not restart icecast service. This could mean that the password for sudo was incorrect or you do not have permissions.")
+            }
         }
         
         console.log("Restarting the icecast service is currently only available to linux machines")
