@@ -81,21 +81,19 @@ public class FileHandler {
         if(!directory.exists()) {
             try {
                 Files.createDirectories(Path.of(newDirectory.getAbsolutePath()));
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
-            }
+            } catch (Exception ignored) { }
             return;
         }
 
         // Update old directory to new directory
         try {
-            FileUtils.copyDirectoryToDirectory(directory, newDirectory);
+            for(File file : directory.listFiles()) {
+                FileUtils.moveFileToDirectory(file, newDirectory, true);
+            }
+
             FileUtils.cleanDirectory(directory);
             FileUtils.forceDelete(directory);
-            //FileUtils.moveDirectoryToDirectory(directory, newDirectory, true);
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-        }
+        } catch (Exception ignored) { }
     }
 
     /**
@@ -108,9 +106,7 @@ public class FileHandler {
             if(directory.exists()) {
                 FileUtils.forceDelete(getDirOfChannel(channel));
             }
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-        }
+        } catch (Exception ignored) { }
     }
 
     /**
