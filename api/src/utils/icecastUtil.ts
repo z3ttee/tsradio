@@ -25,7 +25,7 @@ export class IcecastUtil {
      * @param channel Channel to configure a mount for
      * @returns True or False
      */
-    static async addChannel(channel: Channel): Promise<Boolean>{
+    static async addChannel(channel: Channel, restartIcecast: Boolean = true): Promise<Boolean>{
         if(!existsSync(ICECAST_XML_FILE)) return false
 
         var fileContent = await this.getFileContent()
@@ -46,7 +46,7 @@ export class IcecastUtil {
 
             this.save(fileContent)
             
-            if(channel.enabled) {
+            if(restartIcecast && channel.enabled) {
                 this.restartIcecastService()
             }
             return true
@@ -92,11 +92,12 @@ export class IcecastUtil {
         if(!existsSync(ICECAST_XML_FILE)) return false
 
         var index = await this.findChannelIndex(mountpoint)
+        var restartIcecast = updated.mountpoint != mountpoint
 
         if(index == -2) {
-            return await this.addChannel(updated)
+            return await this.addChannel(updated, restartIcecast)
         } else {
-            return (await this.deleteChannel(mountpoint) && await this.addChannel(updated))
+            return (await this.deleteChannel(mountpoint) && await this.addChannel(updated, restartIcecast))
         }
     }
 
@@ -181,7 +182,9 @@ export class IcecastUtil {
     private static async restartIcecastService() {
         if(process.platform == "linux") {
             var userPassword = config.app.sudoUserPassword
-            var stderr = execSync("echo '" + userPassword + "' | sudo -S service icecast2 restart")
+            console.log("using password: " + userPassword);
+            
+            var stderr = execSync("echo '" + userPassword + "' | sudo -S service icecast2 restart", { encoding: 'utf-8' })
 
             if(stderr?.toString() || stderr?.toString() == "") {
                 console.error("Could not restart icecast service. This could mean that the password for sudo was incorrect or you do not have permissions.")

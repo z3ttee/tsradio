@@ -218,20 +218,25 @@ public class ChannelHandler {
             return;
         }
 
-        if(isRunning(uuid)) {
-            stopChannel(uuid);
-        }
-
         Channel oldChannel = getChannel(uuid);
 
-        unloadChannel(uuid);
-        FileHandler.renameChannelDirectory(oldChannel, updatedChannel);
-        logger.info("updateChannel(): Updated channel '" + oldChannel.getMountpoint() + "' >> "+updatedChannel.getMountpoint() + " - Enabled: "+updatedChannel.isEnabled());
+        // Only update locally, if mountpoint has changed
+        if(!oldChannel.getMountpoint().equals(updatedChannel.getMountpoint())) {
+            if(isRunning(uuid)) {
+                stopChannel(uuid);
+            }
 
-        if(updatedChannel.isEnabled()) {
-            channels.put(uuid, updatedChannel);
-            startChannel(uuid);
+            unloadChannel(uuid);
+
+            FileHandler.renameChannelDirectory(oldChannel, updatedChannel);
+            logger.info("updateChannel(): Updated channel '" + oldChannel.getMountpoint() + "' >> "+updatedChannel.getMountpoint() + " - Enabled: "+updatedChannel.isEnabled());
+
+            if(updatedChannel.isEnabled()) {
+                channels.put(uuid, updatedChannel);
+                startChannel(uuid);
+            }
         }
+
     }
 
     /**
