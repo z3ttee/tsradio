@@ -5,7 +5,7 @@
             <button class="btn btn-icon btn-m" @click="mute(false)" v-else><img src="@/assets/icons/mute-speaker.svg" alt=""></button>
         </transition>
 
-        <input orient="vertical" type="range" :max="max" :min="min" @input="input" :value="modelValue">
+        <input type="range" :max="max" :min="min" @input="input" :value="modelValue">
     </div>
 </template>
 
@@ -56,17 +56,14 @@ export default {
 }
 
 input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
     width: 80px;
     height: 4px;
     background: $colorPlaceholder;
     outline: none;
-    
-    &:hover {
-        opacity: 1;
-        cursor: pointer;
-    }
+    -webkit-appearance: none;
+    border: none;
+    cursor: pointer;
+
     &::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
@@ -78,8 +75,8 @@ input[type=range] {
     }
         
     &::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
+        width: 11px;
+        height: 11px;
         border-radius: 50%;
         background: $colorAccent;
         transition: all $animSpeedFast*1s $cubicNorm;

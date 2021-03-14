@@ -2,11 +2,15 @@
     <div :class="'header-wrapper ' + getHeaderStateClass">
         <div class="content-container">
             <div class="header-section branding-section">
-                <img id="desktop-logo" src="@/assets/images/branding/ts_radio_logo.svg" alt="Alliance Logo">
+                <router-link :to="{ name: 'home' }" custom v-slot="{navigate}">
+                    <div id="desktop-logo" @click="navigate">
+                        <img src="@/assets/images/branding/ts_radio_logo.svg" alt="Alliance Logo" >
+                    </div>
+                </router-link>
             </div>
 
             <div class="header-section profile-section" v-if="$store.state.account.session">
-                <app-avatar class="avatar-m avatar-round" @click="$router.push({name: 'account'})" style="cursor: pointer;">{{ $store.state.account.name }}</app-avatar>
+                <app-avatar class="avatar-m avatar-round" @click="openAccount" style="cursor: pointer;">{{ $store.state.account.name }}</app-avatar>
             </div>
         </div>
     </div>
@@ -42,6 +46,9 @@ export default {
             } else {
                 this.headerState = 0
             }
+        },
+        openAccount() {
+            window.open('https://tsalliance.eu/account', '_blank')
         }
     },
     mounted() {
@@ -55,6 +62,10 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
+
+#desktop-logo {
+    cursor: pointer;
+}
 
 .header-wrapper {
     display: inline-block;

@@ -1,4 +1,4 @@
-import { Api, ResultSet, ResultSingleton } from '@/models/api'
+import { Api, ResultSet, ResultSingleton, TrustedError } from '@/models/api'
 import store from '@/store'
 import { Socket } from '@/socket/socket'
 
@@ -14,6 +14,36 @@ export class Channel {
             for(const channel of result.entries)
             this.setChannel(channel)
         }
+    }
+
+    /**
+     * Fetch the current history of a channel
+     * @param {*} channelId 
+     */
+    static async getHistory(channelId) {
+        let result = await Api.getInstance().get('/channels/' + channelId + "/history")
+
+        if(result instanceof ResultSingleton) {
+            await this.setChannelHistory(channelId, result.data.history)
+        }
+
+        return result
+    }
+
+    /**
+     * Fetch the current history of a channel
+     * @param {*} channelId 
+     */
+     static async getLyrics(channelId) {
+        var title = this.getChannel(channelId)?.info?.title
+        var artist = this.getChannel(channelId)?.info?.artist
+
+        if(title && artist) {
+            let result = await Api.getInstance().post('/songs/lyrics', { title, artist })
+            return result
+        }
+        
+        return new TrustedError(404, "NOT_FOUND", "", "", Date.now())
     }
 
     /**
@@ -73,6 +103,14 @@ export class Channel {
         } else {
             store.state.channels[channelData.uuid] = channelData
         }
+    }
+
+    /**
+     * Get channel by id
+     * @param {*} channelData 
+     */
+     static getChannel(channelId) {
+        return store.state.channels[channelId]
     }
 
     /**
@@ -138,5 +176,7 @@ export class Channel {
         store.state.activeChannel = store.state.channels[channelId]
         Socket.subscribeChannel(channelId)
     }
+
+    
 
 }

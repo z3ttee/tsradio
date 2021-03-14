@@ -35,6 +35,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
+@import "@/assets/scss/animations.scss";
 
 $itemHeaderHeight: 64px;
 $borderRad: $borderRadSmall;
@@ -150,18 +151,6 @@ $borderRad: $borderRadSmall;
                 }
             }
         }
-    }
-}
-
-@keyframes anim_blink {
-    0% {
-        background-color: rgba($color: $colorGrayLight, $alpha: 0.3);
-    }
-    50% {
-        background-color: rgba($color: $colorGrayLight, $alpha: 0.6);
-    }
-    100% {
-        background-color: rgba($color: $colorGrayLight, $alpha: 0.3)
     }
 }
 

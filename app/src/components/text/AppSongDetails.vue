@@ -32,11 +32,22 @@ export default {
 
     },
     mounted() {
-        try {
-            clamp(document.getElementById(this.itemId + 'artist'), {clamp: 1, useNativeClamp: true, animate: true})
-            clamp(document.getElementById(this.itemId + 'song'), {clamp: 1, useNativeClamp: true, animate: true})
-            clamp(document.getElementById(this.itemId + 'title'), {clamp: 1, useNativeClamp: true, animate: true})
-        } catch (ignored) { /* */ }
+        setTimeout(() => {
+            this.observer = new ResizeObserver(() => {
+                try {
+                    clamp(document.getElementById(this.itemId + 'artist'), {clamp: 1, useNativeClamp: true, animate: true})
+                    clamp(document.getElementById(this.itemId + 'song'), {clamp: 1, useNativeClamp: true, animate: true})
+                    clamp(document.getElementById(this.itemId + 'title'), {clamp: 1, useNativeClamp: true, animate: true})
+                } catch (error) { 
+                    /* Do nothing */ 
+                    this.observer = undefined
+                }
+            })
+            if(document.getElementById(this.itemId)) {
+                this.observer.observe(document.getElementById(this.itemId))
+            }
+            
+        }, 100)
     },
     unmounted() {
         try {

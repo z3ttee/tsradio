@@ -10,7 +10,6 @@ import VueLottiePlayer from 'vue-lottie-player'
 // Import models
 import { Account } from '@/models/account'
 import { Modal } from '@/models/modal'
-import { Socket } from '@/socket/socket'
 import { Channel } from '@/models/channel'
 
 // Import utils 
@@ -58,8 +57,6 @@ app.mixin({
         }
     },
 })
-
-Socket.getInstance()
 
 // Mount app
 app.mount('#app')

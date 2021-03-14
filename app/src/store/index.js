@@ -2,6 +2,9 @@ import { createStore } from 'vuex'
 import config from '@/config/config.json'
 import { version } from '../../package.json';
 
+import { Account } from '@/models/account'
+import { UrlBuilder } from '@/utils/urlBuilder'
+
 if (config.api.port == 80 || config.api.port == 443) {
     config.api.port = 0
 }
@@ -10,48 +13,28 @@ if (config.authService.port == 80 || config.authService.port == 443) {
 }
 
 const localStorageName = 'data'
-const apiBaseUrl = config.api.protocol+"://"+config.api.host + (config.api.port != 0 ? ":" + config.api.port : "") + config.api.path
-const apiSocketUrl = config.api.protocol+"://"+config.api.host + (config.api.port != 0 ? ":" + config.api.port : "")
-
-const allianceBaseUrl = config.authService.protocol+"://"+config.authService.host + (config.authService.port != 0 ? ":" + config.authService.port : "")
-const authFormUrl = config.authForm.url + "?redirect=" + config.authForm.redirectCode
-const avatarBaseUrl = allianceBaseUrl + "/avatars/"
-const coverBaseUrl = apiBaseUrl + "/covers"
-
-const streamBaseUrl = (process.env.NODE_ENV == "development") ? "https://radio.tsalliance.eu/streams" : window.origin + "/streams"
-
-const dummyAccount = {
-    session: undefined,
-    name: undefined,
-    uuid: undefined,
-    role: {
-        name: undefined,
-        uuid: undefined
-    },
-    avatar: undefined,
-    avatarUrl: undefined
-}
 
 const dummyState = {
     config,
     version: version,
-    avatarBaseUrl,
-    apiBaseUrl,
-    allianceBaseUrl,
-    apiSocketUrl,
-    authFormUrl,
-    coverBaseUrl,
-    streamBaseUrl,
-    account: dummyAccount,
     modals: [],
     channels: {},
     activeChannel: undefined,
+    account: Account.createDummyAccount(),
     app: {
         appIsReady: false,
         isSocketReady: false,
         appRequiresAuth: false,
         showModal: false,
         isTabletMode: false
+    },
+    urls: {
+        allianceBase: UrlBuilder.buildAllianceBase(),
+        apiBase: UrlBuilder.buildApiBase(),
+        coverBase: UrlBuilder.buildCoverBase(),
+        avatarBase: UrlBuilder.buildAvatarBase(),
+        streamBase: UrlBuilder.buildStreamBase(),
+        authForm: UrlBuilder.buildAuthFormEndpoint(),
     }
 }
 
@@ -62,13 +45,13 @@ const store = createStore({
     mutations: {
         updateAccount(state, payload) {
             if(payload == undefined) {
-                state.account = dummyAccount
+                state.account = Account.createDummyAccount()
             } else {
                 var account = {
                     ...state.account,
                     ...payload
                 }
-                account.avatarUrl = avatarBaseUrl + account.avatar
+                account.avatarUrl = UrlBuilder.buildAvatarBase() + account.avatar
                 state.account = account
             }
         },

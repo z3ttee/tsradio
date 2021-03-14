@@ -13,7 +13,8 @@ import { Response } from 'express'
 const COVER_UPLOAD_DIR = config.app.rootDir + "/uploads/covers"
 
 const COVER_CHANNEL_DIR = config.app.rootDir + "/artworks"
-const COVER_FILE_EXTENSION = ".jpeg"
+const COVER_HISTORY_FILE_EXTENSION = ".png"
+const COVER_UPLOAD_EXTENSION = ".jpeg"
 const COVER_FILE_PLACEHOLDER = config.app.rootDir+"/assets/images/ts_cover_placeholder.jpeg"
 
 const MIME_TYPES = [
@@ -100,7 +101,7 @@ export class MediaUtil {
      */
     static async optimizeCover(channelId: string, tempFile: string) {
         return new Promise<Endpoint.Result>((resolve) => {
-            let optimizedFiled = COVER_UPLOAD_DIR + "/" + channelId + COVER_FILE_EXTENSION
+            let optimizedFiled = COVER_UPLOAD_DIR + "/" + channelId + COVER_UPLOAD_EXTENSION
 
             sharp(tempFile).resize(512, 512).toFile(optimizedFiled).then(() => {
                 resolve(new Endpoint.ResultSingleton(200, undefined))
@@ -131,7 +132,7 @@ export class MediaUtil {
     static async deleteCover(channel: Channel) {
         return new Promise<Endpoint.Result>((resolve) => {
             try {
-                let file = COVER_UPLOAD_DIR + "/" + channel.uuid + COVER_FILE_EXTENSION
+                let file = COVER_UPLOAD_DIR + "/" + channel.uuid + COVER_UPLOAD_EXTENSION
             
                 this.deleteFile(file)
                 resolve(new Endpoint.ResultSingleton(200, undefined))
@@ -182,7 +183,7 @@ export class MediaUtil {
      * @returns File path
      */
     static getHistoryArtworkOfChannel(channelId: string, timestamp: string) {
-        let file = COVER_CHANNEL_DIR + "/" + channelId + "/history/" + timestamp + COVER_FILE_EXTENSION
+        let file = COVER_CHANNEL_DIR + "/" + channelId + "/history/" + timestamp + COVER_HISTORY_FILE_EXTENSION
 
         if(fs.existsSync(file)) {
             return file;
@@ -197,7 +198,7 @@ export class MediaUtil {
      * @returns File path
      */
     static getChannelCoverFile(channelId: string): string {
-        let file = COVER_UPLOAD_DIR + "/" + channelId + COVER_FILE_EXTENSION
+        let file = COVER_UPLOAD_DIR + "/" + channelId + COVER_UPLOAD_EXTENSION
 
         if(!fs.existsSync(file)) {
             file = config.app.rootDir+"/assets/images/ts_logo_background.jpeg"

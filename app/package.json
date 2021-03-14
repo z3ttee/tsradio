@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "dateformat": "^4.5.1",
     "socket.io-client": "^3.1.2",
+    "ua-parser-js": "^0.7.24",
     "vue": "^3.0.0",
     "vue-cookie-next": "^1.0.3",
     "vue-lottie-player": "^0.1.9",

@@ -121,6 +121,7 @@ export default {
     methods: {
         selectChannel(uuid) {
             this.$channel.select(uuid)
+            this.$router.push({name: 'channel', params: { channelId: uuid }})
         }
     },
     mounted() {

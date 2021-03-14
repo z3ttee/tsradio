@@ -88,5 +88,23 @@ export class Account {
 
         return store.state.account?.role?.permissions?.contains(permission)
     }
+
+    /**
+     * Generate dummy account object for initialization
+     * @returns Json Object
+     */
+    static createDummyAccount() {
+        return {
+            session: undefined,
+            name: undefined,
+            uuid: undefined,
+            role: {
+                name: undefined,
+                uuid: undefined
+            },
+            avatar: undefined,
+            avatarUrl: undefined
+        }
+    }
     
 }

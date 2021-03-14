@@ -145,14 +145,14 @@ export class Api {
                 if(router.currentRoute.name != 'home') router.push({ name: 'home' })
                 Account.logout(true)
                 Modal.showMessage('Sitzung abgelaufen', 'Deine Sitzung ist abgelaufen. Du musst dich erneut anmelden, um fortzufahren.', () => {
-                    window.location.href = store.state.authFormUrl
+                    window.location.href = store.state.urls.authForm
                 })
             }
             if(trustedError.errorId == "INVALID_ACCOUNT" ) {
                 if(router.currentRoute.name != 'home') router.push({ name: 'home' })
                 Account.logout(true)
                 Modal.showMessage('Konto gesperrt', 'Deine Sitzung wurde geschlossen, da dein Konto aus verschiedenen Gründen gesperrt oder gelöscht wurde.', () => {
-                    window.location.href = store.state.authFormUrl
+                    window.location.href = store.state.urls.authForm
                 })
             }
 
@@ -187,13 +187,13 @@ export class Api {
      * Method for building api url from config parameters
      */
     getApiUrl() {
-        return store.state.apiBaseUrl
+        return store.state.urls.apiBase
     }
     /**
      * Method for building api url from config parameters
      */
     getAllianceUrl() {
-        return store.state.allianceBaseUrl
+        return store.state.urls.allianceBase
     }
 
     /**

@@ -1,18 +1,20 @@
 <template>
     <div class="avatar-container">
         <span v-if="hasText"><slot></slot></span>
-        <img :src="avatarUrl">
+        <app-placeholder-image class="avatar icon-m" :resourceId="$store.state.account.uuid" :resourceType="'avatar'"></app-placeholder-image>
     </div>
 </template>
 
 <script>
+import AppPlaceholderImage from '@/components/image/AppPlaceholderImage.vue'
+
 export default {
-    props: {
-        avatar: String
+    components: {
+        AppPlaceholderImage
     },
     computed: {
         avatarUrl() {
-            return this.$store.state.avatarBaseUrl + this.avatar
+            return this.$store.state.urls.avatarBase + "undefined"
         },
         hasText() {
             return !!this.$slots.default
@@ -35,12 +37,13 @@ export default {
         margin-right: 0.5em;
     }
 
-    img {
+    .avatar {
         display: inline-block;
         vertical-align: middle;
         height: 100%;
         min-width: 24px;
-        
+        border-radius: 50%;
+        overflow: hidden;
     }
 }
 

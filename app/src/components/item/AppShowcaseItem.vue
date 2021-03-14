@@ -1,9 +1,9 @@
 <template>
-    <div :class="{'showcase': true, 'state-tabletmode': $store.state.app.isTabletMode, 'state-single': channels?.length == 1}">
+    <div :class="{'showcase': true, 'state-tabletmode': $store.state.app.isTabletMode && canSwitchMode, 'state-single': channels?.length == 1}">
         <div class="showcase-wrapper">
             <div class="showcase-container" :id="itemId">
                 <div :class="{'showcase-item': true, 'state-active': $channel.isActive(channel.uuid)}" v-for="channel of channels" :key="channel.uuid" @click="select(channel.uuid)" :style="channel.colorHex ? 'border-color: ' + channel.colorHex +  ';' : ''">
-                    <app-placeholder-image class="item-background" :placeholder="backgroundImagePlaceholder" :src="buildChannelCurrentUrl(channel.uuid)" :cacheKey="channel.info?.cover"></app-placeholder-image>
+                    <app-placeholder-image class="item-background" :resourceId="channel.uuid" :resourceType="'song'" :resourceKey="channel.info?.cover"></app-placeholder-image>
 
                     <div class="item-background-overlay"></div>
                     <div class="item-content">
@@ -32,7 +32,7 @@
         <div class="grid-wrapper" v-if="channels.length > 0">
             <div class="grid-container">
                 <transition-group name="anim_item_slide" mode="out-in" appear>
-                    <app-grid-item v-for="channel of channels" :key="channel.uuid" :itemUuid="channel.uuid" :itemName="channel.title" :itemTitle="channel.info?.title" :itemSubtitle="channel.info?.artist" :itemListeners="channel.listeners" :itemColor="channel.colorHex" @selected="selectChannel($event, channel.uuid)"></app-grid-item>
+                    <app-grid-item v-for="channel of channels" :key="channel.uuid" :itemUuid="channel.uuid" :itemName="channel.title" :itemTitle="channel.info?.title" :itemSubtitle="channel.info?.artist" :itemListeners="channel.listeners" :itemColor="channel.colorHex" @selected="select(channel.uuid)"></app-grid-item>
                 </transition-group>
             </div>
         </div>
@@ -41,14 +41,12 @@
 
 <script>
 import clamp from 'clamp-js'
-import * as backgroundImagePlaceholder from '@/assets/images/branding/ts_cover_placeholder.jpeg'
 
 import AppPlaceholderImage from '@/components/image/AppPlaceholderImage.vue'
 import AppGridItem from '@/components/item/AppGridItem.vue'
 import AppSongDetails from '@/components/text/AppSongDetails.vue'
 import AppListenerCounter from '@/components/text/AppListenerCounter.vue'
 import AppWrappableHeadline from '@/components/text/AppWrappableHeadline.vue'
-
 
 export default {
     components: {
@@ -62,14 +60,17 @@ export default {
         channels: {
             type: Array,
             default: () => { return [] }
+        },
+        canSwitchMode: {
+            type: Boolean,
+            default: true
         }
     },
     emits: ['selected'],
     data() {
         return {
             itemId: this.generateId(6),
-            observer: undefined,
-            backgroundImagePlaceholder
+            observer: undefined
         }
     },
     computed: {
@@ -77,7 +78,7 @@ export default {
             var channel = this.$store.state.activeChannel
             if(!channel) return undefined
 
-            if(this.channels.filter((c) => c.uuid == channel.uuid)) {
+            if(this.channels.filter((c) => c.uuid == channel.uuid).length) {
                 // Channel is one of the showcased items
                 return channel.colorHex
             }
@@ -87,6 +88,7 @@ export default {
     },
     methods: {
         select(uuid) {
+            if(!uuid) return
             this.$emit('selected', uuid)
         }
     },
@@ -311,8 +313,7 @@ export default {
 @media screen and (max-width: 500px) {
     .showcase {
         padding: 0 !important;
-        margin: 0 !important;
-        margin-bottom: -1em !important;
+        margin: 0;
     }
 }
 </style>

@@ -37,14 +37,12 @@ function onChannelStateListener(data) {
     console.log("state: ", data)
 }
 function onChannelHistoryListener(data) {
-    console.log("history: ", data)
     Channel.setChannelHistory(data.uuid, data.tracks)
 }
 function onChannelInfoListener(data) {
     Channel.setChannelInfo(data.uuid, { title: data.title, artist: data.artist, cover: data.cover })
 }
 function onChannelListenersListener(data) {
-    console.log("listeners: ", data)
     Channel.setListeners(data.uuid, data.listeners)
 }
 function onChannelVotingListener(data) {

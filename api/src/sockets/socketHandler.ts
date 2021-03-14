@@ -80,9 +80,7 @@ export class SocketHandler {
      * @param packet Data to be sent
      */
     public async broadcastToRoom(room: string, event: SocketEvents, packet: Packet) {
-        for(let client of this.connectedClients.values()) {
-            client.socket.to(room).emit(event, packet)
-        }
+        this.server.to(room).emit(event, packet)
     }
 
     /**
@@ -96,9 +94,7 @@ export class SocketHandler {
                 // Login as streamer source
                 if(handShakeData.auth["password"] != config.socketio.password) {
                     return this.registerAsGuest(socket)
-                } else {
-                    console.log("Registering as streamer...");
-                    
+                } else {                    
                     this.registerAsStreamer(socket);
                 }
             } else if(handShakeData.auth["token"]) {

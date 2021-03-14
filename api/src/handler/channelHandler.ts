@@ -51,6 +51,7 @@ export default class ChannelHandler {
             return
         }
 
+        // Set every property to not risk overwriting existing values like info and history
         const old = this.getChannel(channel.uuid)
         old.title = channel.title
         old.description = channel.description
@@ -60,6 +61,7 @@ export default class ChannelHandler {
         old.colorHex = channel.colorHex
         old.creatorId = channel.creatorId
         old.mountpoint = channel.mountpoint
+        old.order = channel.order
 
         return this.registerChannel(old)
     }
@@ -108,6 +110,7 @@ export default class ChannelHandler {
     public static clearChannelInfo(channelId: string) {
         if(!this.isRegistered(channelId)) return
 
+        VoteHandler.abort(channelId)
         this.getChannel(channelId).channelInfo = undefined
     }
 
@@ -137,7 +140,7 @@ export default class ChannelHandler {
      */
     public static setChannelHistory(channelId: string, history) {
         if(!this.isRegistered(channelId)) return
-        this.getChannel(channelId).channelHistory = history
+        this.getChannel(channelId).channelHistory = history        
         SocketHandler.getInstance().broadcastToRoom("channel-" + channelId, SocketEvents.EVENT_CHANNEL_HISTORY, new PacketOutChannelHistory(channelId, history))
     }
 
@@ -149,6 +152,7 @@ export default class ChannelHandler {
     public static setChannelInfo(channelId: string, channelInfo) {
         if(!this.isRegistered(channelId)) return
         this.getChannel(channelId).channelInfo = channelInfo
+        VoteHandler.abort(channelId)
         SocketHandler.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_INFO, new PacketOutChannelInfo(channelId, channelInfo.title, channelInfo.artist, channelInfo.timestamp.toString()))
     }
 

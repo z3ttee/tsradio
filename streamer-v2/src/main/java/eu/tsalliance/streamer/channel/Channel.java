@@ -1,8 +1,6 @@
 package eu.tsalliance.streamer.channel;
 
-import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 import eu.tsalliance.streamer.files.ArtworkHandler;
 import eu.tsalliance.streamer.files.FileHandler;
 import eu.tsalliance.streamer.icecast.IcecastClient;
@@ -20,10 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,7 +32,7 @@ public class Channel implements Runnable, TrackEventListener {
     @Getter private ChannelState channelState;
 
     @Getter @Setter private AudioTrack currentlyPlaying;
-    @Getter @Setter private ArrayList<AudioTrack> history = new ArrayList<>();
+    @Getter @Setter private TreeSet<AudioTrack> history = new TreeSet<>(((o1, o2) -> (int) (o1.getTimestamp() - o2.getTimestamp())));
 
     @Getter private final LinkedBlockingQueue<AudioTrack> queue = new LinkedBlockingQueue<>();
     @Getter private final ArrayList<AudioTrack> playlist = new ArrayList<>();
@@ -224,7 +219,7 @@ public class Channel implements Runnable, TrackEventListener {
      * Send an update to the socket server with the channel's history as payload
      */
     public void notifyChannelHistoryChange() {
-        List<AudioTrack> history = this.history;
+        List<AudioTrack> history = new ArrayList<>(this.history);
         Collections.reverse(history);
 
         SocketClient.getInstance().broadcast(SocketEvents.EVENT_CHANNEL_HISTORY, new PacketOutHistoryChange(this.getUuid(), history));
@@ -292,7 +287,8 @@ public class Channel implements Runnable, TrackEventListener {
             return;
         }
 
-        AudioTrack track = history.remove(0);
+        AudioTrack track = history.first();
         ArtworkHandler.deleteArtwork(this.uuid, track.getTimestamp());
+        history.remove(track);
     }
 }

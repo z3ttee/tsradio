@@ -2,14 +2,14 @@
     <div :class="{'item': true, 'state-disabled': disabled}" :id="itemId + 'content'">
         <div class="item-wrapper-color" :style="itemColor ? 'background-color: ' + itemColor +  ';' : ''"></div>
         
-        <div :class="{'item-wrapper': true, 'state-disabled': disabled, 'state-active': !disabled && $channel.isActive(itemUuid)}">
+        <div :class="{'item-wrapper': true, 'state-disabled': disabled, 'state-active': !disabled && $channel.isActive(itemUuid) && selectable}">
             <div class="item-background">
-                <app-placeholder-image class="background-image" :placeholder="backgroundImagePlaceholder" :src="buildChannelCurrentUrl(itemUuid)" :cacheKey="itemTimestamp"></app-placeholder-image>
+                <app-placeholder-image class="background-image" :resourceId="itemUuid" :timestamp="isSong ? itemTimestamp : undefined" :resourceType="isSong ? 'history' : 'song'" :resourceKey="itemTimestamp"></app-placeholder-image>
                 <div class="background-overlay"></div>
             </div>
             <div class="item-container" @click="select" :style="itemColor ? 'border-color: ' + itemColor +  ';' : ''">
                 <div class="item-header">
-                    <app-placeholder-image class="header-icon" :placeholder="coverImagePlaceholder" :src="buildChannelCoverUrl(itemUuid)"></app-placeholder-image>
+                    <app-placeholder-image class="header-icon" :resourceId="itemUuid" :resourceType="'cover'"></app-placeholder-image>
                     <div class="header-title">
                         <h5 :id="itemId+'channel'">{{ itemName }}</h5>
                     </div>
@@ -36,9 +36,6 @@ import AppPlaceholderImage from '@/components/image/AppPlaceholderImage.vue'
 import AppSongDetails from '@/components/text/AppSongDetails.vue'
 import AppListenerCounter from '@/components/text/AppListenerCounter.vue'
 
-import * as coverImagePlaceholder from "@/assets/images/branding/ts_logo_background.png"
-import * as backgroundImagePlaceholder from "@/assets/images/branding/ts_cover_placeholder.jpeg"
-
 export default {
     components: {
         AppSongDetails,
@@ -48,13 +45,19 @@ export default {
     data() {
         return {
             itemId: this.generateId(6),
-            observer: undefined,
-            coverImagePlaceholder,
-            backgroundImagePlaceholder
+            observer: undefined
         }
     },
     props: {
         disabled: {
+            type: Boolean,
+            default: false
+        },
+        selectable: {
+            type: Boolean,
+            default: true
+        },
+        isSong: {
             type: Boolean,
             default: false
         },
@@ -69,15 +72,15 @@ export default {
     emits: ['selected'],
     methods: {
         select() {
-            if(!this.disabled) this.$emit('selected')
+            if(!this.disabled && this.selectable) this.$emit('selected')
         }
     },
     mounted() {
         setTimeout(() => {
             this.observer = new ResizeObserver(() => {
                 try {
-                    clamp(document.getElementById(this.itemId+'channel'), {clamp: 0, useNativeClamp: true, animate: true})
-                    clamp(document.getElementById(this.itemId+'channel'), {clamp: 2, useNativeClamp: true, animate: true})
+                    clamp(document.getElementById(this.itemId + 'channel'), {clamp: 0, useNativeClamp: true, animate: true})
+                    clamp(document.getElementById(this.itemId + 'channel'), {clamp: 2, useNativeClamp: true, animate: true})
                 } catch (error) { 
                     /* Do nothing */ 
                     this.observer = undefined

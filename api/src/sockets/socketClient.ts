@@ -34,14 +34,14 @@ export namespace SocketClient {
         }
 
         public setCurrentChannel(channel: Channel) {
+            this.socket.leave("channel-" + this.currentChannelId)
+
             if(channel) {
                 this.currentChannelId = channel.uuid
                 this.socket.join("channel-" + channel.uuid)
             } else {
                 this.currentChannelId = undefined
             }
-            
-            this.socket.leave("channel-" + this.currentChannelId)
         }
     }
 

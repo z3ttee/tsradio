@@ -1,15 +1,16 @@
 import store from '@/store/'
 
 function buildChannelCoverUrl(channelId) {
-    return store.state.coverBaseUrl + "/channel/" + channelId
+    return store.state.urls.coverBase + "/channel/" + channelId
 }
 
 function buildChannelCurrentUrl(channelId) {
-    return store.state.coverBaseUrl + "/current/" + channelId
+    return store.state.urls.coverBase + "/current/" + channelId
 }
 
 function buildChannelHistoryUrl(channelId, timestamp) {
-    return store.state.coverBaseUrl + "/history/" + channelId + "/?timestamp=" + timestamp
+    var url = store.state.urls.coverBase + "/history/" + channelId + "/?timestamp=" + timestamp
+    return url
 }
 
 export {

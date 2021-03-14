@@ -3,7 +3,7 @@
         <div class="content-container">
             <div class="layout-table">
                 <div class="layout-col">
-                    <app-placeholder-image class="track-cover" :placeholder="backgroundImagePlaceholder" :src="buildChannelCurrentUrl(channel?.uuid)" :cacheKey="channel?.info?.cover"></app-placeholder-image>
+                    <app-placeholder-image class="track-cover" :resourceId="channel?.uuid" :resourceType="'song'" :resourceKey="channel?.info?.cover"></app-placeholder-image>
                 </div>
                 <div class="layout-col">
                     <p>{{ channel?.info?.title }}</p>
@@ -35,8 +35,6 @@ import AppPlaceholderImage from '@/components/image/AppPlaceholderImage.vue'
 import AppPlayButton from '@/components/button/AppPlayButtonComp.vue'
 import AppVolumeSlider from '@/components/input/AppVolumeSlider.vue'
 
-import * as backgroundImagePlaceholder from "@/assets/images/branding/ts_cover_placeholder.jpeg"
-
 const VOLUME_MAX = 50
 const VOLUME_DEFAULT = parseInt(VOLUME_MAX/2)
 
@@ -49,7 +47,6 @@ export default {
     data() {
         return {
             audioElementId: this.generateId(6),
-            backgroundImagePlaceholder,
             player: {
                 paused: false,
                 loading: true,
@@ -116,7 +113,7 @@ export default {
         },
         getStreamUrl(){
             if(!this.channel?.mountpoint) return "/"
-            return this.$store.state.streamBaseUrl + this.channel?.mountpoint + "?token=" + this.$store.state.account.session + "&channel=" + this.channel?.uuid
+            return this.$store.state.urls.streamBase + this.channel?.mountpoint + "?token=" + this.$store.state.account.session + "&channel=" + this.channel?.uuid
         },
         clearSource() {
             let element = document.getElementById(this.audioElementId)
