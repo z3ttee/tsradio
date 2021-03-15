@@ -27,7 +27,7 @@ router.beforeEach((to, from, next) => {
       next()
       checkSession()
     } else {
-      if(process.env.NODE_ENV != "development") window.location.href = store.state.authFormUrl
+      if(process.env.NODE_ENV != "development") window.location.href = store.state.urls.authForm
     }
   }
   
@@ -36,7 +36,7 @@ router.beforeEach((to, from, next) => {
 function checkSession(next) {
   Account.checkSession(true, true).then((isVerified) => {
     if(!isVerified) {
-      if(process.env.NODE_ENV != "development") window.location.href = store.state.authFormUrl
+      if(process.env.NODE_ENV != "development") window.location.href = store.state.urls.authForm
     } else {
       store.state.app.appIsReady = true
       Socket.getInstance()
