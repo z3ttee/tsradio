@@ -1,157 +1,182 @@
-import store from '@/store/index.js'
-import apijs from '@/models/api.js'
-import socketjs from '@/models/socket.js'
-import router from '../router'
+import { Api, ResultSet, ResultSingleton, TrustedError } from '@/models/api'
+import store from '@/store'
+import { Socket } from '@/socket/socket'
 
-let ipcRenderer = undefined
-if(process.env.IS_ELECTRON) {
-    ipcRenderer = window.require("electron").ipcRenderer
-}
+export class Channel {
 
-class Channel {
+    /**
+     * Load all channels
+     */
+    static async loadAll() {
+        let result = await Api.getInstance().get('/channels')
 
-    async remove(channelUUID) {
-        delete store.state.channels[channelUUID]
+        if(result instanceof ResultSet) {
+            for(const channel of result.entries)
+            this.setChannel(channel)
+        }
     }
 
-    async setChannel(channelUUID, data) {
-        let currentChannel = store.state.currentChannel
+    /**
+     * Fetch the current history of a channel
+     * @param {*} channelId 
+     */
+    static async getHistory(channelId) {
+        let result = await Api.getInstance().get('/channels/' + channelId + "/history")
 
-        if(!data) {
-            delete store.state.channels[channelUUID]
-            if(currentChannel && currentChannel.uuid == channelUUID) {
-                store.state.currentChannel = undefined
-            }
-            return
+        if(result instanceof ResultSingleton) {
+            await this.setChannelHistory(channelId, result.data.history)
+        }
+
+        return result
+    }
+
+    /**
+     * Fetch the current history of a channel
+     * @param {*} channelId 
+     */
+     static async getLyrics(channelId) {
+        var title = this.getChannel(channelId)?.info?.title
+        var artist = this.getChannel(channelId)?.info?.artist
+
+        if(title && artist) {
+            let result = await Api.getInstance().post('/songs/lyrics', { title, artist })
+            return result
         }
         
-        store.state.channels[channelUUID] = data
+        return new TrustedError(404, "NOT_FOUND", "", "", Date.now())
     }
 
-    async initSkip(channelUUID) {
-        return apijs.get('/channels/'+channelUUID+'/skip')
+    /**
+     * Unload all channels
+     */
+    static async unloadAll() {
+        store.state.channels = {}
+        store.state.activeChannel = undefined
     }
 
-    async onChannelSkipListener(data) {
-        console.log(data)
-    }
-
-    async select(channel, routerPush = false) {
-        let previous = store.state.currentChannel || {}
-        let next = channel || {}
-
-        if(next.uuid != previous.uuid) {
-            if(previous) socketjs.off(socketjs.CHANNEL_SKIP+previous.uuid)
-            store.state.currentChannel = channel
-            socketjs.on(socketjs.CHANNEL_SKIP+next.uuid, (data) => this.onChannelSkipListener(data))
-
-            if(ipcRenderer) {
-                ipcRenderer.send('discord-activity-update', {uuid: channel.uuid, title: channel.title})
-            }
-        }
-
-        if(routerPush && router.currentRoute.name != 'channelDetails') {
-            router.push({name: 'channelDetails', params: {id: channel.uuid}})
-        }
-    }
-
-    async updateMetadata(channelUUID, data) {
-        let channel = store.state.channels[channelUUID]
-        let currentChannel = store.state.currentChannel
-
-        if(channel) {
-            let updatedInfo = {
-                title: data.title,
-                artist: data.artist
-            }
-            channel.info = updatedInfo
-            store.state.channels[channelUUID] = channel
-
-            if(currentChannel && currentChannel.uuid == channelUUID) {
-                currentChannel.info = updatedInfo
+    /**
+     * Unload specific channel
+     * @param {*} channelId Channel's id
+     */
+    static async unload(channelId) {
+        if(store.state.channels[channelId]) {
+            store.state.channels[channelId] = undefined
+            
+            if(this.isActive(channelId)) {
+                store.state.activeChannel = undefined
             }
         }
     }
-    async updateStatus(channelUUID, data) {
-        let channel = store.state.channels[channelUUID]
-        let currentChannel = store.state.currentChannel
 
-        if(!channel) {
-            // Register channel if it does not exist
-            return await this.setChannel(channelUUID, data)
-        }
+    /**
+     * Load a channel by id
+     * @param {*} channelId Channel's id 
+     */
+    static async load(channelId) {
+        let result = await Api.getInstance().get('/channels/' + channelId)
 
-        if(!data.active) {
-            // Remove channel if it is not active anymore
-            return await this.setChannel(channelUUID, undefined)
-        }
-
-        channel.active = data.active
-        channel.title = data.title
-        channel.description = data.description
-        channel.featured = data.featured || false
-        channel.listeners = data.listeners || 0
-        channel.special = data.special || false
-        channel.showLyrics = data.showLyrics || true
-
-        if(currentChannel && currentChannel.uuid == channelUUID) {
-            store.state.currentChannel.active = data.active
-            store.state.currentChannel.title = data.title
-            store.state.currentChannel.description = data.description
-            store.state.currentChannel.featured = data.featured || false
-            store.state.currentChannel.listeners = data.listeners || 0
-            store.state.currentChannel.special = data.special || false
-            store.state.currentChannel.showLyrics = data.showLyrics || true 
+        if(result instanceof ResultSingleton) {
+            this.setChannel(result.data)
         }
     }
 
-    async moveListener(destinationUUID, previousUUID) {
-        let prevChannel = store.state.channels[previousUUID]
-        let destChannel = store.state.channels[destinationUUID]
+    /**
+     * Reset history of a channel
+     * @param {*} channelId Channel's id
+     */
+    static async resetHistory(channelId) {
+        if(store.state.channels[channelId]) {
+            delete store.state.channels[channelId].history
+        }
+    }
 
-        if(destChannel) {
-            if(!prevChannel) {
-                // If user has not listened to channel before during current session, add one to destination channel
-                destChannel.listeners += 1
-            } else {
-                // If user has listened to channel before, remove one from prev and add one to dest
-                if(prevChannel.listeners >= 1) prevChannel.listeners -= 1
-                destChannel.listeners += 1
+    /**
+     * 
+     * @param {*} channelData 
+     */
+    static async setChannel(channelData) {
+        if(store.state.channels[channelData.uuid]) {
+            store.state.channels[channelData.uuid] = {
+                ...store.state.channels[channelData.uuid],
+                ...channelData
             }
         } else {
-            // No destChannel means disconnect
-            if(prevChannel) {
-                if(prevChannel.listeners >= 1) prevChannel.listeners -= 1
-            }
-        }
-
-        let currentChannel = store.state.currentChannel
-        if(currentChannel) {
-            if(currentChannel.uuid == destinationUUID) {
-                currentChannel.listeners = destChannel.listeners
-            }
-            if(currentChannel.uuid == previousUUID) {
-                currentChannel.listeners = prevChannel.listeners
-            }
+            store.state.channels[channelData.uuid] = channelData
         }
     }
 
-    async getHistory(channelUUID) {
-        let result = await apijs.get('/channels/'+channelUUID+'/history')
-        return result
-    }
-    async getLyrics(title, artist) {
-        let result = await apijs.post('/songs/lyrics', {
-            title, artist
-        })
-        return result
+    /**
+     * Get channel by id
+     * @param {*} channelData 
+     */
+     static getChannel(channelId) {
+        return store.state.channels[channelId]
     }
 
-    async clearAll() {
-        store.state.channels = {}
-        store.state.currentChannel = undefined
+    /**
+     * Set channel's metadata
+     * @param {*} uuid Channel's uuid
+     * @param {*} infoData Updated metadata
+     */
+    static async setChannelInfo(uuid, infoData) {
+        if(store.state.channels[uuid]) {
+            store.state.channels[uuid].info = infoData
+        }
     }
+
+    /**
+     * Set a channel's history
+     * @param {*} uuid Channel's id
+     * @param {*} history Channel's history
+     */
+    static async setChannelHistory(uuid, history) {
+        if(store.state.channels[uuid]) {
+            store.state.channels[uuid].history = history
+        }
+    }
+
+    /**
+     * Set a channel's listener count
+     * @param {*} uuid Channel's uuid
+     * @param {*} listeners Listener count
+     */
+    static async setListeners(uuid, listeners) {
+        if(store.state.channels[uuid]) {
+            store.state.channels[uuid].listeners = listeners
+        }
+    }
+
+    /**
+     * Set a channel's pending voting
+     * @param {*} uuid Channel's uuid
+     * @param {*} voting Voting's data
+     */
+    static async setVoting(uuid, voting) {
+        if(store.state.channels[uuid]) {
+            store.state.channels[uuid].voting = voting
+        }
+    }
+
+    /**
+     * Check if a channel's id matches the id of the channel a user listens to
+     * @param {*} channelId Channel's id
+     * @returns True or False
+     */
+    static isActive(channelId) {
+        return store.state.activeChannel?.uuid == channelId
+    }
+
+    /**
+     * Select a channel
+     * @param {*} channelId Channel's id
+     */
+    static select(channelId) {
+        if(this.isActive(channelId)) return
+
+        store.state.activeChannel = store.state.channels[channelId]
+        Socket.subscribeChannel(channelId)
+    }
+
+    
 
 }
-
-export default new Channel()

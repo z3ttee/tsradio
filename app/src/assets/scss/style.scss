@@ -1,97 +1,196 @@
-@import '_variables';
-@import 'reset';
-@import 'fonts';
+@import "fonts";
+@import "variables";
+@import 'animations';
+@import "elements/buttons.scss";
+@import "elements/modal";
 
-/*
-[]=========== General styling ===========[]
+/**
+[]=============================[]
+         General Styling
+[]=============================[]
 */
 * {
     margin: 0 auto;
     padding: 0;
-    border: 0;
     box-sizing: border-box;
-    font-family: 'Poppins';
-    color: $colorWhite;
+    font-size: 0.995em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 html {
-    box-sizing: border-box;
+    background-color: $colorPrimaryDark;
 }
 
-*, 
-*:before, 
-*:after {
-    box-sizing: inherit;
-}
-
-html, 
+html,
 body {
-    height: 100%; 
-    margin: 0;
-}
-
-body {
-    position: relative;
-    background-color: $colorPrimary;
-    background-image: url(assets/images/background/background_blurred.png);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    transition: background-image 1s ease-in-out;
-}
-
-::selection {
-    background-color: rgba($color: $colorAccent, $alpha: 0.5);
-    color: $colorWhite;
-}
-
-#pageBackground {
-    position: fixed;
-    height: 100%;
     width: 100%;
-    z-index: 0;
+    height: 100%;
+    color: $colorWhite;
+    font-family: 'Whitney', 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    line-height: 1.3em;
+
     background-image: url(assets/images/background/background_blurred.png);
     background-position: center;
     background-size: cover;
-    background-repeat: no-repeat;
     background-attachment: fixed;
-    filter: blur(30px);
-    opacity: 0.1;
 }
 
-#wrapper {
+#app {
     position: relative;
+    display: block;
+    width: 100%;
     min-height: 100%;
-    padding-top: 5em;
-    padding-bottom: 5em;
-
-    &.web {
-        margin-top: 0;
-    }
 }
 
 .content-container {
     display: block;
+    padding: 0 $windowPad;
     width: 1200px;
-}
 
-section {
-    margin-top: 2em;
-    margin-bottom: 4em;
+    &.nopad {
+        padding: 0;
+    }
 
-    h1,h2,h3,h4,h5,h6 {
-        margin-bottom: 0.5em;
+    &.container-fluid {
+        width: 100% !important;
     }
 }
 
-#toast-container {
-    position: fixed;
-    bottom: $windowPad;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10001;
-    width: 400px;
+/**
+[]=============================[]
+          Headlines
+[]=============================[]
+*/
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', 'Whitney', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+h1 {
+    font-size: 2.4em;
+    line-height: 1.5em;
+}
+h2 {
+    font-size: 2em;
+    line-height: 1.5em;
+}
+h3 {
+    font-size: 1.7em;
+    line-height: 1.5em;
+}
+h4 {
+    font-size: 1.45em;
+    line-height: 1.5em;
+}
+h5 {
+    font-size: 1.25em;
+    line-height: 1.5em;
+}
+h6 {
+    font-size: 1.05em;
+    line-height: 1.5em;
+}
+
+/**
+[]=============================[]
+          Layout
+[]=============================[]
+*/
+.layout-table {
+    position: relative;
+    display: table;
+    width: 100%;
+
+    .layout-col {
+        display: table-cell;
+    }
+}
+
+/**
+[]=============================[]
+          Image-Sizes
+[]=============================[]
+*/
+img {
+    pointer-events: none;
+    vertical-align: middle;
+}
+
+/*
+[]========== Icons ==========[]
+*/
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+    pointer-events: none;
+    transition: all $animSpeedFast*1s $cubicNorm;
+
+    &::selection {
+        background: none;
+    }
+}
+.icon-xs {
+    width: 14px;
+    height: 14px;
+}
+.icon-s {
+    width: 24px;
+    height: 24px;
+}
+.icon-m {
+    width: 38px;
+    height: 38px;
+}
+.icon-l {
+    width: 50px;
+    height: 50px;
+}
+
+/*
+[]=========== Message Box ===========[]
+*/
+.message-box {
+    display: block;
+    border-radius: $borderRadSmall;
+    background-color: $colorPrimaryDarker;
+    margin: 0.5em 0;
+
+    font-size: 0.9em;
+    padding: 0.8em;
+    text-align: left;
+
+    &.message-error {
+        background-color: $colorAccent;
+    }
+
+    &.message-info {
+        background-color: $colorInfo;
+    }
+}
+
+/*
+[]========== Horizontal line ==========[]
+*/
+hr {
+    appearance: none;
+    border: none;
+    background-color: $colorPlaceholder;
+    display: block;
+    height: 2px;
+    width: 100%;
+    border-radius: 8px;
+    opacity: 0.3;
+    margin: 1em 0;
+
+    &.half {
+        width: 50%;
+        margin: 1em auto;
+    }
 }
 
 /*
@@ -103,26 +202,26 @@ a {
     font-weight: inherit;
     color: inherit;
     transition: all 0.2s $cubicNorm;
-    font-style: italic;
-    opacity: 0.7;
-    letter-spacing: 0.5px;
+    letter-spacing: inherit;
+    color: $colorAccentLight;
+    cursor: pointer;
 
     &::after {
         content: "";
         position: absolute;
-        bottom: 0;
+        bottom: -1px;
         left: 50%;
         width: 0%;
         opacity: 0;
         height: 2px;
         border-radius: 4px;
-        background-color: $colorAccent;
+        background-color: $colorAccentLight;
+
         transform: translateX(-50%);
         transition: all 0.2s $cubicNorm;
     }
 
     &:hover {
-        color: $colorAccent;
         opacity: 1;
 
         &::after {
@@ -132,497 +231,31 @@ a {
     }
 }
 
-/*
-[]=========== Headlines ===========[]
+/**
+[]=============================[]
+          Badge
+[]=============================[]
 */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    color: inherit;
-
-    &.capitalize {
-        text-transform: uppercase;
-    }
-
-    &.slim {
-        font-weight: 400;
-        letter-spacing: 0.3px;
-    }
-}
-h1 {
-    font-weight: 700;
-    font-size: 2.5em;
-
-    &.gigantic {
-        font-size: 3.5em;
-    }
-}
-
-h2 {
-    font-size: 2em;
-}
-h3 {
-    font-size: 1.4em;
-}
-h4 {
-    font-size: 1.1em;
-}
-h5 {
-    font-size: 0.9em;
-}
-h6 {
-    font-size: 0.7em;
-}
-
-/*
-[]=========== Links ===========[]
-*/
-$avatarHeights: (
-    's': 24px, 
-    'm': 32px, 
-    'l': 45px, 
-    'xl': 64px
-);
-
-.profile-avatar {
-    display: inline-block;
-    vertical-align: middle;
-    background-color: $colorPlaceholder;
-    border-radius: 50%;
-    height: map-get($map: $avatarHeights, $key: 'm');
-    width: map-get($map: $avatarHeights, $key: 'm');
-
-    &.align-right {
-        margin-left: 0.7em;
-    }
-    &.align-left {
-        margin-right: 0.7em;
-    }
-}
-.profile-avatar-s {
-    height: map-get($map: $avatarHeights, $key: 's');
-    width: map-get($map: $avatarHeights, $key: 's');
-}
-.profile-avatar-m {
-    height: map-get($map: $avatarHeights, $key: 'm');
-    width: map-get($map: $avatarHeights, $key: 'm');
-}
-.profile-avatar-l {
-    height: map-get($map: $avatarHeights, $key: 'l');
-    width: map-get($map: $avatarHeights, $key: 'l');
-}
-.profile-avatar-xl {
-    height: map-get($map: $avatarHeights, $key: 'xl');
-    width: map-get($map: $avatarHeights, $key: 'xl');
-}
-
-/*
-[]=========== Buttons ===========[]
-*/
-
-$buttonHeights: (
-    's': 3em, 
-    'm': 3.5em, // 38px
-    'l': 4.0em,  // 45px
-    'xl': 4.4em  // 52px
-);
-$buttonScales: (
-    's': 0.94, 
-    'm': 0.95, 
-    'l': 0.96, 
-    'xl': 0.97
-);
-$buttonFonts: (
-    's': 0.6em, 
-    'm': 0.7em, 
-    'l': 0.75em, 
-    'xl': 0.8em
-);
-$buttonIconScales: (
-    's': 0.90, 
-    'm': 0.91, 
-    'l': 0.92, 
-    'xl': 0.93
-);
-
-.btn {
-    position: relative;
-    display: inline-block;
-    appearance: none;
-    border: none;
-    background: none;
-    outline: none;
-    letter-spacing: 0.5px;
-    font-size: map-get($map: $buttonFonts, $key: 's');
-    font-weight: 600;
-    padding: 0.8em;
-    border-radius: $borderRadTiny;
-    cursor: pointer;
-    text-align: left;
-    transition: all $animSpeedFast*1s $cubicNorm;
-
-    img {
-        display: inline-block;
-        height: 40%;
-        vertical-align: middle;
-        margin-right: 0.5em;
-    }
-
-    &:disabled {
-        cursor: not-allowed;
-    }
-}
-
-.btn-primary {
-    background-color: $colorPlaceholder;
-    color: $colorWhite;
-
-    &:hover {
-        background-color: darken($color: $colorPlaceholder, $amount: 2);
-    }
-}
-.btn-accent {
-    background-color: $colorAccent;
-    color: $colorWhite;
-
-    &:hover {
-        background-color: darken($color: $colorAccent, $amount: 2);
-    }
-}
-.btn-success {
-    background-color: $colorSuccess;
-    color: $colorWhite;
-
-    &:hover {
-        background-color: darken($color: $colorSuccess, $amount: 2);
-    }
-}
-
-.btn-s {
-    padding: 0 1em;
-    font-size: map-get($map: $buttonFonts, $key: 's');
-
-    height: map-get($map: $buttonHeights, $key: 's');
-
-    &:active:not(:disabled):not(.btn-noscale) {
-        transform: scale(map-get($map: $buttonScales, $key: 's'));
-    }
-}
-.btn-m {
-    padding: 0 1.8em;
-    height: map-get($map: $buttonHeights, $key: 'm');
-    font-size: map-get($map: $buttonFonts, $key: 'm');
-
-    &:active:not(:disabled):not(.btn-noscale) {
-        transform: scale(map-get($map: $buttonScales, $key: 'm'));
-    }
-}
-.btn-l {
-    padding: 0 5em;
-    font-size: map-get($map: $buttonFonts, $key: 'l');
-    font-weight: 500;
-    height: map-get($map: $buttonHeights, $key: 'l');
-
-    &:active:not(:disabled):not(.btn-noscale) {
-        transform: scale(map-get($map: $buttonScales, $key: 'l'));
-    }
-}
-.btn-xl {
-    padding: 0em 8em;
-    font-weight: 500;
-    font-size: map-get($map: $buttonFonts, $key: 'xl');
-    height: map-get($map: $buttonHeights, $key: 'xl');
-
-    &:active:not(:disabled):not(.btn-noscale) {
-        transform: scale(map-get($map: $buttonScales, $key: 'xl'));
-    }
-}
-.btn-full {
-    display: block;
-    width: 100%;
-
-    &:active:not(:disabled):not(.btn-noscale) {
-        transform: scale(0.99);
-    }
-}
-.btn-block {
-    display: block;
-}
-
-.btn-inline {
-    display: inline-block;
-    vertical-align: middle;
-}
-.btn-icon {
-    height: map-get($map: $buttonHeights, $key: 's');
-    width: map-get($map: $buttonHeights, $key: 's');
-
-    padding: 0 !important;
-    text-align: center;
-    
-    img {
-        display: inline-block;
-        height: 40%;
-        width: 40%;
-        vertical-align: middle;
-        margin: 0;
-    }
-
-    &:active:not(:disabled):not(.btn-noscale) {
-        transform: scale(map-get($map: $buttonIconScales, $key: 's'));
-    }
-
-    &.btn-m {
-        height: map-get($map: $buttonHeights, $key: 'm');
-        width: map-get($map: $buttonHeights, $key: 'm');
-
-        &:active:not(:disabled):not(.btn-noscale) {
-            transform: scale(map-get($map: $buttonIconScales, $key: 'm'));
-        }
-    }
-    &.btn-l {
-        height: map-get($map: $buttonHeights, $key: 'l');
-        width: map-get($map: $buttonHeights, $key: 'l');
-
-        &:active:not(:disabled):not(.btn-noscale) {
-            transform: scale(map-get($map: $buttonIconScales, $key: 'l'));
-        }
-    }
-    &.btn-xl {
-        height: map-get($map: $buttonHeights, $key: 'xl');
-        width: map-get($map: $buttonHeights, $key: 'xl');
-
-        &:active:not(:disabled):not(.btn-noscale) {
-            transform: scale(map-get($map: $buttonIconScales, $key: 'xl'));
-        }
-    }
-}
-.btn-text-left {
-    text-align: left;
-}
-.btn-text-center {
-    text-align: center;
-}
-.btn-text-right {
-    text-align: right;
-}
-.btn-circular {
-    border-radius: 50%;
-}
-
-/*
-[]=========== Layout tables ===========[]
-*/
-.layout-table {
-    display: table;
-    width: 100%;
-
-    .layout-col {
-        display: table-cell;
-        vertical-align: top;
-    }
-
-    .banner-col {
-        padding: 0;
-        text-align: left;
-        width: 100px;
-        max-height: 100px;
-        vertical-align: top;
-        padding-right: 2em;
-
-        img {
-            width: 100px;
-            max-height: 100px;
-            vertical-align: middle;
-        }
-
-        &.banner-col-m {
-            width: 220px;
-            max-height: 220px;
-
-            img {
-                width: 220px;
-                max-height: 220px;
-                vertical-align: middle;
-            }
-        }
-        &.banner-col-l {
-            width: 280px;
-            max-height: 280px;
-
-            img {
-                width: 280px;
-                max-height: 280px;
-                vertical-align: middle;
-            }
-        }
-        &.banner-col-xl {
-            width: 300px;
-            max-height: 100px;
-
-            img {
-                width: 300px;
-                max-height: 300px;
-                vertical-align: middle;
-            }
-        }
-        
-    }
-}
-
-/*
-[]=========== Message boxes ===========[]
-*/
-.message-box {
-    display: block;
-    width: 100%;
-    padding: 0.5em;
-    font-weight: 500;
-    font-size: 0.9em;
-    letter-spacing: 0.5px;
-    background-color: $colorPrimaryDark;
-    border-radius: $borderRadTiny;
-    margin: 1.5em 0;
-    box-shadow: $shadowNormal;
-    overflow: hidden;
-
-    .inner-box {
-        padding: 2em;
-        background-color: $colorPrimaryDark;
-        border: 3px solid $colorPlaceholder;
-        border-radius: $borderRadTiny;
-        overflow: hidden;
-    }
-
-    &.box-small {
-        padding: 0.3em;
-        
-        .inner-box {
-            border-width: 2px !important;
-            padding: 1em;
-        }
-    }
-
-    &.box-error {
-        background-color: $colorAccent;
-        text-shadow: 1px 1px 6px rgba($color: $colorPrimaryDark, $alpha: 0.7);
-
-        &::selection {
-            background-color: $colorWhite;
-        }
-
-        .inner-box {
-            background-color: $colorAccent;
-            border: 2px solid $colorAccentLight;
-        }
-    }
-
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 1em 0;
-        font-size: inherit;
-
-        li {
-            font-size: inherit;
-            padding: 0.3em 1em;
-            font-size: 0.8em;
-            letter-spacing: 0.4px;
-
-            &.label {
-                letter-spacing: 0;
-                padding-left: 0;
-                color: $colorAccentLight;
-                font-size: inherit;
-            }
-        }
-    }
-}
-
-/*
-[]=========== Text ===========[]
-*/
-p {
-    font-size: 0.8em;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-
-/*
-[]=========== Badge ===========[]
-*/
-$badgeFonts: (
-    'xs': 0.5em,
-    's': 0.55em, 
-    'm': 0.6em, 
-    'l': 0.65em
-);
-$badgePadding: (
-    'xs': 0.5em,
-    's': 0.6em, 
-    'm': 0.7em, 
-    'l': 0.8em
-);
-
 .badge {
-    display: inline-block;
-    font-size: map-get($map: $badgeFonts, $key: 's');
-    font-weight: 500;
-    letter-spacing: 1px;
-    background-color: $colorPlaceholder;
-    padding: map-get($map: $badgePadding, $key: 's') map-get($map: $badgePadding, $key: 's')*2;
-    border-radius: 2em;
-    border: 2px solid transparent;
-    margin: 0 0.5em;
-    color: rgba($color: $colorWhite, $alpha: 0.7);
+    display: inline;
     vertical-align: middle;
+    font-size: 0.5em;
+
+    background-color: $colorPlaceholder;
+    padding: 0.8em;
+    font-weight: 500;
+    border-radius: $borderRadNormal;
 }
 
-.badge-xs {
-    font-weight: 400;
-    padding: map-get($map: $badgePadding, $key: 'xs') map-get($map: $badgePadding, $key: 'xs')*2;
-    font-size: map-get($map: $badgeFonts, $key: 'xs');
-}
-
-.badge-s {
-    padding: map-get($map: $badgePadding, $key: 's') map-get($map: $badgePadding, $key: 's')*2;
-    font-size: map-get($map: $badgeFonts, $key: 's');
-}
-.badge-m {
-    padding: map-get($map: $badgePadding, $key: 'm') map-get($map: $badgePadding, $key: 'm')*2;
-    font-size: map-get($map: $badgeFonts, $key: 'm');
-}
-.badge-l {
-    padding: map-get($map: $badgePadding, $key: 'l') map-get($map: $badgePadding, $key: 'l')*2;
-    font-size: map-get($map: $badgeFonts, $key: 'l');
-}
-
-.badge-outline {
-    border-color: $colorPrimary;
-}
-
-.badge-dark {
-    background-color: $colorPrimary;
-    color: rgba($color: $colorWhite, $alpha: 0.55);
-
-    &.badge-outline {
-        border: 2px solid $colorPlaceholder;
-    }
-}
-.badge-darker {
-    background-color: $colorPrimaryDarker;
-    color: rgba($color: $colorWhite, $alpha: 0.4);
-
-    &.badge-outline {
-        border: 2px solid $colorPrimary;
-    }
-}
-
-/*
-[]=========== Scrollbar ===========[]
+/**
+[]=============================[]
+          Scrollbars
+[]=============================[]
 */
 /* width */
 ::-webkit-scrollbar {
-    width: 0.4em;
+    height: 0.3em;
+    width: 0.3em;
 }
   
 /* Handle */
@@ -631,84 +264,33 @@ $badgePadding: (
     border-radius: 1em;
 }
 
-/*
-[]=========== Media Query ===========[]
+::-webkit-scrollbar-track {
+    background: $colorPrimary;
+}
+
+/**
+[]=============================[]
+          Media Query
+[]=============================[]
 */
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1220px) {
     * {
         font-size: 0.99em;
     }
+
     .content-container {
-        width: 850px;
+        width: 100%;
+        padding: 0 1.5em;
     }
 }
 
-@media screen and (max-width: 950px) {
+@media screen and (max-width: 850px) {
     * {
-        font-size: 0.97em;
-    }
-    
-    .content-container {
-        width: 540px;
-    }
-
-    .banner-col {
-        width: 60px !important;
-        max-height: 60px !important;
-
-        img {
-            width: 60px !important;
-            max-height: 60px !important;
-        }
-
-        &.banner-col-m {
-            width: 90px !important;
-            max-height: 90px !important;
-
-            img {
-                width: 90px !important;
-                max-height: 90px !important;
-            }
-        }
-        &.banner-col-l {
-            width: 150px !important;
-            max-height: 150px !important;
-
-            img {
-                width: 150px !important;
-                max-height: 150px !important;
-            }
-        }
-        &.banner-col-xl {
-            width: 180px !important;
-            max-height: 180px !important;
-
-            img {
-                width: 180px !important;
-                max-height: 180px !important;
-            }
-        }
-        
+        font-size: 0.985em;
     }
 }
-@media screen and (max-width: 580px) {
-    .content-container {
-        width: 100%;
-        padding: 0 1em;
-    }
-
-    .layout-table:not(.table-nobreak) {
-        display: block;
-        width: 100%;
-    
-        .layout-col {
-            display: block;
-            width: 100%;
-            padding: 1em;
-        }
-    }
-
-    .banner-col {
-        display: none !important;
+@media screen and (max-width: 540px) {
+    * {
+        font-size: 0.98em;
     }
 }

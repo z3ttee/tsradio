@@ -1,0 +1,289 @@
+@import '../variables';
+
+/*
+[]=========== Buttons ===========[]
+*/
+
+$buttonHeights: (
+    's': 3em, 
+    'm': 3.8em,
+    'l': 4.2em,
+    'xl': 4.5em
+);
+$buttonScales: (
+    's': 0.94, 
+    'm': 0.95, 
+    'l': 0.96, 
+    'xl': 0.97
+);
+$buttonFonts: (
+    's': 0.6em, 
+    'm': 0.7em, 
+    'l': 0.75em, 
+    'xl': 0.8em
+);
+$buttonIconScales: (
+    's': 0.89, 
+    'm': 0.90, 
+    'l': 0.91, 
+    'xl': 0.92
+);
+
+.btn {
+    position: relative;
+    display: inline-block;
+    appearance: none;
+    border: none;
+    background: none;
+    outline: none;
+    letter-spacing: 0.5px;
+    font-size: map-get($map: $buttonFonts, $key: 's');
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    padding: 0.8em;
+    border-radius: $borderRadSmall;
+    cursor: pointer;
+    text-align: left;
+    transition: all $animSpeedFast*1s $cubicNorm;
+    float: none !important;
+
+    img {
+        display: inline-block;
+        height: 40%;
+        vertical-align: middle;
+        margin-right: 0.5em;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+    
+}
+
+.btn-success {
+    background-color: $colorSuccess;
+    color: $colorWhite;
+
+    &:hover, &:focus {
+        background-color: darken($color: $colorSuccess, $amount: 2);
+    }
+}
+
+.btn-primary {
+    background-color: $colorPlaceholder;
+    color: $colorWhite;
+
+    &:hover, &:focus {
+        background-color: darken($color: $colorPlaceholder, $amount: 2);
+    }
+}
+.btn-accent {
+    background-color: $colorAccent;
+    color: $colorWhite;
+
+    &:hover, &:focus {
+        background-color: darken($color: $colorAccent, $amount: 2);
+    }
+}
+.btn-success {
+    background-color: $colorSuccess;
+    color: $colorWhite;
+
+    &:hover, &:focus {
+        background-color: darken($color: $colorSuccess, $amount: 2);
+    }
+}
+.btn-secondary {
+    font-weight: 500;
+    opacity: 0.8;
+    background: transparent;
+
+    &.btn-accent {
+        color: $colorAccentLight;
+        border: 1px solid $colorAccentLight;
+    }
+
+    &.btn-primary {
+        color: $colorWhite;
+        border: 2px solid $colorPlaceholder;
+    }
+    &.btn-success {
+        color: $colorSuccess;
+        border: 1px solid $colorSuccess;
+    }
+
+    &:hover, &:focus {
+        opacity: 1;
+        background-color: rgba($color: $colorPrimaryDark, $alpha: 1.0);
+    }
+}
+
+.btn-s {
+    padding: 0 1em;
+    font-size: map-get($map: $buttonFonts, $key: 's');
+
+    height: map-get($map: $buttonHeights, $key: 's');
+
+    &:active:not(:disabled):not(.btn-noscale) {
+        transform: scale(map-get($map: $buttonScales, $key: 's'));
+    }
+}
+.btn-m {
+    padding: 0 1.8em;
+    height: map-get($map: $buttonHeights, $key: 'm');
+    font-size: map-get($map: $buttonFonts, $key: 'm');
+
+    &:active:not(:disabled):not(.btn-noscale) {
+        transform: scale(map-get($map: $buttonScales, $key: 'm'));
+    }
+}
+.btn-l {
+    padding: 0 5em;
+    font-size: map-get($map: $buttonFonts, $key: 'l');
+    font-weight: 500;
+    height: map-get($map: $buttonHeights, $key: 'l');
+
+    &:active:not(:disabled):not(.btn-noscale) {
+        transform: scale(map-get($map: $buttonScales, $key: 'l'));
+    }
+}
+.btn-xl {
+    padding: 0em 8em;
+    font-weight: 500;
+    font-size: map-get($map: $buttonFonts, $key: 'xl');
+    height: map-get($map: $buttonHeights, $key: 'xl');
+
+    &:active:not(:disabled):not(.btn-noscale) {
+        transform: scale(map-get($map: $buttonScales, $key: 'xl'));
+    }
+}
+.btn-full {
+    display: block;
+    width: 100%;
+
+    &:active:not(:disabled):not(.btn-noscale) {
+        transform: scale(0.99);
+    }
+}
+.btn-block {
+    display: block;
+}
+
+.btn-inline {
+    display: inline-block;
+    vertical-align: middle;
+}
+.btn-icon {
+    height: map-get($map: $buttonHeights, $key: 's');
+    width: map-get($map: $buttonHeights, $key: 's');
+
+    padding: 0 !important;
+    text-align: center;
+    
+    img {
+        display: inline-block;
+        height: 40%;
+        width: 40%;
+        vertical-align: middle;
+        margin: 0;
+    }
+
+    &:active:not(:disabled):not(.btn-noscale) {
+        transform: scale(map-get($map: $buttonIconScales, $key: 's'));
+    }
+
+    &.btn-m {
+        height: map-get($map: $buttonHeights, $key: 'm');
+        width: map-get($map: $buttonHeights, $key: 'm');
+
+        &:active:not(:disabled):not(.btn-noscale) {
+            transform: scale(map-get($map: $buttonIconScales, $key: 'm'));
+        }
+    }
+    &.btn-l {
+        height: map-get($map: $buttonHeights, $key: 'l');
+        width: map-get($map: $buttonHeights, $key: 'l');
+
+        &:active:not(:disabled):not(.btn-noscale) {
+            transform: scale(map-get($map: $buttonIconScales, $key: 'l'));
+        }
+    }
+    &.btn-xl {
+        height: map-get($map: $buttonHeights, $key: 'xl');
+        width: map-get($map: $buttonHeights, $key: 'xl');
+
+        &:active:not(:disabled):not(.btn-noscale) {
+            transform: scale(map-get($map: $buttonIconScales, $key: 'xl'));
+        }
+    }
+}
+.btn-text-left {
+    text-align: left;
+}
+.btn-text-center {
+    text-align: center;
+}
+.btn-text-right {
+    text-align: right;
+}
+.btn-circular {
+    border-radius: 50%;
+}
+
+.btn-light {
+    background-color: $colorWhite;
+    color: $colorPrimaryDark;
+    font-weight: 800;
+    box-shadow: $shadowButton;
+    border: 2px solid $colorPlaceholder;
+
+    &:hover, &:focus {
+        background-color: darken($color: $colorWhite, $amount: 5);
+    }
+
+}
+
+.btn-outline {
+    background: none;
+    
+    &.btn-primary {
+        border: 2px solid $colorPlaceholder;
+        color: rgba($color: $colorWhite, $alpha: 0.3);
+        font-weight: 500;
+
+        img {
+            opacity: 0.3;
+        }
+
+        &:hover, &:focus {
+            color: rgba($color: $colorWhite, $alpha: 0.8);
+
+            img {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    &.btn-icon {
+
+        &:hover, &:focus {
+            background-color: rgba($color: $colorPlaceholder, $alpha: 0.5);
+        }
+    }
+}
+
+.btn-tertiary {
+    background: none;
+    border: none;
+    color: $colorWhite;
+    border: 1px solid transparent;
+
+    &:hover {
+        color: $colorAccent;
+    }
+
+    &:hover, &:focus {
+        outline: none;
+        background: none;
+    }
+} 

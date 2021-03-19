@@ -2,51 +2,61 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import formatDate from 'dateformat'
 
+// Import vue.js plugins
 import VueLottiePlayer from 'vue-lottie-player'
-import { VuelidatePlugin } from '@vuelidate/core'
 
-// Import required Components
+// Import models
+import { Account } from '@/models/account'
+import { Modal } from '@/models/modal'
+import { Channel } from '@/models/channel'
+
+// Import utils 
+import { generateId } from '@/utils/generatorUtil'
+import { buildChannelCoverUrl, buildChannelCurrentUrl, buildChannelHistoryUrl } from '@/utils/imageUtil'
+
+// Import global Components
+import AppLoaderComp from '@/components/loader/AppLoaderComp.vue'
 import AppButtonComp from '@/components/button/AppButtonComp.vue'
-import AppTextBoxComp from '@/components/message/AppTextBoxComp.vue'
-import AppPopupListComp from '@/components/lists/AppPopupListComp.vue'
-import AppMessageBoxComp from '@/components/message/AppMessageBoxComp.vue'
+import AppAvatarStatic from '@/components/image/AppAvatarStatic.vue'
+import AppModal from '@/modals/AppModal.vue'
 
-// Import api models
-import channeljs from '@/models/channel.js'
-import socketjs from '@/models/socket.js'
-import userjs from '@/models/user.js'
-import errorjs from '@/models/error.js'
+// Initialize storage
+store.commit('initialiseStore')
 
 const app = createApp(App)
 
-app.config.globalProperties.$user = userjs
-app.config.globalProperties.$error = errorjs
-app.config.globalProperties.$channel = channeljs
-app.config.globalProperties.$socket = socketjs
+app.config.globalProperties.$env = process.env
+app.config.globalProperties.$account = Account
+app.config.globalProperties.$modal = Modal
+app.config.globalProperties.$channel = Channel
+app.config.globalProperties.$isProduction = process.env.NODE_ENV === 'production'
 
 app.use(store)
 app.use(router)
-app.use(VuelidatePlugin)
+
+// Register Vue.js plugins
 app.use(VueLottiePlayer)
 
-app.component("app-button", AppButtonComp)
-app.component("app-textbox", AppTextBoxComp)
-app.component("app-messagebox", AppMessageBoxComp)
-app.component("app-popuplist", AppPopupListComp)
+// Register global components
+app.component('app-button', AppButtonComp)
+app.component('app-loader', AppLoaderComp)
+app.component('app-avatar', AppAvatarStatic)
+app.component('app-modal', AppModal)
 
+// Register global methods
 app.mixin({
     methods: {
-        makeid(length) {
-            var result           = '';
-            var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            var charactersLength = characters.length;
-            for ( var i = 0; i < length; i++ ) {
-               result += characters.charAt(Math.floor(Math.random() * charactersLength));
-            }
-            return result;
+        generateId,
+        buildChannelCoverUrl,
+        buildChannelCurrentUrl,
+        buildChannelHistoryUrl,
+        dateformat(date, format){
+            return formatDate(date, format)
         }
-    }
+    },
 })
 
-app.mount('#wrapper')
+// Mount app
+app.mount('#app')

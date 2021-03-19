@@ -1,30 +1,53 @@
-import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
-import routes from '@/router/routes.js'
-import appjs from '@/models/app.js'
-import userjs from '@/models/user.js'
+import { createRouter, createWebHistory } from 'vue-router'
+import routes from './routes'
+import store from '@/store'
+import { Account } from '@/models/account'
+import { Socket } from '@/socket/socket'
 
-var router = createRouter({
-    history: process.env.IS_ELECTRON ? createWebHashHistory(process.env.BASE_URL) : createWebHistory(process.env.BASE_URL),
-    routes
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes
 })
 
+router.beforeEach((to, from, next) => {  
+  if(to.params.requestedPage && to.params.requestedPage.search("auth") != -1) {
+    
+    // Try login user
+    Account.resetData()
+    Account.setAccessToken(to.query.token)
+    checkSession(next)
 
-// Before accessing routes, check if user is logged in, otherwise try to login with previously request jwt.
-// If no jwt exists, redirect to login page
-router.beforeEach((to, from, next) => {
-    let setup = async () => {
-        if(!userjs.isLoggedIn()) {
-            if (to.meta.needsAuth) {
-                appjs.setupApp(next)
-            } else {
-                appjs.skipSetup(next)
-            }
-        } else {
-            next()
-        }
+    let query = Object.assign({}, router.currentRoute.query);
+    delete query.token;
+    router.replace({ query });
+
+  } else {
+    if(store.state.account.session) {
+      store.state.app.appIsReady = true
+      next()
+      checkSession()
+    } else {
+      if(process.env.NODE_ENV != "development") window.location.href = store.state.urls.authForm
+    }
+  }
+  
+})
+
+function checkSession(next) {
+  Account.checkSession(true, true).then((isVerified) => {
+    if(!isVerified) {
+      if(process.env.NODE_ENV != "development") window.location.href = store.state.urls.authForm
+    } else {
+      store.state.app.appIsReady = true
+      Socket.getInstance()
+
+      if(next) {
+        next()
+      }
     }
 
-    setup()
-})
+    
+  })
+}
 
 export default router
