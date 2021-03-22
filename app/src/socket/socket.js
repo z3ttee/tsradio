@@ -21,12 +21,12 @@ import {
 export class Socket {
     static instance = undefined
 
-    socketEndpoint = UrlBuilder.buildSocketEndpoint()
+    static socketEndpoint = UrlBuilder.buildSocketEndpoint()
     socket = undefined
 
     constructor() {
-        this.socket = socketio.io(this.socketEndpoint.url, { 
-            path: this.socketEndpoint.path, 
+        this.socket = socketio.io(Socket.socketEndpoint.url, { 
+            path: Socket.socketEndpoint.path, 
             transports: ['websocket'],
             auth: {
                 token: store.state.account.session

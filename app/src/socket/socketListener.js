@@ -5,11 +5,11 @@ import store from '@/store'
 
 function onConnect() {
     Channel.loadAll()
-    console.log("%cSuccessfully connected to socket on '" + Socket.socketUrl + Socket.socketPath + "'", "color: green")
+    console.log("%cSuccessfully connected to socket on '" + Socket.socketEndpoint.url + Socket.socketEndpoint.path + "'", "color: green")
 }
 function onDisconnect() {
     Channel.unloadAll()
-    console.log("%cDisconnected from socket '" + Socket.socketUrl + Socket.socketPath + "'", "color: red")
+    console.log("%cDisconnected from socket '" + Socket.socketEndpoint.url + Socket.socketEndpoint.path + "'", "color: red")
     store.state.app.isSocketReady = false
 }
 function onAuthentication(data) {

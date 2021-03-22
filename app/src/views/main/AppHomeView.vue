@@ -37,11 +37,11 @@
         </transition>
 
         <transition name="anim_item_fade" mode="out-in" appear>
-            <div class="grid-wrapper" v-if="getDisabled.length > 0 && $account.hasPermission('permission.channels.read')">
+            <div class="grid-wrapper" v-if="getPreparing.length > 0 && $account.hasPermission('permission.channels.read')">
                 <h4>In Vorbereitung <span class="badge">Admin</span></h4>
                 <div class="grid-container">
                     <transition-group name="anim_item_slide" mode="out-in" appear>
-                        <app-grid-item v-for="channel of getDisabled" :key="channel.uuid" :itemUuid="channel.uuid" :itemName="channel.title" :itemTitle="channel.info?.title" :itemSubtitle="channel.info?.artist" :itemListeners="channel.listeners" :itemColor="channel.colorHex" :itemTimestamp="channel.info?.cover" :disabled="true"></app-grid-item>
+                        <app-grid-item v-for="channel of getPreparing" :key="channel.uuid" :itemUuid="channel.uuid" :itemName="channel.title" :itemTitle="channel.info?.title" :itemSubtitle="channel.info?.artist" :itemListeners="channel.listeners" :itemColor="channel.colorHex" :itemTimestamp="channel.info?.cover" :disabled="true"></app-grid-item>
                     </transition-group>
                 </div>
             </div>

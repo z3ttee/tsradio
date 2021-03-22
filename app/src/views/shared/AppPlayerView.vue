@@ -89,7 +89,7 @@ export default {
                 if(event.target.error.code == 2) {
                     // MEDIA_ERR_NETWORK
                     this.$modal.showError("Es liegt ein Problem mit deinem Internetzugang vor. Der Stream konnte daher nicht geladen werden. Bitte versuche es später erneut.")
-                } else if(event.target.error.code == 2) {
+                } else if(event.target.error.code == 3) {
                     // MEDIA_ERR_DECODE
                     this.$modal.showError("Beim Decodieren des Streams ist ein Fehler aufgetreten. Bitte versuche den Stream erneut zu starten.")
                 }
