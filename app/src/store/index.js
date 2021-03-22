@@ -4,6 +4,7 @@ import { version } from '../../package.json';
 
 import { Account } from '@/models/account'
 import { UrlBuilder } from '@/utils/urlBuilder'
+import { UserAgent } from '../utils/userAgent';
 
 if (config.api.port == 80 || config.api.port == 443) {
     config.api.port = 0
@@ -35,6 +36,9 @@ const dummyState = {
         avatarBase: UrlBuilder.buildAvatarBase(),
         streamBase: UrlBuilder.buildStreamBase(),
         authForm: UrlBuilder.buildAuthFormEndpoint(),
+    },
+    device: {
+        type: UserAgent.getDeviceType()
     }
 }
 
@@ -73,7 +77,14 @@ const store = createStore({
         }
     },
     actions: {},
-    modules: {}
+    modules: {},
+    getters: {
+        isDesktop(state) {
+            var deviceType = state.device.type
+
+            return deviceType == "desktop" || deviceType == "tablet"
+        }
+    }
 })
 
 store.subscribe((mutation, state) => {

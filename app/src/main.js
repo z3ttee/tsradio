@@ -58,5 +58,8 @@ app.mixin({
     },
 })
 
+console.log("Device type: " + store.state.device.type);
+console.log("Should desktop layout be displayed?: " + store.getters.isDesktop);
+
 // Mount app
 app.mount('#app')
