@@ -11,6 +11,7 @@ import VueLottiePlayer from 'vue-lottie-player'
 import { Account } from '@/models/account'
 import { Modal } from '@/models/modal'
 import { Channel } from '@/models/channel'
+import { Notifications } from '@/models/notification'
 
 // Import utils 
 import { generateId } from '@/utils/generatorUtil'
@@ -31,6 +32,7 @@ app.config.globalProperties.$env = process.env
 app.config.globalProperties.$account = Account
 app.config.globalProperties.$modal = Modal
 app.config.globalProperties.$channel = Channel
+app.config.globalProperties.$notification = Notifications
 app.config.globalProperties.$isProduction = process.env.NODE_ENV === 'production'
 
 app.use(store)

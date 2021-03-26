@@ -86,15 +86,17 @@ export default {
             this.player.loading = false
 
             if(event.target.error) {
-                if(event.target.error.code == 2) {
-                    // MEDIA_ERR_NETWORK
-                    this.$modal.showError("Es liegt ein Problem mit deinem Internetzugang vor. Der Stream konnte daher nicht geladen werden. Bitte versuche es später erneut.")
-                } else if(event.target.error.code == 3) {
-                    console.log("MEDIA_ERR_DECODE");
-                    console.log("restarting stream");
-                    this.player.paused = false
-                    // MEDIA_ERR_DECODE
-                    //this.$modal.showError("Beim Decodieren des Streams ist ein Fehler aufgetreten. Bitte versuche den Stream erneut zu starten.")
+                if(event.target.error.code == 3) {
+                    setTimeout(() => {
+                        this.player.paused = false
+                    }, 100)
+                } else {
+                    if(event.target.error.code == 2) {
+                        // MEDIA_ERR_NETWORK
+                        this.$modal.showError("Es liegt ein Problem mit deinem Internetzugang vor. Der Stream konnte daher nicht geladen werden. Bitte versuche es später erneut.")
+                    }
+
+                    this.$notification.error("audio-error", "Beim Abspielen des Streams ist ein Fehler aufgetreten. Bitte versuche den Stream neuzustarten.")
                 }
             }
         },
@@ -246,6 +248,5 @@ export default {
     display: inline-block;
     transition: all $animSpeedFast*1s $cubicNorm;
 }
-
 
 </style>

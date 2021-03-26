@@ -1,16 +1,22 @@
 import { Channel } from '@/models/channel'
 import { Socket } from '@/socket/socket'
 import { Modal } from '@/models/modal'
+import { Notifications } from '@/models/notification'
 import store from '@/store'
 
 function onConnect() {
     Channel.loadAll()
     console.log("%cSuccessfully connected to socket on '" + Socket.socketEndpoint.url + Socket.socketEndpoint.path + "'", "color: green")
+    Notifications.close("socket-connection-notification")
 }
 function onDisconnect() {
     Channel.unloadAll()
     console.log("%cDisconnected from socket '" + Socket.socketEndpoint.url + Socket.socketEndpoint.path + "'", "color: red")
     store.state.app.isSocketReady = false
+
+    if(!document.hasFocus()) {
+        Notifications.create("socket-connection-notification", "Verbindung getrennt", "Die Verbindung zum Service wurde unterbrochen. Es wird versucht erneut eine Verbindung herzustellen...", { renotify: true })
+    }
 }
 function onAuthentication(data) {
     if(!data.passed) {
