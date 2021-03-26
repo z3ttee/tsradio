@@ -14,8 +14,6 @@ import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class IcecastClient {
@@ -44,9 +42,14 @@ public class IcecastClient {
      */
     public void disconnect() {
         try {
-            this.stream.close();
-        } catch (IOException ignored) {}
-        this.stream = null;
+            if(this.stream != null) {
+                this.stream.close();
+            }
+        } catch (IOException ignored) {
+            logger.error("disconnect(): Could not close connection properly.");
+        } finally {
+            this.stream = null;
+        }
     }
 
     /**
