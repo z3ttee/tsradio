@@ -6,7 +6,12 @@ import { Socket } from '@/socket/socket'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ top: 0, left: 0, behavior: 'smooth'}), 300)
+    })
+  }
 })
 
 router.beforeEach((to, from, next) => {  
