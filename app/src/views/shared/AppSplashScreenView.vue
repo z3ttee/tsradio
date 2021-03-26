@@ -55,6 +55,10 @@ export default {
         this.currentRandomMessage = this.getRandomMessage()
         this.timeout = setTimeout(() => {
             this.showWarning = true
+
+            if(process.env.NODE_ENV == "development") {
+                this.$store.state.app.isSocketReady = true
+            }
         }, 6000)
         this.interval = setInterval(() => {
             this.currentRandomMessage = this.getRandomMessage()
