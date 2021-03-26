@@ -6,12 +6,7 @@ import { Socket } from '@/socket/socket'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes,
-  scrollBehavior() {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve({ top: 0, left: 0, behavior: 'smooth'}), 300)
-    })
-  }
+  routes
 })
 
 router.beforeEach((to, from, next) => {  
@@ -36,6 +31,18 @@ router.beforeEach((to, from, next) => {
     }
   }
   
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    var scrollAreaElement = document.getElementById("scrollable-area")
+    if(!scrollAreaElement) return
+    
+    scrollAreaElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }, 100)
 })
 
 function checkSession(next) {

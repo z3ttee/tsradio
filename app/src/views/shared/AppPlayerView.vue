@@ -1,33 +1,39 @@
 <template>
-    <div :class="{'player-wrapper': true, 'state-hidden': !$store.state.activeChannel }" id="playerbar" @click="toggle">
+    <footer class="player-wrapper" id="playerbar" @click="toggle">
         <div class="content-container">
-            <div class="layout-table">
-                <div class="layout-col">
-                    <app-placeholder-image class="track-cover" :resourceId="channel?.uuid" :resourceType="'song'" :resourceKey="channel?.info?.cover"></app-placeholder-image>
+            <transition name="anim_item_slide" mode="out-in">
+                <div class="copyright" v-if="!showPlayer">
+                    <p>&copy; {{ new Date().getFullYear() }} TSAlliance | All rights reserved</p>
                 </div>
-                <div class="layout-col">
-                    <p>{{ channel?.info?.title }}</p>
-                    <p>{{ channel?.info?.artist }}</p>
-                </div>
-                <div class="layout-col">
-                    <div class="actions">
-                        <div class="action-item">
-                            <app-play-button :loading="player?.loading" v-model="player.paused"></app-play-button>
+
+                <div class="layout-table" v-else>
+                    <div class="layout-col">
+                        <app-placeholder-image class="track-cover" :resourceId="channel?.uuid" :resourceType="'song'" :resourceKey="channel?.info?.cover"></app-placeholder-image>
+                    </div>
+                    <div class="layout-col">
+                        <p>{{ channel?.info?.title }}</p>
+                        <p>{{ channel?.info?.artist }}</p>
+                    </div>
+                    <div class="layout-col">
+                        <div class="actions">
+                            <div class="action-item">
+                                <app-play-button :loading="player?.loading" v-model="player.paused"></app-play-button>
+                            </div>
+
+                            <!--<div :class="{'action-item': true, 'state-loading': player?.loadingVote}">
+                                <app-loader class="loader voting-loader"></app-loader>
+                                <button class="btn btn-icon btn-m"><img src="@/assets/icons/next.svg" alt=""></button>
+                            </div>-->
+
+                            <app-volume-slider :max="VOLUME_MAX" :min="0" :step="1" v-model="player.volume"></app-volume-slider>
                         </div>
-
-                        <!--<div :class="{'action-item': true, 'state-loading': player?.loadingVote}">
-                            <app-loader class="loader voting-loader"></app-loader>
-                            <button class="btn btn-icon btn-m"><img src="@/assets/icons/next.svg" alt=""></button>
-                        </div>-->
-
-                        <app-volume-slider :max="VOLUME_MAX" :min="0" :step="1" v-model="player.volume"></app-volume-slider>
                     </div>
                 </div>
-            </div>
+            </transition>
         </div>
 
         <audio :id="audioElementId" hidden autoplay @pause="eventPaused" @canPlay="eventCanPlay" @ended="eventEnded" @play="eventPlay" @error.prevent="eventError"></audio>
-    </div>
+    </footer>
 </template>
 
 <script>
@@ -58,6 +64,9 @@ export default {
     },
     computed: {
         channel() {
+            return this.$store.state.activeChannel
+        },
+        showPlayer() {
             return this.$store.state.activeChannel
         }
     },
@@ -96,7 +105,9 @@ export default {
                         this.$modal.showError("Es liegt ein Problem mit deinem Internetzugang vor. Der Stream konnte daher nicht geladen werden. Bitte versuche es später erneut.")
                     }
 
-                    this.$notification.error("audio-error", "Beim Abspielen des Streams ist ein Fehler aufgetreten. Bitte versuche den Stream neuzustarten.")
+                    if(event.target.error.code != 4) {
+                        this.$notification.error("audio-error", "Beim Abspielen des Streams ist ein Fehler aufgetreten. Bitte versuche den Stream neuzustarten.")
+                    }
                 }
             }
         },
@@ -151,26 +162,26 @@ export default {
 <style lang="scss" scoped>
 @import "@/assets/scss/_variables.scss";
 
+.copyright {
+    text-align: center;
+}
+
 .player-wrapper {
-    position: fixed;
-    top: 100%;
-    left: 0;
+    position: absolute;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+    bottom: 0;
+    height: $playerHeight;
     width: 100%;
     background-color: $colorPrimary;
     z-index: 10000;
     transition: all $animSpeedNormal*1s $cubicNorm;
 
-    opacity: 1;
-    transform: translateY(-100%);
-
     border-top: 2px solid $colorPlaceholder;
-    box-shadow: $shadowNormal;
-
-    &.state-hidden {
-        pointer-events: none;
-        transform: translateY(10px);
-        opacity: 0;
-    }
+    box-shadow: $shadowHeavy;
 
     .layout-table {
         padding: 1em 0;

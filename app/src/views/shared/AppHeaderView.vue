@@ -27,22 +27,17 @@ export default {
         getHeaderStateClass() {
             if(this.headerState == 1) {
                 return "state-scrolling"
-            } else if(this.headerState == 2) {
-                return "state-hide"
             } else {
                 return "state-default"
             }
         }
     },
     methods: {
-        changeHeaderState() {
-            const scrolledValue = window.scrollY
-            const windowPageScrollValue = window.innerHeight+100
+        changeHeaderState(event) {
+            const scrolledValue = event.target.scrollTop
 
-            if(scrolledValue >= 10 && scrolledValue < windowPageScrollValue) {
+            if(scrolledValue >= 10) {
                 this.headerState = 1
-            } else if(scrolledValue >= windowPageScrollValue) {
-                this.headerState = 2
             } else {
                 this.headerState = 0
             }
@@ -52,10 +47,10 @@ export default {
         }
     },
     mounted() {
-        document.addEventListener("scroll", this.changeHeaderState)
+        document.getElementById("scrollable-area").addEventListener("scroll", this.changeHeaderState)
     },
     unmounted() {
-        document.removeEventListener("scroll", this.changeHeaderState)
+        document.getElementById("scrollable-area").removeEventListener("scroll", this.changeHeaderState)
     }
 }
 </script>
@@ -68,27 +63,22 @@ export default {
 }
 
 .header-wrapper {
-    display: inline-block;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 10000;
+    position: relative;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    height: $headerHeight;
     transition: all $animSpeedNormal*1s $cubicNorm;
     border-bottom: 2px solid transparent;
 
-    &.state-scrolling,
-    &.state-hide {
+    &.state-scrolling {
         background-color: $colorPrimary;
         box-shadow: $shadowNormal;
         border-bottom: 2px solid $colorPlaceholder;
-
-        &.state-hide {
-            transform: translateY(-100%);
-        }
     }
 
     .content-container {
-        padding: $windowPad/2 $windowPad;
+        padding: 0 $windowPad;
         transition: all $animSpeedNormal*1s $cubicNorm;
     }
 
@@ -103,7 +93,7 @@ export default {
 
     img {
         display: inline-block;
-        height: 40px;
+        height: $headerHeight / 2;
         vertical-align: middle;
     }
 }
