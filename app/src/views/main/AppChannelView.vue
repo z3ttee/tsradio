@@ -1,6 +1,6 @@
 <template>
     <section>
-        <app-showcase-item class="channel" :channels="channelAsArray" @selected="selectChannel" :canSwitchMode="false"></app-showcase-item>
+        <app-single-showcase-item class="channel" :channel="channel" :canSwitchMode="false" @selected="selectChannel"></app-single-showcase-item>
 
         <div class="layout-table">
             <div class="layout-col section-history">
@@ -53,7 +53,7 @@ import AppGridItem from '@/components/item/AppGridItem.vue'
 import AppSkeletonGrid from '@/components/grids/AppSkeletonGrid.vue'
 import AppInfoBox from '@/components/message/AppInfoBox.vue'
 import AppLyricsSkeleton from '@/components/text/AppLyricsSkeleton.vue'
-import AppShowcaseItem from '@/components/item/AppShowcaseItem.vue'
+import AppSingleShowcaseItem from '@/components/item/AppSingleShowcaseItem.vue'
 
 export default {
     data() {
@@ -71,7 +71,7 @@ export default {
         AppSkeletonGrid,
         AppInfoBox,
         AppLyricsSkeleton,
-        AppShowcaseItem
+        AppSingleShowcaseItem
     },
     computed: {
         channel() {
