@@ -23,11 +23,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.message-box {
-    position: relative;
-    z-index: 2;
-}
-
 .layout-table {
     .layout-col {
         vertical-align: middle;

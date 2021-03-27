@@ -35,6 +35,8 @@ export default {
     transition: all $animSpeedFast*1s $cubicNorm;
     height: 100%;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 
 .content-wrapper {

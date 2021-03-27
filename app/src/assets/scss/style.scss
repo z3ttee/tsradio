@@ -44,11 +44,6 @@ body {
     padding: 0 $windowPad;
     width: 1200px;
 
-    h1,h2,h3,h4,h5,h6, p {
-        position: relative;
-        z-index: 2;
-    }
-
     &.nopad {
         padding: 0;
     }
