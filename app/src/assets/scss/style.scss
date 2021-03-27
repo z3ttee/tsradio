@@ -19,10 +19,6 @@
     text-rendering: optimizeLegibility;
 }
 
-html {
-    background-color: $colorPrimaryDark;
-}
-
 html,
 body {
     width: 100%;
@@ -32,11 +28,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     line-height: 1.3em;
-
-    background-image: url(assets/images/background/background_blurred.png);
-    background-position: center;
-    background-size: cover;
-    background-attachment: fixed;
+    background-color: $colorPrimaryDark;
 }
 
 #app {
@@ -51,6 +43,11 @@ body {
     display: block;
     padding: 0 $windowPad;
     width: 1200px;
+
+    h1,h2,h3,h4,h5,h6, p {
+        position: relative;
+        z-index: 2;
+    }
 
     &.nopad {
         padding: 0;

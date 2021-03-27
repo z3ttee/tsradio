@@ -1,4 +1,5 @@
 <template>
+    <app-page-background></app-page-background>
 
     <transition name="anim_splashscreen" mode="out-in" appear>
         <app-splash-screen key="key-comp-splashscreen" v-if="!$store.state.app.appIsReady || !$store.state.app.isSocketReady"></app-splash-screen>
@@ -20,12 +21,14 @@
 
 <script>
 import AppSplashScreen from '@/views/shared/AppSplashScreenView.vue'
+import AppPageBackground from '@/components/image/AppPageBackground.vue'
 import AppSpaLayout from "@/layouts/AppSPALayout.vue"
 
 export default {
     components: {
         AppSpaLayout,
-        AppSplashScreen
+        AppSplashScreen,
+        AppPageBackground
     },
     methods: {
         dismissModal(event) {

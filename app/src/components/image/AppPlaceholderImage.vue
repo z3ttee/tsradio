@@ -14,6 +14,9 @@ export default {
         }
     },
     props: {
+        placeholder: {
+            type: String
+        },
         resourceType: {
             type: String,
             default: "cover"
@@ -37,6 +40,8 @@ export default {
             }
         },
         placeholderUrl() {
+            if(this.placeholder) return this.placeholder
+            
             if(this.resourceType == "avatar" || this.resourceType == "cover") {
                 return coverImagePlaceholder
             } else {
