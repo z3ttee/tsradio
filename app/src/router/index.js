@@ -3,6 +3,7 @@ import routes from './routes'
 import store from '@/store'
 import { Account } from '@/models/account'
 import { Socket } from '@/socket/socket'
+import { RouterUtil } from '@/utils/routerUtil'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -33,7 +34,10 @@ router.beforeEach((to, from, next) => {
   
 })
 
-router.afterEach(() => {
+router.afterEach((to) => {
+  RouterUtil.setPageTitle(to.meta?.title)
+
+  // Scroll to top after routing
   setTimeout(() => {
     var scrollAreaElement = document.getElementById("scrollable-area")
     if(!scrollAreaElement) return

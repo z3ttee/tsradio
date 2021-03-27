@@ -48,6 +48,7 @@
 
 <script>
 import { TrustedError } from '@/models/api'
+import { RouterUtil } from '@/utils/routerUtil'
 
 import AppGridItem from '@/components/item/AppGridItem.vue'
 import AppSkeletonGrid from '@/components/grids/AppSkeletonGrid.vue'
@@ -100,6 +101,8 @@ export default {
             if(val) {
                 this.channelId = this.$route.params.channelId
                 this.$channel.getHistory(val.uuid)
+
+                RouterUtil.setPageTitle(val.title)
             }
         },
         history(val) {

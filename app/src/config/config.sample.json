@@ -1,5 +1,9 @@
 {
     "publicPath": "/",
+    "app": {
+        "titlePrefix": "TSRadio :: ",
+        "slogan": "Der bessere Sound"
+    },
     "api": {
         "protocol": "https",
         "host": "localhost",
