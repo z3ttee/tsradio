@@ -134,9 +134,6 @@ $borderRad: $borderRadSmall;
         transition: all 0.1s linear;
         border-radius: $borderRad+2px;
 
-        &:last-of-type {
-            right: 0 !important;
-        }
     }
 
     &.state-disabled {
@@ -150,6 +147,7 @@ $borderRad: $borderRadSmall;
     .item-wrapper {
         @include absWithFullHeight();
         cursor: pointer;
+        box-shadow: $shadowNormal;
 
         &.state-active {
             .item-container {
@@ -158,6 +156,7 @@ $borderRad: $borderRadSmall;
         }
 
         .item-container {
+            
             @include transition();
             height: 100%;
             z-index: 3;
@@ -188,10 +187,6 @@ $borderRad: $borderRadSmall;
         }
 
         &:hover:not(.state-disabled) {
-            &::after {
-                right: 0;
-                bottom: 0;
-            }
             .item-container,
             .item-background {
                 transform: translate(5px, -5px);

@@ -10,6 +10,8 @@
     }
 
     h1,h2,h3,h4,h5,h6 {
+        position: relative;
+        z-index: 2;
         line-height: 2.5em;
     }
 
@@ -17,8 +19,8 @@
         display: grid;
         width: 100%;
         grid-template-columns: auto auto auto auto;
-        column-gap: $windowPad;
-        row-gap: $windowPad;
+        column-gap: $boxPad;
+        row-gap: $boxPad;
     }
 
     &.small {
