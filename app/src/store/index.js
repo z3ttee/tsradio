@@ -6,13 +6,6 @@ import { Account } from '@/models/account'
 import { UrlBuilder } from '@/utils/urlBuilder'
 import { UserAgent } from '../utils/userAgent';
 
-if (config.api.port == 80 || config.api.port == 443) {
-    config.api.port = 0
-}
-if (config.authService.port == 80 || config.authService.port == 443) {
-    config.authService.port = 0
-}
-
 const localStorageName = 'data'
 
 const dummyState = {

@@ -6,8 +6,8 @@ export class UrlBuilder {
      * Build the api base url
      * @returns String
      */
-     static buildAllianceBase() {
-        return config.authService.protocol+"://"+config.authService.host + (config.authService.port != 0 ? ":" + config.authService.port : "")
+    static buildAllianceBase() {
+        return config.authService.protocol+"://"+config.authService.host + (!this.isPortHttp(config.authService.port) ? ":" + config.authService.port : "")
     }
 
     /**
@@ -15,7 +15,7 @@ export class UrlBuilder {
      * @returns String
      */
     static buildApiBase() {
-        return config.api.protocol+"://"+config.api.host + (config.api.port != 0 ? ":" + config.api.port : "") + config.api.path
+        return config.api.protocol+"://"+config.api.host + (!this.isPortHttp(config.api.port) ? ":" + config.api.port : "") + config.api.path
     }
 
     /**
@@ -48,7 +48,7 @@ export class UrlBuilder {
      */
     static buildSocketEndpoint() {
         return {
-            url: config.api.protocol+"://"+config.api.host + (config.api.port != 0 ? ":" + config.api.port : ""),
+            url: config.api.protocol+"://"+config.api.host + (!this.isPortHttp(config.api.port) ? ":" + config.api.port : ""),
             path: config.api.path + "/socket.io"
         }
     }
@@ -59,6 +59,11 @@ export class UrlBuilder {
      */
      static buildAuthFormEndpoint() {
         return config.authForm.url + "?redirect=" + config.authForm.redirectCode
+    }
+
+
+    static isPortHttp(port) {
+        return port == 80 || port == 443
     }
 
 }
