@@ -1,6 +1,7 @@
 import { Api, ResultSet, ResultSingleton, TrustedError } from '@/models/api'
 import store from '@/store'
 import { Socket } from '@/socket/socket'
+import router from "@/router"
 
 export class Channel {
 
@@ -172,6 +173,10 @@ export class Channel {
      */
     static select(channelId) {
         if(this.isActive(channelId)) return
+
+        try {
+            router.push({name: "channel", params: { channelId }})
+        } catch (ignored) { /* */ }
 
         store.state.activeChannel = store.state.channels[channelId]
         Socket.subscribeChannel(channelId)
