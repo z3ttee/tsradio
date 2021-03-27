@@ -1,46 +1,65 @@
 <template>
     <section>
-        <app-single-showcase-item class="channel" :channel="channel" :canSwitchMode="false" @selected="selectChannel"></app-single-showcase-item>
+        <div class="content-section">
+            <app-single-showcase-item class="channel" :channel="channel" :canSwitchMode="false" @selected="selectChannel"></app-single-showcase-item>
+        </div>
 
-        <div class="layout-table">
-            <div class="layout-col section-history">
-                <h4>Zuletzt gespielt</h4>
+        <div class="content-section">
+            <div class="layout-table">
+                <div class="layout-col section-history">
+                    <h5 class="headline-container align-center">Zuletzt gespielt</h5>
 
-                <transition name="anim_item_fade" mode="out-in" appear>
-                    <app-skeleton-grid class="small" v-if="isHistoryLoading"></app-skeleton-grid>
-                    <div class="grid-wrapper small" v-else-if="history.length > 0">
-                        <div class="grid-container">
-                            <transition-group name="anim_item_slide" mode="out-in" appear>
-                                <app-grid-item v-for="track of history" :key="track.timestamp" :itemUuid="channel.uuid" :itemName="dateformat(new Date(parseInt(track.timestamp)), 'hh:MM') + ' Uhr'" :itemTitle="track.title" :itemSubtitle="track.artist" :itemColor="channel.colorHex" :itemTimestamp="track.timestamp + ''" :selectable="false" :isSong="true"></app-grid-item>
-                            </transition-group>
+                    <transition name="anim_item_fade" mode="out-in" appear>
+                        <app-skeleton-grid class="small" v-if="isHistoryLoading"></app-skeleton-grid>
+                        <div class="grid-wrapper small" v-else-if="history.length > 0">
+                            <div class="grid-container">
+                                <transition-group name="anim_item_slide" mode="out-in" appear>
+                                    <app-grid-item v-for="track of history" :key="track.timestamp" :itemUuid="channel.uuid" :itemName="dateformat(new Date(parseInt(track.timestamp)), 'hh:MM') + ' Uhr'" :itemTitle="track.title" :itemSubtitle="track.artist" :itemColor="channel.colorHex" :itemTimestamp="track.timestamp + ''" :selectable="false" :isSong="true"></app-grid-item>
+                                </transition-group>
+                            </div>
                         </div>
-                    </div>
-                </transition>
-            </div>
+                    </transition>
+                </div>
 
-            <div class="layout-col section-details">
-                <h4>Aktueller Songtext</h4>
+                <div class="layout-col section-details">
+                    <h5 class="headline-container align-center">Aktueller Songtext</h5>
 
-                <transition-group name="anim_item_fade" mode="out-in" appear>
-                    <app-lyrics-skeleton v-if="lyrics.loading && !lyrics.content && channel?.lyricsEnabled"></app-lyrics-skeleton>
+                    <transition-group name="anim_item_fade" mode="out-in" appear>
+                        <app-lyrics-skeleton v-if="lyrics.loading && !lyrics.content && channel?.lyricsEnabled"></app-lyrics-skeleton>
 
-                    <app-info-box v-if="!lyrics.content && !lyrics.loading && channel?.lyricsEnabled">
-                        Wir konnten keine Lyrics für diesen Song finden
-                    </app-info-box>
+                        <app-info-box v-if="!lyrics.content && !lyrics.loading && channel?.lyricsEnabled">
+                            Wir konnten keine Lyrics für diesen Song finden
+                        </app-info-box>
 
-                    <app-info-box v-if="channel && !channel?.lyricsEnabled">
-                        Für diesen Channel ist die Suche nach Songtexten deaktiviert
-                    </app-info-box>
+                        <app-info-box v-if="channel && !channel?.lyricsEnabled">
+                            Für diesen Channel ist die Suche nach Songtexten deaktiviert
+                        </app-info-box>
 
-                    <div class="lyrics-list" v-if="lyrics.content && !lyrics.loading && channel?.lyricsEnabled">
-                        <div class="lyrics-container" v-for="(content, key) in lyrics.content" :key="content">
-                            <h6 v-if="typeof key != 'number' && key != ''">{{ key }}</h6>
-                            <p v-if="content != ''">{{ content }}</p>
+                        <div class="lyrics-list" v-if="lyrics.content && !lyrics.loading && channel?.lyricsEnabled">
+                            <div class="lyrics-container" v-for="(content, key) in lyrics.content" :key="content">
+                                <h6 v-if="typeof key != 'number' && key != ''">{{ key }}</h6>
+                                <p v-if="content != ''">{{ content }}</p>
+                            </div>
                         </div>
-                    </div>
-                </transition-group>
-                
+                    </transition-group>
+                    
+                </div>
             </div>
+        </div>
+
+        <div class="content-section" v-if="recommendedChannels.length > 0">
+            <h5 class="headline-container align-center">Diese Channels könnten dir gefallen</h5>
+
+            <transition name="anim_item_fade" mode="out-in" appear>
+                <app-skeleton-grid class="" v-if="isHistoryLoading"></app-skeleton-grid>
+                <div class="grid-wrapper" v-else>
+                    <div class="grid-container">
+                        <transition-group name="anim_item_slide" mode="out-in" appear>
+                            <app-grid-item v-for="channel of recommendedChannels" :key="channel.uuid" :itemUuid="channel.uuid" :itemName="channel.title" :itemTitle="channel.info?.title" :itemSubtitle="channel.info?.artist" :itemListeners="channel.listeners" :itemColor="channel.colorHex" :itemTimestamp="channel.info?.cover" @selected="selectChannel(channel.uuid)"></app-grid-item>
+                        </transition-group>
+                    </div>
+                </div>
+            </transition>
         </div>
         
     </section>
@@ -91,9 +110,33 @@ export default {
             } else {
                 return []
             }
+        },
+        recommendedChannels() {
+            var channels = []
+
+            var availableChannels = Object.values(this.$store.state.channels).filter((channel) => channel && channel.enabled && !!channel.activeSince && channel.uuid != this.channel?.uuid)
+            var maxEntries = availableChannels.length < 4 ? availableChannels.length : 4
+
+            for(var i = 0; i < maxEntries; i++) {
+                var rndIndex
+
+                do {
+                    rndIndex = Math.round(Math.random() * (availableChannels.length - 1))
+                } while (channels.includes(availableChannels[rndIndex]))
+
+                channels.push(availableChannels[rndIndex])
+            }
+
+            return channels
         }
     },
     watch: {
+        '$route.params.channelId'(val) {
+            if(val) {
+                this.isHistoryLoading = true
+                this.channelId = val
+            }
+        },
         'channel.info'() {
             this.fetchLyrics()
         },
@@ -175,9 +218,22 @@ export default {
 @import "@/assets/scss/_variables.scss";
 @import "@/assets/scss/elements/lists.scss";
 
+.headline-container {
+    background-color: $colorPlaceholder;
+    padding: $boxPad;
+    margin: $boxPad*3 0 $boxPad 0;
+    border-radius: $borderRadSmall;
+    font-size: 1.1em;
+    font-weight: 700;
+
+    &.align-center {
+        text-align: center;
+    }
+}
+
 .channel {
-    margin-bottom: 3em;
     height: 20em;
+    width: 100%;
 }
 
 .layout-table {
@@ -185,16 +241,12 @@ export default {
         width: 50%;
         vertical-align: top;
 
-        h4 {
-            margin-bottom: 0.8em;
-        }
-
         &.section-history {
-            padding-right: $windowPad;
+            padding-right: $boxPad/2;
         }
 
         &.section-details {
-            padding-left: $windowPad;
+            padding-left: $boxPad/2;
         }
     }
 }
@@ -223,21 +275,6 @@ export default {
         p {
             margin-top: 1em;
             line-height: 1.8em;
-        }
-    }
-}
-
-
-@media screen and (max-width: 900px) {
-    .layout-table {
-        .layout-col {
-            &.section-history {
-                padding-right: $windowPad/2;
-            }
-
-            &.section-details {
-                padding-left: $windowPad/2;
-            }
         }
     }
 }
