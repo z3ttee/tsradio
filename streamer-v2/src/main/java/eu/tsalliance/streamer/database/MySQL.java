@@ -27,7 +27,7 @@ public class MySQL {
         try {
             logger.info("Connecting to mysql database...");
 
-            connection = DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+database+"?autoReconnect=true", user, password);
+            connection = DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+database+"?autoReconnect=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Berlin", user, password);
             logger.info("Connected to mysql database '"+user+"'@'"+host+":"+port+"'");
         } catch (Exception ex) {
             if(ex instanceof SQLNonTransientConnectionException) {
