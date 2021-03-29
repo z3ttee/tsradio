@@ -172,12 +172,13 @@ export class Channel {
      * @param {*} channelId Channel's id
      */
     static select(channelId) {
-        if(this.isActive(channelId)) return
-
         try {
-            router.push({name: "channel", params: { channelId }})
+            if(!Object.values(router.currentRoute.value.params || []).includes(channelId)) {
+                router.push({name: "channel", params: { channelId }})
+            }
         } catch (ignored) { /* */ }
 
+        if(this.isActive(channelId)) return
         store.state.activeChannel = store.state.channels[channelId]
         Socket.subscribeChannel(channelId)
     }
