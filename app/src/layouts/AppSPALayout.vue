@@ -10,6 +10,7 @@
                         </keep-alive>
                     </transition>
                 </div>
+                <app-footer-view></app-footer-view>
             </main>
         </router-view>
         <app-player-view></app-player-view>
@@ -18,11 +19,13 @@
 
 <script lang="js">
 import AppHeaderView from "@/views/shared/AppHeaderView.vue"
+import AppFooterView from "@/views/shared/AppFooterView.vue"
 import AppPlayerView from "@/views/shared/AppPlayerView.vue"
 
 export default {
     components: {
         AppHeaderView,
+        AppFooterView,
         AppPlayerView
     }
 }
