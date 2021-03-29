@@ -48,9 +48,7 @@ logs/
 
 streamer/build/
 streamer-v2/build/
-api/src/config/config.js
-app/src/config/config.js
-app/src/config/config.js
+**/config.js
 dist_electron/
 api/src/config/config.ts
 */old
@@ -58,4 +56,4 @@ api/src/config/config.ts
 api/icecast.xml
 api/src/icecast.backup.xml
 api/src/icecast.xml
-app/src/config/config.json
+**/config.json
