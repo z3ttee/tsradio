@@ -1,5 +1,5 @@
 <template>
-    <div :class="'header-wrapper ' + getHeaderStateClass">
+    <header :class="'header-wrapper ' + getHeaderStateClass">
         <div class="content-container">
             <div class="header-section branding-section">
                 <router-link :to="{ name: 'home' }" custom v-slot="{navigate}">
@@ -13,7 +13,7 @@
                 <app-avatar class="avatar-m avatar-round" @click="openAccount" style="cursor: pointer;">{{ $store.state.account.name }}</app-avatar>
             </div>
         </div>
-    </div>
+    </header>
 </template>
 
 <script>
