@@ -21,7 +21,7 @@ public class IcecastClient {
     private final Logger logger = LoggerFactory.getLogger(IcecastClient.class);
 
     @Getter private final Channel channel;
-    @Getter private Socket sslSocket;
+    @Getter private Socket socket;
     @Getter private OutputStream stream;
     @Getter private final JSONObject icecastConfig = (JSONObject) FileHandler.getInstance().getConfig().get("icecast");
 
@@ -56,21 +56,25 @@ public class IcecastClient {
      * Connect to the icecast server
      */
     public void connect() {
+        String protocol = (String) icecastConfig.get("protocol");
         String host = (String) icecastConfig.get("host");
-        long port = (long) icecastConfig.get("port");
+        int port = Integer.parseInt(icecastConfig.get("port").toString());
         String sourceName = (String) icecastConfig.get("sourceName");
         String password = (String) icecastConfig.get("sourcePass");
 
         try {
             // Trust all
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, null, null);
+            if(protocol.equalsIgnoreCase("https")) {
+                SSLContext context = SSLContext.getInstance("TLS");
+                context.init(null, null, null);
+                SSLSocketFactory socketFactory = context.getSocketFactory();
 
-            SSLSocketFactory socketFactory = context.getSocketFactory();
+                this.socket = socketFactory.createSocket(host, port);
+            } else {
+                this.socket = new Socket(host, port);
+            }
 
-            this.sslSocket = socketFactory.createSocket(host, (int) port);
-            this.stream = this.sslSocket.getOutputStream();
-
+            this.stream = this.socket.getOutputStream();
             String base64Credentials = new String(Base64.getEncoder().encode((sourceName+":"+password).getBytes()));
 
             // Login on icecast server
@@ -85,7 +89,7 @@ public class IcecastClient {
             writer.println();
             writer.flush();
 
-            InputStreamReader isr = new InputStreamReader(this.sslSocket.getInputStream());
+            InputStreamReader isr = new InputStreamReader(this.socket.getInputStream());
             BufferedReader reader = new BufferedReader(isr);
             String data = reader.readLine();
 
