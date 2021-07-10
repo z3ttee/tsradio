@@ -78,6 +78,21 @@ export default {
 
             this.loadSource()
         },
+        'channel.info'(info) {
+            if("mediaSession" in navigator && this.channel && info) {
+                const artworkUrl = this.$store.state.urls.coverBase + "/current/" + this.channel?.uuid;
+                const album = "TSRadio :: " + this.channel.title;
+
+                navigator.mediaSession.metadata = new window.MediaMetadata({
+                    title: info.title,
+                    artist: info.artist,
+                    album,
+                    artwork: [
+                        { src: artworkUrl }
+                    ]
+                })
+            }
+        },
         'player.paused'(paused) {
             if(paused) {
                 this.clearSource()
