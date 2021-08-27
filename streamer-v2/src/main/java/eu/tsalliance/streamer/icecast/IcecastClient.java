@@ -135,7 +135,7 @@ public class IcecastClient {
 
             if(channel.isShutdown()) {
                 this.channel.onTrackEnded(track, TrackEventListener.REASON_SHUTDOWN);
-            } else if(this.channel.getQueue().peek() != null) {
+            } else if(this.channel.getQueue().size() > 0) {
                 this.channel.onTrackEnded(track, TrackEventListener.REASON_MAY_START_NEXT);
             } else {
                 this.channel.onTrackEnded(track, TrackEventListener.REASON_DONE);

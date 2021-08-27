@@ -1,10 +1,12 @@
 package eu.tsalliance.streamer.files;
 
 import eu.tsalliance.streamer.Core;
+import eu.tsalliance.streamer.channel.AudioTrack;
 import eu.tsalliance.streamer.channel.Channel;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -14,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class FileHandler {
     private static final Logger logger = LoggerFactory.getLogger(FileHandler.class);
@@ -24,6 +28,7 @@ public class FileHandler {
     @Getter private JSONObject config = null;
     @Getter private final File rootDirectory = new File(System.getProperty("user.dir"));
     @Getter private final File channelsRootDirectory = new File(rootDirectory.getAbsolutePath()+"/channels/");
+    @Getter private final File cachedPlaylistRootDirectory = new File(rootDirectory.getAbsolutePath()+"/cached_playlists/");
     @Getter private final File apiRootDirectory = new File(rootDirectory.getAbsolutePath()+"/api/");
 
     public FileHandler(){
@@ -49,11 +54,76 @@ public class FileHandler {
             JSONParser parser = new JSONParser();
 
             config = (JSONObject) parser.parse(reader);
+
+            // Create dir recursively
+            Files.createDirectories(this.cachedPlaylistRootDirectory.toPath());
         } catch (IOException | ParseException e) {
             e.printStackTrace();
             logger.error("loadConfig(): An error occured during config initialization.");
         }
     }
+
+    public boolean hasCachedPlaylist(String channelId) {
+        return this.getCachedPlaylistFile(channelId).exists();
+    }
+
+    public File getCachedPlaylistFile(String channelId) {
+        return new File(this.cachedPlaylistRootDirectory.getAbsolutePath(), channelId + ".json");
+    }
+
+    public void savePlaylistToFile(String channelId, ArrayList<AudioTrack> playlist) {
+        JSONArray pl = new JSONArray();
+
+        for(AudioTrack track : playlist) {
+            pl.add(track.getFile().getAbsolutePath());
+        }
+
+        FileWriter writer = null;
+
+        try {
+            File destFile = getCachedPlaylistFile(channelId);
+
+            if (hasCachedPlaylist(channelId)) {
+                FileUtils.forceDelete(destFile);
+            }
+
+            Files.createFile(destFile.toPath());
+            writer = new FileWriter(destFile);
+            writer.write(pl.toJSONString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.flush();
+                    writer.close();
+                }
+            } catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public ArrayList<String> loadPlaylistFilePathsFromCache(String channelId) {
+        ArrayList<String> pl = new ArrayList<>();
+        JSONParser jsonParser = new JSONParser();
+
+        try (FileReader reader = new FileReader(getCachedPlaylistFile(channelId)))
+        {
+            //Read JSON file
+            JSONArray playlist = (JSONArray) jsonParser.parse(reader);
+
+            for(Object file : playlist) {
+                pl.add((String) file);
+            }
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        return pl;
+    }
+
 
     /**
      * Get the directory of a channel

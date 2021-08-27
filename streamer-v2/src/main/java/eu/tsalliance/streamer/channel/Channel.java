@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,18 +33,21 @@ public class Channel implements Runnable, TrackEventListener {
     @Getter @Setter private AudioTrack currentlyPlaying;
     @Getter @Setter private TreeSet<AudioTrack> history = new TreeSet<>(((o1, o2) -> (int) (o1.getTimestamp() - o2.getTimestamp())));
 
-    @Getter private final LinkedBlockingQueue<AudioTrack> queue = new LinkedBlockingQueue<>();
+    @Getter private ArrayList<AudioTrack> queue = new ArrayList<>();
     @Getter private final ArrayList<AudioTrack> playlist = new ArrayList<>();
 
     @Getter private boolean shutdown = false;
     @Getter @Setter private boolean skippingCurrentTrack = false;
     @Getter private IcecastClient connection;
 
+    private final Random randomGenerator;
+
     public Channel(@NotNull String uuid, String mountpoint, boolean enabled) {
         this.uuid = uuid;
         this.mountpoint = mountpoint;
         this.enabled = enabled;
         this.channelState = ChannelState.STATE_OFFLINE;
+        this.randomGenerator = new Random();
     }
 
     @Override
@@ -64,14 +66,26 @@ public class Channel implements Runnable, TrackEventListener {
                 } catch (InterruptedException ignored) {}
             }
 
-            this.reload();
+            // Channel was shut down before playlist finished current run -> Load progress
+            if(FileHandler.getInstance().hasCachedPlaylist(this.uuid)) {
+                this.loadCachedProgress();
+                logger.info("run(): Queue size after loading cache: " + this.queue.size());
+
+                // If queue still empty -> Load directly from folder
+                if(this.queue.size() <= 0) {
+                    logger.info("run(): Queue still empty. Loading actual playlist...");
+                    this.reload();
+                }
+            } else {
+                this.reload();
+            }
 
             this.connection = new IcecastClient(this);
             this.connection.connect();
 
             // If Client is connected to icecast -> Start streaming
             if(this.connection.isConnected()) {
-                while (!shutdown && this.queue.peek() != null) {
+                while (!shutdown && this.queue.size() > 0) {
                     this.setChannelState(ChannelState.STATE_STREAMING);
                     this.next();
                 }
@@ -89,6 +103,21 @@ public class Channel implements Runnable, TrackEventListener {
         logger.info("Channel '" + getMountpoint() + "' stopped.");
     }
 
+    public void loadCachedProgress() {
+        ArrayList<String> paths = FileHandler.getInstance().loadPlaylistFilePathsFromCache(this.uuid);
+        this.loadTracksFromPaths(paths);
+
+        if(this.playlist.size() < 2) {
+            this.loadTracks();
+        }
+
+        this.reloadQueue();
+    }
+
+    public void cacheProgress() {
+        FileHandler.getInstance().savePlaylistToFile(this.uuid, this.queue);
+    }
+
     public void triggerRestart() {
         new Thread(() -> {
             logger.info("Channel '" + this.mountpoint + "' stopped. Restarting in 10s");
@@ -104,7 +133,12 @@ public class Channel implements Runnable, TrackEventListener {
      * Play next track
      */
     public void next() {
-        AudioTrack track = this.queue.poll();
+        int rnd = this.randomGenerator.nextInt(this.queue.size());
+        AudioTrack track = this.queue.remove(rnd);
+
+        // Save the current progress
+        this.cacheProgress();
+
         this.currentlyPlaying = track;
         this.connection.stream(track);
     }
@@ -131,9 +165,9 @@ public class Channel implements Runnable, TrackEventListener {
      * Move shuffled playlist into queue
      */
     public void reloadQueue() {
-        ArrayList<AudioTrack> shuffledQueue = new ArrayList<>(this.playlist);
-        Collections.shuffle(shuffledQueue);
-        this.queue.addAll(shuffledQueue);
+        this.queue = new ArrayList<>(this.playlist);
+        logger.info("reloadQueue(): Queue size after reload: " + this.queue.size());
+        this.playlist.clear();
     }
 
     /**
@@ -163,8 +197,16 @@ public class Channel implements Runnable, TrackEventListener {
         File channelDirectory = FileHandler.getDirOfChannel(this);
         File[] files = channelDirectory.listFiles();
 
-        List<File> trackFiles = Stream.of(files).filter(file -> !file.isDirectory()).collect(Collectors.toList());
-        for(File file : trackFiles) {
+        if(files != null) {
+            List<File> trackFiles = Stream.of(files).filter(file -> !file.isDirectory()).collect(Collectors.toList());
+            this.loadTracksFromPaths(trackFiles);
+        }
+    }
+
+    private void loadTracksFromPaths(List<File> paths) {
+        logger.info("loadTracksFromPaths(): Loading files... " + paths.size());
+
+        for(File file : paths) {
             String title = "Unknown title";
             String artist = "Unknown artist";
 
@@ -186,6 +228,13 @@ public class Channel implements Runnable, TrackEventListener {
                 logger.error("loadTracks(): Could not load track '"+file.getAbsolutePath()+"'");
             }
         }
+
+        logger.info("loadTracks(): Loaded " + this.playlist.size() + " tracks into channel " + this.mountpoint);
+    }
+
+    private void loadTracksFromPaths(ArrayList<String> paths) {
+        List<File> files = paths.stream().map(File::new).collect(Collectors.toList());
+        this.loadTracksFromPaths(files);
     }
 
     /**
