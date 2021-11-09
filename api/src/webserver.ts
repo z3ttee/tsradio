@@ -3,7 +3,7 @@ import https from 'https'
 import fs from 'fs'
 import path from 'path'
 
-import config from './config/config'
+import config from './config/config.js'
 import { SocketHandler } from './sockets/socketHandler';
 
 export class Webserver {
