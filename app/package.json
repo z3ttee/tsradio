@@ -14,7 +14,7 @@
     "babel-eslint": "^10.1.0",
     "clamp-js": "^0.7.0",
     "core-js": "^3.6.5",
-    "dateformat": "^4.5.1",
+    "dateformat": "^5.0.3",
     "socket.io-client": "^4.0.0",
     "ua-parser-js": "^0.7.24",
     "vue": "^3.0.0",
