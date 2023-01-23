@@ -19,7 +19,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "express": "^4.17.1",
-    "fast-xml-parser": "^3.18.0",
+    "fast-xml-parser": "^4.0.14",
     "ffmpeg": "0.0.4",
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.0.0",
