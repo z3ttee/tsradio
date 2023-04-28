@@ -15,9 +15,11 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/jwt": "^10.0.3",
     "@soundcore/bootstrap": "^1.0.3",
     "@soundcore/common": "^0.0.2",
     "mysql2": "^3.2.4",
+    "openid-client": "^5.4.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.15"

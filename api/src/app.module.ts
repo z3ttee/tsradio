@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ChannelModule } from './channel/channel.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { OIDCModule } from './authentication/oidc.module';
 
 @Module({
   imports: [
@@ -26,6 +27,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         autoLoadEntities: true,
         charset: "utf8mb4",
       })
+    }),
+    OIDCModule.forRoot({
+      issuer: process.env.OIDC_ISSUER,
+      client_id: null
     }),
     ChannelModule
   ],

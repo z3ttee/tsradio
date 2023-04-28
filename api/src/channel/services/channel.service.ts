@@ -3,6 +3,7 @@ import { Repository } from "typeorm";
 import { Channel } from "../entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
+import { Page, Pageable } from "@soundcore/common";
 
 @Injectable()
 export class ChannelService {
@@ -17,6 +18,13 @@ export class ChannelService {
                 id: id
             }
         });
+    }
+
+    public async findAll(pageable: Pageable): Promise<Page<Channel>> {
+        return this.repository.createQueryBuilder("channel")
+            .limit(pageable.limit)
+            .offset(pageable.offset)
+            .getManyAndCount().then(([channels, total]) => Page.of(channels, total, pageable));
     }
 
     public async createIfNotExists(dto: CreateChannelDTO): Promise<Channel> {
