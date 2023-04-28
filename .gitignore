@@ -4,6 +4,10 @@
 # Log file
 *.log
 
+.env.dev
+dist/
+node_modules/
+
 # BlueJ files
 *.ctxt
 
