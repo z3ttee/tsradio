@@ -15,10 +15,10 @@ export class Channel {
     @Column({ nullable: false })
     public mountpoint: string;
 
-    @Column({ type: "bit", default: 0 })
+    @Column({ type: "boolean", default: true })
     public enabled: boolean;
 
-    @Column({ type: "bit", default: 0 })
+    @Column({ type: "boolean", default: false })
     public featured: boolean;
 
     @Column({ type: "varchar", length: 7, nullable: true })

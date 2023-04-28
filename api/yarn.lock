@@ -726,7 +726,7 @@
     iterare "1.2.1"
     tslib "2.5.0"
 
-"@nestjs/config@^2.3.1":
+"@nestjs/config@^2.2.0", "@nestjs/config@^2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@nestjs/config/-/config-2.3.1.tgz#6ac151f818db4ccf987c7ff8ef5b2c1f4eeec913"
   integrity sha512-Ckzel0NZ9CWhNsLfE1hxfDuxJuEbhQvGxSlmZ1/X8awjRmAA/g3kT6M1+MO1SHj1wMtPyUfd9WpwkiqFbiwQgA==
@@ -746,6 +746,14 @@
     fast-safe-stringify "2.1.1"
     iterare "1.2.1"
     path-to-regexp "3.2.0"
+    tslib "2.5.0"
+
+"@nestjs/microservices@^9.0.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/microservices/-/microservices-9.4.0.tgz#25d5a88a4d7b5c45b53153521a78702a5c8f1f37"
+  integrity sha512-3IlURTijN2whedrfnLbJ3QQ4giDU1SxXcepXxtUL1MMkZAJgw2gN7sTquOXVgy/Ci5OMPO+vOjVyadjFejrgKA==
+  dependencies:
+    iterare "1.2.1"
     tslib "2.5.0"
 
 "@nestjs/platform-express@^9.0.0":
@@ -831,6 +839,25 @@
   integrity sha512-SwUDyjWnah1AaNl7kxsa7cfLhlTYoiyhDAIgyh+El30YvXs/o7OLXpYH88Zdhyx9JExKrmHDJ+10bwIcY80Jmw==
   dependencies:
     "@sinonjs/commons" "^2.0.0"
+
+"@soundcore/bootstrap@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@soundcore/bootstrap/-/bootstrap-1.0.3.tgz#a2d81320fdc0d7452d84f12b6ac32353fa349f07"
+  integrity sha512-HutbRuBAJOfXgRe4sY31T3Br7PL6Tbhg6XDIHi+Gyp/8XzCzuvcEteSIQGHLcDLV9URAigcPW8Zd4Rk842K3xg==
+  dependencies:
+    "@nestjs/common" "^9.0.0"
+    "@nestjs/config" "^2.2.0"
+    "@nestjs/core" "^9.0.0"
+    "@nestjs/microservices" "^9.0.0"
+    reflect-metadata "^0.1.13"
+    rxjs "^7.5.6"
+
+"@soundcore/common@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@soundcore/common/-/common-0.0.2.tgz#53ada087acfad00311d106f8d8d5f2b1347a8771"
+  integrity sha512-rXwIHE2EAzuWxAXSvV3ttcYNuQcR8pqF0+pv58Cxp25o7FSyzTKxxWnwxyXtELxxVElZcFt4+YfKr15JznMecQ==
+  dependencies:
+    rxjs "^7.8.0"
 
 "@sqltools/formatter@^1.2.5":
   version "1.2.5"
@@ -4209,7 +4236,7 @@ rxjs@6.6.7:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^7.2.0, rxjs@^7.5.5:
+rxjs@^7.2.0, rxjs@^7.5.5, rxjs@^7.5.6, rxjs@^7.8.0:
   version "7.8.1"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
