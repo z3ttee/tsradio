@@ -2157,6 +2157,27 @@
     "@material/theme" "15.0.0-canary.684e33d25.0"
     tslib "^2.1.0"
 
+"@ng-icons/core@^24.0.0":
+  version "24.0.0"
+  resolved "https://registry.yarnpkg.com/@ng-icons/core/-/core-24.0.0.tgz#e564226da4ce110f58631920442c3ca1c4f7cac3"
+  integrity sha512-zqe8MDcIB/SXT14d/5gh4SwRrY2ndHALGeFO7YxWm9o+88UuftrLuyVx+UnfWM4h7s4fJp0cXFjikBtbKi80bQ==
+  dependencies:
+    tslib "^2.2.0"
+
+"@ng-icons/feather-icons@^24.0.0":
+  version "24.0.0"
+  resolved "https://registry.yarnpkg.com/@ng-icons/feather-icons/-/feather-icons-24.0.0.tgz#5f7ec8ca0d6cb617623d5e45b3675fb6a1e56b17"
+  integrity sha512-wZGoJODcRO02Gt5YzSU6ahwfGTa/vDfQC+HZ9CPepJXai930JIi1HppEN/Yy3h0suO02+LpxIRSiOCJ+Rl7Kiw==
+  dependencies:
+    tslib "^2.2.0"
+
+"@ng-icons/heroicons@^24.0.0":
+  version "24.0.0"
+  resolved "https://registry.yarnpkg.com/@ng-icons/heroicons/-/heroicons-24.0.0.tgz#b79ef6581b953866e9ce627aec48f7381db87769"
+  integrity sha512-K7a0hStbJfFQs8xPea3G3QbH2M16Phe5TFRKG+07pOa78HW3JnkTPyvbzuCL3OE6/Mxlsm9rg2a67naEh/tsFw==
+  dependencies:
+    tslib "^2.2.0"
+
 "@ngtools/webpack@15.2.7":
   version "15.2.7"
   resolved "https://registry.npmjs.org/@ngtools/webpack/-/webpack-15.2.7.tgz"
@@ -4772,10 +4793,10 @@ keycloak-angular@^13.0.0:
   dependencies:
     tslib "^2.3.0"
 
-keycloak-js@^21.1.1:
-  version "21.1.1"
-  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-21.1.1.tgz#1435c863253093a50379f2ea84cc6ca29cbe7790"
-  integrity sha512-Viyhf0SOpu2jM/A33vpigSCFLo8l4yg8lqzaGyxXoZ3nGO9lo68B2LwJBDtgpzqDUh8DK//yCOzdWuR2CT4keA==
+keycloak-js@20:
+  version "20.0.5"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-20.0.5.tgz#8dd94d2c813170db5381dabfbe3a3327ce5ed6db"
+  integrity sha512-7+M5Uni4oNlAmbjM/lDJzFHu2+PGqU6/bvmTBuQssE1fJ7ZyNeCRHgFoaVfFpIU3m6aAFwPUko4lVcn4kPXP5Q==
   dependencies:
     base64-js "^1.5.1"
     js-sha256 "^0.9.0"
@@ -6742,7 +6763,7 @@ ts-interface-checker@^0.1.9:
   resolved "https://registry.npmjs.org/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz"
   integrity sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==
 
-tslib@2.5.0, tslib@^2.1.0, tslib@^2.3.0:
+tslib@2.5.0, tslib@^2.1.0, tslib@^2.2.0, tslib@^2.3.0:
   version "2.5.0"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.5.0.tgz"
   integrity sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==
