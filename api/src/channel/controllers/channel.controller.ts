@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { ChannelService } from "../services/channel.service";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
 import { Roles } from "src/authentication/decorators/role.decorator";
@@ -24,6 +24,18 @@ export class ChannelController {
     @Post("")
     public async createIfNotExists(@Body() dto: CreateChannelDTO) {
         return this.service.createIfNotExists(dto);
+    }
+
+    @Roles(ROLE_ADMIN)
+    @Put(":channelId")
+    public async updateById(@Param("channelId") channelId: string, @Body() dto: CreateChannelDTO) {
+        return this.service.updateById(channelId, dto);
+    }
+
+    @Roles(ROLE_ADMIN)
+    @Delete(":channelId")
+    public async deleteById(@Param("channelId") channelId: string) {
+        return this.service.deleteById(channelId);
     }
 
 }

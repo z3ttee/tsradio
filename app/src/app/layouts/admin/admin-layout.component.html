@@ -1,4 +1,4 @@
-<div class="relative flex flex-1 flex-col items-start justify-start mx-auto h-full overflow-hidden lg:container lg:px-window lg:pt-row select-none lg:rounded">
+<div class="relative flex flex-1 flex-col items-start justify-start mx-auto h-full overflow-hidden lg:w-full lg:px-window lg:pt-row select-none lg:rounded max-w-[1200px]">
     <!-- Header -->
     <div class="flex items-center justify-center w-full py-4 px-window bg-body-dark lg:rounded shadow-xl">
         <div class="items-center gap-4 hidden lg:flex">
@@ -16,19 +16,18 @@
     </div>
 
     <!-- Content -->
-    <div class="flex-grow w-full overflow-hidden py-row">
+    <div class="flex-grow w-full overflow-hidden lg:py-row">
         <div class="flex flex-1 h-full items-start justify-start gap-row">
             <!-- Drawer -->
             <div class="hidden flex-col gap-1 h-full w-80 rounded shadow-xl bg-body-dark p-4 lg:flex">
                 <p class="text-xs uppercase opacity-70 py-2">Allgemein</p>
-                <nav-list-item [routerLink]="['./']"><ng-icon name="heroRectangleGroup" size="24"></ng-icon>Dashboard</nav-list-item>
+                <nav-list-item [routerLink]="['./']" [routerLinkActiveOptions]="{exact: true}"><ng-icon name="heroRectangleGroup" size="24"></ng-icon>Dashboard</nav-list-item>
                 <nav-list-item [routerLink]="['./channels']"><ng-icon name="heroSignalSolid" size="24"></ng-icon>Channels</nav-list-item>
             </div>
 
             <!-- Content -->
-            <div class="flex-grow h-full overflow-y-auto rounded p-4">
+            <div class="flex-grow h-full overflow-y-auto rounded">
                 <router-outlet></router-outlet>
-                <div class="pb-bottom"></div>
             </div>
         </div>
     </div>

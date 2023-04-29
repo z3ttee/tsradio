@@ -32,6 +32,12 @@ body {
     z-index: 9999999999999 !important;
 }
 
+.cdk-dialog-container>div>div {
+    background-color: rgb(45 45 45) !important;
+}
+
+.mdc-notched-outline__notch { border-right: none; }
+
 /**
 []=============================[]
           Headlines

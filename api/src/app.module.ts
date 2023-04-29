@@ -30,7 +30,7 @@ import { OIDCModule } from './authentication/oidc.module';
     }),
     OIDCModule.forRoot({
       issuer: process.env.OIDC_ISSUER,
-      client_id: null
+      client_id: process.env.OIDC_CLIENT_ID
     }),
     ChannelModule
   ],

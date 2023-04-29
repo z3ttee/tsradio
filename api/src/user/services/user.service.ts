@@ -11,7 +11,7 @@ export class UserService {
     constructor(@InjectRepository(User) public readonly repository: Repository<User>) {}
 
     public async findById(id: string): Promise<User> {
-        return this.repository.findOneOrFail({
+        return this.repository.findOne({
             where: {
                 id: id
             }

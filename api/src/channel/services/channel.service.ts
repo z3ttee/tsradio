@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Channel } from "../entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
-import { Page, Pageable } from "@soundcore/common";
+import { Page, Pageable, isNull } from "@soundcore/common";
+import { Slug } from "@tsalliance/utilities";
 
 @Injectable()
 export class ChannelService {
@@ -13,10 +14,11 @@ export class ChannelService {
     ) {}
 
     public async findById(id: string): Promise<Channel> {
-        return this.repository.findOneOrFail({ 
-            where: { 
-                id: id
-            }
+        return this.repository.findOne({ 
+            where: [
+                { id: id },
+                { slug: id }
+            ]
         });
     }
 
@@ -30,14 +32,32 @@ export class ChannelService {
     public async createIfNotExists(dto: CreateChannelDTO): Promise<Channel> {
         return this.repository.createQueryBuilder()
             .insert()
-            .orUpdate(["name", "mountpoint"], ["id"], { skipUpdateIfNoValuesChanged: false })
-            .values(dto)
-            .execute().then((insertResult) => {
-                console.log(insertResult);
-                if(insertResult.identifiers.length <= 0) return null;
-                
-                // return this.repository.
+            .orUpdate(["name", "description"], ["id"], { skipUpdateIfNoValuesChanged: false })
+            .values({
+                ...dto,
+                slug: Slug.create(dto.name)
             })
+            .execute().then((insertResult) => {
+                if(insertResult.identifiers.length <= 0) return null;
+                const id = insertResult.identifiers[0]?.id;
+                return this.findById(id);
+            })
+    }
+
+    public async updateById(id: string, dto: CreateChannelDTO): Promise<Channel> {
+        const channel = await this.findById(id);
+        if(isNull(channel)) throw new BadRequestException("Channel not found");
+
+        return this.repository.save({
+            ...channel,
+            ...dto,
+            id: id,
+            slug: channel.slug
+        });
+    }
+
+    public async deleteById(id: string): Promise<boolean> {
+        return this.repository.delete(id).then((result) => result.affected > 0);
     }
 
 }

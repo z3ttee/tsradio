@@ -1,0 +1,34 @@
+<div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement>
+    <div class="flex items-center justify-start">
+        <h4 class="flex-grow">Channels</h4>
+
+        <div class="flex items-center justify-start py-row">
+            <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog()">Channel erstellen</ngs-filled-button>
+        </div>
+    </div>
+
+    
+
+    <div class="py-row">
+        <h6 class="pb-row">Verfügbare Channels</h6>
+
+        <cdk-virtual-scroll-viewport [itemSize]="56">
+            <ng-container *cdkVirtualFor="let item of datasource; index as i">
+                <div [routerLink]="['./', item?.slug]" [style.height]="'56px'" class="flex flex-1 items-center justify-start gap-2 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all px-4 cursor-pointer" *ngIf="item">
+                    <div class="min-w-6 w-6 text-center">
+                        {{ i + 1 }}
+                    </div>
+
+                    <div class="flex items-center justify-start flex-grow gap-2">
+                        <div class="h-11 w-11 rounded-sm overflow-hidden bg-body-light"><img class="h-full w-full"></div>
+
+                        <div>
+                            <p class="line-clamp-1">{{ item?.name }}</p>
+                            <p class="text-sm opacity-70 line-clamp-1">{{ item?.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </cdk-virtual-scroll-viewport>
+    </div>
+</div>

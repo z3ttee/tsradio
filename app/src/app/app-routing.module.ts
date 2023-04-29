@@ -7,7 +7,7 @@ import { AdminLayoutModule } from './layouts/admin/admin-layout.module';
 
 const routes: Routes = [
   { path: "admin", component: AdminLayoutComponent, canActivate: [SSOGuard], children: [
-    { path: "", canActivate: [SSOGuard], loadChildren: () => import("./modules/channel/channel.module").then((m) => m.ChannelModule) },
+    { path: "channels", canActivate: [SSOGuard], loadChildren: () => import("./modules/admin/channels/channels.module").then((m) => m.AdminChannelsModule) },
   ]},
   { path: "", component: MainLayoutComponent, canActivate: [SSOGuard], children: [
     { path: "", canActivate: [SSOGuard], loadChildren: () => import("./modules/channel/channel.module").then((m) => m.ChannelModule) },

@@ -1,0 +1,15 @@
+<ng-container *ngIf="($props | async) as props">
+    <div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement>
+        <div class="flex flex-col justify-center items-start lg:flex-row lg:items-center lg:justify-start">
+            <div class="flex-grow">
+                <p class="text-xs uppercase opacity-70">Channel</p>
+                <h4 class="flex-grow line-clamp-2">{{ props.channel.data?.name }}</h4>
+            </div>
+    
+            <div class="flex items-center justify-start py-row gap-2">
+                <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog(props.channel.data)">Channel bearbeiten</ngs-filled-button>
+                <ngs-filled-button [accent]="false" (clicked)="deleteById($event, props.channel.data?.id)"><ng-icon name="heroTrash" size="21"></ng-icon></ngs-filled-button>
+            </div>
+        </div>
+    </div>
+</ng-container>

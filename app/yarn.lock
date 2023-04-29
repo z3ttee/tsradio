@@ -129,6 +129,13 @@
     ora "5.4.1"
     rxjs "6.6.7"
 
+"@angular-material-components/color-picker@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@angular-material-components/color-picker/-/color-picker-9.0.0.tgz#e987b237449f7ce5b46ad1b486877ad5eec8b54c"
+  integrity sha512-xsayCbq11FWxq+usCskaTvyoAfLYo0dzrJDXyacXnQDMyzwHrVI3uCj+IeAIfMgic5M5soFBPcZ9pgbVRfDecg==
+  dependencies:
+    tslib "^2.3.0"
+
 "@angular/animations@^15.2.0":
   version "15.2.8"
   resolved "https://registry.npmjs.org/@angular/animations/-/animations-15.2.8.tgz"
@@ -136,9 +143,9 @@
   dependencies:
     tslib "^2.3.0"
 
-"@angular/cdk@15.2.8":
+"@angular/cdk@^15.2.8":
   version "15.2.8"
-  resolved "https://registry.npmjs.org/@angular/cdk/-/cdk-15.2.8.tgz"
+  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-15.2.8.tgz#f7da13abd6fb6a1355c02f5c02dc32bc679c4b1d"
   integrity sha512-jiCoxfBFMH29IZIiPmVUzIWetfUNpMIvC20xYVF8RMM819vPogoObzwK4DN/sXcp/6oVbBzZFaYdijhhIt9soQ==
   dependencies:
     tslib "^2.3.0"
@@ -213,9 +220,9 @@
   dependencies:
     tslib "^2.3.0"
 
-"@angular/material@15.2.8":
+"@angular/material@^15.2.8":
   version "15.2.8"
-  resolved "https://registry.npmjs.org/@angular/material/-/material-15.2.8.tgz"
+  resolved "https://registry.yarnpkg.com/@angular/material/-/material-15.2.8.tgz#47991c6aa35006f37cd4c2560545f955ca85a619"
   integrity sha512-bk0dv8PSJGFDgAv3CU3+jfvnOO0ah/L9JUyvw73kjiKezgjW/O8Lgq/dwkDTQ1dF3zCF+JWNqhEJmgi0GVW/cQ==
   dependencies:
     "@material/animation" "15.0.0-canary.684e33d25.0"
@@ -1456,6 +1463,11 @@
   resolved "https://registry.npmjs.org/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
+"@lukeed/csprng@^1.0.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@lukeed/csprng/-/csprng-1.1.0.tgz#1e3e4bd05c1cc7a0b2ddbd8a03f39f6e4b5e6cfe"
+  integrity sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==
+
 "@material/animation@15.0.0-canary.684e33d25.0":
   version "15.0.0-canary.684e33d25.0"
   resolved "https://registry.npmjs.org/@material/animation/-/animation-15.0.0-canary.684e33d25.0.tgz"
@@ -2157,6 +2169,15 @@
     "@material/theme" "15.0.0-canary.684e33d25.0"
     tslib "^2.1.0"
 
+"@nestjs/common@9.4.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-9.4.0.tgz#3597e4f3a1278486fc2e015c94e58bcbbb4f72ca"
+  integrity sha512-RUcVAQsEF4WPrmzFXEOUfZnPwrLTe1UVlzXTlSyfqfqbdWDPKDGlIPVelBLfc5/+RRUQ0I5iE4+CQvpCmkqldw==
+  dependencies:
+    uid "2.0.2"
+    iterare "1.2.1"
+    tslib "2.5.0"
+
 "@ng-icons/core@^24.0.0":
   version "24.0.0"
   resolved "https://registry.yarnpkg.com/@ng-icons/core/-/core-24.0.0.tgz#e564226da4ce110f58631920442c3ca1c4f7cac3"
@@ -2296,10 +2317,22 @@
   resolved "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.1.0.tgz"
   integrity sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg==
 
+"@soundcore/common@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@soundcore/common/-/common-0.0.2.tgz#53ada087acfad00311d106f8d8d5f2b1347a8771"
+  integrity sha512-rXwIHE2EAzuWxAXSvV3ttcYNuQcR8pqF0+pv58Cxp25o7FSyzTKxxWnwxyXtELxxVElZcFt4+YfKr15JznMecQ==
+  dependencies:
+    rxjs "^7.8.0"
+
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
+
+"@tsalliance/utilities@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@tsalliance/utilities/-/utilities-1.19.0.tgz#63ac64c8f6238edad04e15fa33390b73c8ae807f"
+  integrity sha512-AgykTwvKc3Bq2bhHYexX4DZxBNMzXIF2T4JIjaIq47hiuKpH7hQ4OxiM9IXFjv+JgtOvJTIf2u1AUuAUvNiStA==
 
 "@tufjs/canonical-json@1.0.0":
   version "1.0.0"
@@ -4615,6 +4648,11 @@ istanbul-reports@^3.0.5:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
+iterare@1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/iterare/-/iterare-1.2.1.tgz#139c400ff7363690e33abffa33cbba8920f00042"
+  integrity sha512-RKYVTCjAnRthyJes037NX/IiqeidgN1xc3j1RjFfECFp28A1GVwK9nA+i0rJPaHqSZwygLzRnFlzUuHFoWWy+Q==
+
 jackspeak@^2.0.3:
   version "2.1.0"
   resolved "https://registry.npmjs.org/jackspeak/-/jackspeak-2.1.0.tgz"
@@ -6131,7 +6169,7 @@ rxjs@6.6.7:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^7.5.5, rxjs@~7.8.0:
+rxjs@^7.5.5, rxjs@^7.8.0, rxjs@~7.8.0:
   version "7.8.1"
   resolved "https://registry.npmjs.org/rxjs/-/rxjs-7.8.1.tgz"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
@@ -6808,6 +6846,13 @@ ua-parser-js@^0.7.30:
   version "0.7.35"
   resolved "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-0.7.35.tgz"
   integrity sha512-veRf7dawaj9xaWEu9HoTVn5Pggtc/qj+kqTOFvNiN1l0YdxwC1kvel57UCjThjGa3BHBihE8/UJAHI+uQHmd/g==
+
+uid@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/uid/-/uid-2.0.2.tgz#4b5782abf0f2feeefc00fa88006b2b3b7af3e3b9"
+  integrity sha512-u3xV3X7uzvi5b1MncmZo3i2Aw222Zk1keqLA1YkHldREkAhAqi65wuPfe7lHx8H/Wzy+8CE7S7uS3jekIM5s8g==
+  dependencies:
+    "@lukeed/csprng" "^1.0.0"
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"

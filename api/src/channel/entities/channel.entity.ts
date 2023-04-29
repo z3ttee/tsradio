@@ -9,19 +9,16 @@ export class Channel {
     @Column({ unique: true, nullable: false })
     public name: string;
 
+    @Column({ nullable: true, unique: true })
+    public slug: string;
+
     @Column({ nullable: true })
     public description: string;
-
-    @Column({ nullable: false })
-    public mountpoint: string;
 
     @Column({ type: "boolean", default: true })
     public enabled: boolean;
 
     @Column({ type: "boolean", default: false })
     public featured: boolean;
-
-    @Column({ type: "varchar", length: 7, nullable: true })
-    public color: string;
     
 }
