@@ -49,4 +49,8 @@ export class ChannelRegistry {
         return Page.of(channels.slice(Math.min(channels.length, pageable.offset), Math.min(channels.length, pageable.offset+pageable.limit)), channels.length, pageable);
     }
 
+    public values(): Channel[] {
+        return Array.from(this.channels.values());
+    }
+
 }

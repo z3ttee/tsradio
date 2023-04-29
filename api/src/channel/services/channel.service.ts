@@ -6,12 +6,15 @@ import { CreateChannelDTO } from "../dtos/create-channel.dto";
 import { Page, Pageable, isNull } from "@soundcore/common";
 import { Slug } from "@tsalliance/utilities";
 import { ChannelRegistry } from "./registry.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { EVENT_CHANNEL_CREATED } from "src/constants";
 
 @Injectable()
 export class ChannelService {
 
     constructor(
         private readonly registry: ChannelRegistry,
+        private readonly emitter: EventEmitter2,
         @InjectRepository(Channel) private readonly repository: Repository<Channel>,
     ) {}
 
@@ -53,6 +56,7 @@ export class ChannelService {
                 const id = insertResult.identifiers[0]?.id;
                 return this.findById(id).then((channel) => {
                     this.registry.set(channel);
+                    this.emitter.emit(EVENT_CHANNEL_CREATED, channel);
                     return channel;
                 });
             })

@@ -1,0 +1,30 @@
+version: '3.3'
+name: "tsradio"
+services:
+  database:
+    image: mariadb
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_DATABASE=tsradio
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    depends_on:
+      - database
+    ports:
+      - "8080:80"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - PMA_HOST=database
+
+  icecast:
+    image: pltnk/icecast2
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./config/icecast.xml:/etc/icecast2/icecast.xml

@@ -8,7 +8,7 @@ createBootstrap("TSRadio @NEXT", AppModule)
   .enableCors()
   .enableVersioning({ type: VersioningType.URI, defaultVersion: "1" })
   .useHost("0.0.0.0")
-  .usePort(3002)
+  .usePort(3000)
   .withBuildInfo()
   .bootstrap().then((app) => {
     app.getUrl().then((url) => {

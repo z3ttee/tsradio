@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OIDCModule } from './authentication/oidc.module';
 import { FileSystemModule } from './filesystem/filesystem.module';
 import { ArtworkModule } from './artworks/artwork.module';
+import { StreamerModule } from './streamer/streamer.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -35,8 +37,10 @@ import { ArtworkModule } from './artworks/artwork.module';
       client_id: process.env.OIDC_CLIENT_ID
     }),
     FileSystemModule.forRoot(),
+    EventEmitterModule.forRoot(),
     ArtworkModule,
-    ChannelModule
+    ChannelModule,
+    StreamerModule
   ],
 })
 export class AppModule {}
