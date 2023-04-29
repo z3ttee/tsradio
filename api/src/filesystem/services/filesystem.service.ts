@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from "uuid"
 import { Environment } from "@soundcore/common";
 import { Channel } from "src/channel/entities/channel.entity";
+import { Artwork } from "src/artworks/entities/artwork.entity";
 
 @Injectable()
 export class FileSystemService {
@@ -67,6 +68,10 @@ export class FileSystemService {
 
     public resolveChannelDir(channel: Channel): string {
         return resolve(this.getChannelsRootDir(), channel.id);
+    }
+
+    public resolveArtworkPath(artwork: Artwork): string {
+        return resolve(this.getArtworkRootDir(), `${artwork.filename}`);
     }
 
 }

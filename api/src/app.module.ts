@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OIDCModule } from './authentication/oidc.module';
 import { FileSystemModule } from './filesystem/filesystem.module';
+import { ArtworkModule } from './artworks/artwork.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { FileSystemModule } from './filesystem/filesystem.module';
       client_id: process.env.OIDC_CLIENT_ID
     }),
     FileSystemModule.forRoot(),
+    ArtworkModule,
     ChannelModule
   ],
 })

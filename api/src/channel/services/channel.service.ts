@@ -26,7 +26,10 @@ export class ChannelService {
             where: [
                 { id: id },
                 { slug: id }
-            ]
+            ],
+            relations: {
+                artwork: true
+            }
         });
     }
 

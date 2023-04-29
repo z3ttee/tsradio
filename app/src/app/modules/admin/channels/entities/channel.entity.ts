@@ -1,3 +1,4 @@
+import { Artwork } from "src/app/modules/artwork/entities/artwork.entity";
 
 export class Channel {
 
@@ -7,5 +8,6 @@ export class Channel {
     public description: string;
     public enabled: boolean;
     public featured: boolean;
+    public artwork: Artwork;
     
 }

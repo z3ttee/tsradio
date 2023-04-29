@@ -6,6 +6,7 @@ import { environment } from "src/environments/environment";
 import { Page, Pageable, isNull } from "@soundcore/common";
 import { Channel } from "../entities/channel.entity";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
+import { Artwork } from "src/app/modules/artwork/entities/artwork.entity";
 
 @Injectable({
     providedIn: "root"
@@ -39,5 +40,10 @@ export class ChannelService {
     public updateById(id: string, dto: CreateChannelDTO): Observable<Future<Channel>> {
         if(isNull(id)) return of(Future.notfound());
         return this.httpClient.put<Channel>(`${environment.api_base_uri}/v1/channels/${id}`, dto).pipe(toFuture());
+    }
+
+    public setArtwork(id: string, data: FormData): Observable<Future<Artwork>> {
+        if(isNull(id)) return of(Future.notfound());
+        return this.httpClient.post<Artwork>(`${environment.api_base_uri}/v1/artworks/channel/${id}`, data).pipe(toFuture());
     }
 }

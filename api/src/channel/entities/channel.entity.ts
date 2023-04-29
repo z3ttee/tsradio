@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Artwork } from "src/artworks/entities/artwork.entity";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Channel {
@@ -20,5 +21,9 @@ export class Channel {
 
     @Column({ type: "boolean", default: false })
     public featured: boolean;
+
+    @OneToOne(() => Artwork, (a) => a.channel, { onDelete: "SET NULL" })
+    @JoinColumn()
+    public artwork: Artwork;
     
 }

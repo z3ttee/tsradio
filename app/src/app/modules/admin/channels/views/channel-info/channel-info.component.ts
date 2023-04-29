@@ -1,21 +1,19 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from "@angular/core";
-import { SCSDKDatasource } from "src/app/utils/datasource";
-import { HttpClient } from "@angular/common/http";
-import { environment } from "src/environments/environment";
+import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { Channel } from "../../entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
 import { ChannelEditorDialogComponent } from "src/app/dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { BehaviorSubject, Subject, combineLatest, map, switchMap, takeUntil } from "rxjs";
+import { BehaviorSubject, Subject, combineLatest, map, switchMap, take, takeUntil } from "rxjs";
 import { isNull } from "@soundcore/common";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ChannelService } from "../../services/channel.service";
 import { Future } from "src/app/utils/future";
 import { NGSButtonEvent } from "src/app/components/button/types";
 import { MatSnackBar } from "@angular/material/snack-bar";
-
+import { Artwork } from "src/app/modules/artwork/entities/artwork.entity";
 
 interface ChannelInfoProps {
-    channel?: Future<Channel>
+    channel?: Future<Channel>;
+    artwork?: Artwork;
 }
 
 @Component({
@@ -30,7 +28,6 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         private readonly activatedRoute: ActivatedRoute,
         private readonly router: Router,
         private readonly service: ChannelService,
-        private readonly httpClient: HttpClient,
         private readonly dialog: MatDialog,
         private readonly snackBar: MatSnackBar
     ) {}
@@ -38,16 +35,19 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
     public $channelId = this.activatedRoute.paramMap.pipe(map((params) => params.get("channelId")));
     public $channel = this.$channelId.pipe(switchMap((channelId) => this.service.findById(channelId)));
     public $channelUpdate = new BehaviorSubject<Channel>(null);
+    public $artworkUpdate = new BehaviorSubject<Artwork>(null);
 
     public $props = combineLatest([
         this.$channel,
-        this.$channelUpdate
+        this.$channelUpdate,
+        this.$artworkUpdate
     ]).pipe(
-        map(([channel, update]): ChannelInfoProps => ({
+        map(([channel, update, artworkUpdate]): ChannelInfoProps => ({
             channel: {
                 ...channel,
                 ...update
-            }
+            },
+            artwork: artworkUpdate ?? channel.data?.artwork
         })),
         takeUntil(this.$destroy)
     )
@@ -65,10 +65,10 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
             if(request.loading) return;
 
             if(request.error) {
-                this.snackBar.open(`Fehler: ${request.error.message}`, null, { duration: 3000 });
+                this.snackBar.open(`Fehler: ${request.error.message}`, null, { duration: 5000 });
             } else {
                 this.router.navigate(['..'], { relativeTo: this.activatedRoute });
-                this.snackBar.open(`Channel gelöscht`, null, { duration: 3000 });
+                this.snackBar.open(`Channel gelöscht`, null, { duration: 5000 });
             }
 
             event.done();
@@ -78,6 +78,30 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
     public ngOnDestroy(): void {
         this.$destroy.next();
         this.$destroy.complete();
+    }
+
+    public onFileSelected(event: Event, id: string) {
+        const target = event.target as HTMLInputElement;
+        const file: File = target.files[0];
+
+        if(isNull(file)) return;
+        const formData = new FormData();
+        formData.append("file", file);
+
+        this.service.setArtwork(id, formData).pipe(takeUntil(this.$destroy)).subscribe((request) => {
+            if(request.loading) return;
+
+            if(request.error) {
+                this.snackBar.open(`Fehler: ${request.error.message}`, null, { duration: 5000 });
+            } else {
+                this.snackBar.open(`Artwork hochgeladen`, null, { duration: 5000 });
+
+                this.$channel.pipe(take(1)).subscribe((channel) => {
+                    if(isNull(channel)) return;
+                    this.$artworkUpdate.next(request.data);
+                })
+            }
+        })
     }
     
 }
