@@ -5,13 +5,21 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
 import { Page, Pageable, isNull } from "@soundcore/common";
 import { Slug } from "@tsalliance/utilities";
+import { ChannelRegistry } from "./registry.service";
 
 @Injectable()
 export class ChannelService {
 
     constructor(
-        @InjectRepository(Channel) private readonly repository: Repository<Channel>
+        private readonly registry: ChannelRegistry,
+        @InjectRepository(Channel) private readonly repository: Repository<Channel>,
     ) {}
+
+    public async fetchAll(): Promise<Page<Channel>> {
+        return this.repository.find({
+
+        }).then((channels) => Page.of(channels, channels.length));
+    }
 
     public async findById(id: string): Promise<Channel> {
         return this.repository.findOne({ 
@@ -40,7 +48,10 @@ export class ChannelService {
             .execute().then((insertResult) => {
                 if(insertResult.identifiers.length <= 0) return null;
                 const id = insertResult.identifiers[0]?.id;
-                return this.findById(id);
+                return this.findById(id).then((channel) => {
+                    this.registry.set(channel);
+                    return channel;
+                });
             })
     }
 
@@ -53,11 +64,17 @@ export class ChannelService {
             ...dto,
             id: id,
             slug: channel.slug
-        });
+        }).then((channel) => {
+            this.registry.set(channel);
+            return channel;
+        });;
     }
 
     public async deleteById(id: string): Promise<boolean> {
-        return this.repository.delete(id).then((result) => result.affected > 0);
+        return this.repository.delete(id).then((result) => result.affected > 0).then((deleted) => {
+            if(deleted) this.registry.remove(id);
+            return deleted;
+        })
     }
 
 }

@@ -3,6 +3,7 @@ import { ChannelModule } from './channel/channel.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OIDCModule } from './authentication/oidc.module';
+import { FileSystemModule } from './filesystem/filesystem.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { OIDCModule } from './authentication/oidc.module';
       issuer: process.env.OIDC_ISSUER,
       client_id: process.env.OIDC_CLIENT_ID
     }),
+    FileSystemModule.forRoot(),
     ChannelModule
   ],
 })
