@@ -25,7 +25,7 @@ export class StreamerService {
         if(!this.streams.has(channel.id)) {
             const stream = new Stream(channel);
             this.streams.set(channel.id, stream);
-            stream.play();
+            stream.start();
         }
 
         return this.streams.get(channel.id);

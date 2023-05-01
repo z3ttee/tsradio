@@ -47,7 +47,7 @@ export class StreamService {
         const stream = this.service.getStreamByChannelId(channelId);
         if(isNull(stream)) throw new BadRequestException("Channel not streaming");
 
-        stream.next();
+        stream.skip();
         this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.channel.name}'`);
         return true;
     }
