@@ -19,7 +19,7 @@ export class Stream {
 
     private currentFile: string;
 
-    constructor(private readonly channel: Channel) {}
+    constructor(public readonly channel: Channel) {}
 
     public addClient() {
         const id = randomString(32);

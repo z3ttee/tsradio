@@ -4,6 +4,8 @@ import { Channel } from "../../channel";
 import { environment } from "src/environments/environment";
 import { isNull } from "@soundcore/common";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
+import { Future, toFuture } from "src/app/utils/future";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
 
 @Injectable({
     providedIn: "root"
@@ -21,10 +23,17 @@ export class TSRStreamService {
     public readonly $isLoading = this._loadingSubject.asObservable();
 
     constructor(
+        private readonly httpClient: HttpClient,
         private readonly ssoService: SSOService
     ) {
         console.log("stream instance")
         this.registerEvents();
+    }
+
+    public forceSkip(): Observable<Future<boolean>> {
+        const channel = this._channel.getValue();
+        if(isNull(channel)) return of(Future.notfound());
+        return this.httpClient.get<boolean>(`${environment.api_base_uri}/v1/streams/${channel.id}/skip`).pipe(toFuture());
     }
 
     public play(channel: Channel): Observable<string> {

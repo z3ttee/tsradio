@@ -24,12 +24,8 @@
         </div>
     
         <!-- Player bar -->
-        <div class="absolute bottom-28 lg:bottom-window left-window right-window overflow-hidden rounded bg-body-dark p-4" *ngIf="props.player.currentChannel">
-            <ngs-loader *ngIf="props.player.isLoading"></ngs-loader>
-
-            <div class="flex items-center">
-                
-            </div>
+        <div class="absolute bottom-28 lg:bottom-window left-window right-window" *ngIf="props.currentChannel">
+            <tsr-playerbar></tsr-playerbar>
         </div>
     
         <!-- Bottom navigation -->

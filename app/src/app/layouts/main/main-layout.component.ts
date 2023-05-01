@@ -3,23 +3,14 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { combineLatest, map } from "rxjs";
 import { NGSLoaderComponent } from "src/app/components/loader";
+import { TSRPlayerbarModule } from "src/app/components/playerbar/playerbar.module";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { Channel } from "src/app/sdk/channel";
 import { TSRStreamService } from "src/app/sdk/stream/services/stream.service";
 
-interface PlayerInfo {
-    currentChannel?: Channel;
-    isPlaying?: boolean;
-    isMuted?: boolean;
-    isLoading?: boolean;
-    volume?: number;
-}
-
 interface MainLayoutProps {
-
     isAdmin: boolean;
-    player: PlayerInfo;
-
+    currentChannel: Channel;
 }
 
 @Component({
@@ -29,7 +20,8 @@ interface MainLayoutProps {
     imports: [
         CommonModule,
         RouterModule,
-        NGSLoaderComponent
+        NGSLoaderComponent,
+        TSRPlayerbarModule
     ]
 })
 export class MainLayoutComponent {
@@ -42,16 +34,10 @@ export class MainLayoutComponent {
     public $props = combineLatest([
         this.ssoService.$isAdmin,
         this.streamService.$currentChannel,
-        this.streamService.$isLoading,
-        this.streamService.$isPlaying
     ]).pipe(
-        map(([isAdmin, currentChannel, isLoading, isPlaying]): MainLayoutProps => ({
+        map(([isAdmin, currentChannel]): MainLayoutProps => ({
             isAdmin: isAdmin,
-            player: {
-                currentChannel: currentChannel,
-                isLoading: isLoading,
-                isPlaying: isPlaying
-            }
+            currentChannel: currentChannel
         })),
     );
 

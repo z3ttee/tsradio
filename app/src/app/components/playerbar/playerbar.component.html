@@ -1,0 +1,9 @@
+<ng-container *ngIf="($props | async) as props">
+    <div class="overflow-hidden rounded bg-body-dark p-4">
+        <ngs-loader *ngIf="props.isLoading"></ngs-loader>
+    
+        <div class="flex items-center">
+            <ng-icon name="heroForward" size="24" (click)="forceSkip()"></ng-icon>
+        </div>
+    </div>
+</ng-container>

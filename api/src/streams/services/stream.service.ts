@@ -1,13 +1,15 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { ChannelService } from "src/channel/services/channel.service";
 import { StreamerService } from "./streamer.service";
 import { Request, Response } from "express";
 import { OIDCService } from "src/authentication/services/oidc.service";
 import { catchError, of, take } from "rxjs";
 import { isNull } from "@soundcore/common";
+import { User } from "src/user/entities/user.entity";
 
 @Injectable()
 export class StreamService {
+    private readonly logger = new Logger(StreamService.name);
 
     constructor(
         private readonly channelService: ChannelService,
@@ -16,7 +18,6 @@ export class StreamService {
     ) {}
 
     public async startStreamForClient(channelId: string, token: string, req: Request, res: Response) {
-
         this.oidcService.verifyAccessToken(token).pipe(take(1), catchError((err, caught) => {
             // Deny access and send 403 header
             res.status(403).send();
@@ -40,6 +41,15 @@ export class StreamService {
                 stream.removeClient(id);
             });
         });        
+    }
+
+    public async forceSkipTrack(channelId: string, authentication: User): Promise<boolean> {
+        const stream = this.service.getStreamByChannelId(channelId);
+        if(isNull(stream)) throw new BadRequestException("Channel not streaming");
+
+        stream.next();
+        this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.channel.name}'`);
+        return true;
     }
     
 }
