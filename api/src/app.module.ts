@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OIDCModule } from './authentication/oidc.module';
 import { FileSystemModule } from './filesystem/filesystem.module';
 import { ArtworkModule } from './artworks/artwork.module';
-import { StreamerModule } from './streamer/streamer.module';
+import { StreamerModule } from './streams/streamer.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({

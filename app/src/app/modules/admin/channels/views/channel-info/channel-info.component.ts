@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
-import { Channel } from "../../entities/channel.entity";
+import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
 import { ChannelEditorDialogComponent } from "src/app/dialogs/channel-editor-dialog/channel-editor-dialog.component";
 import { BehaviorSubject, Subject, combineLatest, map, switchMap, take, takeUntil } from "rxjs";
 import { isNull } from "@soundcore/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ChannelService } from "../../services/channel.service";
+import { TSRChannelService } from "../../../../../sdk/channel/services/channel.service";
 import { Future } from "src/app/utils/future";
 import { NGSButtonEvent } from "src/app/components/button/types";
 import { MatSnackBar } from "@angular/material/snack-bar";
@@ -27,7 +27,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
     constructor(
         private readonly activatedRoute: ActivatedRoute,
         private readonly router: Router,
-        private readonly service: ChannelService,
+        private readonly service: TSRChannelService,
         private readonly dialog: MatDialog,
         private readonly snackBar: MatSnackBar
     ) {}

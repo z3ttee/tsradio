@@ -12,6 +12,7 @@ import { NgIconsModule } from "@ng-icons/core";
 import { heroTrash } from "@ng-icons/heroicons/outline";
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { ArtworkComponent } from "src/app/components/artwork/artwork.component";
+import { TSRChannelModule } from "src/app/sdk/channel/channel.module";
 
 const routes: Routes = [
     { path: "", component: AdminChannelIndexViewComponent },
@@ -33,7 +34,9 @@ const routes: Routes = [
         ScrollingModule,
         MatSnackBarModule,
         ArtworkComponent,
-        NgIconsModule.withIcons({ heroTrash })
+        NgIconsModule.withIcons({ heroTrash }),
+
+        TSRChannelModule
     ]
 })
 export class AdminChannelsModule {}

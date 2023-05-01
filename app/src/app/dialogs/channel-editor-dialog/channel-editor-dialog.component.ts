@@ -2,17 +2,15 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestro
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NGSButtonModule } from "src/app/components/button";
 import { NGSButtonEvent } from "src/app/components/button/types";
-import { ChannelService } from "src/app/modules/admin/channels/services/channel.service";
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import { CommonModule } from "@angular/common";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { MAT_COLOR_FORMATS, NgxMatColorPickerModule, NGX_MAT_COLOR_FORMATS } from '@angular-material-components/color-picker';
 import { Observable, Subject, takeUntil } from "rxjs";
-import { Channel } from "src/app/modules/admin/channels/entities/channel.entity";
 import { isNull } from "@soundcore/common";
 import { Future } from "src/app/utils/future";
-import { DialogRef } from "@angular/cdk/dialog";
+import { Channel, TSRChannelModule, TSRChannelService } from "src/app/sdk/channel";
 
 @Component({
     standalone: true,
@@ -25,7 +23,8 @@ import { DialogRef } from "@angular/cdk/dialog";
         ReactiveFormsModule,
         MatInputModule,
         MatSlideToggleModule,
-        NgxMatColorPickerModule
+        NgxMatColorPickerModule,
+        TSRChannelModule
     ],
     providers: [
         { provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }
@@ -38,7 +37,7 @@ export class ChannelEditorDialogComponent implements OnDestroy {
     public errorMessage: string = null;
 
     constructor(
-        private readonly service: ChannelService,
+        private readonly service: TSRChannelService,
         private readonly builder: FormBuilder,
         private readonly cdr: ChangeDetectorRef,
         private readonly dialogRef: MatDialogRef<ChannelEditorDialogComponent>,

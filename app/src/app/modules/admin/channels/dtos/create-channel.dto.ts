@@ -1,4 +1,4 @@
-import { Channel } from "../entities/channel.entity";
+import { Channel } from "../../../../sdk/channel/entities/channel.entity";
 
 export class CreateChannelDTO implements 
     Pick<Channel, "name">,

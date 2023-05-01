@@ -53,15 +53,16 @@ export class StreamerService {
     }
 
     private async startStreamer(channel: Channel) {
-        this._pool.exec("default", [ {...process.env}, channel, this.coordinator.issueToken(channel) ], {
-            on: (event: any) => {
-                // this.queue.fireEvent(event.name, event.job, event.error);
-            }
-        }).then((result) => {
-            console.log("Streamer exited (0)");
-        }).catch((err: Error) => {
-            console.log("Streamer exited (1)");
-            console.error(err);
-        });
+        this.startStream(channel);
+        // this._pool.exec("default", [ {...process.env}, channel, this.coordinator.issueToken(channel) ], {
+        //     on: (event: any) => {
+        //         // this.queue.fireEvent(event.name, event.job, event.error);
+        //     }
+        // }).then((result) => {
+        //     console.log("Streamer exited (0)");
+        // }).catch((err: Error) => {
+        //     console.log("Streamer exited (1)");
+        //     console.error(err);
+        // });
     }
 }

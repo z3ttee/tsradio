@@ -5,13 +5,11 @@ import { Future, toFuture } from "src/app/utils/future";
 import { environment } from "src/environments/environment";
 import { Page, Pageable, isNull } from "@soundcore/common";
 import { Channel } from "../entities/channel.entity";
-import { CreateChannelDTO } from "../dtos/create-channel.dto";
+import { CreateChannelDTO } from "../../../modules/admin/channels/dtos/create-channel.dto";
 import { Artwork } from "src/app/modules/artwork/entities/artwork.entity";
 
-@Injectable({
-    providedIn: "root"
-})
-export class ChannelService {
+@Injectable()
+export class TSRChannelService {
 
     constructor(
         private readonly httpClient: HttpClient

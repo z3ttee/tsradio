@@ -3,14 +3,16 @@ import { ChannelModule } from "src/channel/channel.module";
 import { StreamerService } from "./services/streamer.service";
 import { StreamerCoordinator } from "./coordinator/coordinator.service";
 import { JwtModule } from "@nestjs/jwt";
-import { StreamController } from "./controllers/stream.controller";
+import { StreamsController } from "./controllers/streams.controller";
+import { StreamService } from "./services/stream.service";
 
 @Module({
     controllers: [
-        StreamController
+        StreamsController
     ],
     providers: [
         StreamerService,
+        StreamService,
         StreamerCoordinator
     ],
     imports: [

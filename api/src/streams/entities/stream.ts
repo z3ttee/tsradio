@@ -4,6 +4,10 @@ import { ReadStream, createReadStream } from "node:fs";
 import Throttle from "throttle";
 import { PassThrough } from "node:stream";
 import { randomString } from "@soundcore/common";
+import { ffprobe } from "@dropb/ffprobe";
+import ffprobeStatic from "ffprobe-static";
+
+ffprobe.path = ffprobeStatic.path;
 
 export class Stream {
 
@@ -15,9 +19,7 @@ export class Stream {
 
     private currentFile: string;
 
-    constructor(private readonly channel: Channel) {
-        console.log(this.queue);
-    }
+    constructor(private readonly channel: Channel) {}
 
     public addClient() {
         const id = randomString(32);
@@ -50,7 +52,7 @@ export class Stream {
         const file = this.currentFile;
         if (!file) return;
 
-        const bitrate = await this.queue.getTrackBitrate(file);
+        const bitrate = await this.getTrackBitrate(file);
         this.throttle = new Throttle(bitrate / 8);
 
         this.stream
@@ -83,19 +85,22 @@ export class Stream {
         }
     }
 
+    private async getTrackBitrate(filepath: string) {
+        const data = await ffprobe(filepath);
+        const bitrate = data?.format?.bit_rate;
+
+        return bitrate ? parseInt(bitrate) : 128000;
+    }
+
     private loadStream(file: string) {
         if (!file) return;
         console.log("Starting audio stream");
         this.stream = createReadStream(file);
     }
 
-    public async broadcast(chunk) {
-        // console.log("broadcasting")
+    private async broadcast(chunk) {
         this.clients.forEach((client) => {
             client.write(chunk);
         });
     }
-
-
-
 }

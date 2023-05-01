@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { SCSDKDatasource } from "src/app/utils/datasource";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
-import { Channel } from "../../entities/channel.entity";
+import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
 import { ChannelEditorDialogComponent } from "src/app/dialogs/channel-editor-dialog/channel-editor-dialog.component";
 import { Subject, takeUntil } from "rxjs";
