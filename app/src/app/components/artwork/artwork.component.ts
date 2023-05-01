@@ -5,14 +5,14 @@ import { environment } from "src/environments/environment";
 
 @Component({
     standalone: true,
-    selector: "app-artwork",
+    selector: "tsr-artwork",
     templateUrl: "./artwork.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule
     ]
 })
-export class ArtworkComponent {
+export class TSRArtworkComponent {
 
     @Input()
     public artwork: Artwork;

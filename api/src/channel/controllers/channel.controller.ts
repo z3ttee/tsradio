@@ -5,6 +5,8 @@ import { Roles } from "src/authentication/decorators/role.decorator";
 import { ROLE_ADMIN } from "src/constants";
 import { Pageable, Pagination } from "@soundcore/common";
 import { ChannelRegistry } from "../services/registry.service";
+import { Authentication } from "src/authentication/decorators/authentication.decorator";
+import { User } from "src/user/entities/user.entity";
 
 @Controller("channels")
 export class ChannelController {
@@ -15,13 +17,13 @@ export class ChannelController {
     ) {}
 
     @Get("")
-    public async findAll(@Pagination() pageable: Pageable) {
-        return this.service.findAll(pageable);
+    public async findAll(@Pagination() pageable: Pageable, @Authentication() authentication: User) {
+        return this.service.findAll(pageable, authentication);
     }
 
-    @Get("active")
-    public async findOnAir(@Pagination() pageable: Pageable) {
-        return this.registry.getAll(pageable);
+    @Get("featured")
+    public async findFeatured(@Pagination() pageable: Pageable, @Authentication() authentication: User) {
+        return this.service.findFeatured(pageable, authentication);
     }
 
     @Get(":channelId")

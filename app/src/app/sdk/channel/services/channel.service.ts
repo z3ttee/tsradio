@@ -20,8 +20,7 @@ export class TSRChannelService {
         return this.httpClient.get<Channel>(`${environment.api_base_uri}/v1/channels/${id}`).pipe(toFuture());
     }
 
-    public findAll(id: string, pageable: Pageable): Observable<Future<Page<Channel>>> {
-        if(isNull(id)) return of(Future.notfound());
+    public findAll(pageable: Pageable): Observable<Future<Page<Channel>>> {
         return this.httpClient.get<Page<Channel>>(`${environment.api_base_uri}/v1/channels${pageable.toQuery()}`).pipe(toFuture());
     }
 

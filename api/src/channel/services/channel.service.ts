@@ -8,6 +8,7 @@ import { Slug } from "@tsalliance/utilities";
 import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { EVENT_CHANNEL_CREATED } from "src/constants";
+import { User } from "src/user/entities/user.entity";
 
 @Injectable()
 export class ChannelService {
@@ -36,10 +37,19 @@ export class ChannelService {
         });
     }
 
-    public async findAll(pageable: Pageable): Promise<Page<Channel>> {
+    public async findAll(pageable: Pageable, authentication?: User): Promise<Page<Channel>> {
+        return this.repository.createQueryBuilder("channel")
+            .leftJoin("channel.artwork", "artwork").addSelect(["artwork.id"])
+            .limit(pageable.limit)
+            .offset(pageable.offset)
+            .getManyAndCount().then(([channels, total]) => Page.of(channels, total, pageable));
+    }
+
+    public async findFeatured(pageable: Pageable, authentication?: User): Promise<Page<Channel>> {
         return this.repository.createQueryBuilder("channel")
             .limit(pageable.limit)
             .offset(pageable.offset)
+            .where("channel.featured = :featured", { featured: true })
             .getManyAndCount().then(([channels, total]) => Page.of(channels, total, pageable));
     }
 

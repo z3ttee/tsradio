@@ -18,10 +18,8 @@ export class StreamService {
     public async startStreamForClient(channelId: string, token: string, req: Request, res: Response) {
 
         this.oidcService.verifyAccessToken(token).pipe(take(1), catchError((err, caught) => {
-            console.error(err)
-            res.set({
-                "Content-Type": "application/json",
-            }).status(403);
+            // Deny access and send 403 header
+            res.status(403).send();
             return of(null);
         })).subscribe(async (payload) => {
             if(isNull(payload)) return;
