@@ -4,6 +4,8 @@ import { NgIconsModule } from "@ng-icons/core";
 import { heroForward } from "@ng-icons/heroicons/outline";
 import { TSRPlayerbarComponent } from "./playerbar.component";
 import { NGSLoaderComponent } from "../loader";
+import { heroPauseSolid, heroPlaySolid } from "@ng-icons/heroicons/solid";
+import { TSRArtworkComponent } from "../artwork/artwork.component";
 
 @NgModule({
     declarations: [
@@ -11,8 +13,9 @@ import { NGSLoaderComponent } from "../loader";
     ],
     imports: [
         CommonModule,
-        NgIconsModule.withIcons({ heroForward }),
-        NGSLoaderComponent
+        NgIconsModule.withIcons({ heroForward, heroPlaySolid, heroPauseSolid }),
+        NGSLoaderComponent,
+        TSRArtworkComponent
     ],
     exports: [
         TSRPlayerbarComponent

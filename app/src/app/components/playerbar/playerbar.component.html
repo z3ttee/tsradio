@@ -1,9 +1,29 @@
 <ng-container *ngIf="($props | async) as props">
-    <div class="overflow-hidden rounded bg-body-dark p-4">
-        <ngs-loader *ngIf="props.isLoading"></ngs-loader>
+    <div class="flex items-center justify-start overflow-hidden rounded bg-body-dark p-4">
+
+        <div class="flex items-center justify-start w-1/3">
+            <tsr-artwork></tsr-artwork>
+        </div>
     
-        <div class="flex items-center">
-            <ng-icon name="heroForward" size="24" (click)="forceSkip()"></ng-icon>
+        <div class="flex items-center justify-center gap-2 w-1/3">
+            <button class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent" (click)="togglePause()">
+                <ng-icon name="heroPlaySolid" size="24" class="ml-1" *ngIf="!props.isPlaying && !props.isLoading"></ng-icon>
+                <ng-icon name="heroPauseSolid" size="24" *ngIf="props.isPlaying && !props.isLoading"></ng-icon>
+                <ngs-loader *ngIf="props.isLoading"></ngs-loader>
+            </button>
+            <button class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-70 transition-all">
+                <ng-icon name="heroForward" size="24" (click)="forceSkip()"></ng-icon>
+            </button>
+        </div>
+
+        <div class="flex items-center justify-end w-1/3">
+            <span class="relative inline-flex justify-center items-center bg-body-light rounded-sm uppercase text-sm px-4 py-2 gap-2">
+                <span class="relative flex justify-center items-center h-3 w-3">
+                    <span class="absolute inline-block w-full h-full bg-red-600 rounded-full animate-ping opacity-70"></span>
+                    <span class="inline-block w-full h-full bg-red-600 rounded-full"></span>
+                </span>
+                Live
+            </span>
         </div>
     </div>
 </ng-container>

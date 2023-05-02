@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, combineLatest, firstValueFrom, from, map, of, switchMap, take, tap, zip } from "rxjs";
+import { BehaviorSubject, Observable, from, map, of, switchMap, take, tap, zip } from "rxjs";
 import { Channel } from "../../channel";
 import { environment } from "src/environments/environment";
 import { isNull } from "@soundcore/common";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { Future, toFuture } from "src/app/utils/future";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({
     providedIn: "root"
@@ -58,18 +58,17 @@ export class TSRStreamService {
      */
     public togglePause(): Observable<boolean> {
         return new Observable<boolean>((subscriber) => {
-            let result: boolean;
-
             if(this.audio.paused) {
-                this.audio.play();
-                result = false;
+                subscriber.add(this.play(this._channel.getValue()).subscribe((url) => {
+                    subscriber.next(false);
+                    subscriber.complete();
+                }))
             } else {
                 this.audio.pause();
-                result = true;
+                subscriber.next(true);
+                subscriber.complete();
             }
-
-            subscriber.next(result);
-            subscriber.complete();
+            
         });
     }
 
@@ -83,12 +82,24 @@ export class TSRStreamService {
         );
     }
 
+    private publishError(error: string | Event) {
+        this._loadingSubject.next(false);
+        console.error(error);
+    }
+
     private registerEvents() {
-        this.audio.onplaying = () => this._playing.next(true);
-        this.audio.onpause = () => this._playing.next(false);
+        this.audio.onplaying = () => {
+            this._playing.next(true);
+        };
+        this.audio.onpause = () => {
+            this.audio.src = '';
+            this._playing.next(false)
+        };
 
         this.audio.onloadstart = () => this._loadingSubject.next(true);
         this.audio.onloadeddata = () => this._loadingSubject.next(false);
+
+        this.audio.onerror = (err) => this.publishError(err)
     }
 
 }

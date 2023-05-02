@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { combineLatest, map } from "rxjs";
+import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
+import { Subject, combineLatest, map, takeUntil } from "rxjs";
 import { Channel } from "src/app/sdk/channel";
 import { TSRStreamService } from "src/app/sdk/stream";
 
@@ -16,7 +16,9 @@ interface PlayerInfo {
     templateUrl: "./playerbar.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TSRPlayerbarComponent {
+export class TSRPlayerbarComponent implements OnDestroy {
+
+    private readonly $destroy = new Subject<void>();
 
     constructor(
         private readonly streamService: TSRStreamService
@@ -33,6 +35,15 @@ export class TSRPlayerbarComponent {
             isPlaying: isPlaying
         })),
     );
+
+    public ngOnDestroy(): void {
+        this.$destroy.next();
+        this.$destroy.complete();
+    }
+
+    public togglePause() {
+        this.streamService.togglePause().pipe(takeUntil(this.$destroy)).subscribe();
+    }
 
     public forceSkip() {
         this.streamService.forceSkip().subscribe((request) => {
