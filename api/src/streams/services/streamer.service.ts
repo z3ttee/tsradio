@@ -21,11 +21,11 @@ export class StreamerService {
         }
     }
 
-    public startStream(channel: Channel) {
+    public async startStream(channel: Channel): Promise<Stream> {
         if(!this.streams.has(channel.id)) {
             const stream = new Stream(channel);
             this.streams.set(channel.id, stream);
-            stream.start();
+            await stream.start();
         }
 
         return this.streams.get(channel.id);

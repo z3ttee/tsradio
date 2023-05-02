@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { ChannelService } from "src/channel/services/channel.service";
 import { StreamerService } from "./streamer.service";
 import { Request, Response } from "express";
@@ -26,19 +26,19 @@ export class StreamService {
             if(isNull(payload)) return;
 
             const channel = await this.channelService.findById(channelId);
-            const stream = this.service.startStream(channel);
+            const stream = await this.service.startStream(channel);
 
-            const { id, client } = stream.addClient();
+            const listener = await stream.createListener();
 
             res.set({
                 "Content-Type": "audio/mp3",
                 "Transfer-Encoding": "chunked",
             }).status(200);
 
-            client.pipe(res);
+            listener.client.pipe(res);
 
             req.on("close", () => {
-                stream.removeClient(id);
+                stream.removeListener(listener.id);
             });
         });        
     }
@@ -47,9 +47,12 @@ export class StreamService {
         const stream = this.service.getStreamByChannelId(channelId);
         if(isNull(stream)) throw new BadRequestException("Channel not streaming");
 
-        stream.skip();
-        this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.channel.name}'`);
-        return true;
+        return stream.skip().then(() => {
+            this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.channel.name}'`);
+            return true
+        }).catch(() => {
+            throw new InternalServerErrorException("Cannot skip current track");
+        });
     }
     
 }

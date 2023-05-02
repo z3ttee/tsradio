@@ -6,7 +6,7 @@ import { Server, Socket } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
 
 @Injectable()
-@WebSocketGateway(3001, { 
+@WebSocketGateway({ 
     cors: {
         origin: "*"
     },
