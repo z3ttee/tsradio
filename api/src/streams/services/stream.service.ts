@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { ChannelService } from "src/channel/services/channel.service";
-import { StreamerService } from "./streamer.service";
 import { Request, Response } from "express";
 import { OIDCService } from "src/authentication/services/oidc.service";
 import { catchError, of, take } from "rxjs";
 import { isNull } from "@soundcore/common";
 import { User } from "src/user/entities/user.entity";
+import { StreamerCoordinator } from "../coordinator/coordinator.service";
+import { HistoryService } from "src/history/services/history.service";
 
 @Injectable()
 export class StreamService {
@@ -13,7 +14,7 @@ export class StreamService {
 
     constructor(
         private readonly channelService: ChannelService,
-        private readonly service: StreamerService,
+        private readonly coordinator: StreamerCoordinator,
         private readonly oidcService: OIDCService
     ) {}
 
@@ -26,7 +27,7 @@ export class StreamService {
             if(isNull(payload)) return;
 
             const channel = await this.channelService.findById(channelId);
-            const stream = await this.service.startStream(channel);
+            const stream = await this.coordinator.startStream(channel);
 
             const listener = await stream.createListener();
 
@@ -44,7 +45,7 @@ export class StreamService {
     }
 
     public async forceSkipTrack(channelId: string, authentication: User): Promise<boolean> {
-        const stream = this.service.getStreamByChannelId(channelId);
+        const stream = this.coordinator.getStreamByChannelId(channelId);
         if(isNull(stream)) throw new BadRequestException("Channel not streaming");
 
         return stream.skip().then(() => {

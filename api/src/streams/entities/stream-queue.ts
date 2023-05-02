@@ -3,8 +3,6 @@ import { FileSystemService } from "src/filesystem/services/filesystem.service";
 import path from "node:path";
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { globSync } from "glob";
-import { BehaviorSubject } from "rxjs";
-
 
 export class StreamQueue {
 
