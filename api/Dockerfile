@@ -25,9 +25,6 @@ FROM node:lts-alpine AS DEPLOY
 ARG CWD=/opt/tsradio
 WORKDIR ${CWD}
 
-# Create volume to persist instance info
-VOLUME [ "/data" ]
-
 # Copy compile output of backend application
 COPY --from=BUILDER ${CWD}/dist ${CWD}/
 
@@ -36,13 +33,11 @@ COPY --from=BUILDER ${CWD}/dist ${CWD}/
 COPY package.json package.json
 
 # Set env variables that can be utilized by the backend
-# DOCKERIZED is used to register all volumes mounted in the /mnt/ folder
-# as a mount for tsradio.
 ENV NODE_ENV=production
 ENV DOCKERIZED=true
 
 # Install only production deps
-RUN yarn install --production
+RUN yarn install --production=true --ignore-optional
 
 EXPOSE 3002
 
