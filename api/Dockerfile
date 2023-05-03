@@ -42,7 +42,7 @@ ENV NODE_ENV=production
 ENV DOCKERIZED=true
 
 # Install only production deps
-RUN yarn install
+RUN yarn install --production
 
 EXPOSE 3002
 

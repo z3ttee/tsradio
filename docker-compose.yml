@@ -20,11 +20,3 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - PMA_HOST=database
-
-  icecast:
-    image: pltnk/icecast2
-    restart: always
-    ports:
-      - 8000:8000
-    volumes:
-      - ./config/icecast.xml:/etc/icecast2/icecast.xml
