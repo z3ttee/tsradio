@@ -28,9 +28,9 @@ export enum StreamStatus {
 }
 
 export class Stream {
-    private readonly logger = new Logger(`${Stream.name}-${this.channel.name}`);
+    private readonly logger = new Logger(`${Stream.name}-${this._channel.name}`);
 
-    private readonly queue: StreamQueue = new StreamQueue(this.channel);
+    private readonly queue: StreamQueue = new StreamQueue(this._channel);
     private readonly listeners: Map<string, Listener> = new Map();
 
     private readonly _destroySubject: Subject<void> = new Subject();
@@ -58,15 +58,15 @@ export class Stream {
             this.setStatus(StreamStatus.ERRORED);
         });
         this.$status.pipe(takeUntil(this._destroySubject)).subscribe((status) => {
-            this.channel.status = status;
+            this._channel.status = status;
         });
     }
 
-    public get channel() {
+    public getChannel() {
         return this._channel;
     }
 
-    public set channel(val: Channel) {
+    public setChannel(val: Channel) {
         // Copy previous values to val
         val.status = this._channel?.status ?? val.status;
         val.track = this._channel?.track ?? val.track;
@@ -89,11 +89,15 @@ export class Stream {
         return this._statusSubject.getValue();
     }
 
+    public get id() {
+        return this._channel.id;
+    }
+
     /**
      * Get name of the channel
      */
     public get name() {
-        return this.channel.name;
+        return this._channel.name;
     }
 
     /**
@@ -137,17 +141,20 @@ export class Stream {
      * Skip current track.
      */
     public skip(): Observable<void> {
-        return this.setCurrentlyStreaming(null).pipe(
-            toVoid(),
-            tap(() => {
-                this.throttle.end();
-                this.throttle = null;
-            }),
+        return new Observable((subscriber) => {
+            this._currentFile = null;
+            this.throttle?.end();
+            this.throttle = null;
+
+            subscriber.next();
+            subscriber.complete();
+        }).pipe(
             catchError((error: Error) => {
                 this.publishError(error);
                 this.logger.error(`Error while skipping current track: ${error.message}`, error);
                 return throwError(() => error);
-            })
+            }),
+            toVoid(),
         );
     }
 
@@ -322,6 +329,7 @@ export class Stream {
      * @param status Updated status
      */
     private setStatus(status: StreamStatus): void {
+        this._channel.status = status;
         this._statusSubject.next(status);
     }
 
@@ -332,16 +340,30 @@ export class Stream {
     private setCurrentlyStreaming(file: string): Observable<string> {
         return new Observable<string>((subscriber) => {
             this._currentFile = file;
-            subscriber.next(file);
 
             subscriber.add(from(this.readID3Tags(file)).pipe(catchError((err: Error) => {
                 this.publishError(err);
                 return of(null);
-            })).subscribe((track) => {
-                this._currentTrackSubject.next(track);
-                this.channel.track = track;
+            })).pipe(
+                switchMap((track) => this.setTrack(track))
+            ).subscribe(() => {
+                subscriber.next(file);
                 subscriber.complete();
             }));
+        });
+    }
+
+    /**
+     * Update currently playing track metadata
+     * @param track Updated track metadata to set
+     */
+    private setTrack(track: Track): Observable<void> {
+        return new Observable((subscriber) => {
+            this._channel.track = track;
+            this._currentTrackSubject.next(track);
+
+            subscriber.next();
+            subscriber.complete();
         });
     }
 }

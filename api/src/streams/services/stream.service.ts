@@ -49,9 +49,10 @@ export class StreamService {
         if(isNull(stream)) throw new BadRequestException("Channel not streaming");
 
         return firstValueFrom(stream.skip()).then(() => {
-            this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.channel.name}'`);
+            this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.name}'`);
             return true
-        }).catch(() => {
+        }).catch((error: Error) => {
+            console.error(error);
             throw new InternalServerErrorException("Cannot skip current track");
         });
     }

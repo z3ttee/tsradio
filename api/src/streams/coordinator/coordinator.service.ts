@@ -86,7 +86,7 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     public async pushListToClient(socket: Socket): Promise<void> {
-        const allChannels = Array.from(this.streams.values()).map((s) => s.channel).filter((c) => c.enabled && c.status === StreamStatus.ONLINE);
+        const allChannels = Array.from(this.streams.values()).map((s) => s.getChannel()).filter((c) => c.enabled && c.status === StreamStatus.ONLINE);
         socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_LIST, allChannels);
     }
 
@@ -114,7 +114,7 @@ export class StreamerCoordinator extends AuthGateway {
         if(!this.streams.has(channel.id)) return;
 
         const stream = this.streams.get(channel.id);
-        stream.channel = channel;
+        stream.setChannel(channel);
     }
 
     public getStreamByChannelId(channelId: string) {
@@ -127,7 +127,7 @@ export class StreamerCoordinator extends AuthGateway {
         const offset = Math.min(streams.length, Math.max(0, pageable.offset));
         const limit = Math.min(streams.length, Math.min(streams.length-offset, Math.max(1, pageable.limit)));
 
-        return Page.of(streams.slice(offset, limit).map((s) => s.channel), streams.length, pageable);
+        return Page.of(streams.slice(offset, limit).map((s) => s.getChannel()), streams.length, pageable);
     }
 
     @OnEvent(GATEWAY_EVENT_CHANNEL_CREATED)
@@ -152,21 +152,22 @@ export class StreamerCoordinator extends AuthGateway {
         // Subscribe to shutdown event
         stream.$onDestroyed.subscribe(() => {
             this.logger.warn(`Channel '${stream.name}' shut down`);
-            this.emitChannelDeleted(stream.channel.id);
+            this.emitChannelDeleted(stream.id);
         });
 
         // Subscribe to status changes
         stream.$status.subscribe((status) => {
             this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
-            this.emitChannelUpdated(stream.channel);
+            this.emitChannelUpdated(stream.getChannel());
         });
 
         // Subscribe to track changes
         stream.$currentTrack.subscribe((track) => {
             if(isNull(track)) return;
-            this.historyService.addToHistory(stream.channel.id, track);
+            this.historyService.addToHistory(stream.id, track);
+
             this.logger.log(`Channel '${stream.name}' now playing: '${track.name}' by '${track.primaryArtist}'`);
-            this.emitChannelUpdated(stream.channel);
+            this.emitChannelUpdated(stream.getChannel());
         });
 
         // Subscribe to errors
