@@ -7,7 +7,7 @@ import { Page, Pageable, isNull } from "@soundcore/common";
 import { Slug } from "@tsalliance/utilities";
 import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { GATEWAY_EVENT_CHANNEL_CREATED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
 import { User } from "src/user/entities/user.entity";
 
 @Injectable()
@@ -83,13 +83,17 @@ export class ChannelService {
             slug: channel.slug
         }).then((channel) => {
             this.registry.set(channel);
+            this.emitter.emit(GATEWAY_EVENT_CHANNEL_UPDATED, channel);
             return channel;
         });;
     }
 
     public async deleteById(id: string): Promise<boolean> {
         return this.repository.delete(id).then((result) => result.affected > 0).then((deleted) => {
-            if(deleted) this.registry.remove(id);
+            if(deleted) {
+                this.registry.remove(id);
+                this.emitter.emit(GATEWAY_EVENT_CHANNEL_DELETED, id);
+            }
             return deleted;
         })
     }

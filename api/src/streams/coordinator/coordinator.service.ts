@@ -1,9 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
 import { Stream, StreamStatus } from "../entities/stream";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
 import { OnEvent } from "@nestjs/event-emitter";
 import { ChannelRegistry } from "src/channel/services/registry.service";
 import { HistoryService } from "src/history/services/history.service";
@@ -11,6 +11,8 @@ import { Page, Pageable, isNull } from "@soundcore/common";
 import { AuthGateway } from "src/authentication/gateway/auth-gateway";
 import { UserService } from "src/user/services/user.service";
 import { OIDCService } from "src/authentication/services/oidc.service";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { User } from "src/user/entities/user.entity";
 
 @Injectable()
 @WebSocketGateway({ 
@@ -39,6 +41,11 @@ export class StreamerCoordinator extends AuthGateway {
         for(const channel of this.registry.values()) {
             this.startStream(channel);
         }
+    }
+
+    protected onConnect(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>, user: User): Promise<void> {
+        console.log("connected");
+        return;
     }
 
     /**
@@ -90,6 +97,20 @@ export class StreamerCoordinator extends AuthGateway {
         return this.streams.get(channel.id);
     }
 
+    public async stopStream(channelId: string): Promise<void> {
+        if(!this.streams.has(channelId)) return;
+
+        const stream = this.streams.get(channelId);
+        stream.shutdown().subscribe();
+    }
+
+    public async updateChannelOfStream(channel: Channel): Promise<void> {
+        if(!this.streams.has(channel.id)) return;
+
+        const stream = this.streams.get(channel.id);
+        stream.channel = channel;
+    }
+
     public getStreamByChannelId(channelId: string) {
         return this.streams.get(channelId);
     }
@@ -106,6 +127,19 @@ export class StreamerCoordinator extends AuthGateway {
     @OnEvent(GATEWAY_EVENT_CHANNEL_CREATED)
     public handleChannelCreatedEvent(channel: Channel) {
         this.startStream(channel);
+        this.emitChannelCreated(channel);
+    }
+
+    @OnEvent(GATEWAY_EVENT_CHANNEL_DELETED)
+    public handleChannelDeletedEvent(channelId: string) {
+        this.stopStream(channelId);
+        this.emitChannelDeleted(channelId);
+    }
+
+    @OnEvent(GATEWAY_EVENT_CHANNEL_UPDATED)
+    public handleChannelUpdatedEvent(channel: Channel) {
+        this.updateChannelOfStream(channel);
+        this.emitChannelUpdated(channel);
     }
 
     private subscribeToStreamEvents(stream: Stream): void {
@@ -134,6 +168,11 @@ export class StreamerCoordinator extends AuthGateway {
         // Subscribe to errors
         stream.$onError.subscribe((error) => {
             this.logger.error(`Channel '${stream.name}' caught an error: ${error.message}`, error);
+        });
+
+        // Subscribe to channel updates
+        stream.$onChannelUpdated.subscribe(() => {
+            this.logger.log(`Channel metadata was updated for '${stream.name}'`);
         });
     }
 

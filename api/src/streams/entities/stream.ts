@@ -42,6 +42,9 @@ export class Stream {
     private readonly _statusSubject = new BehaviorSubject<StreamStatus>(StreamStatus.STARTING);
     public readonly $status = this._statusSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
 
+    private readonly _onChannelUpdatedSubj: Subject<void> = new Subject();
+    public readonly $onChannelUpdated = this._onChannelUpdatedSubj.asObservable().pipe(takeUntil(this._destroySubject));
+
     private stream: ReadStream;
     private throttle: Throttle;
 
@@ -50,13 +53,22 @@ export class Stream {
     private readonly _currentTrackSubject: BehaviorSubject<Track> = new BehaviorSubject(null);
     public readonly $currentTrack = this._currentTrackSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
 
-    constructor(public readonly channel: Channel) {
+    constructor(private _channel: Channel) {
         this.$onError.pipe(takeUntil(this._destroySubject)).subscribe(() => {
             this.setStatus(StreamStatus.ERRORED);
         });
         this.$status.pipe(takeUntil(this._destroySubject)).subscribe((status) => {
             this.channel.status = status;
         });
+    }
+
+    public get channel() {
+        return this._channel;
+    }
+
+    public set channel(val: Channel) {
+        this._channel = val;
+        this._onChannelUpdatedSubj.next();
     }
 
     /**
@@ -196,8 +208,8 @@ export class Stream {
     public shutdown(): Observable<void> {
         return this.setCurrentlyStreaming(null).pipe(
             tap(() => {
-                this.throttle.destroy();
-                this.stream.destroy();
+                this.throttle?.destroy();
+                this.stream?.destroy();
                 this.setStatus(StreamStatus.OFFLINE);
                 this._statusSubject.next(StreamStatus.OFFLINE);
                 this.listeners.clear();

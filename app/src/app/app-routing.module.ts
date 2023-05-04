@@ -10,7 +10,7 @@ const routes: Routes = [
     { path: "channels", canActivate: [SSOGuard], loadChildren: () => import("./modules/admin/channels/channels.module").then((m) => m.AdminChannelsModule) },
   ]},
   { path: "", component: MainLayoutComponent, canActivate: [SSOGuard], children: [
-    { path: "", canActivate: [SSOGuard], loadChildren: () => import("./modules/channel/channel.module").then((m) => m.ChannelModule) },
+    { path: "", canActivate: [SSOGuard], loadChildren: () => import("./modules/home/home.module").then((m) => m.HomeModule) },
   ]},
 ];
 

@@ -1,17 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { ChannelIndexViewComponent } from "./views/channel-index/channel.component";
+import { HomeViewComponent } from "./views/home-view/home.component";
 import { TSRChannelModule } from "src/app/sdk/channel";
 import { TSRArtworkComponent } from "src/app/components/artwork/artwork.component";
 
 const routes: Routes = [
-    { path: "", component: ChannelIndexViewComponent }
+    { path: "", component: HomeViewComponent }
 ]
 
 @NgModule({
     declarations: [
-        ChannelIndexViewComponent
+        HomeViewComponent
     ],
     imports: [
         CommonModule,
@@ -20,6 +20,6 @@ const routes: Routes = [
         TSRArtworkComponent
     ]
 })
-export class ChannelModule {
+export class HomeModule {
 
 }
