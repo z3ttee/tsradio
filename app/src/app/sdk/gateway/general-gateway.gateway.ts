@@ -4,7 +4,7 @@ import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { environment } from "src/environments/environment";
 import { BehaviorSubject, Subject, combineLatest, map } from "rxjs";
 import { Channel } from "../channel";
-import { GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_UPDATED } from "./constants";
+import { GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "./constants";
 
 @Injectable({
   providedIn: "root"
@@ -42,6 +42,7 @@ export class TSRStreamCoordinatorGateway extends TSRAuthenticatedGateway {
     this.socket.on(GATEWAY_EVENT_CHANNEL_UPDATED, (channel: Channel) => this.handleChannelUpdated(channel));
     this.socket.on(GATEWAY_EVENT_CHANNEL_DELETED, (channelId: string) => this.handleChannelDeleted(channelId));
     this.socket.on(GATEWAY_EVENT_CHANNEL_UPDATED, (channel: Channel) => this.handleChannelCreated(channel));
+    this.socket.on(GATEWAY_EVENT_CHANNEL_PUSH_LIST, (channels: Channel[]) => this.handlePushList(channels))
   }
 
   private handleChannelUpdated(channel: Channel) {
@@ -106,11 +107,33 @@ export class TSRStreamCoordinatorGateway extends TSRAuthenticatedGateway {
     this.pushChannels();
   }
 
+  private handlePushList(allChannels: Channel[]) {
+    console.log(`Server pushed ${allChannels.length} channels to client`);
+
+    this._featuredChannels.clear();
+    this._channels.clear();
+
+    for(const channel of allChannels) {
+      if(channel.featured) {
+        this._featuredChannels.set(channel.id, channel);
+      } else {
+        this._channels.set(channel.id, channel);
+      }
+    }
+
+    this.pushAll();
+  }
+
   private pushFeaturedChannels() {
     this._featuredChannelsSubj.next(Array.from(this._featuredChannels.values()));
   }
 
   private pushChannels() {
+    this._channelsSubj.next(Array.from(this._channels.values()));
+  }
+
+  private pushAll() {
+    this._featuredChannelsSubj.next(Array.from(this._featuredChannels.values()));
     this._channelsSubj.next(Array.from(this._channels.values()));
   }
 

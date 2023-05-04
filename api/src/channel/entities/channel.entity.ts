@@ -1,5 +1,6 @@
 import { Artwork } from "src/artworks/entities/artwork.entity";
 import { StreamStatus } from "src/streams/entities/stream";
+import { Track } from "src/streams/entities/track";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -28,5 +29,6 @@ export class Channel {
     public artwork: Artwork;
 
     public status: StreamStatus;
+    public track: Track;
     
 }

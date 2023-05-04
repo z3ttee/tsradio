@@ -3,7 +3,7 @@ import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
 import { Stream, StreamStatus } from "../entities/stream";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
 import { OnEvent } from "@nestjs/event-emitter";
 import { ChannelRegistry } from "src/channel/services/registry.service";
 import { HistoryService } from "src/history/services/history.service";
@@ -44,7 +44,7 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     protected onConnect(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>, user: User): Promise<void> {
-        console.log("connected");
+        this.pushListToClient(socket);
         return;
     }
 
@@ -63,7 +63,7 @@ export class StreamerCoordinator extends AuthGateway {
      * @param channelId Id of the channel that was deleted
      */
     public async emitChannelDeleted(channelId: string): Promise<void> {
-        this.server.emit(GATEWAY_EVENT_CHANNEL_DELETED, channelId);
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_DELETED, channelId);
     }
 
     /**
@@ -71,7 +71,8 @@ export class StreamerCoordinator extends AuthGateway {
      * @param channel Updated channel data
      */
     public async emitChannelUpdated(channel: Channel): Promise<void> {
-        this.server.emit(GATEWAY_EVENT_CHANNEL_DELETED, channel);
+        
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_UPDATED, channel);
     }
 
     /**
@@ -81,7 +82,12 @@ export class StreamerCoordinator extends AuthGateway {
      */
     public async emitChannelCreated(channel: Channel): Promise<void> {
         if(!channel.enabled) return;
-        this.server.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
+    }
+
+    public async pushListToClient(socket: Socket): Promise<void> {
+        const allChannels = Array.from(this.streams.values()).map((s) => s.channel).filter((c) => c.enabled && c.status === StreamStatus.ONLINE);
+        socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_LIST, allChannels);
     }
 
     public async startStream(channel: Channel): Promise<Stream> {
@@ -143,26 +149,24 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     private subscribeToStreamEvents(stream: Stream): void {
-        // Subscribe to changes to current track
-        stream.$currentTrack.subscribe((track) => {
-            if(isNull(track)) return;
-            this.historyService.addToHistory(stream.channel.id, track);
-        });
-
         // Subscribe to shutdown event
         stream.$onDestroyed.subscribe(() => {
             this.logger.warn(`Channel '${stream.name}' shut down`);
+            this.emitChannelDeleted(stream.channel.id);
         });
 
         // Subscribe to status changes
         stream.$status.subscribe((status) => {
             this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
+            this.emitChannelUpdated(stream.channel);
         });
 
         // Subscribe to track changes
         stream.$currentTrack.subscribe((track) => {
             if(isNull(track)) return;
+            this.historyService.addToHistory(stream.channel.id, track);
             this.logger.log(`Channel '${stream.name}' now playing: '${track.name}' by '${track.primaryArtist}'`);
+            this.emitChannelUpdated(stream.channel);
         });
 
         // Subscribe to errors

@@ -67,6 +67,10 @@ export class Stream {
     }
 
     public set channel(val: Channel) {
+        // Copy previous values to val
+        val.status = this._channel?.status ?? val.status;
+        val.track = this._channel?.track ?? val.track;
+
         this._channel = val;
         this._onChannelUpdatedSubj.next();
     }
@@ -335,6 +339,7 @@ export class Stream {
                 return of(null);
             })).subscribe((track) => {
                 this._currentTrackSubject.next(track);
+                this.channel.track = track;
                 subscriber.complete();
             }));
         });

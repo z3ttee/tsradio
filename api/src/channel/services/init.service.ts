@@ -12,7 +12,11 @@ export class InitChannelService {
     ) {}
 
     public async fetchAll(): Promise<Page<Channel>> {
-        return this.repository.find({}).then((channels) => Page.of(channels, channels.length));
+        return this.repository.find({
+            relations: {
+                artwork: true
+            }
+        }).then((channels) => Page.of(channels, channels.length));
     }
 
 }
