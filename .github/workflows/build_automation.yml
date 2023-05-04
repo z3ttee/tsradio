@@ -1,4 +1,4 @@
-name: Soundcore Image Build
+name: TSRadio Image Build
       
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ jobs:
         id: dockerTag
         run: |
           echo $BRANCH
-          if [[ $BRANCH == 'main' ]]; then
+          if [[ $BRANCH == 'master' ]]; then
               echo "tag=latest" >> "$GITHUB_OUTPUT"
           else
               echo "tag=preview" >> "$GITHUB_OUTPUT"
