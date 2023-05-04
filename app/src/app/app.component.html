@@ -1,0 +1,3 @@
+<ng-container *ngIf="($props | async) as props">
+    <router-outlet *ngIf="props.ready"></router-outlet>
+</ng-container>

@@ -1,0 +1,39 @@
+<div class="p-2 bg-body-light md:min-w-96">
+  <div class="p-2">
+    <h6>Channel erstellen</h6>
+  </div>
+
+  <mat-dialog-content>
+    <div class="bg-error-light text-font text-sm p-4 rounded-sm mb-row" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="form" novalidate>
+
+      <mat-form-field class="w-full text-font pb-row" appearance="outline" color="primary">
+        <mat-label>Channel Name</mat-label>
+        <input type="text" #nameInput matInput formControlName="name" maxlength="64" class="text-font">
+        <mat-error class="p-0" *ngIf="form.get('name').hasError('required')">
+          Name wird benötigt
+        </mat-error>
+        <mat-hint align="end">{{nameInput.value.length}} / 64</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field class="w-full text-font pb-row" appearance="outline" color="primary">
+        <mat-label>Beschreibung</mat-label>
+        <input type="text" #descInput matInput formControlName="description" maxlength="254" class="text-font">
+        <mat-hint align="end">{{descInput.value.length}} / 254</mat-hint>
+      </mat-form-field>
+
+      <mat-slide-toggle formControlName="enabled" class="pb-row w-full"><p class="text-font">Aktivieren?</p></mat-slide-toggle>
+      <mat-slide-toggle formControlName="featured" class="pb-row w-full"><p class="text-font">Channel hervorheben?</p></mat-slide-toggle>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <div class="flex w-full items-center justify-end gap-2">
+      <ngs-text-button [mat-dialog-close]="null">Cancel</ngs-text-button>
+      <ngs-filled-button [showSpinner]="true" (clicked)="saveChannel($event)">Speichern</ngs-filled-button>
+    </div>
+  </mat-dialog-actions>
+</div>

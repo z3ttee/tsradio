@@ -1,0 +1,13 @@
+<div 
+    (click)="handleOnClick()"
+    [ngClass]="{'py-2.5 px-2': size === 'sm', 'py-4 px-8': size === 'lg', 'block w-full': full, 'bg-accent border-accent': accent, 'bg-body-lighter border-body-lighter': !accent, 'cursor-not-allowed pointer-events-none bg-opacity-70': loading}"
+    class="relative inline-block py-3 px-6 rounded-sm transition-all cursor-pointer select-none border-2 bg-opacity-10 hover:bg-opacity-30 active:bg-opacity-50 [&>div]:active:scale-95">
+    <span class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2" *ngIf="loading"><ngs-loader></ngs-loader></span>
+    <div 
+        [ngClass]="{'text-sm font-normal': size === 'sm', 'text-md': size === 'lg', 'justify-center': full, 'text-gray-300': !accent, 'opacity-0': loading}"
+        class="flex items-center justify-start text-white transition-all">
+        <ng-content select="ng-icon"></ng-content>
+        <ng-content></ng-content>
+    </div>
+</div>
+
