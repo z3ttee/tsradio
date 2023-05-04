@@ -1,4 +1,5 @@
 import { Artwork } from "src/app/modules/artwork/entities/artwork.entity";
+import { StreamStatus, Track } from "../../stream";
 
 export class Channel {
 
@@ -9,5 +10,7 @@ export class Channel {
     public enabled: boolean;
     public featured: boolean;
     public artwork: Artwork;
+    public track?: Track;
+    public status?: StreamStatus;
     
 }

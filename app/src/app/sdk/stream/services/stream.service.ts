@@ -6,6 +6,7 @@ import { isNull } from "@soundcore/common";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { Future, toFuture } from "src/app/utils/future";
 import { HttpClient } from "@angular/common/http";
+import { TSRStreamCoordinatorGateway } from "../../gateway";
 
 @Injectable({
     providedIn: "root"
@@ -24,10 +25,16 @@ export class TSRStreamService {
 
     constructor(
         private readonly httpClient: HttpClient,
-        private readonly ssoService: SSOService
+        private readonly ssoService: SSOService,
+        private readonly coordinator: TSRStreamCoordinatorGateway
     ) {
-        console.log("stream instance")
         this.registerEvents();
+
+        this.coordinator.$onChannelUpdated.subscribe((channel) => {
+            if(this._channel.getValue()?.id === channel?.id) {
+                this._channel.next(channel);
+            }
+        });
     }
 
     public forceSkip(): Observable<Future<boolean>> {

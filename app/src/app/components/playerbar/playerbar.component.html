@@ -1,8 +1,18 @@
 <ng-container *ngIf="($props | async) as props">
-    <div class="flex items-center justify-start overflow-hidden rounded bg-body-dark p-4">
+    <div class="flex items-center justify-start overflow-hidden rounded bg-body-dark p-3">
 
-        <div class="flex items-center justify-start w-1/3">
-            <tsr-artwork></tsr-artwork>
+        <div class="flex items-center justify-start w-1/3 gap-2">
+            <div class="min-w-14 w-14 h-14 rounded-sm overflow-hidden">
+                <tsr-artwork [artwork]="props.currentChannel?.artwork"></tsr-artwork>
+            </div>
+
+            <div class="flex-grow" *ngIf="props.currentChannel?.track as track">
+                <p class="line-clamp-1">{{ track?.name || "Unbekannter Titel" }}</p>
+                <ul class="line-clamp-1 w-full">
+                    <li class="inline text-font text-opacity-70"><span class="text-sm pointer-events-all cursor-pointer">{{ track?.primaryArtist ?? "Unbekannter Künstler" }}</span>{{ track?.featuredArtists.length > 0 ? ", " : "" }}</li>
+                    <li *ngFor="let artist of track?.featuredArtists; index as i" class="inline text-font text-opacity-70"><span class="text-sm pointer-events-all cursor-pointer">{{ artist }}</span>{{ i + 1 < track.featuredArtists.length ? ", " : "" }}</li>
+                </ul>
+            </div>
         </div>
     
         <div class="flex items-center justify-center gap-2 w-1/3">
@@ -16,7 +26,12 @@
             </button>
         </div>
 
-        <div class="flex items-center justify-end w-1/3">
+        <div class="flex items-center justify-end w-1/3 gap-2">
+            <div>
+                <p class="opacity-70 font-light text-xs text-right">Channel:</p>
+                <p class="text-sm text-right">{{ props.currentChannel?.name ?? "Nichts ausgewählt" }}</p>
+            </div>
+
             <span class="relative inline-flex justify-center items-center bg-body-light rounded-sm uppercase text-sm px-4 py-2 gap-2">
                 <span class="relative flex justify-center items-center h-3 w-3">
                     <span class="absolute inline-block w-full h-full bg-red-600 rounded-full animate-ping opacity-70"></span>

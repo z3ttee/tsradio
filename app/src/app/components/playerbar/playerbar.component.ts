@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
 import { Channel } from "src/app/sdk/channel";
+import { TSRStreamCoordinatorGateway } from "src/app/sdk/gateway";
 import { TSRStreamService } from "src/app/sdk/stream";
 
 interface PlayerInfo {
@@ -27,7 +28,7 @@ export class TSRPlayerbarComponent implements OnDestroy {
     public $props = combineLatest([
         this.streamService.$currentChannel,
         this.streamService.$isLoading,
-        this.streamService.$isPlaying
+        this.streamService.$isPlaying,
     ]).pipe(
         map(([currentChannel, isLoading, isPlaying]): PlayerInfo => ({
             currentChannel: currentChannel,
