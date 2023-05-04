@@ -1,4 +1,5 @@
 import { Artwork } from "src/artworks/entities/artwork.entity";
+import { StreamStatus } from "src/streams/entities/stream";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -25,5 +26,7 @@ export class Channel {
     @OneToOne(() => Artwork, (a) => a.channel, { onDelete: "SET NULL" })
     @JoinColumn()
     public artwork: Artwork;
+
+    public status: StreamStatus;
     
 }

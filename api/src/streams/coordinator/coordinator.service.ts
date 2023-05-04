@@ -1,13 +1,16 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { Server } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
-import { Stream } from "../entities/stream";
-import { EVENT_CHANNEL_CREATED } from "src/constants";
+import { Stream, StreamStatus } from "../entities/stream";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED } from "src/constants";
 import { OnEvent } from "@nestjs/event-emitter";
 import { ChannelRegistry } from "src/channel/services/registry.service";
 import { HistoryService } from "src/history/services/history.service";
-import { isNull } from "@soundcore/common";
+import { Page, Pageable, isNull } from "@soundcore/common";
+import { AuthGateway } from "src/authentication/gateway/auth-gateway";
+import { UserService } from "src/user/services/user.service";
+import { OIDCService } from "src/authentication/services/oidc.service";
 
 @Injectable()
 @WebSocketGateway({ 
@@ -16,40 +19,72 @@ import { isNull } from "@soundcore/common";
     },
     path: "/coordinator"
 })
-export class StreamerCoordinator implements OnGatewayConnection, OnGatewayDisconnect {
+export class StreamerCoordinator extends AuthGateway {
 
     private readonly logger = new Logger(StreamerCoordinator.name);
     private readonly streams: Map<string, Stream> = new Map();
-
-    private readonly channels: Map<string, Channel> = new Map();
-    private readonly socket2channel: Map<string, string> = new Map();
-    private readonly channel2socket: Map<string, Socket> = new Map();
 
     @WebSocketServer()
     public server: Server;
 
     constructor(
+        userService: UserService,
+        oidcService: OIDCService,
         private readonly historyService: HistoryService,
         private readonly registry: ChannelRegistry
     ) {
+        super(userService, oidcService);
+
         // Start streamers
         for(const channel of this.registry.values()) {
             this.startStream(channel);
         }
     }
 
+    /**
+     * Guard function that checks if the user is allowed to access
+     * this gateway
+     * @param roles Array of roles the user belongs to
+     * @returns True, if user is allowed to connect. Otherwise false
+     */
+    protected async canAccessGateway(roles: string[]): Promise<boolean> {
+        return true;
+    }
+
+    /**
+     * Emit channel deletion event
+     * @param channelId Id of the channel that was deleted
+     */
+    public async emitChannelDeleted(channelId: string): Promise<void> {
+        this.server.emit(GATEWAY_EVENT_CHANNEL_DELETED, channelId);
+    }
+
+    /**
+     * Emit channel update event
+     * @param channel Updated channel data
+     */
+    public async emitChannelUpdated(channel: Channel): Promise<void> {
+        this.server.emit(GATEWAY_EVENT_CHANNEL_DELETED, channel);
+    }
+
+    /**
+     * Emit channel creation event.
+     * The event will only be emitted, if the created channel is enabled
+     * @param channel Created channel data 
+     */
+    public async emitChannelCreated(channel: Channel): Promise<void> {
+        if(!channel.enabled) return;
+        this.server.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
+    }
 
     public async startStream(channel: Channel): Promise<Stream> {
         if(!this.streams.has(channel.id)) {
             const stream = new Stream(channel);
-
-            stream.$currentTrack.subscribe((track) => {
-                if(isNull(track)) return;
-                this.historyService.addToHistory(stream.channel.id, track);
-            });
+            
+            this.subscribeToStreamEvents(stream);
 
             this.streams.set(channel.id, stream);
-            stream.start();
+            stream.start().subscribe();
         }
 
         return this.streams.get(channel.id);
@@ -59,36 +94,47 @@ export class StreamerCoordinator implements OnGatewayConnection, OnGatewayDiscon
         return this.streams.get(channelId);
     }
 
-    @OnEvent(EVENT_CHANNEL_CREATED)
+    public async findActiveChannels(pageable: Pageable): Promise<Page<Channel>> {
+        const streams = Array.from(this.streams.values()).filter((s) => s.status === StreamStatus.ONLINE);
+
+        const offset = Math.min(streams.length, Math.max(0, pageable.offset));
+        const limit = Math.min(streams.length, Math.min(streams.length-offset, Math.max(1, pageable.limit)));
+
+        return Page.of(streams.slice(offset, limit).map((s) => s.channel), streams.length, pageable);
+    }
+
+    @OnEvent(GATEWAY_EVENT_CHANNEL_CREATED)
     public handleChannelCreatedEvent(channel: Channel) {
         this.startStream(channel);
     }
 
-    public async handleConnection(socket: Socket): Promise<any> {
-        // return new Promise<Channel>((resolve, reject) => {
-        //     const tokenValue = socket.handshake.auth["secret"];
-        //     resolve(this.verify(tokenValue));
-        // }).then((channel) => {
-        //     this.channels.set(channel.id, channel);
-        //     this.socket2channel.set(socket.id, channel.id);
-        //     this.channel2socket.set(channel.id, socket);
+    private subscribeToStreamEvents(stream: Stream): void {
+        // Subscribe to changes to current track
+        stream.$currentTrack.subscribe((track) => {
+            if(isNull(track)) return;
+            this.historyService.addToHistory(stream.channel.id, track);
+        });
 
-        //     this.logger.log(`Streamer for channel '${channel.name}' went online.`);
-        // }).catch((err: Error) => {
-        //     this.logger.error(`An unknown client wanted to connect to the coordinator and got blocked: ${err.message}`);
-        //     socket.disconnect();
-        // });
-    }
+        // Subscribe to shutdown event
+        stream.$onDestroyed.subscribe(() => {
+            this.logger.warn(`Channel '${stream.name}' shut down`);
+        });
 
-    public handleDisconnect(socket: Socket) {
-        // const channelId = this.socket2channel.get(socket.id);
-        // const channel = this.channels.get(channelId);
+        // Subscribe to status changes
+        stream.$status.subscribe((status) => {
+            this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
+        });
 
-        // this.channels.delete(channelId);
-        // this.socket2channel.delete(socket.id);
-        // this.channel2socket.delete(channelId);
+        // Subscribe to track changes
+        stream.$currentTrack.subscribe((track) => {
+            if(isNull(track)) return;
+            this.logger.log(`Channel '${stream.name}' now playing: '${track.name}' by '${track.primaryArtist}'`);
+        });
 
-        // this.logger.log(`Streamer for channel '${channel.name}' went offline.`);
+        // Subscribe to errors
+        stream.$onError.subscribe((error) => {
+            this.logger.error(`Channel '${stream.name}' caught an error: ${error.message}`, error);
+        });
     }
 
 }

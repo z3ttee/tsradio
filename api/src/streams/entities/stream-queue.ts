@@ -66,4 +66,8 @@ export class StreamQueue {
         writeFileSync(this.file, JSON.stringify(this.queue));
     }
 
+    public clear() {
+        this.queue.splice(0, this.queue.length);
+    }
+
 }

@@ -7,7 +7,7 @@ import { Page, Pageable, isNull } from "@soundcore/common";
 import { Slug } from "@tsalliance/utilities";
 import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { EVENT_CHANNEL_CREATED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED } from "src/constants";
 import { User } from "src/user/entities/user.entity";
 
 @Injectable()
@@ -66,7 +66,7 @@ export class ChannelService {
                 const id = insertResult.identifiers[0]?.id;
                 return this.findById(id).then((channel) => {
                     this.registry.set(channel);
-                    this.emitter.emit(EVENT_CHANNEL_CREATED, channel);
+                    this.emitter.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
                     return channel;
                 });
             })

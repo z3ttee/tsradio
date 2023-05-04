@@ -5,6 +5,8 @@ import { JwtModule } from "@nestjs/jwt";
 import { StreamsController } from "./controllers/streams.controller";
 import { StreamService } from "./services/stream.service";
 import { HistoryModule } from "src/history/history.module";
+import { OIDCModule } from "src/authentication/oidc.module";
+import { UserModule } from "src/user/user.module";
 
 @Module({
     controllers: [
@@ -15,9 +17,11 @@ import { HistoryModule } from "src/history/history.module";
         StreamerCoordinator
     ],
     imports: [
+        OIDCModule,
+        UserModule,
         ChannelModule,
         HistoryModule,
         JwtModule.register({})
     ]
 })
-export class StreamerModule {}
+export class StreamModule {}

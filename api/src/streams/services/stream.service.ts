@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { ChannelService } from "src/channel/services/channel.service";
 import { Request, Response } from "express";
 import { OIDCService } from "src/authentication/services/oidc.service";
-import { catchError, of, take } from "rxjs";
+import { catchError, firstValueFrom, of, take } from "rxjs";
 import { isNull } from "@soundcore/common";
 import { User } from "src/user/entities/user.entity";
 import { StreamerCoordinator } from "../coordinator/coordinator.service";
@@ -29,7 +29,7 @@ export class StreamService {
             const channel = await this.channelService.findById(channelId);
             const stream = await this.coordinator.startStream(channel);
 
-            const listener = await stream.createListener();
+            const listener = await firstValueFrom(stream.createListener());
 
             res.set({
                 "Content-Type": "audio/mp3",
@@ -39,7 +39,7 @@ export class StreamService {
             listener.client.pipe(res);
 
             req.on("close", () => {
-                stream.removeListener(listener.id);
+                stream.removeListener(listener.id).subscribe();
             });
         });        
     }
@@ -48,7 +48,7 @@ export class StreamService {
         const stream = this.coordinator.getStreamByChannelId(channelId);
         if(isNull(stream)) throw new BadRequestException("Channel not streaming");
 
-        return stream.skip().then(() => {
+        return firstValueFrom(stream.skip()).then(() => {
             this.logger.log(`User '${authentication.name}' skipped current track on channel '${stream.channel.name}'`);
             return true
         }).catch(() => {
