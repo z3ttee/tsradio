@@ -225,6 +225,8 @@ export class Stream {
                 this._statusSubject.next(StreamStatus.OFFLINE);
                 this.listeners.clear();
                 this.queue.clear();
+                this._destroySubject.next();
+                this._destroySubject.complete();
             }),
             toVoid()
         );

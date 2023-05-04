@@ -3,7 +3,7 @@ import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
 import { Stream, StreamStatus } from "../entities/stream";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
 import { OnEvent } from "@nestjs/event-emitter";
 import { ChannelRegistry } from "src/channel/services/registry.service";
 import { HistoryService } from "src/history/services/history.service";
@@ -148,11 +148,40 @@ export class StreamerCoordinator extends AuthGateway {
         this.emitChannelUpdated(channel);
     }
 
+    @OnEvent(GATEWAY_EVENT_CHANNEL_REQUEST_RESTART)
+    public handleRequestRestart(channel: Channel) {
+        this.restartStreamByChannel(channel);
+    }
+
+    public async restartStreamByChannel(channel: Channel): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            const id = channel.id;
+
+            const stream = this.streams.get(id);
+            if(isNull(stream)) {
+                this.logger.warn(`Could not restart stream with id '${id}': No stream running for this channel.`);
+                return resolve(false);
+            }
+
+            stream.shutdown().subscribe(() => {
+                this.streams.delete(id);
+                this.startStream(channel).then((stream) => {
+                    resolve(true);
+                });
+            });
+        }).then((restarted) => {
+            if(restarted) this.logger.log(`Channel '${channel.name}' successfully restarted.`);
+            return restarted;
+        });
+    }
+
     private subscribeToStreamEvents(stream: Stream): void {
         // Subscribe to shutdown event
         stream.$onDestroyed.subscribe(() => {
             this.logger.warn(`Channel '${stream.name}' shut down`);
             this.emitChannelDeleted(stream.id);
+
+            this.streams.delete(stream.id);
         });
 
         // Subscribe to status changes

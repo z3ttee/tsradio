@@ -31,6 +31,11 @@ export class ChannelController {
         return this.service.findById(channelId);
     }
 
+    @Get(":channelId/restart")
+    public async restartById(@Param("channelId") channelId: string) {
+        return this.service.restartById(channelId);
+    }
+
     @Roles(ROLE_ADMIN)
     @Post("")
     public async createIfNotExists(@Body() dto: CreateChannelDTO) {

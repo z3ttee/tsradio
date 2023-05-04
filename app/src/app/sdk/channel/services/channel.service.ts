@@ -43,4 +43,9 @@ export class TSRChannelService {
         if(isNull(id)) return of(Future.notfound());
         return this.httpClient.post<Artwork>(`${environment.api_base_uri}/v1/artworks/channel/${id}`, data).pipe(toFuture());
     }
+
+    public restart(id: string): Observable<Future<boolean>> {
+        if(isNull(id)) return of(Future.notfound());
+        return this.httpClient.get<boolean>(`${environment.api_base_uri}/v1/channels/${id}/restart`).pipe(toFuture());
+    }
 }

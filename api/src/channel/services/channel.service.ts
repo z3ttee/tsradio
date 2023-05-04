@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Channel } from "../entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -7,7 +7,7 @@ import { Page, Pageable, isNull } from "@soundcore/common";
 import { Slug } from "@tsalliance/utilities";
 import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
 import { User } from "src/user/entities/user.entity";
 
 @Injectable()
@@ -35,6 +35,14 @@ export class ChannelService {
                 artwork: true
             }
         });
+    }
+
+    public async restartById(id: string): Promise<boolean> {
+        const channel = await this.findById(id);
+        if(isNull(channel)) throw new NotFoundException("Channel not found");
+
+        this.emitter.emit(GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, channel);
+        return true;
     }
 
     public async findAll(pageable: Pageable, authentication?: User): Promise<Page<Channel>> {

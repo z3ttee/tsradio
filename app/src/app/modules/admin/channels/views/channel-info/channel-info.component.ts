@@ -60,6 +60,24 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         })
     }
 
+    public restart(event: NGSButtonEvent, id: string) {
+        this.service.restart(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
+            if(request.loading) return;
+
+            if(request.error) {
+                this.snackBar.open(`Fehler: ${request.error.message}`, null, { duration: 5000 });
+            } else {
+                if(request.data) {
+                    this.snackBar.open(`Channel neugestartet`, null, { duration: 5000 });
+                } else {
+                    this.snackBar.open(`Channel nicht neugestartet`, null, { duration: 5000 });
+                }
+            }
+
+            event.done();
+        })
+    }
+
     public deleteById(event: NGSButtonEvent, id: string) {
         this.service.deleteById(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
             if(request.loading) return;
