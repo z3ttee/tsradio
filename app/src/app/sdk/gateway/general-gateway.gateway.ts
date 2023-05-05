@@ -1,10 +1,10 @@
-import { Inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { TSRAuthenticatedGateway } from "./gateway";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { environment } from "src/environments/environment";
 import { BehaviorSubject, Subject, combineLatest, map } from "rxjs";
 import { Channel } from "../channel";
-import { GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "./constants";
+import { GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "../constants";
 
 @Injectable({
   providedIn: "root"

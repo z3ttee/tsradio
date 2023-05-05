@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, from, map, of, switchMap, take, tap, zip } from "rxjs";
+import { BehaviorSubject, Observable, from, map, of, switchMap, tap } from "rxjs";
 import { Channel } from "../../channel";
 import { environment } from "src/environments/environment";
 import { isNull } from "@soundcore/common";
@@ -7,6 +7,8 @@ import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { Future, toFuture } from "src/app/utils/future";
 import { HttpClient } from "@angular/common/http";
 import { TSRStreamCoordinatorGateway } from "../../gateway";
+import { VolumeManager } from "../managers/volume-manager";
+import { Platform } from "@angular/cdk/platform";
 
 @Injectable({
     providedIn: "root"
@@ -23,22 +25,46 @@ export class TSRStreamService {
     private readonly _loadingSubject = new BehaviorSubject<boolean>(false);
     public readonly $isLoading = this._loadingSubject.asObservable();
 
+    private readonly volumeManager = new VolumeManager(this.platform, this.audio);
+
     constructor(
+        private readonly platform: Platform,
         private readonly httpClient: HttpClient,
         private readonly ssoService: SSOService,
         private readonly coordinator: TSRStreamCoordinatorGateway
     ) {
         this.registerEvents();
-
+        // Subscribe to channel updates
         this.coordinator.$onChannelUpdated.subscribe((channel) => {
+            // Check if the received update concerns current channel
             if(this._channel.getValue()?.id === channel?.id) {
+                // If true, push channel data
                 this._channel.next(channel);
             }
         });
     }
 
+    /**
+     * Get the currently playing channel
+     */
     public get channel() {
         return this._channel.getValue();
+    }
+
+    /**
+     * Mute or unmute the audio 
+     * based on current state
+     */
+    public toggleMute() {
+        this.volumeManager.toggleMute();
+    }
+
+    /**
+     * Update the volume of the audio
+     * @param volume Updated volume
+     */
+    public setVolume(volume: number): void {
+        this.volumeManager.setVolume(volume);
     }
 
     public forceSkip(): Observable<Future<boolean>> {
