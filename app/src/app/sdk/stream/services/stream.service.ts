@@ -37,6 +37,10 @@ export class TSRStreamService {
         });
     }
 
+    public get channel() {
+        return this._channel.getValue();
+    }
+
     public forceSkip(): Observable<Future<boolean>> {
         const channel = this._channel.getValue();
         if(isNull(channel)) return of(Future.notfound());
@@ -115,7 +119,29 @@ export class TSRStreamService {
 
         this._playing.next(false);
         this.setLoading(false);
-        console.error(error);
+
+        const target: HTMLAudioElement = error.target as HTMLAudioElement;
+        const err = target.error;
+
+        switch (err.code) {
+            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                return;
+
+            case MediaError.MEDIA_ERR_DECODE:
+                console.warn(`Failed decoding media: ${err.message}`);
+                this.play(this.channel).subscribe();
+                return;
+
+            case MediaError.MEDIA_ERR_NETWORK:
+                console.error(`Connection failed: ${err.message}`);
+                this.play(this.channel).subscribe();
+                return;
+
+            default:
+                console.error(target);
+                console.log(err);
+                break;
+        }
     }
 
 }
