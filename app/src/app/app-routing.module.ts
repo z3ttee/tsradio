@@ -4,6 +4,7 @@ import { SSOGuard } from './modules/sso/guards/sso.guard';
 import { MainLayoutComponent } from './layouts/main/main-layout.component';
 import { AdminLayoutComponent } from './layouts/admin/admin-layout.component';
 import { AdminLayoutModule } from './layouts/admin/admin-layout.module';
+import { MainLayoutModule } from './layouts/main/main-layout.module';
 
 const routes: Routes = [
   { path: "admin", component: AdminLayoutComponent, canActivate: [SSOGuard], children: [
@@ -17,6 +18,7 @@ const routes: Routes = [
 @NgModule({
   imports: [
     AdminLayoutModule,
+    MainLayoutModule,
     RouterModule.forRoot(routes)
   ],
   exports: [RouterModule]

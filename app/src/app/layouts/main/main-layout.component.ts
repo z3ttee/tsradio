@@ -14,15 +14,8 @@ interface MainLayoutProps {
 }
 
 @Component({
-    standalone: true,
     templateUrl: "./main-layout.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        CommonModule,
-        RouterModule,
-        NGSLoaderComponent,
-        TSRPlayerbarModule
-    ]
 })
 export class MainLayoutComponent {
 

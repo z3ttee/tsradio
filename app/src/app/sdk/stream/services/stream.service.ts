@@ -37,6 +37,10 @@ export class TSRStreamService {
         });
     }
 
+    public get channel() {
+        return this._channel.getValue();
+    }
+
     public forceSkip(): Observable<Future<boolean>> {
         const channel = this._channel.getValue();
         if(isNull(channel)) return of(Future.notfound());
@@ -55,8 +59,11 @@ export class TSRStreamService {
     }
 
     private setSource(url: string): Observable<string> {
-        this.audio.src = url;
-        return from(this.audio.play()).pipe(map(() => url));
+        return from(this.ssoService.getAccessToken()).pipe(
+            map((token) => `${url}?token=${token}`),
+            tap((authenticatedUrl) => this.audio.src = authenticatedUrl),
+            switchMap(() => from(this.audio.play()).pipe(map(() => url))),
+        );
     }
 
     /**
@@ -69,29 +76,20 @@ export class TSRStreamService {
                 subscriber.add(this.play(this._channel.getValue()).subscribe((url) => {
                     subscriber.next(false);
                     subscriber.complete();
-                }))
+                }));
             } else {
                 this.audio.pause();
                 subscriber.next(true);
                 subscriber.complete();
             }
-            
         });
     }
 
     private resolveStreamUrl(channel: Channel): Observable<string> {
-        return zip([ of(channel), this.ssoService.$token ]).pipe(
-            map(([ c, token ]) => {
-                if(isNull(c)) return null;
-                return `${environment.api_base_uri}/v1/streams/${channel.id}?token=${token}`;
-            }),
-            take(1)
-        );
-    }
-
-    private publishError(error: string | Event) {
-        this._loadingSubject.next(false);
-        console.error(error);
+        return new Observable<string>((subscriber) => {
+            subscriber.next(`${environment.api_base_uri}/v1/streams/${channel.id}`);
+            subscriber.complete();
+        });
     }
 
     private registerEvents() {
@@ -103,10 +101,47 @@ export class TSRStreamService {
             this._playing.next(false)
         };
 
-        this.audio.onloadstart = () => this._loadingSubject.next(true);
-        this.audio.onloadeddata = () => this._loadingSubject.next(false);
+        this.audio.onloadstart = () => this.setLoading(true);
+        this.audio.onloadeddata = () => this.setLoading(false);
 
         this.audio.onerror = (err) => this.publishError(err)
+    }
+
+    private setLoading(loading: boolean) {
+        this._loadingSubject.next(loading ?? false);
+    }
+
+    private publishError(error: string | Event) {
+        if(typeof error === "string") {
+            console.error(error);
+            return;
+        }
+
+        this._playing.next(false);
+        this.setLoading(false);
+
+        const target: HTMLAudioElement = error.target as HTMLAudioElement;
+        const err = target.error;
+
+        switch (err.code) {
+            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                return;
+
+            case MediaError.MEDIA_ERR_DECODE:
+                console.warn(`Failed decoding media: ${err.message}`);
+                this.play(this.channel).subscribe();
+                return;
+
+            case MediaError.MEDIA_ERR_NETWORK:
+                console.error(`Connection failed: ${err.message}`);
+                this.play(this.channel).subscribe();
+                return;
+
+            default:
+                console.error(target);
+                console.log(err);
+                break;
+        }
     }
 
 }
