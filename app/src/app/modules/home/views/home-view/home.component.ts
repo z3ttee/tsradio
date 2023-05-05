@@ -10,6 +10,7 @@ import { SSOUser } from "src/app/modules/sso/entities/user.entity";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { Channel } from "src/app/sdk/channel";
 import { TSRStreamCoordinatorGateway } from "src/app/sdk/gateway";
+import { GatewayConnection } from "src/app/sdk/gateway/gateway";
 import { TSRStreamService } from "src/app/sdk/stream/services/stream.service";
 
 interface HomeViewProps {
@@ -20,6 +21,7 @@ interface HomeViewProps {
     isLoading?: boolean;
     currentChannel?: Channel;
     user: SSOUser;
+    connection?: GatewayConnection;
 }
 
 @Component({
@@ -55,16 +57,18 @@ export class HomeViewComponent implements OnDestroy {
         this.ssoService.$user,
         this.streamService.$currentChannel,
         this.streamService.$isPlaying,
-        this.streamService.$isLoading
+        this.streamService.$isLoading,
+        this.coordinator.$connection
     ]).pipe(
-        map(([ featured, other, history, user, currentChannel, isPlaying, isLoading ]): HomeViewProps => ({
+        map(([ featured, other, history, user, currentChannel, isPlaying, isLoading, connection ]): HomeViewProps => ({
             history: history,
             featured: featured,
             channels: other,
             user: user,
             isPlaying: isPlaying,
             isLoading: isLoading,
-            currentChannel: currentChannel
+            currentChannel: currentChannel,
+            connection: connection
         }))
     );
 
