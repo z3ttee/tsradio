@@ -34,7 +34,7 @@
         </div>
 
         <div class="py-row" *ngIf="props.featured.length > 0">
-            <p class="opacity-70 font-light pb-2 tracking-wide">Empfohlen</p>
+            <h6 class="pb-2">Empfohlen</h6>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
                 <tsr-channel-historical 
                     *ngFor="let channel of props.featured" 
@@ -48,7 +48,7 @@
         </div>
 
         <div class="py-row" *ngIf="props.channels.length > 0">
-            <p class="opacity-70 font-light pb-2 tracking-wide">Weitere Channels</p>
+            <h6 class="pb-2">Weitere Channels</h6>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
                 <tsr-channel-historical 
                     *ngFor="let channel of props.channels" 

@@ -1,8 +1,9 @@
 import { Artwork } from "src/artworks/entities/artwork.entity";
+import { Session } from "src/sessions/entities/session.entity";
 import { StreamStatus } from "src/streams/entities/stream";
 import { Track } from "src/streams/entities/track";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Channel {
@@ -31,6 +32,9 @@ export class Channel {
 
     @ManyToMany(() => Channel)
     public users: User[];
+
+    @OneToMany(() => Session, (s) => s.channel)
+    public sessions: Session[];
 
     public status: StreamStatus;
     public track: Track;
