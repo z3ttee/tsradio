@@ -52,7 +52,7 @@ export class SSOService {
     }
 
     public async getAccessToken() {
-        return this.keycloakService.getToken()
+        return this.keycloakService.getToken();
     }
 
     public getUser(): SSOUser {
