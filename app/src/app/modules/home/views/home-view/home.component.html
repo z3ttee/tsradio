@@ -1,5 +1,7 @@
 <ng-container *ngIf="($props | async) as props">
     <div class="px-window pt-window">
+
+        <tsr-greeting [user]="props.user"></tsr-greeting>
     
         <div (click)="forcePlay(item)" *ngFor="let item of props.featured ?? []">
             <div class="flex items-center justify-start hover:border cursor-pointer">

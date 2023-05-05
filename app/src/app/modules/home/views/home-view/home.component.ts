@@ -1,6 +1,10 @@
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
-import { Pageable } from "@soundcore/common";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
+import { TSRArtworkComponent } from "src/app/components/artwork/artwork.component";
+import { TSRGreetingComponent } from "src/app/components/greeting";
+import { SSOUser } from "src/app/modules/sso/entities/user.entity";
+import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { Channel, TSRChannelService } from "src/app/sdk/channel";
 import { TSRStreamCoordinatorGateway } from "src/app/sdk/gateway";
 import { TSRStreamService } from "src/app/sdk/stream/services/stream.service";
@@ -8,15 +12,23 @@ import { TSRStreamService } from "src/app/sdk/stream/services/stream.service";
 interface HomeViewProps {
     featured: Channel[];
     channels: Channel[];
+    user: SSOUser;
 }
 
 @Component({
+    standalone: true,
     templateUrl: "./home.component.html",
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        TSRArtworkComponent,
+        TSRGreetingComponent
+    ]
 })
 export class HomeViewComponent implements OnDestroy {
     
     constructor(
+        private readonly ssoService: SSOService,
         private readonly channelService: TSRChannelService,
         private readonly streamService: TSRStreamService,
         private readonly coordinator: TSRStreamCoordinatorGateway
@@ -29,11 +41,13 @@ export class HomeViewComponent implements OnDestroy {
 
     public $props = combineLatest([
         this.$featuredChannels,
-        this.$channels
+        this.$channels,
+        this.ssoService.$user
     ]).pipe(
-        map(([ featured, other ]): HomeViewProps => ({
+        map(([ featured, other, user ]): HomeViewProps => ({
             featured: featured,
-            channels: other
+            channels: other,
+            user: user
         }))
     );
 

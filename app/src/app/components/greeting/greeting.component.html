@@ -1,0 +1,3 @@
+<div class="w-full" *ngIf="($greeting | async) as greeting">
+    <h4>{{ greeting }}<ng-container *ngIf="!!user">, {{ user.name }}</ng-container></h4>
+</div>
