@@ -31,14 +31,10 @@ export class HomeViewComponent implements OnDestroy {
         this.$featuredChannels,
         this.$channels
     ]).pipe(
-        map(([ featured, other ]): HomeViewProps => {
-            console.log(featured, other);
-
-            return {
-                featured: featured,
-                channels: other
-            }
-        })
+        map(([ featured, other ]): HomeViewProps => ({
+            featured: featured,
+            channels: other
+        }))
     );
 
     public ngOnDestroy(): void {
