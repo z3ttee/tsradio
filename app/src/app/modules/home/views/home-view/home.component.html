@@ -5,8 +5,9 @@
         <tsr-greeting [user]="props.user"></tsr-greeting>
 
         <!-- Last listened to -->
-        <div class="pb-row" *ngIf="props.history.length > 0">
-            <div class="py-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-2">
+        <div class="py-row" *ngIf="props.history.length > 0">
+            <p class="opacity-70 font-light pb-2 tracking-wide">Zuletzt gehört</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-2">
                 <tsr-channel-historical 
                     *ngFor="let channel of props.history" 
                     [channel]="channel"

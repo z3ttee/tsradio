@@ -1,11 +1,11 @@
 <ng-container *ngIf="($props | async) as props">
-    <div @enterLeaveTrigger class="flex items-start justify-center flex-col gap-2 overflow-hidden">
-        <div class="inline-flex items-center justify-start bg-body-dark rounded p-2 px-4 gap-4">
+    <div @enterLeaveTrigger class="flex items-start justify-center flex-col gap-2 overflow-hidden pointer-events-none">
+        <div class="inline-flex items-center justify-start bg-body-dark rounded p-2 px-4 gap-4 pointer-events-auto">
             <p class="opacity-70 font-light text-xs">Channel:</p>
             <p class="opacity-70 font-light text-xs">{{ props.currentChannel?.name ?? "Nichts ausgewählt" }}</p>
         </div>
 
-        <div class="relative flex w-full items-center justify-start rounded bg-body-dark p-3">
+        <div class="relative flex w-full items-center justify-start rounded bg-body-dark p-3 pointer-events-auto">
             <div class="flex items-center justify-start w-full md:w-1/3 gap-2">
                 <div class="min-w-14 w-14 h-14 rounded-sm overflow-hidden">
                     <tsr-artwork [artwork]="props.currentChannel?.artwork"></tsr-artwork>
