@@ -7,15 +7,15 @@ import { isMobilePlatform } from "src/app/utils/helpers/isMobile";
 export class VolumeManager {
     private readonly defaultVolume = DEFAULT_VOLUME/100;
 
-    private readonly volume: BehaviorSubject<number> = new BehaviorSubject(this.read());
+    private readonly _volume: BehaviorSubject<number> = new BehaviorSubject(this.read());
     private readonly mute: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    public readonly $volume = this.volume.asObservable().pipe(
+    public readonly $volume = this._volume.asObservable().pipe(
         map((val) => val * 100),
         distinctUntilChanged()
     );
     public readonly $muted = combineLatest([
-        this.volume.asObservable(),
+        this._volume.asObservable(),
         this.mute.asObservable()
     ]).pipe(
         map(([volume, isMuted]) => volume <= 0 || isMuted), 
@@ -26,16 +26,19 @@ export class VolumeManager {
         private readonly platform: Platform,
         private readonly audio: HTMLAudioElement,
     ) {
-        this.audio.volume = Math.max(0, Math.min(1, this.read()));
-
+        this.audio.volume = Math.max(0, Math.min(1, this.volume));
         this.$volume.pipe(skip(1), debounceTime(300)).subscribe((vol) => {
             this.persist(vol);
         });
     }
 
+    public get volume() {
+        return this._volume.getValue();
+    }
+
     public setVolume(volume: number) {
         this.audio.volume = Math.max(0, Math.min(100, (volume / 100)));
-        this.volume.next(this.audio.volume)
+        this._volume.next(this.audio.volume)
     }
 
     public toggleMute() {
@@ -44,7 +47,7 @@ export class VolumeManager {
         if(isMuted) {
             // Reset to previous volume and
             // push new muted state
-            this.audio.volume = this.volume.getValue();
+            this.audio.volume = this._volume.getValue();
             this.mute.next(false);
             return;
         }
@@ -81,6 +84,9 @@ export class VolumeManager {
 
         // Read persisted volume
         const volume = localStorage.getItem(LOCALSTORAGE_VOLUME_KEY);
+
+        console.log(volume);
+
         // Check if value exists, if not, return default volume
         if(isNull(volume)) return this.defaultVolume;
         

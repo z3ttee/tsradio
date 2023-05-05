@@ -1,12 +1,12 @@
 <ng-container *ngIf="($props | async) as props">
-    <div @enterLeaveTrigger class="flex items-start justify-center flex-col gap-2">
+    <div @enterLeaveTrigger class="flex items-start justify-center flex-col gap-2 overflow-hidden">
         <div class="inline-flex items-center justify-start bg-body-dark rounded p-2 px-4 gap-4">
             <p class="opacity-70 font-light text-xs">Channel:</p>
             <p class="opacity-70 font-light text-xs">{{ props.currentChannel?.name ?? "Nichts ausgewählt" }}</p>
         </div>
 
         <div class="relative flex w-full items-center justify-start rounded bg-body-dark p-3">
-            <div class="flex items-center justify-start w-full sm:w-1/3 gap-2">
+            <div class="flex items-center justify-start w-full md:w-1/3 gap-2">
                 <div class="min-w-14 w-14 h-14 rounded-sm overflow-hidden">
                     <tsr-artwork [artwork]="props.currentChannel?.artwork"></tsr-artwork>
                 </div>
@@ -20,7 +20,7 @@
                 </div>
             </div>
         
-            <div class="flex items-center justify-center gap-2 sm:w-1/3">
+            <div class="flex items-center justify-center gap-2 md:w-1/3">
                 <button class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent" (click)="togglePause()">
                     <ng-icon name="heroPlaySolid" size="24" class="ml-1" *ngIf="!props.isPlaying && !props.isLoading"></ng-icon>
                     <ng-icon name="heroPauseSolid" size="24" *ngIf="props.isPlaying && !props.isLoading"></ng-icon>
@@ -31,7 +31,19 @@
                 </button>
             </div>
     
-            <div class="hidden sm:flex items-center justify-end w-1/3 gap-2">
+            <div class="flex items-center justify-end md:w-1/3 gap-2">
+                <!-- Speaker button -->
+                <span class="flex flex-grow relative items-center justify-end" *ngIf="!props.isMobile">
+                    <button (click)="toggleMute()" class="inline-flex items-center justify-center min-w-12 w-12 h-12 rounded-full bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-70 transition-all">
+                        <ng-icon size="21" name="heroSpeakerWave" *ngIf="!props.isMuted; else mutedIcon"></ng-icon>
+                        <ng-template #mutedIcon><ng-icon size="21" name="heroSpeakerXMark"></ng-icon></ng-template>
+                    </button>
+
+                    <span class="inline-block pl-1 pr-2 -mt-1 min-w-16 w-16 sm:max-w-28 sm:w-28">
+                        <tsr-range [max]="100" [current]="props.volume" (onChanged)="setVolume($event)"></tsr-range>
+                    </span>
+                </span>
+
                 <span class="relative hidden justify-center items-center bg-body-light rounded-sm uppercase text-sm px-4 py-2 gap-2 md:inline-flex">
                     <span class="relative flex justify-center items-center h-3 w-3">
                         <span class="absolute inline-block w-full h-full bg-red-600 rounded-full animate-ping opacity-70"></span>

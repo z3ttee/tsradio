@@ -27,6 +27,9 @@ export class TSRStreamService {
 
     private readonly volumeManager = new VolumeManager(this.platform, this.audio);
 
+    public readonly $volume = this.volumeManager.$volume;
+    public readonly $isMuted = this.volumeManager.$muted;
+
     constructor(
         private readonly platform: Platform,
         private readonly httpClient: HttpClient,

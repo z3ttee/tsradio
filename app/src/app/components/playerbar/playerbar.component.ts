@@ -1,9 +1,10 @@
-import { animate, state, style, transition, trigger } from "@angular/animations";
+import { animate, style, transition, trigger } from "@angular/animations";
+import { Platform } from "@angular/cdk/platform";
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
 import { Channel } from "src/app/sdk/channel";
-import { TSRStreamCoordinatorGateway } from "src/app/sdk/gateway";
 import { TSRStreamService } from "src/app/sdk/stream";
+import { isMobilePlatform } from "src/app/utils/helpers/isMobile";
 
 interface PlayerInfo {
     currentChannel?: Channel;
@@ -11,6 +12,7 @@ interface PlayerInfo {
     isMuted?: boolean;
     isLoading?: boolean;
     volume?: number;
+    isMobile?: boolean;
 }
 
 @Component({
@@ -44,6 +46,7 @@ export class TSRPlayerbarComponent implements OnDestroy {
     private readonly $destroy = new Subject<void>();
 
     constructor(
+        private readonly platform: Platform,
         private readonly streamService: TSRStreamService
     ) {}
 
@@ -51,11 +54,16 @@ export class TSRPlayerbarComponent implements OnDestroy {
         this.streamService.$currentChannel,
         this.streamService.$isLoading,
         this.streamService.$isPlaying,
+        this.streamService.$volume,
+        this.streamService.$isMuted
     ]).pipe(
-        map(([currentChannel, isLoading, isPlaying]): PlayerInfo => ({
+        map(([currentChannel, isLoading, isPlaying, volume, isMuted]): PlayerInfo => ({
+            isMobile: isMobilePlatform(this.platform),
             currentChannel: currentChannel,
             isLoading: isLoading,
-            isPlaying: isPlaying
+            isPlaying: isPlaying,
+            isMuted: isMuted,
+            volume: volume
         })),
     );
 
@@ -66,6 +74,14 @@ export class TSRPlayerbarComponent implements OnDestroy {
 
     public togglePause() {
         this.streamService.togglePause().pipe(takeUntil(this.$destroy)).subscribe();
+    }
+
+    public toggleMute() {
+        this.streamService.toggleMute();
+    }
+
+    public setVolume(volume: number) {
+        this.streamService.setVolume(volume);
     }
 
     public forceSkip() {
