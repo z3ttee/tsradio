@@ -3,7 +3,7 @@ import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
 import { Stream, StreamStatus } from "../entities/stream";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "src/constants";
 import { OnEvent } from "@nestjs/event-emitter";
 import { ChannelRegistry } from "src/channel/services/registry.service";
 import { HistoryService } from "src/history/services/history.service";
@@ -44,7 +44,10 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     protected onConnect(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>, user: User): Promise<void> {
-        this.pushListToClient(socket);
+        this.userService.findChannelHistoryIds(user.id).then((ids) => {
+            this.pushListToClient(socket);
+            this.pushHistoryToClient(user.id, ids);
+        })
         return;
     }
 
@@ -71,7 +74,6 @@ export class StreamerCoordinator extends AuthGateway {
      * @param channel Updated channel data
      */
     public async emitChannelUpdated(channel: Channel): Promise<void> {
-        
         this.server?.emit(GATEWAY_EVENT_CHANNEL_UPDATED, channel);
     }
 
@@ -88,6 +90,11 @@ export class StreamerCoordinator extends AuthGateway {
     public async pushListToClient(socket: Socket): Promise<void> {
         const allChannels = Array.from(this.streams.values()).map((s) => s.getChannel()).filter((c) => c.enabled && c.status === StreamStatus.ONLINE);
         socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_LIST, allChannels);
+    }
+
+    public async pushHistoryToClient(userId: string, history: string[]): Promise<void> {
+        const socket = this.getAuthenticatedSocket(userId);
+        socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, history);
     }
 
     public async startStream(channel: Channel): Promise<Stream> {

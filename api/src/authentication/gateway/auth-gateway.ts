@@ -37,8 +37,8 @@ export abstract class AuthGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly userToSocket: Map<string, string> = new Map();
 
     constructor(
-        private readonly userService: UserService,
-        private readonly oidcService: OIDCService
+        protected readonly userService: UserService,
+        protected readonly oidcService: OIDCService
     ) {}
     
     public async handleConnection(socket: Socket): Promise<any> {

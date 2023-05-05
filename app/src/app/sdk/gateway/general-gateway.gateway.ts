@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import { TSRAuthenticatedGateway } from "./gateway";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
 import { environment } from "src/environments/environment";
-import { BehaviorSubject, Subject, combineLatest, map } from "rxjs";
+import { BehaviorSubject, Observable, Subject, combineLatest, map, startWith } from "rxjs";
 import { Channel } from "../channel";
-import { GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "../constants";
+import { GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_UPDATED } from "../constants";
 
 @Injectable({
   providedIn: "root"
@@ -21,16 +21,26 @@ export class TSRStreamCoordinatorGateway extends TSRAuthenticatedGateway {
 
   private readonly _featuredChannels: Map<string, Channel> = new Map();
   private readonly _channels: Map<string, Channel> = new Map();
+  private readonly _history: Map<string, string> = new Map();
 
   private readonly _featuredChannelsSubj: BehaviorSubject<Channel[]> = new BehaviorSubject(Array.from(this._featuredChannels.values()));
   private readonly _channelsSubj: BehaviorSubject<Channel[]> = new BehaviorSubject(Array.from(this._channels.values()));
+  private readonly _historySubj: BehaviorSubject<string[]> = new BehaviorSubject(Array.from(this._history.values()));
 
   public readonly $featuredChannels = this._featuredChannelsSubj.asObservable();
   public readonly $channels = this._channelsSubj.asObservable();
+
   public readonly $allChannels = combineLatest([
     this.$featuredChannels,
     this.$channels
-  ]).pipe(map(([featured, other]) => [...featured, other]));
+  ]).pipe(map(([featured, other]) => [...featured, ...other]));
+
+  public readonly $history: Observable<Channel[]> = combineLatest([
+    this.$allChannels.pipe(startWith([])),
+    this._historySubj.asObservable(),
+  ]).pipe(
+    map(([allChannels, _]) => allChannels.filter((c) => this._history.has(c.id)))
+  );
 
   constructor(
     ssoService: SSOService,
@@ -42,7 +52,8 @@ export class TSRStreamCoordinatorGateway extends TSRAuthenticatedGateway {
     this.socket.on(GATEWAY_EVENT_CHANNEL_UPDATED, (channel: Channel) => this.handleChannelUpdated(channel));
     this.socket.on(GATEWAY_EVENT_CHANNEL_DELETED, (channelId: string) => this.handleChannelDeleted(channelId));
     this.socket.on(GATEWAY_EVENT_CHANNEL_UPDATED, (channel: Channel) => this.handleChannelCreated(channel));
-    this.socket.on(GATEWAY_EVENT_CHANNEL_PUSH_LIST, (channels: Channel[]) => this.handlePushList(channels))
+    this.socket.on(GATEWAY_EVENT_CHANNEL_PUSH_LIST, (channels: Channel[]) => this.handlePushList(channels));
+    this.socket.on(GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, (channelIds: string[]) => this.handlePushHistory(channelIds));
   }
 
   private handleChannelUpdated(channel: Channel) {
@@ -124,6 +135,18 @@ export class TSRStreamCoordinatorGateway extends TSRAuthenticatedGateway {
     this.pushAll();
   }
 
+  private handlePushHistory(channelIds: string[]) {
+    console.log(`Server pushed ${channelIds.length} channels to history`);
+
+    this._history.clear();
+
+    for(const id of channelIds) {
+      this._history.set(id, id);
+    }
+
+    this.pushHistory();
+  }
+
   private pushFeaturedChannels() {
     this._featuredChannelsSubj.next(Array.from(this._featuredChannels.values()));
   }
@@ -135,6 +158,10 @@ export class TSRStreamCoordinatorGateway extends TSRAuthenticatedGateway {
   private pushAll() {
     this._featuredChannelsSubj.next(Array.from(this._featuredChannels.values()));
     this._channelsSubj.next(Array.from(this._channels.values()));
+  }
+
+  private pushHistory() {
+    this._historySubj.next(Array.from(this._history.values()));
   }
 
 }

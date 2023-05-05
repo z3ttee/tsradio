@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Channel } from "src/channel/entities/channel.entity";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -14,5 +15,9 @@ export class User {
 
     @UpdateDateColumn()
     public updatedAt: Date;
+
+    @ManyToMany(() => Channel)
+    @JoinTable()
+    public history: Channel[];
 
 }

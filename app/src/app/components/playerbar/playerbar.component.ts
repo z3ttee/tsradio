@@ -85,9 +85,7 @@ export class TSRPlayerbarComponent implements OnDestroy {
     }
 
     public forceSkip() {
-        this.streamService.forceSkip().subscribe((request) => {
-            console.log(request);
-        })
+        this.streamService.forceSkip().subscribe();
     }
 
 }
