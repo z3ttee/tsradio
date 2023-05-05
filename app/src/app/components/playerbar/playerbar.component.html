@@ -1,5 +1,5 @@
 <ng-container *ngIf="($props | async) as props">
-    <div class="flex items-start justify-center flex-col gap-2">
+    <div @enterLeaveTrigger class="flex items-start justify-center flex-col gap-2">
         <div class="inline-flex items-center justify-start bg-body-dark rounded p-2 px-4 gap-4">
             <p class="opacity-70 font-light text-xs">Channel:</p>
             <p class="opacity-70 font-light text-xs">{{ props.currentChannel?.name ?? "Nichts ausgewählt" }}</p>
@@ -14,8 +14,8 @@
                 <div class="flex-grow" *ngIf="props.currentChannel?.track as track">
                     <p class="line-clamp-1">{{ track?.name || "Unbekannter Titel" }}</p>
                     <ul class="line-clamp-1 w-full">
-                        <li class="inline text-font text-opacity-70"><span class="text-sm pointer-events-all cursor-pointer">{{ track?.primaryArtist ?? "Unbekannter Künstler" }}</span>{{ track?.featuredArtists.length > 0 ? ", " : "" }}</li>
-                        <li *ngFor="let artist of track?.featuredArtists; index as i" class="inline text-font text-opacity-70"><span class="text-sm pointer-events-all cursor-pointer">{{ artist }}</span>{{ i + 1 < track.featuredArtists.length ? ", " : "" }}</li>
+                        <li class="inline text-font text-opacity-70"><span class="text-sm pointer-events-all">{{ track?.primaryArtist ?? "Unbekannter Künstler" }}</span>{{ track?.featuredArtists.length > 0 ? ", " : "" }}</li>
+                        <li *ngFor="let artist of track?.featuredArtists; index as i" class="inline text-font text-opacity-70"><span class="text-sm pointer-events-all">{{ artist }}</span>{{ i + 1 < track.featuredArtists.length ? ", " : "" }}</li>
                     </ul>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
 import { Channel } from "src/app/sdk/channel";
@@ -15,7 +16,28 @@ interface PlayerInfo {
 @Component({
     selector: "tsr-playerbar",
     templateUrl: "./playerbar.component.html",
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    animations: [
+        trigger("enterLeaveTrigger", [
+            transition(':enter', [
+                style({ 
+                    transform: 'translateY(10px)', 
+                    opacity: 0 
+                }),
+
+                animate(200, style({ 
+                    transform: 'translateY(0)',
+                    opacity: 1 
+                })),
+            ]),
+            transition(':leave', [
+                animate(200, style({ 
+                    transform: 'translateX(10px)', 
+                    opacity: 0 
+                }))
+            ])
+        ])
+    ]
 })
 export class TSRPlayerbarComponent implements OnDestroy {
 
