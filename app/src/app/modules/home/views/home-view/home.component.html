@@ -5,40 +5,46 @@
         <tsr-greeting [user]="props.user"></tsr-greeting>
 
         <!-- Last listened to -->
-        <div class="pb-row">
+        <div class="pb-row" *ngIf="props.history.length > 0">
             <div class="py-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-2">
-                <!-- Item -->
-                <tsr-channel-historical></tsr-channel-historical>
-                <tsr-channel-historical></tsr-channel-historical>
-                <tsr-channel-historical></tsr-channel-historical>
+                <tsr-channel-historical 
+                    *ngFor="let channel of props.history" 
+                    [channel]="channel"
+                    (select)="forcePlay(channel)">
+                </tsr-channel-historical>
             </div>
         </div>
 
-        <div (click)="forcePlay(item)" *ngFor="let item of props.featured ?? []">
-            <div class="flex items-center justify-start hover:border cursor-pointer">
-                <div class="flex items-center justify-start">
-                    <div class="w-40 h-40">
-                        <tsr-artwork [artwork]="item?.artwork"></tsr-artwork>
-                    </div>
-                    <div>
-                        <p>{{ item?.name }}</p>
-                        <p>{{ item?.description }}</p>
+        <div class="py-row" *ngIf="props.featured.length > 0">
+            <h6>Empfohlene Channels</h6>
+            <div (click)="forcePlay(item)" *ngFor="let item of props.featured ?? []">
+                <div class="flex items-center justify-start hover:border cursor-pointer">
+                    <div class="flex items-center justify-start">
+                        <div class="w-40 h-40">
+                            <tsr-artwork [artwork]="item?.artwork"></tsr-artwork>
+                        </div>
+                        <div>
+                            <p>{{ item?.name }}</p>
+                            <p>{{ item?.description }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h6>Channels</h6>
+        <div class="py-row">
+            <h6>Channels</h6>
     
-        <div (click)="forcePlay(item)" *ngFor="let item of props.channels ?? []">
-            <div class="flex items-center justify-start hover:border cursor-pointer">
-                <div class="flex items-center justify-start">
-                    <div class="w-40 h-40">
-                        <tsr-artwork [artwork]="item?.artwork"></tsr-artwork>
-                    </div>
-                    <div>
-                        <p>{{ item?.name }}</p>
-                        <p>{{ item?.description }}</p>
+            <div (click)="forcePlay(item)" *ngFor="let item of props.channels ?? []">
+                <div class="flex items-center justify-start hover:border cursor-pointer">
+                    <div class="flex items-center justify-start">
+                        <div class="w-40 h-40">
+                            <tsr-artwork [artwork]="item?.artwork"></tsr-artwork>
+                        </div>
+                        <div>
+                            <p>{{ item?.name }}</p>
+                            <p>{{ item?.description }}</p>
+                        </div>
                     </div>
                 </div>
             </div>

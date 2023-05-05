@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
+import { isNull } from "@soundcore/common";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
 import { TSRArtworkComponent } from "src/app/components/artwork/artwork.component";
 import { TSRChannelHistoricalItemComponent } from "src/app/components/channel-historical";
@@ -12,6 +13,7 @@ import { TSRStreamCoordinatorGateway } from "src/app/sdk/gateway";
 import { TSRStreamService } from "src/app/sdk/stream/services/stream.service";
 
 interface HomeViewProps {
+    history: Channel[];
     featured: Channel[];
     channels: Channel[];
     user: SSOUser;
@@ -33,7 +35,6 @@ export class HomeViewComponent implements OnDestroy {
     
     constructor(
         private readonly ssoService: SSOService,
-        private readonly channelService: TSRChannelService,
         private readonly streamService: TSRStreamService,
         private readonly coordinator: TSRStreamCoordinatorGateway
     ) {}
@@ -42,13 +43,16 @@ export class HomeViewComponent implements OnDestroy {
 
     public readonly $featuredChannels = this.coordinator.$featuredChannels.pipe(takeUntil(this.$destroy));
     public readonly $channels = this.coordinator.$channels.pipe(takeUntil(this.$destroy));
+    public readonly $history = this.coordinator.$history.pipe(takeUntil(this.$destroy));
 
     public $props = combineLatest([
         this.$featuredChannels,
         this.$channels,
+        this.$history,
         this.ssoService.$user
     ]).pipe(
-        map(([ featured, other, user ]): HomeViewProps => ({
+        map(([ featured, other, history, user ]): HomeViewProps => ({
+            history: history,
             featured: featured,
             channels: other,
             user: user
@@ -61,6 +65,7 @@ export class HomeViewComponent implements OnDestroy {
     }
 
     public forcePlay(channel: Channel) {
+        if(isNull(channel)) return;
         this.streamService.play(channel).subscribe();
     }
 

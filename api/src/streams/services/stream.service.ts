@@ -7,6 +7,7 @@ import { isNull } from "@soundcore/common";
 import { User } from "src/user/entities/user.entity";
 import { StreamerCoordinator } from "../coordinator/coordinator.service";
 import { HistoryService } from "src/history/services/history.service";
+import { UserService } from "src/user/services/user.service";
 
 @Injectable()
 export class StreamService {
@@ -15,7 +16,8 @@ export class StreamService {
     constructor(
         private readonly channelService: ChannelService,
         private readonly coordinator: StreamerCoordinator,
-        private readonly oidcService: OIDCService
+        private readonly oidcService: OIDCService,
+        private readonly userService: UserService
     ) {}
 
     public async startStreamForClient(channelId: string, token: string, req: Request, res: Response) {
@@ -25,6 +27,18 @@ export class StreamService {
             return of(null);
         })).subscribe(async (payload) => {
             if(isNull(payload)) return;
+
+            this.userService.findOrCreateByTokenPayload(payload).then((user) => {
+                return this.userService.addChannelToHistory(user.id, channelId).then((wasAdded) => {
+                    if(wasAdded) {
+                        return this.userService.findChannelHistoryByCurrentUser(user.id).then((channels) => {
+                            return this.coordinator.pushHistoryToClient(user.id, channels.items.map((c) => c.id));
+                        });
+                    }
+                });
+            }).catch((error: Error) => {
+                this.logger.error(`Could not add channel to user's history: ${error.message}`, error);
+            });
 
             const channel = await this.channelService.findById(channelId);
             const stream = await this.coordinator.startStream(channel);
