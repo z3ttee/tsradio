@@ -1,0 +1,18 @@
+<div (click)="select.emit(channel)" class="bg-body-light bg-opacity-50 p-2 md:p-4 rounded-sm border-2 border-body-lighter border-opacity-0 hover:border-opacity-70 transition-all cursor-pointer [&>div]:active:scale-95">
+    <div class="relative flex flex-1 items-center justify-start gap-2 md:gap-4 transform-gpu will-change-transform transition-all">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-sm overflow-hidden">
+            <tsr-artwork></tsr-artwork>
+        </div>
+
+        <div class="flex flex-col gap-0.5 md:gap-1.5 items-start justify-center flex-grow">
+            <p class="line-clamp-1 text-md">{{ channel?.name }}</p>
+            <div class="flex flex-col items-start justify-center" *ngIf="channel?.track">
+                <p class="line-clamp-1 text-sm">{{ channel?.track?.name }}</p>
+                <ul class="line-clamp-1 w-full">
+                    <li class="inline text-font opacity-40"><span class="text-sm pointer-events-all">{{ channel?.track?.primaryArtist ?? "Unbekannter Künstler" }}</span>{{ channel?.track?.featuredArtists?.length > 0 ? ", " : "" }}</li>
+                    <li *ngFor="let artist of channel?.track?.featuredArtists; index as i" class="inline text-font opacity-70"><span class="text-sm pointer-events-all">{{ artist }}</span>{{ i + 1 < channel?.track?.featuredArtists?.length ? ", " : "" }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

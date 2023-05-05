@@ -1,8 +1,19 @@
 <ng-container *ngIf="($props | async) as props">
     <div class="px-window pt-window">
 
+        <!-- Personalized greeting -->
         <tsr-greeting [user]="props.user"></tsr-greeting>
-    
+
+        <!-- Last listened to -->
+        <div class="pb-row">
+            <div class="py-row grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-2">
+                <!-- Item -->
+                <tsr-channel-historical></tsr-channel-historical>
+                <tsr-channel-historical></tsr-channel-historical>
+                <tsr-channel-historical></tsr-channel-historical>
+            </div>
+        </div>
+
         <div (click)="forcePlay(item)" *ngFor="let item of props.featured ?? []">
             <div class="flex items-center justify-start hover:border cursor-pointer">
                 <div class="flex items-center justify-start">

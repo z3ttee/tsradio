@@ -2,6 +2,8 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
 import { TSRArtworkComponent } from "src/app/components/artwork/artwork.component";
+import { TSRChannelHistoricalItemComponent } from "src/app/components/channel-historical";
+import { TSRChannelItemComponent } from "src/app/components/channel-item";
 import { TSRGreetingComponent } from "src/app/components/greeting";
 import { SSOUser } from "src/app/modules/sso/entities/user.entity";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
@@ -22,7 +24,9 @@ interface HomeViewProps {
     imports: [
         CommonModule,
         TSRArtworkComponent,
-        TSRGreetingComponent
+        TSRGreetingComponent,
+        TSRChannelItemComponent,
+        TSRChannelHistoricalItemComponent
     ]
 })
 export class HomeViewComponent implements OnDestroy {
