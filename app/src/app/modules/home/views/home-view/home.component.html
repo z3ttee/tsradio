@@ -11,6 +11,9 @@
                 <tsr-channel-historical 
                     *ngFor="let channel of props.history" 
                     [channel]="channel"
+                    [selected]="channel?.id === props.currentChannel?.id"
+                    [playing]="props.isPlaying"
+                    [loading]="props.isLoading"
                     (select)="forcePlay(channel)">
                 </tsr-channel-historical>
             </div>

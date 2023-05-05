@@ -8,7 +8,7 @@ import { TSRChannelItemComponent } from "src/app/components/channel-item";
 import { TSRGreetingComponent } from "src/app/components/greeting";
 import { SSOUser } from "src/app/modules/sso/entities/user.entity";
 import { SSOService } from "src/app/modules/sso/services/sso.service";
-import { Channel, TSRChannelService } from "src/app/sdk/channel";
+import { Channel } from "src/app/sdk/channel";
 import { TSRStreamCoordinatorGateway } from "src/app/sdk/gateway";
 import { TSRStreamService } from "src/app/sdk/stream/services/stream.service";
 
@@ -16,6 +16,9 @@ interface HomeViewProps {
     history: Channel[];
     featured: Channel[];
     channels: Channel[];
+    isPlaying?: boolean;
+    isLoading?: boolean;
+    currentChannel?: Channel;
     user: SSOUser;
 }
 
@@ -49,13 +52,19 @@ export class HomeViewComponent implements OnDestroy {
         this.$featuredChannels,
         this.$channels,
         this.$history,
-        this.ssoService.$user
+        this.ssoService.$user,
+        this.streamService.$currentChannel,
+        this.streamService.$isPlaying,
+        this.streamService.$isLoading
     ]).pipe(
-        map(([ featured, other, history, user ]): HomeViewProps => ({
+        map(([ featured, other, history, user, currentChannel, isPlaying, isLoading ]): HomeViewProps => ({
             history: history,
             featured: featured,
             channels: other,
-            user: user
+            user: user,
+            isPlaying: isPlaying,
+            isLoading: isLoading,
+            currentChannel: currentChannel
         }))
     );
 
