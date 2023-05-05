@@ -85,8 +85,6 @@ export class VolumeManager {
         // Read persisted volume
         const volume = localStorage.getItem(LOCALSTORAGE_VOLUME_KEY);
 
-        console.log(volume);
-
         // Check if value exists, if not, return default volume
         if(isNull(volume)) return this.defaultVolume;
         
