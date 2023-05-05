@@ -23,19 +23,27 @@
             <div class="pb-bottom"></div>
         </div>
     
-        <!-- Player bar -->
-        <!--  *ngIf="props.currentChannel" -->
-        <div class="absolute bottom-28 lg:bottom-window left-window right-window">
-            <tsr-playerbar></tsr-playerbar>
-        </div>
-    
-        <!-- Bottom navigation -->
-        <div class="w-full px-window py-3 bg-body-dark flex lg:hidden items-center justify-evenly shadow-xl">
-            <div [routerLink]="['/']" class="px-6 py-2 bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-40 transition-all rounded-sm [&>div]:active:scale-95 cursor-pointer">
-                <div class="flex flex-col justify-center items-center gap-2 transition-all will-change-transform transform-gpu">
-                    <span class="inline-block h-6 w-6 bg-body"></span>
-                    <p class="text-sm opacity-60">Channels</p>
-                </div>
+        <div class="flex flex-col gap-2 w-full">
+            <!-- Player bar -->
+            <div class="px-window lg:pb-window" *ngIf="props.currentChannel">
+                <tsr-playerbar></tsr-playerbar>
+            </div>
+
+            <!-- Bottom navigation -->
+            <div class="grid grid-cols-2 w-full px-window py-2 bg-body-dark lg:hidden shadow-xl">
+                <a [routerLink]="['/']" routerLinkActive="[&>div]:text-accent" [routerLinkActiveOptions]="{exact: true}">
+                    <div class="flex flex-col justify-center items-center gap-1 transition-all rounded will-change-transform transform-gpu bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-40 px-6 py-2 cursor-pointer">
+                        <ng-icon name="heroSignalSolid" size="24"></ng-icon>
+                        <p class="text-sm text-inherit text-opacity-60">Channels</p>
+                    </div>
+                </a>
+
+                <a [routerLink]="['/admin']" routerLinkActive="[&>div]:text-accent">
+                    <div class="flex flex-col justify-center items-center gap-1 transition-all rounded will-change-transform transform-gpu bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-40 px-6 py-2 cursor-pointer">
+                        <ng-icon name="heroCog6Tooth" size="24"></ng-icon>
+                        <p class="text-sm text-inherit text-opacity-60">Admin</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
