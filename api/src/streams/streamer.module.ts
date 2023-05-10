@@ -7,6 +7,7 @@ import { StreamService } from "./services/stream.service";
 import { HistoryModule } from "src/history/history.module";
 import { OIDCModule } from "src/authentication/oidc.module";
 import { UserModule } from "src/user/user.module";
+import { SessionsModule } from "src/sessions/sessions.module";
 
 @Module({
     controllers: [
@@ -21,6 +22,7 @@ import { UserModule } from "src/user/user.module";
         UserModule,
         ChannelModule,
         HistoryModule,
+        SessionsModule,
         JwtModule.register({})
     ]
 })

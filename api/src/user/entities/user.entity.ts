@@ -1,5 +1,6 @@
 import { Channel } from "src/channel/entities/channel.entity";
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Session } from "src/sessions/entities/session.entity";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -19,5 +20,8 @@ export class User {
     @ManyToMany(() => Channel)
     @JoinTable()
     public history: Channel[];
+
+    @OneToMany(() => Session, (s) => s.user)
+    public sessions: Session[];
 
 }
