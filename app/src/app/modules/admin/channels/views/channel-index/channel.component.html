@@ -7,25 +7,37 @@
         </div>
     </div>
 
-    
-
     <div class="py-row">
         <h6 class="pb-row">Verfügbare Channels</h6>
 
-        <cdk-virtual-scroll-viewport [itemSize]="56">
+        <cdk-virtual-scroll-viewport [itemSize]="64">
             <ng-container *cdkVirtualFor="let item of datasource; index as i">
-                <div [routerLink]="['./', item?.slug]" [style.height]="'56px'" class="flex flex-1 items-center justify-start gap-2 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all px-4 cursor-pointer" *ngIf="item">
-                    <div class="min-w-6 w-6 text-center">
-                        {{ i + 1 }}
-                    </div>
-
+                <div [routerLink]="['./', item?.slug]" [style.height]="'64px'" class="flex flex-1 items-center justify-start gap-4 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all px-4 cursor-pointer [&>.moreBtn]:hover:opacity-100" *ngIf="item">
+                    <!-- Artwork + Channel name -->
                     <div class="flex items-center justify-start flex-grow gap-2">
-                        <div class="h-11 w-11 rounded-sm overflow-hidden bg-body-light"><img class="h-full w-full"></div>
+                        <div class="h-12 w-12 rounded-sm overflow-hidden bg-body-light">
+                            <tsr-artwork [artwork]="item?.artwork"></tsr-artwork>
+                        </div>
 
-                        <div>
+                        <div class="flex-grow">
                             <p class="line-clamp-1">{{ item?.name }}</p>
                             <p class="text-sm opacity-70 line-clamp-1">{{ item?.description }}</p>
                         </div>
+                    </div>
+
+                    <!-- Featured-state badge -->
+                    <div class="inline-flex justify-start items-center min-w-24 w-24">
+                        <div class="w-full h-full text-center py-1.5 px-3 text-sm bg-body-light rounded-sm" *ngIf="item?.featured">Featured</div>
+                    </div>
+
+                    <!-- Enabled-state badge -->
+                    <div class="inline-flex justify-start items-center min-w-24 w-24">
+                        <div class="w-full h-full text-center py-1.5 px-3 text-sm bg-body-light rounded-sm">{{ item?.enabled ? 'Aktiviert' : 'Deaktiviert' }}</div>
+                    </div>
+
+                    <!-- More indicator -->
+                    <div class="moreBtn inline-flex items-center justify-center min-w-8 w-8 opacity-0 transition-all">
+                        <ng-icon name="heroChevronRight" size="21" [strokeWidth]="2"></ng-icon>
                     </div>
                 </div>
             </ng-container>
