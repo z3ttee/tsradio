@@ -29,6 +29,7 @@ export class Session {
     constructor(user: User, channel: Channel)
     constructor(user?: User, channel?: Channel) {
         this.user = user;
+        this.channel = channel;
         this.startedAt = new Date();
     }
 }
