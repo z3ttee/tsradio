@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Channel } from "src/channel/entities/channel.entity";
@@ -94,6 +94,7 @@ export class StreamerCoordinator extends AuthGateway {
 
     public async pushHistoryToClient(userId: string, history: string[]): Promise<void> {
         const socket = this.getAuthenticatedSocket(userId);
+        if(isNull(socket)) throw new InternalServerErrorException("User not connected with the websocket");
         socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, history);
     }
 
