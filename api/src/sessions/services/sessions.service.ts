@@ -4,6 +4,7 @@ import { Session } from "../entities/session.entity";
 import { Repository } from "typeorm";
 import { User } from "src/user/entities/user.entity";
 import { isNull } from "@soundcore/common";
+import { Channel } from "src/channel/entities/channel.entity";
 
 @Injectable()
 export class SessionService {
@@ -13,6 +14,7 @@ export class SessionService {
     ) {}
 
     public async findById(sessionId: string): Promise<Session> {
+        if(isNull(sessionId)) return null;
         return this.repository.findOne({
             where: {
                 id: sessionId
@@ -20,8 +22,8 @@ export class SessionService {
         });
     }
 
-    public async create(user: User): Promise<Session> {
-        return this.repository.save(new Session(user));
+    public async create(user: User, channel: Channel): Promise<Session> {
+        return this.repository.save(new Session(user, channel));
     }
 
     public async endSession(sessionId: string): Promise<Session> {

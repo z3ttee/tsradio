@@ -1,5 +1,6 @@
+import { Channel } from "src/channel/entities/channel.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Session {
@@ -11,6 +12,10 @@ export class Session {
     @JoinColumn()
     public user: User;
 
+    @ManyToOne(() => Channel, (c) => c.sessions, {  onDelete: "CASCADE", nullable: false })
+    @JoinColumn()
+    public channel: Channel;
+
     @Column({ nullable: false })
     public startedAt: Date;
 
@@ -20,7 +25,9 @@ export class Session {
     @Column({ nullable: true })
     public endedAt: Date;
 
-    constructor(user?: User) {
+    constructor();
+    constructor(user: User, channel: Channel)
+    constructor(user?: User, channel?: Channel) {
         this.user = user;
         this.startedAt = new Date();
     }

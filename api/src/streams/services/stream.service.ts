@@ -8,6 +8,7 @@ import { User } from "src/user/entities/user.entity";
 import { StreamerCoordinator } from "../coordinator/coordinator.service";
 import { UserService } from "src/user/services/user.service";
 import { SessionService } from "src/sessions/services/sessions.service";
+import { Session } from "src/sessions/entities/session.entity";
 
 @Injectable()
 export class StreamService {
@@ -34,7 +35,10 @@ export class StreamService {
 
                 const channel = await this.channelService.findById(channelId);
                 const stream = await this.coordinator.startStream(channel);
-                const session = await this.sessionService.create(user);
+                const session: Session | null = await this.sessionService.create(user, channel).catch((error: Error) => {
+                    this.logger.error(`Failed creating session: ${error.message}`, error);
+                    return null;
+                });
     
                 const listener = await firstValueFrom(stream.createListener());
     
@@ -46,9 +50,9 @@ export class StreamService {
                 listener.client.pipe(res);
     
                 req.on("close", () => {
-                    this.sessionService.endSession(session.id).catch((error: Error) => {
+                    this.sessionService.endSession(session?.id).catch((error: Error) => {
                         this.logger.error(`Failed ending session: ${error.message}`, error);
-                    })
+                    });
                     stream.removeListener(listener.id).subscribe();
                 });
 
@@ -64,6 +68,7 @@ export class StreamService {
                 });
             }).catch((error: Error) => {
                 this.logger.error(`Could not add listener to stream: ${error.message}`, error);
+                res.status(500).send();
             });
         });        
     }
