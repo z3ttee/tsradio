@@ -60,7 +60,9 @@ export class StreamService {
                 this.userService.addChannelToHistory(user.id, channelId).then((wasAdded) => {
                     if(wasAdded) {
                         return this.userService.findChannelHistoryByCurrentUser(user.id).then((channels) => {
-                            return this.coordinator.pushHistoryToClient(user.id, channels.items.map((c) => c.id));
+                            return this.coordinator.pushHistoryToClient(user.id, channels.items.map((c) => c.id)).catch((error: Error) => {
+                                this.logger.error(`Failed sending history update to user: ${error.message}`, error);
+                            });
                         });
                     }
                 }).catch((error: Error) => {

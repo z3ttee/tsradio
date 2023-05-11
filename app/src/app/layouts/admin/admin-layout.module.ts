@@ -6,6 +6,7 @@ import { NavListItemComponent } from "src/app/components/nav-list-item/nav-list-
 import { AdminLayoutComponent } from "./admin-layout.component";
 import { heroSignalSolid } from "@ng-icons/heroicons/solid"
 import { heroRectangleGroup } from "@ng-icons/heroicons/outline"
+import { TSRHeaderComponent } from "src/app/components/header";
 
 @NgModule({
     declarations: [
@@ -15,7 +16,8 @@ import { heroRectangleGroup } from "@ng-icons/heroicons/outline"
         CommonModule,
         RouterModule,
         NgIconsModule.withIcons({ heroSignalSolid, heroRectangleGroup }),
-        NavListItemComponent
+        NavListItemComponent,
+        TSRHeaderComponent
     ],
     exports: [
         AdminLayoutComponent
