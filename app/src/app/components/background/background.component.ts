@@ -1,17 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { RouterModule } from "@angular/router";
 
 @Component({
     standalone: true,
-    selector: "tsr-header",
-    templateUrl: "./header.component.html",
+    selector: "tsr-background",
+    templateUrl: "./background.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        CommonModule,
-        RouterModule
+        CommonModule
     ]
 })
-export class TSRHeaderComponent {
+export class TSRBackgroundComponent {
 
 }

@@ -1,6 +1,10 @@
 <ng-container *ngIf="($props | async) as props">
     <div class="w-full h-full relative overflow-hidden">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200vw] md:w-[160vw] lg:w-[130vw]">
+        <div class="w-full z-0 h-full absolute left-0 top-0">
+            <tsr-background></tsr-background>
+        </div>
+
+        <div class="absolute top-0 z-10 left-1/2 -translate-x-1/2 w-[200vw] md:w-[160vw] lg:w-[130vw]">
             <div class="header-gradient w-full h-[400px] lg:h-[500px] -translate-y-1/2"></div>
         </div>
     

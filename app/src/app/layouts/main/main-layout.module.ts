@@ -8,6 +8,7 @@ import { TSRPlayerbarModule } from "src/app/components/playerbar/playerbar.modul
 import { heroSignalSolid } from "@ng-icons/heroicons/solid";
 import { heroCog6Tooth } from "@ng-icons/heroicons/outline";
 import { TSRHeaderComponent } from "src/app/components/header";
+import { TSRBackgroundComponent } from "src/app/components/background/background.component";
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { TSRHeaderComponent } from "src/app/components/header";
         RouterModule,
         NGSLoaderComponent,
         TSRPlayerbarModule,
-        TSRHeaderComponent
+        TSRHeaderComponent,
+        TSRBackgroundComponent
     ],
     exports: [
         MainLayoutComponent
