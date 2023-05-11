@@ -1,0 +1,16 @@
+<header class="block w-full lg:px-window lg:py-window">
+    <div class="w-full flex items-center justify-center py-4 px-window bg-body-dark rounded-b-xl overflow-hidden lg:rounded shadow-xl">
+        <div class="items-center gap-4 hidden lg:flex">
+            <a [routerLink]="['/']"><img src="/assets/img/logo.svg" alt="" class="w-16 h-16"></a>
+            <p class="text-xl font-bold">TSRadio</p>
+        </div>
+    
+        <div class="flex-grow flex items-center justify-center text-center">
+            <a [routerLink]="['/']" class="inline lg:hidden"><img src="/assets/img/logo.svg" alt="" class="w-12 h-12"></a>
+        </div>
+    
+        <div class="items-center justify-end pr-4 gap-4 hidden lg:flex">
+            <ng-content select="[tsr-header-nav]"></ng-content>
+        </div>
+    </div>
+</header>
