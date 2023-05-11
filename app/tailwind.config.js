@@ -9,6 +9,7 @@ module.exports = {
         body: {
           lighter: "#3d3d3d",
           light: "#2d2d2d",
+          surface: "#292929",
           DEFAULT: "#191919",
           dark: "#000000"
         },
