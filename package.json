@@ -1,0 +1,21 @@
+{
+  "name": "tsradio",
+  "private": true,
+  "packageManager": "yarn@1.22.1",
+  "workspaces": [
+    "apps/*",
+    "configs/*"
+  ],
+  "scripts": {
+    "build:all": "turbo run build --no-daemon",
+    "build:api": "turbo run build:api --no-daemon",
+    "build:app": "turbo run build:app --no-daemon",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint --no-daemon"
+  },
+  "devDependencies": {
+    "eslint": "^8.41.0",
+    "eslint-config-custom": "*",
+    "turbo": "latest"
+  }
+}
