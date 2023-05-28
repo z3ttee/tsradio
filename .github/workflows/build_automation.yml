@@ -48,7 +48,7 @@ jobs:
         id: read-version
         uses: martinbeentjes/npm-get-version-action@main
         with:
-          path: api/
+          path: apps/api/
           
       - name: Output version
         id: outputVersion
@@ -83,7 +83,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: api/
+          context: apps/api/
           push: true
           tags: 
             ${{ secrets.DOCKERHUB_USERNAME }}/tsradio:${{ needs.check_branch.outputs.tag }},${{ secrets.DOCKERHUB_USERNAME }}/tsradio:${{ needs.check_branch.outputs.tag }}-${{ needs.check_version.outputs.version }}
