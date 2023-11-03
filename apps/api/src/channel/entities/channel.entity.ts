@@ -38,7 +38,7 @@ export class Channel {
     @OneToMany(() => Session, (s) => s.channel)
     public sessions: Session[];
 
-    @ManyToOne(() => Schedule, { nullable: false })
+    @ManyToOne(() => Schedule, { nullable: true })
     @JoinColumn()
     public schedule: Schedule;
 

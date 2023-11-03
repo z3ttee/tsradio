@@ -13,7 +13,7 @@
             <div class="flex-grow"></div>
             <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog()">Channel erstellen</ngs-filled-button>
         </div>
-        
+            
         <!-- Datasource error -->
         <tsr-error *ngIf="(datasource.$error | async) as error" icon="heroExclamationTriangle" [error]="error" [compact]="true"></tsr-error>
 
@@ -56,5 +56,4 @@
             Bisher existieren keine Channels. Erstelle einen Channel, um Musik abzuspielen
         </tsr-hint>
     </div>
-
 </tsr-page>
