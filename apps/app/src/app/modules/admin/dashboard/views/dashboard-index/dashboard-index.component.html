@@ -1,0 +1,30 @@
+<tsr-page pageTitle="Willkommen" pageSubtitle="Webinterface zur Verwaltung von Radio-Streams">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+        <div class="h-full rounded p-window bg-body-surface">
+            <h4>10</h4>
+            <p>Aktive Channels</p>
+        </div>
+
+        <div class="h-full rounded p-window bg-body-surface">
+            <h4>10</h4>
+            <p>Derzeitige Zuhörer</p>
+        </div>
+    </div>
+
+    <div class="w-full">
+        <h6>Was möchtest du machen?</h6>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+            <div class="relative w-full h-28 rounded bg-body-dark overflow-hidden p-window cursor-pointer hover:border-body-lighter [&>.border-container]:hover:border-body-lighter [&>.content]:active:scale-95">
+                <div class="content w-full h-full flex flex-col items-start justify-center transition-all transform-gpu will-change-transform">
+                    <h6>Channel erstellen</h6>
+                    <p class="text-font text-opacity-70 text-sm">Lege einen neuen Channel an</p>
+                </div>
+
+                <div class="absolute left-0 top-0 w-[200%] h-[200%] bg-action-gradient pointer-events-none"></div>
+                <div class="border-container absolute left-0 top-0 bottom-0 right-0 border-2 border-transparent border-opacity-50 rounded transition-all pointer-events-none"></div>
+            </div>
+        </div>
+    </div>
+
+</tsr-page>

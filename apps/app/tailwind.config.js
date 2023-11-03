@@ -44,6 +44,7 @@ module.exports = {
       },
       spacing: {
         window: "24px",
+        "window-2": "48px",
         box: "16px"
       },
       margin: ({ theme }) => ({
@@ -68,7 +69,8 @@ module.exports = {
       }),
       backgroundImage: theme => ({
         "divider": "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);",
-        "collection": "linear-gradient(130deg, rgba(255,191,80,0.7) -20%, rgba(166,150,121,0.5) 100%)"
+        "collection": "linear-gradient(130deg, rgba(255,191,80,0.7) -20%, rgba(166,150,121,0.5) 100%)",
+        "action-gradient": "radial-gradient(ellipse 70% 60% at 50% 60%, rgba(148,148,148,0.15), rgba(148,148,148,0.05))"
       }),
       gridTemplateColumns: {
         autofit: "repeat(auto-fit, minmax(0, 1fr))"

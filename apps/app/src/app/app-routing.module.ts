@@ -8,6 +8,7 @@ import { MainLayoutModule } from './layouts/main/main-layout.module';
 
 const routes: Routes = [
   { path: "admin", component: AdminLayoutComponent, canActivate: [SSOGuard], children: [
+    { path: "", canActivate: [SSOGuard], loadChildren: () => import("./modules/admin/dashboard/dashboard.module").then((m) => m.AdminDashboardModule) },
     { path: "channels", canActivate: [SSOGuard], loadChildren: () => import("./modules/admin/channels/channels.module").then((m) => m.AdminChannelsModule) },
     { path: "playlists", canActivate: [SSOGuard], loadChildren: () => import("./modules/admin/playlists/playlists.module").then((m) => m.AdminPlaylistsModule) },
   ]},
