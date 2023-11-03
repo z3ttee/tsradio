@@ -7,7 +7,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { Observable, Subject, takeUntil } from "rxjs";
 import { isNull } from "@soundcore/common";
 import { NGSButtonModule } from "../../components/button";
-import { Channel, TSRChannelModule, TSRChannelService } from "../../sdk/channel";
+import { Channel, SDKChannelModule, TSRChannelService } from "../../sdk/channel";
 import { NGSButtonEvent } from "../../components/button/types";
 import { Future } from "../../utils/future";
 
@@ -22,7 +22,7 @@ import { Future } from "../../utils/future";
         ReactiveFormsModule,
         MatInputModule,
         MatSlideToggleModule,
-        TSRChannelModule
+        SDKChannelModule
     ]
 })
 export class ChannelEditorDialogComponent implements OnDestroy {

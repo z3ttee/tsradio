@@ -1,10 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { AdminChannelIndexViewComponent } from "./views/channel-index/channel.component";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { MatDialogModule } from "@angular/material/dialog";
-import { AdminChannelInfoViewComponent } from "./views/channel-info/channel-info.component";
+import { AdminChannelInfoViewComponent } from "./views/playlist-info/channel-info.component";
 import { NgIconsModule } from "@ng-icons/core";
 import { heroTrash, heroChevronRight } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -13,15 +12,16 @@ import { TSRArtworkComponent } from "../../../components/artwork/artwork.compone
 import { NGSButtonModule } from "../../../components/button";
 import { NGSLoaderComponent } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
+import { PlaylistIndexViewComponent } from "./views/playlist-index/playlist-index.component";
 
 const routes: Routes = [
-    { path: "", component: AdminChannelIndexViewComponent },
+    { path: "", component: PlaylistIndexViewComponent },
     { path: ":channelId", component: AdminChannelInfoViewComponent }
 ];
 
 @NgModule({
     declarations: [
-        AdminChannelIndexViewComponent,
+        PlaylistIndexViewComponent,
         AdminChannelInfoViewComponent
     ],
     imports: [
@@ -38,4 +38,4 @@ const routes: Routes = [
         SDKChannelModule
     ]
 })
-export class AdminChannelsModule {}
+export class AdminPlaylistsModule {}

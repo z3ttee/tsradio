@@ -7,6 +7,8 @@ import { FileSystemModule } from './filesystem/filesystem.module';
 import { ArtworkModule } from './artworks/artwork.module';
 import { StreamModule } from './streams/streamer.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from './schedule/schedule.module';
+import { PlaylistModule } from './playlist/playlist.module';
 
 @Module({
   imports: [
@@ -40,7 +42,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot(),
     ArtworkModule,
     ChannelModule,
-    StreamModule
+    StreamModule,
+    ScheduleModule,
+    PlaylistModule
   ],
 })
 export class AppModule {}

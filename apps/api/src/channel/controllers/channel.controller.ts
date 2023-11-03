@@ -21,9 +21,9 @@ export class ChannelController {
         return this.service.findAll(pageable, authentication);
     }
 
-    @Get("featured")
-    public async findFeatured(@Pagination() pageable: Pageable, @Authentication() authentication: User) {
-        return this.service.findFeatured(pageable, authentication);
+    @Get("overview")
+    public async findOverview() {
+        return this.service.findChannelOverview();
     }
 
     @Get(":channelId")

@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
+import { FindOptionsSelect, Repository } from "typeorm";
 import { Channel } from "../entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
@@ -9,9 +9,11 @@ import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { User } from "../../user/entities/user.entity";
+import { ChannelOverview } from "../entities/channel-overview.entity";
 
 @Injectable()
 export class ChannelService {
+    private readonly logger = new Logger(ChannelService.name);
 
     constructor(
         private readonly registry: ChannelRegistry,
@@ -19,12 +21,94 @@ export class ChannelService {
         @InjectRepository(Channel) private readonly repository: Repository<Channel>,
     ) {}
 
+    /**
+     * Find an overview of all channels.
+     * The returned object contains two lists.
+     * One list has all featured channels while the
+     * other list only has non-featured channels
+     * @returns Object representing the overview
+     */
+    public async findChannelOverview(): Promise<ChannelOverview> {
+        const cols: FindOptionsSelect<Channel> = {
+            id: true,
+            name: true,
+            slug: true,
+            description: true,
+            artwork: {
+                id: true
+            },
+            featured: true,
+            status: true,
+            track: {
+                name: true,
+                featuredArtists: true,
+                primaryArtist: true
+            }
+        }
+
+        return Promise.all([
+            this.findAllFeaturedChannels(cols),
+            this.findAllNonFeaturedChannels(cols)
+        ]).then(([featured, nonfeatured]) => ({
+            featured: featured ?? [],
+            nonfeatured: nonfeatured ?? []
+        }));
+    }
+
+    /**
+     * Find all featured channels
+     * @param cols Optional selection of returned columns
+     * @returns List of featured channels
+     */
+    public async findAllFeaturedChannels(cols?: FindOptionsSelect<Channel>): Promise<Channel[]> {
+        return this.repository.find({
+            where: {
+                featured: true,
+                enabled: true
+            },
+            relations: {
+                artwork: true,
+                track: true
+            },
+            select: cols
+        }).catch((error: Error) => {
+            this.logger.error(`Error occured while fetching featured channels: ${error.message}`, error.stack);
+            throw new InternalServerErrorException();
+        });
+    }
+
+    /**
+     * Find all non-featured channels
+     * @param cols Optional selection of returned columns
+     * @returns List of non-featured channels
+     */
+    public async findAllNonFeaturedChannels(cols?: FindOptionsSelect<Channel>): Promise<Channel[]> {
+        return this.repository.find({
+            where: {
+                featured: false,
+                enabled: true
+            },
+            relations: {
+                artwork: true,
+                track: true
+            },
+            select: cols
+        }).catch((error: Error) => {
+            this.logger.error(`Error occured while fetching non-featured channels: ${error.message}`, error.stack);
+            throw new InternalServerErrorException();
+        });
+    }
+
     public async fetchAll(): Promise<Page<Channel>> {
         return this.repository.find({
 
         }).then((channels) => Page.of(channels, channels.length));
     }
 
+    /**
+     * Find a channel by its id
+     * @param id Id of the channel
+     */
     public async findById(id: string): Promise<Channel> {
         return this.repository.findOne({ 
             where: [

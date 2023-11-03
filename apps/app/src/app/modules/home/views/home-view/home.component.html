@@ -1,11 +1,11 @@
 <ng-container *ngIf="($props | async) as props">
-    <div class="px-window">
+    <div class="flex flex-col gap-12 px-window [&>*]:w-full">
 
         <!-- Personalized greeting -->
         <tsr-greeting [user]="props.user"></tsr-greeting>
 
         <!-- Socket connection status -->
-        <ng-container *ngIf="props.connection?.status != 'disconnected' && props.connection?.reconnectAttempts > 0">
+        <ng-container *ngIf="props.connection?.status !== 'disconnected' && props.connection?.reconnectAttempts > 0">
             <div class="py-row">
                 <div class="flex flex-1 items-center justify-start w-full bg-warn p-3 rounded-sm border border-warn-light">
                     <div>
@@ -19,7 +19,7 @@
         </ng-container>
 
         <!-- Last listened to -->
-        <div class="py-row" *ngIf="props.history.length > 0">
+        <!-- <div class="py-row" *ngIf="props.history.length > 0">
             <p class="opacity-70 font-light pb-2 tracking-wide">Zuletzt gehört</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
                 <tsr-channel-historical 
@@ -31,23 +31,35 @@
                     (select)="forcePlay(channel)">
                 </tsr-channel-historical>
             </div>
+        </div> -->
+
+        <div class="w-full">
+            <ng-container *ngIf="!_channelOverview().loading; else featuredChannelsSection">
+                <div class="mb-2 h-8 max-w-64 bg-body-light rounded animate-pulse"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
+                    
+                </div>
+            </ng-container>
+
+            <ng-template #featuredChannelsSection> 
+                <h5 class="mb-2">Empfohlene Channels</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
+                    <tsr-channel-historical 
+                        *ngFor="let channel of _channelOverview().data?.featured" 
+                        [channel]="channel"
+                        [selected]="channel?.id === props.currentChannel?.id"
+                        [playing]="props.isPlaying"
+                        [loading]="props.isLoading"
+                        (select)="forcePlay(channel)">
+                    </tsr-channel-historical>
+                </div>
+            </ng-template>
+
+            
         </div>
 
-        <div class="py-row" *ngIf="props.featured.length > 0">
-            <h6 class="pb-2">Empfohlen</h6>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
-                <tsr-channel-historical 
-                    *ngFor="let channel of props.featured" 
-                    [channel]="channel"
-                    [selected]="channel?.id === props.currentChannel?.id"
-                    [playing]="props.isPlaying"
-                    [loading]="props.isLoading"
-                    (select)="forcePlay(channel)">
-                </tsr-channel-historical>
-            </div>
-        </div>
-
-        <div class="py-row" *ngIf="props.channels.length > 0">
+        <!-- <div class="py-row" *ngIf="props.channels.length > 0">
             <h6 class="pb-2">Weitere Channels</h6>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
                 <tsr-channel-historical 
@@ -58,6 +70,13 @@
                     [loading]="props.isLoading"
                     (select)="forcePlay(channel)">
                 </tsr-channel-historical>
+            </div>
+        </div> -->
+
+        <div class="grid grid-cols-3 w-full">
+            <div class="w-full h-full min-h-24 bg-body-dark rounded p-6">
+                <h5>Streams einbinden</h5>
+                <p class="mt-2 text-sm">Liste aller Direktlinks zum einbinden der Streams</p>
             </div>
         </div>
     </div>

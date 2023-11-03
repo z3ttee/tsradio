@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { isNull } from "@soundcore/common";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
-import { Channel } from "../../../../sdk/channel";
+import { Channel, ChannelOverview, SDKChannelModule, TSRChannelService } from "../../../../sdk/channel";
 import { SSOUser } from "../../../sso/entities/user.entity";
 import { GatewayConnection } from "../../../../sdk/gateway/gateway";
 import { TSRArtworkComponent } from "../../../../components/artwork/artwork.component";
@@ -12,11 +13,10 @@ import { TSRGreetingComponent } from "../../../../components/greeting";
 import { SSOService } from "../../../sso/services/sso.service";
 import { TSRStreamCoordinatorGateway } from "../../../../sdk/gateway";
 import { TSRStreamService } from "../../../../sdk/stream";
+import { Future } from "../../../../utils/future";
 
 interface HomeViewProps {
-    history: Channel[];
-    featured: Channel[];
-    channels: Channel[];
+    overview: ChannelOverview;
     isPlaying?: boolean;
     isLoading?: boolean;
     currentChannel?: Channel;
@@ -30,19 +30,24 @@ interface HomeViewProps {
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule,
+        SDKChannelModule,
         TSRArtworkComponent,
         TSRGreetingComponent,
         TSRChannelItemComponent,
         TSRChannelHistoricalItemComponent
     ]
 })
-export class HomeViewComponent implements OnDestroy {
+export class HomeViewComponent implements OnInit, OnDestroy {
+    private readonly _destroyRef = inject(DestroyRef);
+    private readonly _channelService = inject(TSRChannelService);
     
     constructor(
         private readonly ssoService: SSOService,
         private readonly streamService: TSRStreamService,
         private readonly coordinator: TSRStreamCoordinatorGateway
     ) {}
+
+    protected readonly _channelOverview = signal<Future<ChannelOverview>>(Future.loading());
 
     private readonly $destroy: Subject<void> = new Subject();
 
@@ -61,9 +66,7 @@ export class HomeViewComponent implements OnDestroy {
         this.coordinator.$connection
     ]).pipe(
         map(([ featured, other, history, user, currentChannel, isPlaying, isLoading, connection ]): HomeViewProps => ({
-            history: history,
-            featured: featured,
-            channels: other,
+            overview: { featured, nonfeatured: other },
             user: user,
             isPlaying: isPlaying,
             isLoading: isLoading,
@@ -71,6 +74,12 @@ export class HomeViewComponent implements OnDestroy {
             connection: connection
         }))
     );
+
+    public ngOnInit(): void {
+        this._channelService.findOverview().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((response) => {
+            this._channelOverview.set(response);
+        });
+    }
 
     public ngOnDestroy(): void {
         this.$destroy.next();

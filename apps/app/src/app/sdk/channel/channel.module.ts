@@ -6,6 +6,6 @@ import { TSRChannelService } from "./services/channel.service";
         TSRChannelService
     ]
 })
-export class TSRChannelModule {
+export class SDKChannelModule {
 
 }

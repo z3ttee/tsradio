@@ -4,9 +4,10 @@ import { RouterModule } from "@angular/router";
 import { NgIconsModule } from "@ng-icons/core";
 import { AdminLayoutComponent } from "./admin-layout.component";
 import { heroSignalSolid } from "@ng-icons/heroicons/solid";
-import { heroRectangleGroup } from "@ng-icons/heroicons/outline";
+import { heroRectangleGroup, heroArrowLeft } from "@ng-icons/heroicons/outline";
 import { NavListItemComponent } from "../../components/nav-list-item/nav-list-item.component";
 import { TSRHeaderComponent } from "../../components/header";
+import { TSRLogo } from "../../components";
 
 @NgModule({
     declarations: [
@@ -15,9 +16,10 @@ import { TSRHeaderComponent } from "../../components/header";
     imports: [
         CommonModule,
         RouterModule,
-        NgIconsModule.withIcons({ heroSignalSolid, heroRectangleGroup }),
+        NgIconsModule.withIcons({ heroSignalSolid, heroRectangleGroup, heroArrowLeft }),
         NavListItemComponent,
-        TSRHeaderComponent
+        TSRHeaderComponent,
+        TSRLogo
     ],
     exports: [
         AdminLayoutComponent

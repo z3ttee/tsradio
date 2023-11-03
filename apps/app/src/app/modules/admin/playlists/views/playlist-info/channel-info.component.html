@@ -1,0 +1,36 @@
+<ng-container *ngIf="($props | async) as props">
+
+    <div class="flex items-center justify-center w-full p-4" *ngIf="props.channel.loading">
+        <ngs-loader></ngs-loader>
+    </div>
+
+    <div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement *ngIf="!props.channel.loading && props.channel.data">
+        <div class="flex flex-col justify-center items-start lg:flex-row lg:items-end lg:justify-start gap-2">
+            <div class="relative w-48 lg:min-w-32 lg:w-32 aspect-square rounded overflow-hidden mx-auto [&>div]:hover:opacity-100 [&>div]:hover:pointer-events-auto [&>img]:hover:scale-105">
+                <div (click)="artworkInput.click()" class="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-black opacity-0 bg-opacity-60 z-50 pointer-events-none cursor-pointer transition-all p-4 [&>span]:active:scale-90">
+                    <span class="text-sm text-center transition-all">Artwork ändern</span>
+                </div>
+                <tsr-artwork [artwork]="props.artwork"></tsr-artwork>
+
+                <input type="file" name="artwork-upload"  id="artwork-upload" class="hidden" #artworkInput (change)="onFileSelected($event, props.channel.data?.id)">
+            </div>
+
+            <div class="flex-grow">
+                <p class="text-xs uppercase opacity-70">Channel</p>
+                <h4 class="flex-grow line-clamp-2">{{ props.channel.data?.name }}</h4>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-start py-row gap-2">
+            <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog(props.channel.data)">Channel bearbeiten</ngs-filled-button>
+            <ngs-filled-button [showSpinner]="true" [accent]="true" (clicked)="restart($event, props.channel.data?.id)">Neustarten</ngs-filled-button>
+            <ngs-filled-button [showSpinner]="true" [accent]="false" (clicked)="deleteById($event, props.channel.data?.id)"><ng-icon name="heroTrash" size="21"></ng-icon></ngs-filled-button>
+        </div>
+
+        <div>
+            <p class="text-base">Ordner der Playlist</p>
+            <p class="text-sm pb-4 tracking-wide opacity-70">Wenn du Dateien hinzufügst, entfernst oder aktualisierst, musst du danach den Channel ggf. neu starten.</p>
+            <p class="font-mono bg-body-light border border-body-lighter rounded text-font-secondary p-4">/channels/{{ props.channel.data?.id }}</p>
+        </div>
+    </div>
+</ng-container>

@@ -1,41 +1,31 @@
-<div class="relative flex flex-1 flex-col items-start justify-start mx-auto h-full overflow-hidden lg:w-full select-none lg:rounded max-w-[1200px]">
-    <!-- Header -->
-    <div class="w-full">
-        <tsr-header>
-            <ng-container tsr-header-nav>
-                <a [routerLink]="['/']" routerLinkActive="text-accent">Channels</a>
-            </ng-container>
-        </tsr-header>
-    </div>
+<div class="relative flex flex-1 items-start justify-start h-full w-full overflow-hidden select-none lg:rounded">
+    <!-- Drawer -->
+    <div class="absolute left-0 top-0 bottom-0 h-full bg-body-dark min-w-80 w-80 p-window rounded-r-xl lg:relative transform-gpu will-change-transform transition-all -translate-x-full lg:translate-x-0">
+        <div class="flex flex-col items-start justify-start gap-window w-full h-full">
+            <div class="w-full text-left">
+                <tsr-logo class="mb-4 w-20 h-20 cursor-pointer" [routerLink]="['/']"></tsr-logo>
 
-    <!-- Content -->
-    <div class="flex-grow w-full overflow-hidden lg:pb-row lg:px-window">
-        <div class="flex flex-1 h-full items-start justify-start gap-row">
-            <!-- Drawer -->
-            <div class="hidden flex-col gap-1 h-full w-80 rounded shadow-xl bg-body-dark p-4 lg:flex">
+                <nav-list-item [routerLink]="['/']" [routerLinkActiveOptions]="{exact: true}"><ng-icon name="heroArrowLeft" size="24"></ng-icon>Zurück zur App</nav-list-item>
+            </div>
+
+            <div class="flex flex-col w-full gap-1 h-full">
                 <p class="text-xs uppercase opacity-70 py-2">Allgemein</p>
                 <nav-list-item [routerLink]="['./']" [routerLinkActiveOptions]="{exact: true}"><ng-icon name="heroRectangleGroup" size="24"></ng-icon>Dashboard</nav-list-item>
                 <nav-list-item [routerLink]="['./channels']"><ng-icon name="heroSignalSolid" size="24"></ng-icon>Channels</nav-list-item>
-            </div>
-
-            <!-- Content -->
-            <div class="flex-grow h-full overflow-y-auto rounded">
-                <router-outlet></router-outlet>
+                <nav-list-item [routerLink]="['./playlists']"><ng-icon name="heroSignalSolid" size="24"></ng-icon>Playlists</nav-list-item>
+                <nav-list-item [routerLink]="['./schedules']"><ng-icon name="heroSignalSolid" size="24"></ng-icon>Sendepläne</nav-list-item>
             </div>
         </div>
     </div>
 
-    <!-- Player bar -->
-    <!-- <div class="absolute bottom-28 lg:bottom-window left-window right-window overflow-hidden rounded bg-body-dark p-4">
-        
-    </div> -->
-
-    <!-- Bottom navigation -->
-    <div class="w-full px-window py-3 bg-body-dark flex lg:hidden items-center justify-evenly shadow-xl">
-        <div [routerLink]="['./channels']" class="px-6 py-2 bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-40 transition-all rounded-sm [&>div]:active:scale-95 cursor-pointer">
-            <div class="flex flex-col justify-center items-center gap-2 transition-all will-change-transform transform-gpu">
-                <ng-icon name="heroRectangleGroup" size="21"></ng-icon>
-                <p class="text-sm opacity-60">Channels</p>
+    <!-- Content -->
+    <div class="w-full h-full">
+        <div class="flex flex-col items-start justify-start w-full h-full">
+            <!-- <div class="w-full">
+                Header
+            </div> -->
+            <div class="flex-grow w-full border pt-window px-window overflow-y-auto">
+                <router-outlet></router-outlet>
             </div>
         </div>
     </div>

@@ -1,10 +1,11 @@
 
-import { Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Artwork } from "../../artworks/entities/artwork.entity";
 import { User } from "../../user/entities/user.entity";
 import { Session } from "../../sessions/entities/session.entity";
 import { Track } from "../../streams/entities/track";
 import { StreamStatus } from "../../streams/entities/stream";
+import { Schedule } from "../../schedule/entities/schedule.entity";
 
 @Entity()
 export class Channel {
@@ -37,7 +38,13 @@ export class Channel {
     @OneToMany(() => Session, (s) => s.channel)
     public sessions: Session[];
 
+    @ManyToOne(() => Schedule, { nullable: false })
+    @JoinColumn()
+    public schedule: Schedule;
+
+    @Column({ type: "enum", enum: StreamStatus, default: StreamStatus.OFFLINE })
     public status: StreamStatus;
+
     public track: Track;
     
 }

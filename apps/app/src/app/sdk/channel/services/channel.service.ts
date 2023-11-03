@@ -7,6 +7,7 @@ import { CreateChannelDTO } from "../../../modules/admin/channels/dtos/create-ch
 import { environment } from "../../../../environments/environment";
 import { Future, toFuture } from "../../../utils/future";
 import { Artwork } from "../../../modules/artwork/entities/artwork.entity";
+import { ChannelOverview } from "../entities/channel-overview.entity";
 
 @Injectable()
 export class TSRChannelService {
@@ -14,6 +15,10 @@ export class TSRChannelService {
     constructor(
         private readonly httpClient: HttpClient
     ) {}
+
+    public findOverview(): Observable<Future<ChannelOverview>> {
+        return this.httpClient.get<ChannelOverview>(`${environment.api_base_uri}/v1/channels/overview`).pipe(toFuture());    
+    }
 
     public findById(id: string): Observable<Future<Channel>> {
         if(isNull(id)) return of(Future.notfound());
