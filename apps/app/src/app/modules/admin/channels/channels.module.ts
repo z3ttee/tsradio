@@ -6,13 +6,14 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { MatDialogModule } from "@angular/material/dialog";
 import { AdminChannelInfoViewComponent } from "./views/channel-info/channel-info.component";
 import { NgIconsModule } from "@ng-icons/core";
-import { heroTrash, heroChevronRight } from "@ng-icons/heroicons/outline";
+import { heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ChannelEditorDialogComponent } from "../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
 import { TSRArtworkComponent } from "../../../components/artwork/artwork.component";
 import { NGSButtonModule } from "../../../components/button";
 import { NGSLoaderComponent } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
+import { TSRPage, TSRHint, TSRError } from "../../../components";
 
 const routes: Routes = [
     { path: "", component: AdminChannelIndexViewComponent },
@@ -34,8 +35,11 @@ const routes: Routes = [
         ScrollingModule,
         MatSnackBarModule,
         TSRArtworkComponent,
-        NgIconsModule.withIcons({ heroTrash, heroChevronRight }),
-        SDKChannelModule
+        NgIconsModule.withIcons({ heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle }),
+        SDKChannelModule,
+        TSRPage,
+        TSRHint,
+        TSRError
     ]
 })
 export class AdminChannelsModule {}

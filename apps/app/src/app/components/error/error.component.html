@@ -1,0 +1,13 @@
+<div class="flex items-center justify-start bg-error-light rounded gap-window" [ngClass]="{
+    'p-4': compact,
+    'p-window': !compact
+}">
+    <div class="min-w-7 w-7" *ngIf="icon">
+        <ng-icon [name]="icon" size="28"></ng-icon>
+    </div>
+    <div>
+        <p class="mb-1">Ein Fehler ist aufgetreten</p>
+        <p class="text-sm" *ngIf="error.statusCode === 0">Bitte überprüfe deine Internetverbindung. Wenn du mit dem Internet verbunden bist, dann ist womöglich der TSRadio Service derzeit gestört.</p>
+        <p class="text-sm" *ngIf="error.statusCode !== 0">{{ error.message }}</p>
+    </div>
+</div>

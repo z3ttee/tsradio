@@ -1,39 +1,47 @@
-<div class="p-2 bg-body-light md:min-w-96">
-  <div class="p-2">
-    <h6>Channel erstellen</h6>
+<div class="flex flex-col items-start justify-start gap-window-2 p-window-2 bg-body-light w-full md:min-w-96">
+  <!-- Dialog title -->
+  <div class="w-full">
+    <h5>Channel erstellen</h5>
+    <p class="mt-1">
+      Lege einen neuen Channel an, um das Programm im Radio zu diversifizieren.
+    </p>
+
+    <!-- Error message -->
+    <tsr-error class="mt-4" *ngIf="_latestError()" icon="" [error]="_latestError()" [compact]="true"></tsr-error>
   </div>
 
-  <mat-dialog-content>
-    <div class="bg-error-light text-font text-sm p-4 rounded-sm mb-row" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
+  <div class="w-full">
+    
 
-    <form [formGroup]="form" novalidate>
-
-      <mat-form-field class="w-full text-font pb-row" appearance="outline" color="primary">
-        <mat-label>Channel Name</mat-label>
+    <form [formGroup]="_channelForm" novalidate>
+      <mat-form-field class="w-full text-font pb-4" appearance="fill">
+        <mat-label>Name des Channels</mat-label>
         <input type="text" #nameInput matInput formControlName="name" maxlength="64" class="text-font">
-        <mat-error class="p-0" *ngIf="form.get('name').hasError('required')">
+        <mat-error class="p-0" *ngIf="_channelForm.get('name').hasError('required')">
           Name wird benötigt
+        </mat-error>
+        <mat-error class="p-0" *ngIf="_channelForm.get('name').hasError('minlength')">
+          Mindestens 3 Zeichen benötigt
         </mat-error>
         <mat-hint align="end">{{nameInput.value.length}} / 64</mat-hint>
       </mat-form-field>
 
-      <mat-form-field class="w-full text-font pb-row" appearance="outline" color="primary">
+      <mat-form-field class="w-full text-font pb-4" appearance="fill">
         <mat-label>Beschreibung</mat-label>
         <input type="text" #descInput matInput formControlName="description" maxlength="254" class="text-font">
+        <mat-error class="p-0" *ngIf="_channelForm.get('description').hasError('minlength')">
+          Mindestens 3 Zeichen benötigt
+        </mat-error>
         <mat-hint align="end">{{descInput.value.length}} / 254</mat-hint>
       </mat-form-field>
 
-      <mat-slide-toggle formControlName="enabled" class="pb-row w-full"><p class="text-font">Aktivieren?</p></mat-slide-toggle>
-      <mat-slide-toggle formControlName="featured" class="pb-row w-full"><p class="text-font">Channel hervorheben?</p></mat-slide-toggle>
+      <mat-slide-toggle formControlName="enabled" class="pb-4 w-full" color="primary"><p class="text-font">Channel im Radio auflisten</p></mat-slide-toggle>
+      <mat-slide-toggle formControlName="featured" class="pb-4 w-full" color="primary"><p class="text-font">Channel hervorheben?</p></mat-slide-toggle>
     </form>
-  </mat-dialog-content>
+  </div>
 
-  <mat-dialog-actions>
-    <div class="flex w-full items-center justify-end gap-2">
-      <ngs-text-button [mat-dialog-close]="null">Cancel</ngs-text-button>
-      <ngs-filled-button [showSpinner]="true" (clicked)="saveChannel($event)">Speichern</ngs-filled-button>
-    </div>
-  </mat-dialog-actions>
+  <div class="grid grid-cols-1 md:grid-cols-2 w-full items-center justify-end gap-2">
+    <ngs-text-button [full]="true" [mat-dialog-close]="null">Abbrechen</ngs-text-button>
+    <ngs-filled-button [full]="true" [accent]="true" [showSpinner]="true" (clicked)="saveChannel($event)">Speichern</ngs-filled-button>
+  </div>
 </div>

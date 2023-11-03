@@ -1,15 +1,23 @@
-<div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement>
-    <div class="flex items-center justify-start">
-        <h4 class="flex-grow">Channels</h4>
+<tsr-page pageTitle="Channels" pageSubtitle="Verwaltung von Channels">
+    <!-- Page hint -->
+    <tsr-hint icon="heroInformationCircle">
+        Das Radio besteht aus verschiedenen Channels. 
+        Jedem Channel kann ein eigenes Programm zugewiesen werden. 
+        Dabei können verschiedene Uhrzeiten eingestellt werden, um das Programm zu diversifizieren.
+    </tsr-hint>
 
-        <div class="flex items-center justify-start py-row">
+    <!-- Channel list -->
+    <div class="flex flex-col gap-4 w-full">
+        <!-- List toolbar -->
+        <div class="flex items-center justify-start w-full">
+            <div class="flex-grow"></div>
             <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog()">Channel erstellen</ngs-filled-button>
         </div>
-    </div>
+        
+        <!-- Datasource error -->
+        <tsr-error *ngIf="(datasource.$error | async) as error" icon="heroExclamationTriangle" [error]="error" [compact]="true"></tsr-error>
 
-    <div class="py-row">
-        <h6 class="pb-row">Verfügbare Channels</h6>
-
+        <!-- Channels -->
         <cdk-virtual-scroll-viewport [itemSize]="64">
             <ng-container *cdkVirtualFor="let item of datasource; index as i">
                 <div [routerLink]="['./', item?.slug]" [style.height]="'64px'" class="flex flex-1 items-center justify-start gap-4 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all px-4 cursor-pointer [&>.moreBtn]:hover:opacity-100" *ngIf="item">
@@ -42,5 +50,11 @@
                 </div>
             </ng-container>
         </cdk-virtual-scroll-viewport>
+
+        <!-- Empty hint -->
+        <tsr-hint icon="heroInformationCircle" *ngIf="(datasource.$empty | async)" customTitle="Keine Einträge gefunden">
+            Bisher existieren keine Channels. Erstelle einen Channel, um Musik abzuspielen
+        </tsr-hint>
     </div>
-</div>
+
+</tsr-page>

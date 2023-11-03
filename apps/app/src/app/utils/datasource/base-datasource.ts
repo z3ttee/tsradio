@@ -1,6 +1,7 @@
 import { CollectionViewer, DataSource } from "@angular/cdk/collections";
 import { isNull } from "@soundcore/common";
 import { BehaviorSubject, catchError, combineLatest, filter, map, Observable, of, startWith, Subject, Subscription, takeUntil } from "rxjs";
+import { ApiError } from "../error/api-error";
 
 export abstract class SCSDKBaseDatasource<T = any> extends DataSource<T> {
     protected subscription = new Subscription();
@@ -9,11 +10,11 @@ export abstract class SCSDKBaseDatasource<T = any> extends DataSource<T> {
 
     private fetchedPages = new Set<number>();
 
-    protected _totalSize: number = 1;
+    protected _totalSize = 1;
 
     private readonly _destroy: Subject<void> = new Subject();
     private readonly _readySubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
-    private readonly _errorSubject: Subject<Error> = new Subject();
+    private readonly _errorSubject: Subject<ApiError> = new Subject();
     private readonly _totalSizeSubject: Subject<number> = new Subject();
 
     /**
@@ -24,7 +25,7 @@ export abstract class SCSDKBaseDatasource<T = any> extends DataSource<T> {
     /**
      * Emit errors during fetching processes
      */
-    public readonly $error: Observable<Error> = this._errorSubject.asObservable();
+    public readonly $error: Observable<ApiError> = this._errorSubject.asObservable();
     /**
      * Emits the destroy event to notify all subscribers 
      * that the datasource wants to be destroyed
@@ -83,7 +84,7 @@ export abstract class SCSDKBaseDatasource<T = any> extends DataSource<T> {
                 const offset = pageIndex * this.pageSize;
                 const subscription = this.fetchPage(offset).pipe(
                     takeUntil(this._destroy),
-                    catchError((err: Error) => {
+                    catchError((err: ApiError) => {
                         console.error(err);
                         this._errorSubject.next(err);
                         return of(null);

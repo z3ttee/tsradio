@@ -1,0 +1,9 @@
+<div class="flex items-center justify-start bg-body-surface p-window rounded gap-window">
+    <div class="min-w-7 w-7">
+        <ng-icon [name]="icon" size="28"></ng-icon>
+    </div>
+    <div>
+        <p class="mb-2">{{ customTitle ?? 'Hinweis' }}</p>
+        <p class="text-sm"><ng-content></ng-content></p>
+    </div>
+</div>
