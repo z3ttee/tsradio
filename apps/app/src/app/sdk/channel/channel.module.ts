@@ -1,9 +1,9 @@
 import { NgModule } from "@angular/core";
-import { TSRChannelService } from "./services/channel.service";
+import { SDKChannelService } from "./services/channel.service";
 
 @NgModule({
     providers: [
-        TSRChannelService
+        SDKChannelService
     ]
 })
 export class SDKChannelModule {
