@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from "@angular/core";
 import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
-import { BehaviorSubject, Subject, combineLatest, map, switchMap, take, takeUntil } from "rxjs";
+import { BehaviorSubject, combineLatest, map, switchMap, take, takeUntil } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SDKChannelService } from "../../../../../sdk/channel";
 import { MatSnackBar } from "@angular/material/snack-bar";
@@ -10,6 +10,7 @@ import { Artwork } from "../../../../artwork/entities/artwork.entity";
 import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
 import { NGSButtonEvent } from "../../../../../components/button/types";
 import { isNull } from "@tsa/utilities";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 interface ChannelInfoProps {
     channel?: Future<Channel>;
@@ -20,9 +21,8 @@ interface ChannelInfoProps {
     templateUrl: "./channel-info.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminChannelInfoViewComponent implements OnDestroy {
-
-    private readonly $destroy = new Subject<void>();
+export class AdminChannelInfoViewComponent {
+    private readonly _destroyRef = inject(DestroyRef);
 
     constructor(
         private readonly activatedRoute: ActivatedRoute,
@@ -32,8 +32,8 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         private readonly snackBar: MatSnackBar
     ) {}
 
-    public $channelId = this.activatedRoute.paramMap.pipe(map((params) => params.get("channelId")));
-    public $channel = this.$channelId.pipe(switchMap((channelId) => this.service.findById(channelId)));
+    protected readonly $channelId = this.activatedRoute.paramMap.pipe(map((params) => params.get("channelId")));
+    protected readonly $channel = this.$channelId.pipe(switchMap((channelId) => this.service.findById(channelId)));
     public $channelUpdate = new BehaviorSubject<Channel>(null);
     public $artworkUpdate = new BehaviorSubject<Artwork>(null);
 
@@ -49,19 +49,19 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
             },
             artwork: artworkUpdate ?? channel.data?.artwork
         })),
-        takeUntil(this.$destroy)
+        takeUntilDestroyed(this._destroyRef)
     );
 
     public openChannelEditorDialog(channel: Channel) {
         this.dialog.open(ChannelEditorDialogComponent, {
             data: channel
-        }).afterClosed().pipe(takeUntil(this.$destroy)).subscribe((result: Channel) => {
+        }).afterClosed().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((result: Channel) => {
             if(!isNull(result)) this.$channelUpdate.next(result);
         });
     }
 
     public restart(event: NGSButtonEvent, id: string) {
-        this.service.restart(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
+        this.service.restart(id).pipe(takeUntilDestroyed(this._destroyRef)).subscribe((request) => {
             if(request.loading) return;
 
             if(request.error) {
@@ -79,7 +79,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
     }
 
     public deleteById(event: NGSButtonEvent, id: string) {
-        this.service.deleteById(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
+        this.service.deleteById(id).pipe(takeUntilDestroyed(this._destroyRef)).subscribe((request) => {
             if(request.loading) return;
 
             if(request.error) {
@@ -93,11 +93,6 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         });
     }
 
-    public ngOnDestroy(): void {
-        this.$destroy.next();
-        this.$destroy.complete();
-    }
-
     public onFileSelected(event: Event, id: string) {
         const target = event.target as HTMLInputElement;
         const file: File = target.files[0];
@@ -106,7 +101,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         const formData = new FormData();
         formData.append("file", file);
 
-        this.service.setArtwork(id, formData).pipe(takeUntil(this.$destroy)).subscribe((request) => {
+        this.service.setArtwork(id, formData).pipe(takeUntilDestroyed(this._destroyRef)).subscribe((request) => {
             if(request.loading) return;
 
             if(request.error) {

@@ -19,7 +19,7 @@
 
         <!-- Channels -->
         <ng-container *ngFor="let item of $datastream | async; index as i">
-            <div [routerLink]="['./', item.data?.slug]" [style.height]="'64px'" class="flex flex-1 items-center justify-start gap-4 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all px-4 cursor-pointer [&>.moreBtn]:hover:opacity-100" *ngIf="item">
+            <div [routerLink]="['./', item.data?.slug]" class="flex flex-1 items-center justify-start gap-4 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all p-4 cursor-pointer [&>.moreBtn]:hover:opacity-100" *ngIf="item">
                 <!-- Artwork + Channel name -->
                 <div class="flex items-center justify-start flex-grow gap-2">
                     <div class="h-12 w-12 rounded-sm overflow-hidden bg-body-light">
