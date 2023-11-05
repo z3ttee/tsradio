@@ -21,7 +21,7 @@
     "@ng-icons/core": "^25.0.0",
     "@ng-icons/feather-icons": "^25.0.0",
     "@ng-icons/heroicons": "^25.0.0",
-    "@soundcore/common": "^0.0.2",
+    "@tsa/utilities": "*",
     "keycloak-angular": "^14.1.0",
     "keycloak-js": "20",
     "rxjs": "~7.8.0",
