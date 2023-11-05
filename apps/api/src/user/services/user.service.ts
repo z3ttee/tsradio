@@ -2,9 +2,9 @@ import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
 import { User } from "../entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Page, isNull } from "@soundcore/common";
 import { Channel } from "../../channel/entities/channel.entity";
 import { KeycloakTokenPayload } from "../../authentication/entities/oidc-token.entity";
+import { Page, isNull } from "@tsa/utilities";
 
 @Injectable()
 export class UserService {

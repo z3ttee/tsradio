@@ -3,9 +3,9 @@ import { resolve, join } from "path";
 
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from "uuid"
-import { Environment } from "@soundcore/common";
 import { Artwork } from "../../artworks/entities/artwork.entity";
 import { Channel } from "../../channel/entities/channel.entity";
+import { Environment } from "@tsa/bootstrap";
 
 @Injectable()
 export class FileSystemService {

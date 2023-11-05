@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { Request, Response } from "express";
 import { catchError, firstValueFrom, of, take } from "rxjs";
-import { isNull } from "@soundcore/common";
 import { StreamerCoordinator } from "../coordinator/coordinator.service";
 import { OIDCService } from "../../authentication/services/oidc.service";
 import { ChannelService } from "../../channel/services/channel.service";
@@ -9,6 +8,7 @@ import { SessionService } from "../../sessions/services/sessions.service";
 import { UserService } from "../../user/services/user.service";
 import { Session } from "../../sessions/entities/session.entity";
 import { User } from "../../user/entities/user.entity";
+import { isNull } from "@tsa/utilities";
 
 @Injectable()
 export class StreamService {

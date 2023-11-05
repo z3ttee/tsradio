@@ -2,7 +2,6 @@ import { StreamQueue } from "./stream-queue";
 import { ReadStream, createReadStream } from "node:fs";
 import Throttle from "throttle";
 import { PassThrough } from "node:stream";
-import { isNull, randomString, toVoid } from "@soundcore/common";
 import { ffprobe } from "@dropb/ffprobe";
 import { Logger } from "@nestjs/common";
 import { BehaviorSubject, Observable, Subject, catchError, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
@@ -11,6 +10,7 @@ import path from "node:path";
 import NodeID3 from "node-id3";
 import ffprobeStatic from "ffprobe-static";
 import { Channel } from "../../channel/entities/channel.entity";
+import { isNull, randomString, toVoid } from "@tsa/utilities";
 
 ffprobe.path = ffprobeStatic.path;
 

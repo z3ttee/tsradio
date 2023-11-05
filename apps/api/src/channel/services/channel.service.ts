@@ -3,13 +3,12 @@ import { FindOptionsSelect, Repository } from "typeorm";
 import { Channel } from "../entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
-import { Page, Pageable, isNull } from "@soundcore/common";
-import { Slug } from "@tsalliance/utilities";
 import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { User } from "../../user/entities/user.entity";
 import { ChannelOverview } from "../entities/channel-overview.entity";
+import { Page, Pageable, createSlug, isNull } from "@tsa/utilities";
 
 @Injectable()
 export class ChannelService {
@@ -151,7 +150,7 @@ export class ChannelService {
             .orUpdate(["name", "description"], ["id"], { skipUpdateIfNoValuesChanged: false })
             .values({
                 ...dto,
-                slug: Slug.create(dto.name)
+                slug: createSlug(dto.name)
             })
             .execute().then((insertResult) => {
                 if(insertResult.identifiers.length <= 0) return null;

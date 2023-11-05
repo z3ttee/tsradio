@@ -6,7 +6,6 @@ import { OIDC_OPTIONS } from "../oidc.constants";
 import { catchError, map, Observable, of, switchMap, tap } from "rxjs";
 import { JWTDecodedToken, JWTTokenPayload, KeycloakDecodedToken } from "../entities/oidc-token.entity";
 import { JWKSet, JWKStore } from "../entities/jwks.entity";
-import { Bootstrapper } from "@soundcore/bootstrap";
 
 @Injectable()
 export class OIDCService {
@@ -24,7 +23,7 @@ export class OIDCService {
     ) {
         if(!this.validateIssuerUrl(this.options.issuer)) {
             this.logger.error(`Found invalid issuer url. A valid value is needed for proper authentication.`);
-            Bootstrapper.shutdown();
+            process.exit(-1);
         }
     }
 

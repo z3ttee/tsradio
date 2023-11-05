@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Channel } from "../entities/channel.entity";
-import { Page } from "@soundcore/common";
+import { Page } from "@tsa/utilities";
 
 @Injectable()
 export class InitChannelService {

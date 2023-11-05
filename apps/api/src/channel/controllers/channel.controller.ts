@@ -1,12 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { ChannelService } from "../services/channel.service";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
-import { Pageable, Pagination } from "@soundcore/common";
 import { ChannelRegistry } from "../services/registry.service";
 import { Authentication } from "../../authentication/decorators/authentication.decorator";
 import { User } from "../../user/entities/user.entity";
 import { ROLE_ADMIN } from "../../constants";
 import { Roles } from "../../authentication/decorators/role.decorator";
+import { Pagination } from "@tsa/nestjs";
+import { Pageable } from "@tsa/utilities";
 
 @Controller("channels")
 export class ChannelController {
