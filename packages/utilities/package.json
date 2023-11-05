@@ -1,0 +1,35 @@
+{
+  "name": "@tsa/utilities",
+  "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn build:package",
+    "build:api": "yarn build:package",
+    "build:app": "yarn build:package",
+    "build:package": "yarn run rimraf dist && rollup -c",
+    "lint": "eslint \"{src,apps,libs}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,apps,libs}/**/*.ts\" --fix"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "dependencies": {
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.2",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-config-nestjs": "*",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.26.2",
+    "tsconfig": "*",
+    "typescript": "^4.9.5"
+  }
+}

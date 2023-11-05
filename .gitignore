@@ -2,6 +2,10 @@
 *.class
 .vscode
 .angular
+.rollup/
+.rollup.cache/
+.turbo
+
 
 # Log file
 *.log
