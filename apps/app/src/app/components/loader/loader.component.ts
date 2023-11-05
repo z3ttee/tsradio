@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { isNull } from "@soundcore/common";
+import { isNull } from "@tsa/utilities";
 
 @Component({
     standalone: true,
@@ -14,13 +14,13 @@ export class NGSLoaderComponent implements AfterViewInit {
     protected element?: ElementRef<HTMLDivElement>;
 
     @Input()
-    public strokeWidth: number = 3;
+    public strokeWidth = 3;
 
     @Input()
     public size?: number;
 
     @Input()
-    public speed: number = 1;
+    public speed = 1;
 
     constructor(private readonly cdr: ChangeDetectorRef) {}
 

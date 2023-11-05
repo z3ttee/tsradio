@@ -1,6 +1,6 @@
-import { Page, Pageable } from "@soundcore/common";
 import { Observable } from "rxjs";
 import { Future } from "../../../utils/future";
+import { Page, Pageable } from "@tsa/utilities";
 
 /**
  * Fetch implementation that returns an observable for the datasource

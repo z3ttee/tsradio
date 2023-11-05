@@ -7,7 +7,6 @@ import { AdminChannelInfoViewComponent } from "./views/playlist-info/channel-inf
 import { NgIconsModule } from "@ng-icons/core";
 import { heroTrash, heroChevronRight } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { ChannelEditorDialogComponent } from "../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
 import { TSRArtworkComponent } from "../../../components/artwork/artwork.component";
 import { NGSButtonModule } from "../../../components/button";
 import { NGSLoaderComponent } from "../../../components/loader";
@@ -28,7 +27,6 @@ const routes: Routes = [
         CommonModule,
         RouterModule.forChild(routes),
         MatDialogModule,
-        ChannelEditorDialogComponent,
         NGSLoaderComponent,
         NGSButtonModule,
         ScrollingModule,

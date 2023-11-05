@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, ViewChild } from "@angular/core";
-import { isNull } from "@soundcore/common";
 import { BehaviorSubject, Observable, Subject, distinctUntilChanged, map } from "rxjs";
 import { Artwork } from "../../modules/artwork/entities/artwork.entity";
 import { environment } from "../../../environments/environment";
+import { isNull } from "@tsa/utilities";
 
 @Component({
     standalone: true,

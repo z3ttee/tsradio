@@ -1,13 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
-import { Page, Pageable, isNull } from "@soundcore/common";
 import { Channel } from "../entities/channel.entity";
 import { CreateChannelDTO } from "../../../modules/admin/channels/dtos/create-channel.dto";
 import { environment } from "../../../../environments/environment";
 import { Future, toFuture } from "../../../utils/future";
 import { Artwork } from "../../../modules/artwork/entities/artwork.entity";
 import { ChannelOverview } from "../entities/channel-overview.entity";
+import { Page, Pageable, isNull } from "@tsa/utilities";
 
 @Injectable()
 export class SDKChannelService {

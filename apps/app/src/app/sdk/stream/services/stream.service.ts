@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, from, map, of, switchMap, tap } from "rxjs";
 import { Channel } from "../../channel";
-import { isNull } from "@soundcore/common";
 import { HttpClient } from "@angular/common/http";
 import { TSRStreamCoordinatorGateway } from "../../gateway";
 import { VolumeManager } from "../managers/volume-manager";
@@ -9,6 +8,7 @@ import { Platform } from "@angular/cdk/platform";
 import { SSOService } from "../../../modules/sso/services/sso.service";
 import { environment } from "../../../../environments/environment";
 import { Future, toFuture } from "../../../utils/future";
+import { isNull } from "@tsa/utilities";
 
 @Injectable({
     providedIn: "root"

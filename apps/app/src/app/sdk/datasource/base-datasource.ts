@@ -1,10 +1,17 @@
 import { CollectionViewer, DataSource, ListRange } from "@angular/cdk/collections";
-import { BehaviorSubject, Observable, Subject, Subscription, map, switchMap, takeUntil, tap } from "rxjs";
+import { BehaviorSubject, Observable, Subject, Subscription, combineLatest, distinctUntilChanged, map, switchMap, takeUntil, tap } from "rxjs";
 import { DatasourceItem } from "./entities/item";
 import { SDKDatasourceRequestHandlerFn } from "./entities/requestHandler";
 import { SDKPaginationManager, SDKStaticPaginationManager } from "./entities/paginator";
+import { Page, PageFilter, Pageable, isNull } from "@tsa/utilities";
+import { Future } from "../../utils/future";
+import { ApiError } from "../../utils/error/api-error";
 
 export abstract class SDKBaseDatasource<TData = any> extends DataSource<DatasourceItem<TData>> {
+  private readonly _didFetchFirstPageSubj = new BehaviorSubject(false);
+  private readonly _totalItemsSubj = new BehaviorSubject(0);
+  private readonly _isFetchingSubj = new BehaviorSubject(false);
+  private readonly _lastError = new BehaviorSubject<ApiError | null>(null);
   /**
    * Subject that manages the current items that
    * can be displayed in the UI
@@ -24,6 +31,16 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
   private _activePaginationManager: CollectionViewer | SDKPaginationManager = new SDKStaticPaginationManager();
   private _filter?: PageFilter;
 
+  public readonly $isFetching = this._isFetchingSubj.asObservable().pipe(distinctUntilChanged());
+  public readonly $lastError = this._lastError.asObservable().pipe(distinctUntilChanged());
+  public readonly $isEmpty = combineLatest([
+    this._didFetchFirstPageSubj,
+    this._totalItemsSubj
+  ]).pipe(
+    map(([didFetchFirstPage, totalItems]) => didFetchFirstPage && totalItems <= 0), 
+    distinctUntilChanged()
+  );
+
   constructor(
     /**
      * Function that is called when the datasource
@@ -38,6 +55,10 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
 
   protected get datastream(): DatasourceItem<TData>[] {
     return this._datastream.getValue();
+  }
+
+  public get paginationManager(): SDKPaginationManager | CollectionViewer {
+    return this._activePaginationManager;
   }
 
   override connect(collectionViewer?: CollectionViewer): Observable<readonly DatasourceItem<TData>[]> {
@@ -125,6 +146,8 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
         map((range) => this.buildPageable(range)),
         tap((pageable) => console.log(pageable)),
         switchMap((pageable): Observable<[Future<Page<TData>>, Pageable]> => {
+          this._isFetchingSubj.next(true);
+
           // Switch to fetch implementation but abort
           // if request gets cancelled
           return this.requestHandlerFn(pageable).pipe(
@@ -137,6 +160,7 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
         takeUntil(this._destroy)
       )
       .subscribe(([response, pageable]) => {
+        this._isFetchingSubj.next(false);
         // Refine items and add to datastream
         this.setPage(response, pageable);
       });
@@ -161,19 +185,26 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
 
   /**
    * Set a page in the datastream
-   * @param page Future of the page
+   * @param response Future of the page
    * @param pageable Page settings used in the request
    */
-  private setPage(page: Future<Page<TData>>, pageable: Pageable): void {
-    const datastream = this.updateDatastream(page, pageable);
+  private setPage(response: Future<Page<TData>>, pageable: Pageable): void {
+    const datastream = this.updateDatastream(response, pageable);
 
     // Check if the response already resolved
-    if (!page.loading && !page.error) {
+    if (!response.loading && !response.error) {
       if (this._activePaginationManager instanceof SDKPaginationManager) {
-        console.log(page.data?.totalSize);
-        this._activePaginationManager.setTotalAmount(page.data?.totalSize ?? 0);
+        this._activePaginationManager.setTotalAmount(response.data?.totalSize ?? 0);
       }
     }
+
+    // A page was fetched, so mark the datasource
+    // as activated
+    this._didFetchFirstPageSubj.next(true);
+    this._totalItemsSubj.next(response.data?.totalSize ?? 0);
+
+    // Update last error
+    this._lastError.next(response.error ?? null);
 
     // Push updated datastream
     this._datastream.next(datastream);

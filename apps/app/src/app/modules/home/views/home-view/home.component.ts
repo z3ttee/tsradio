@@ -1,9 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { isNull } from "@soundcore/common";
 import { Subject, combineLatest, map, takeUntil } from "rxjs";
-import { Channel, ChannelOverview, SDKChannelModule, TSRChannelService } from "../../../../sdk/channel";
+import { Channel, ChannelOverview, SDKChannelModule, SDKChannelService } from "../../../../sdk/channel";
 import { SSOUser } from "../../../sso/entities/user.entity";
 import { GatewayConnection } from "../../../../sdk/gateway/gateway";
 import { TSRArtworkComponent } from "../../../../components/artwork/artwork.component";
@@ -14,6 +13,7 @@ import { SSOService } from "../../../sso/services/sso.service";
 import { TSRStreamCoordinatorGateway } from "../../../../sdk/gateway";
 import { TSRStreamService } from "../../../../sdk/stream";
 import { Future } from "../../../../utils/future";
+import { isNull } from "@tsa/utilities";
 
 interface HomeViewProps {
     overview: ChannelOverview;
@@ -39,7 +39,7 @@ interface HomeViewProps {
 })
 export class HomeViewComponent implements OnInit, OnDestroy {
     private readonly _destroyRef = inject(DestroyRef);
-    private readonly _channelService = inject(TSRChannelService);
+    private readonly _channelService = inject(SDKChannelService);
     
     constructor(
         private readonly ssoService: SSOService,

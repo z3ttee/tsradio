@@ -1,4 +1,4 @@
-import { Page, Pageable, isNull } from "@soundcore/common";
+import { Page, Pageable, isNull } from "@tsa/utilities";
 import { Future } from "../../utils/future";
 import { SDKBaseDatasource } from "./base-datasource";
 import { DatasourceItem } from "./entities/item";
