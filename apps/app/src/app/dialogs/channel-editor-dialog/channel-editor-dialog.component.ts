@@ -5,9 +5,8 @@ import {MatInputModule} from '@angular/material/input';
 import { CommonModule } from "@angular/common";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { Observable } from "rxjs";
-import { NGSButtonModule } from "../../components/button";
+import { TSAButtonEvent, TSAButtonModule } from "../../components/button";
 import { Channel, SDKChannelModule, SDKChannelService } from "../../sdk/channel";
-import { NGSButtonEvent } from "../../components/button/types";
 import { Future } from "../../utils/future";
 import { TSRError } from "../../components";
 import { ApiError } from "../../utils/error/api-error";
@@ -23,7 +22,7 @@ import { isNull } from "@tsa/utilities";
         ReactiveFormsModule,
         TSRError,
         MatDialogModule,
-        NGSButtonModule,
+        TSAButtonModule,
         MatInputModule,
         MatSlideToggleModule,
         SDKChannelModule,
@@ -48,7 +47,7 @@ export class ChannelEditorDialogComponent {
         featured: this._fb.control<boolean>(this.data?.featured ?? false),
     });
 
-    public saveChannel(event: NGSButtonEvent) {
+    public saveChannel(event: TSAButtonEvent) {
         this._latestError.set(null);
 
         if(!this._channelForm.valid) {

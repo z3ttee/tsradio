@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject } from "@angular/core";
 import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
-import { BehaviorSubject, combineLatest, map, switchMap, take, takeUntil } from "rxjs";
+import { BehaviorSubject, combineLatest, map, switchMap, take } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SDKChannelService } from "../../../../../sdk/channel";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Future } from "../../../../../utils/future";
 import { Artwork } from "../../../../artwork/entities/artwork.entity";
 import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { NGSButtonEvent } from "../../../../../components/button/types";
 import { isNull } from "@tsa/utilities";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { TSAButtonEvent } from "../../../../../components/button";
 
 interface ChannelInfoProps {
     channel?: Future<Channel>;
@@ -60,7 +60,7 @@ export class AdminChannelInfoViewComponent {
         });
     }
 
-    public restart(event: NGSButtonEvent, id: string) {
+    public restart(event: TSAButtonEvent, id: string) {
         this.service.restart(id).pipe(takeUntilDestroyed(this._destroyRef)).subscribe((request) => {
             if(request.loading) return;
 
@@ -78,7 +78,7 @@ export class AdminChannelInfoViewComponent {
         });
     }
 
-    public deleteById(event: NGSButtonEvent, id: string) {
+    public deleteById(event: TSAButtonEvent, id: string) {
         this.service.deleteById(id).pipe(takeUntilDestroyed(this._destroyRef)).subscribe((request) => {
             if(request.loading) return;
 

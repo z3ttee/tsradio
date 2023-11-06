@@ -1,7 +1,7 @@
 <ng-container *ngIf="($props | async) as props">
 
     <div class="flex items-center justify-center w-full p-4" *ngIf="props.channel.loading">
-        <ngs-loader></ngs-loader>
+        <tsa-loader></tsa-loader>
     </div>
 
     <div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement *ngIf="!props.channel.loading && props.channel.data">
@@ -22,9 +22,9 @@
         </div>
 
         <div class="flex items-center justify-start py-row gap-2">
-            <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog(props.channel.data)">Channel bearbeiten</ngs-filled-button>
-            <ngs-filled-button [showSpinner]="true" [accent]="true" (clicked)="restart($event, props.channel.data?.id)">Neustarten</ngs-filled-button>
-            <ngs-filled-button [showSpinner]="true" [accent]="false" (clicked)="deleteById($event, props.channel.data?.id)"><ng-icon name="heroTrash" size="21"></ng-icon></ngs-filled-button>
+            <tsa-filled-button (clicked)="openChannelEditorDialog(props.channel.data)">Channel bearbeiten</tsa-filled-button>
+            <tsa-filled-button [showSpinner]="true" (clicked)="restart($event, props.channel.data?.id)">Neustarten</tsa-filled-button>
+            <tsa-filled-button [showSpinner]="true" (clicked)="deleteById($event, props.channel.data?.id)"><ng-icon name="heroTrash" size="21"></ng-icon></tsa-filled-button>
         </div>
 
         <div>

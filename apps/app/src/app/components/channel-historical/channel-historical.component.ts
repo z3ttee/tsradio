@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { TSRArtworkComponent } from "../artwork/artwork.component";
 import { TSREqualizerComponent } from "../equalizer/equalizer.component";
-import { NGSLoaderComponent } from "../loader";
+import { TSALoader } from "../loader";
 import { Channel } from "../../sdk/channel";
 
 @Component({
@@ -14,7 +14,7 @@ import { Channel } from "../../sdk/channel";
         CommonModule,
         TSRArtworkComponent,
         TSREqualizerComponent,
-        NGSLoaderComponent
+        TSALoader
     ]
 })
 export class TSRChannelHistoricalItemComponent {

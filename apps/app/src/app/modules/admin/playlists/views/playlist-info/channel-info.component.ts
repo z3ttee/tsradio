@@ -8,8 +8,8 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { Future } from "../../../../../utils/future";
 import { Artwork } from "../../../../artwork/entities/artwork.entity";
 import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { NGSButtonEvent } from "../../../../../components/button/types";
 import { isNull } from "@tsa/utilities";
+import { TSAButtonEvent } from "../../../../../components/button";
 
 interface ChannelInfoProps {
     channel?: Future<Channel>;
@@ -60,7 +60,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         });
     }
 
-    public restart(event: NGSButtonEvent, id: string) {
+    public restart(event: TSAButtonEvent, id: string) {
         this.service.restart(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
             if(request.loading) return;
 
@@ -78,7 +78,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         });
     }
 
-    public deleteById(event: NGSButtonEvent, id: string) {
+    public deleteById(event: TSAButtonEvent, id: string) {
         this.service.deleteById(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
             if(request.loading) return;
 

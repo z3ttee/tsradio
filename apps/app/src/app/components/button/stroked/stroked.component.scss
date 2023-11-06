@@ -1,0 +1,23 @@
+:host {
+  .btn {
+    &:hover:not(.btn_loading):not(.btn_disabled) {
+      --tw-bg-opacity: 0.2;
+      --tw-border-opacity: 1;
+      // @apply border-opacity-30;
+    }
+
+    &:active:not(.btn_loading):not(.btn_disabled) {
+      --tw-bg-opacity: 0.3;
+      --tw-border-opacity: 1;
+    }
+
+    &.btn_loading {
+      --tw-bg-opacity: 0.25;
+    }
+
+    &.btn_disabled {
+      --tw-bg-opacity: 0;
+      --tw-text-opacity: 0.5;
+    }
+  }
+}

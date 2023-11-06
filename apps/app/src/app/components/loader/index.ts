@@ -1,2 +1,1 @@
-
-export { NGSLoaderComponent } from "./loader.component";
+export { TSALoaderComponent as TSALoader } from "./loader.component";

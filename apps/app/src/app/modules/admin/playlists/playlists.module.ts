@@ -8,8 +8,8 @@ import { NgIconsModule } from "@ng-icons/core";
 import { heroTrash, heroChevronRight } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TSRArtworkComponent } from "../../../components/artwork/artwork.component";
-import { NGSButtonModule } from "../../../components/button";
-import { NGSLoaderComponent } from "../../../components/loader";
+import { TSAButtonModule } from "../../../components/button";
+import { TSALoader } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
 import { PlaylistIndexViewComponent } from "./views/playlist-index/playlist-index.component";
 
@@ -27,8 +27,8 @@ const routes: Routes = [
         CommonModule,
         RouterModule.forChild(routes),
         MatDialogModule,
-        NGSLoaderComponent,
-        NGSButtonModule,
+        TSALoader,
+        TSAButtonModule,
         ScrollingModule,
         MatSnackBarModule,
         TSRArtworkComponent,

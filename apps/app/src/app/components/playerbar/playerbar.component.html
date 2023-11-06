@@ -24,7 +24,7 @@
                 <button class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent" (click)="togglePause()">
                     <ng-icon name="heroPlaySolid" size="24" class="ml-1" *ngIf="!props.isPlaying && !props.isLoading"></ng-icon>
                     <ng-icon name="heroPauseSolid" size="24" *ngIf="props.isPlaying && !props.isLoading"></ng-icon>
-                    <ngs-loader *ngIf="props.isLoading"></ngs-loader>
+                    <tsa-loader *ngIf="props.isLoading"></tsa-loader>
                 </button>
                 <button class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-body-light bg-opacity-0 hover:bg-opacity-30 active:bg-opacity-70 transition-all">
                     <ng-icon name="heroForward" size="24" (click)="forceSkip()"></ng-icon>
