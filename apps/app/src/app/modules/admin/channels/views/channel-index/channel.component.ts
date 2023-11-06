@@ -6,6 +6,7 @@ import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-edi
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { SDKChannelService, SDKDatasources } from "../../../../../sdk";
 import { isNull } from "@tsa/utilities";
+import { TSASnackbars } from "../../../../../components/snackbar";
 
 @Component({
     templateUrl: "./channel.component.html",
@@ -14,6 +15,7 @@ import { isNull } from "@tsa/utilities";
 export class AdminChannelIndexViewComponent {
     private readonly _destroyRef = inject(DestroyRef);
     private readonly _channelService = inject(SDKChannelService);
+    private readonly _snackbars = inject(TSASnackbars);
 
     constructor(
         private readonly httpClient: HttpClient,
@@ -29,6 +31,7 @@ export class AdminChannelIndexViewComponent {
         this.dialog.open(ChannelEditorDialogComponent).afterClosed().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((result: Channel) => {
             if(!isNull(result)) {
                 // this.datasource.updateOrAppendById(result.id, result);
+                this._snackbars.message("Channel wurde erfolgreich angelegt").open();
             }
         });
     }

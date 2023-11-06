@@ -120,6 +120,18 @@ export class ChannelService {
         });
     }
 
+    /**
+     * Check if a channel already exists by name
+     * in the database
+     * @param name Name of the channel
+     * @returns Returns `true` if the channel already exists
+     */
+    public async existsByName(name: string): Promise<boolean> {
+        return this.repository.findOne({ where: {
+            name: name
+        }, select: ["id"]}).then((channel) => !isNull(channel))
+    }
+
     public async restartById(id: string): Promise<boolean> {
         const channel = await this.findById(id);
         if(isNull(channel)) throw new NotFoundException("Channel not found");
@@ -145,7 +157,10 @@ export class ChannelService {
     }
 
     public async createIfNotExists(dto: CreateChannelDTO): Promise<Channel> {
-        return this.repository.createQueryBuilder()
+        return this.existsByName(dto.name).then((exists) => {
+            if(exists) throw new BadRequestException("Channel with that name already exists");
+
+            return this.repository.createQueryBuilder()
             .insert()
             .orUpdate(["name", "description"], ["id"], { skipUpdateIfNoValuesChanged: false })
             .values({
@@ -160,7 +175,8 @@ export class ChannelService {
                     this.emitter.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
                     return channel;
                 });
-            })
+            });
+        });
     }
 
     public async updateById(id: string, dto: CreateChannelDTO): Promise<Channel> {

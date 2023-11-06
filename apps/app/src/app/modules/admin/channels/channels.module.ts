@@ -14,6 +14,7 @@ import { NGSButtonModule } from "../../../components/button";
 import { NGSLoaderComponent } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
 import { TSRPage, TSRHint, TSRError } from "../../../components";
+import { TSASnackbar } from "../../../components/snackbar";
 
 const routes: Routes = [
     { path: "", component: AdminChannelIndexViewComponent },
@@ -39,7 +40,8 @@ const routes: Routes = [
         SDKChannelModule,
         TSRPage,
         TSRHint,
-        TSRError
+        TSRError,
+        TSASnackbar
     ]
 })
 export class AdminChannelsModule {}

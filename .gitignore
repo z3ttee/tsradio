@@ -62,7 +62,6 @@ streamer-v2/build/
 dist_electron/
 api/src/config/config.ts
 */old
-**/config.ts
 api/icecast.xml
 api/src/icecast.backup.xml
 api/src/icecast.xml
