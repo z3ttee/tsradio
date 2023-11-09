@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild, computed, effect, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, computed, signal } from "@angular/core";
 import { Artwork } from "../../modules/artwork/entities/artwork.entity";
 import { environment } from "../../../environments/environment";
 import { isNull } from "@tsa/utilities";
@@ -13,7 +13,7 @@ import { isNull } from "@tsa/utilities";
         CommonModule
     ]
 })
-export class TSRArtworkComponent {
+export class TSAArtworkComponent {
 
     private readonly _artwork = signal<Artwork | null>(null);
 
@@ -29,27 +29,15 @@ export class TSRArtworkComponent {
 
     @Input()
     public set artwork(val: Artwork) {
-        console.log("artwork", val?.id);
         this._artwork.set(val ?? null);
     }
 
-    @ViewChild("image") public imageRef: ElementRef<HTMLImageElement>;
-
-
-    constructor(private readonly cdr: ChangeDetectorRef) {
-        effect(() => {
-            console.log(this._imgSrc());
-        });
-    }
-
     public onError() {
-        console.log("on error");
         this._errored.set(true);
         this._loading.set(false);
     }
 
     public onLoad() {
-        console.log("on load");
         this._errored.set(false);
         this._loading.set(false);
     }

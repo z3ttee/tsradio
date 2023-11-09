@@ -7,11 +7,11 @@ import { AdminChannelInfoViewComponent } from "./views/playlist-info/channel-inf
 import { NgIconsModule } from "@ng-icons/core";
 import { heroTrash, heroChevronRight } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { TSRArtworkComponent } from "../../../components/artwork/artwork.component";
 import { TSAButtonModule } from "../../../components/button";
 import { TSALoader } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
 import { PlaylistIndexViewComponent } from "./views/playlist-index/playlist-index.component";
+import { TSAArtwork } from "../../../components/artwork";
 
 const routes: Routes = [
     { path: "", component: PlaylistIndexViewComponent },
@@ -29,9 +29,9 @@ const routes: Routes = [
         MatDialogModule,
         TSALoader,
         TSAButtonModule,
+        TSAArtwork,
         ScrollingModule,
         MatSnackBarModule,
-        TSRArtworkComponent,
         NgIconsModule.withIcons({ heroTrash, heroChevronRight }),
         SDKChannelModule
     ]

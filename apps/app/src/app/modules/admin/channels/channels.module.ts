@@ -9,12 +9,12 @@ import { NgIconsModule } from "@ng-icons/core";
 import { heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle, heroArrowLeft } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ChannelEditorDialogComponent } from "../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { TSRArtworkComponent } from "../../../components/artwork/artwork.component";
 import { TSAButtonModule } from "../../../components/button";
 import { TSALoader } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
 import { TSRPage, TSRHint, TSRError } from "../../../components";
 import { TSASnackbar } from "../../../components/snackbar";
+import { TSAArtwork } from "../../../components/artwork";
 
 const routes: Routes = [
     { path: "", component: AdminChannelIndexViewComponent },
@@ -34,14 +34,14 @@ const routes: Routes = [
         TSAButtonModule,
         ScrollingModule,
         MatSnackBarModule,
-        TSRArtworkComponent,
         NgIconsModule.withIcons({ heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle, heroArrowLeft }),
         SDKChannelModule,
         TSALoader,
         TSRPage,
         TSRHint,
         TSRError,
-        TSASnackbar
+        TSASnackbar,
+        TSAArtwork
     ]
 })
 export class AdminChannelsModule {}

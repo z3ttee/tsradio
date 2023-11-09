@@ -4,9 +4,9 @@ import { NgIconsModule } from "@ng-icons/core";
 import { heroForward, heroSpeakerWave, heroSpeakerXMark } from "@ng-icons/heroicons/outline";
 import { TSRPlayerbarComponent } from "./playerbar.component";
 import { heroPauseSolid, heroPlaySolid } from "@ng-icons/heroicons/solid";
-import { TSRArtworkComponent } from "../artwork/artwork.component";
 import { SCNGXRangeModule } from "../range/range.module";
 import { TSALoader } from "../loader";
+import { TSAArtwork } from "../artwork";
 
 @NgModule({
     declarations: [
@@ -16,7 +16,7 @@ import { TSALoader } from "../loader";
         CommonModule,
         NgIconsModule.withIcons({ heroForward, heroPlaySolid, heroPauseSolid, heroSpeakerWave, heroSpeakerXMark }),
         TSALoader,
-        TSRArtworkComponent,
+        TSAArtwork,
         SCNGXRangeModule
     ],
     exports: [
