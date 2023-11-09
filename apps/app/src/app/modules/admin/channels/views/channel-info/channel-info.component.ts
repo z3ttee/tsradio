@@ -1,28 +1,29 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from "@angular/core";
 import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
-import { BehaviorSubject, combineLatest, map, switchMap, take } from "rxjs";
+import { map, switchMap, take } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SDKChannelService } from "../../../../../sdk/channel";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Future } from "../../../../../utils/future";
-import { Artwork } from "../../../../artwork/entities/artwork.entity";
 import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
 import { isNull } from "@tsa/utilities";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TSAButtonEvent } from "../../../../../components/button";
-
-interface ChannelInfoProps {
-    channel?: Future<Channel>;
-    artwork?: Artwork;
-}
+import { ApiError } from "../../../../../utils/error/api-error";
+import { Artwork } from "../../../../artwork/entities/artwork.entity";
+import { Future } from "../../../../../utils/future";
 
 @Component({
     templateUrl: "./channel-info.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminChannelInfoViewComponent {
+export class AdminChannelInfoViewComponent implements OnInit {
     private readonly _destroyRef = inject(DestroyRef);
+
+    protected readonly _artwork = signal<Artwork | null>(null);
+    protected readonly _channel = signal<Channel | null>(null);
+    protected readonly _loading = signal<boolean>(true);
+    protected readonly _error = signal<ApiError | null>(null);
 
     constructor(
         private readonly activatedRoute: ActivatedRoute,
@@ -32,31 +33,31 @@ export class AdminChannelInfoViewComponent {
         private readonly snackBar: MatSnackBar
     ) {}
 
-    protected readonly $channelId = this.activatedRoute.paramMap.pipe(map((params) => params.get("channelId")));
-    protected readonly $channel = this.$channelId.pipe(switchMap((channelId) => this.service.findById(channelId)));
-    public $channelUpdate = new BehaviorSubject<Channel>(null);
-    public $artworkUpdate = new BehaviorSubject<Artwork>(null);
+    private readonly $channelId = this.activatedRoute.paramMap.pipe(map((params) => params.get("channelId")));
+    private readonly $channel = this.$channelId.pipe(switchMap((channelId) => this.service.findById(channelId)));
 
-    public $props = combineLatest([
-        this.$channel,
-        this.$channelUpdate,
-        this.$artworkUpdate
-    ]).pipe(
-        map(([channel, update, artworkUpdate]): ChannelInfoProps => ({
-            channel: {
-                ...channel,
-                ...update
-            },
-            artwork: artworkUpdate ?? channel.data?.artwork
-        })),
-        takeUntilDestroyed(this._destroyRef)
-    );
+    public ngOnInit(): void {
+        this.$channel.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((response) => {
+            this._error.set(response.error);
+            this._loading.set(response.loading);
+            this._channel.set(response.data);
+            this._artwork.set(response.data?.artwork);
+
+            console.log(response.data);
+        });
+    }
 
     public openChannelEditorDialog(channel: Channel) {
         this.dialog.open(ChannelEditorDialogComponent, {
             data: channel
-        }).afterClosed().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((result: Channel) => {
-            if(!isNull(result)) this.$channelUpdate.next(result);
+        }).afterClosed().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((result: Future<Channel>) => {
+            if(!isNull(result)) {
+                
+                this._channel.set({
+                    ...this._channel(),
+                    ...result.data
+                });
+            }
         });
     }
 
@@ -111,7 +112,8 @@ export class AdminChannelInfoViewComponent {
 
                 this.$channel.pipe(take(1)).subscribe((channel) => {
                     if(isNull(channel)) return;
-                    this.$artworkUpdate.next(request.data);
+                    // this.$artworkUpdate.next(request.data);
+                    // TODO: Update artwork
                 });
             }
         });

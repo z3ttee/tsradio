@@ -1,3 +1,10 @@
-<div class="inline-block w-full h-full overflow-hidden bg-body-light" [ngClass]="{'animate-pulse': isLoading}">
-    <img *ngIf="!hasErrored" #image (error)="onError()" (load)="onLoad()" [src]="($src | async)" class="w-full h-full object-cover appearance-none opacity-0" [ngClass]="{'opacity-100': !isLoading}">
+<div class="inline-block w-full h-full overflow-hidden bg-body-light" [ngClass]="{'animate-pulse': _loading()}">
+    <img 
+        *ngIf="!_errored() && _imgSrc()"
+        #image 
+        class="w-full h-full object-cover appearance-none opacity-0" 
+        (error)="onError()" 
+        (load)="onLoad()" 
+        [src]="_imgSrc()" 
+        [ngClass]="{'opacity-100': !_loading()}">
 </div>

@@ -1,17 +1,20 @@
-<tsr-page *ngIf="($channel | async) as channel">
-    <div class="flex flex-col gap-4 w-full">
+<tsr-page >
+    <div class="flex flex-col gap-6 w-full">
         <!-- Back button -->
         <tsa-text-button [routerLink]="['..']"><ng-icon name="heroArrowLeft" size="21"></ng-icon>Zurück</tsa-text-button>
 
+        <!-- Show error -->
+        <tsr-error *ngIf="_error() as error" icon="heroExclamationTriangle" [error]="error" [compact]="true"></tsr-error>
+
         <!-- Headline -->
-        <div class="flex flex-col justify-center items-start lg:flex-row lg:items-end lg:justify-start gap-4">
-            <div class="relative w-48 lg:min-w-32 lg:w-32 aspect-square rounded overflow-hidden mx-auto [&>div]:hover:opacity-100 [&>div]:hover:pointer-events-auto [&>img]:hover:scale-105">
+        <div class="flex flex-col justify-center items-start md:flex-row md:items-end md:justify-start gap-6" *ngIf="!_error()">
+            <div class="relative w-48 md:min-w-32 md:w-32 aspect-square rounded overflow-hidden mx-auto [&>div]:hover:opacity-100 [&>div]:hover:pointer-events-auto [&>img]:hover:scale-105">
                 <div (click)="artworkInput.click()" class="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-black opacity-0 bg-opacity-60 z-50 pointer-events-none cursor-pointer transition-all p-4 [&>span]:active:scale-90">
                     <span class="text-sm text-center transition-all">Artwork ändern</span>
                 </div>
-                <tsr-artwork [artwork]="channel.data?.artwork"></tsr-artwork>
+                <tsr-artwork [artwork]="_artwork()"></tsr-artwork>
     
-                <input type="file" name="artwork-upload"  id="artwork-upload" class="hidden" #artworkInput (change)="onFileSelected($event, channel.data?.id)">
+                <input type="file" name="artwork-upload"  id="artwork-upload" class="hidden" #artworkInput (change)="onFileSelected($event, _channel()?.id)">
             </div>
     
             <div class="flex flex-col gap-1 flex-grow">
@@ -19,37 +22,37 @@
 
                 <!-- Channel name -->
                 <ng-container>
-                    <h4 *ngIf="channel.loading" class="bg-body-light animate-pulse rounded text-body-light w-48 md:w-96">loading</h4>
-                    <h4 *ngIf="!channel.loading" class="flex-grow line-clamp-2">{{ channel.data?.name }}</h4>
+                    <h4 *ngIf="_loading()" class="bg-body-light animate-pulse rounded text-body-light w-48 md:w-96">loading</h4>
+                    <h4 *ngIf="!_loading()" class="flex-grow line-clamp-2">{{ _channel()?.name }}</h4>
                 </ng-container>
                 
                 <!-- Channel description -->
                 <ng-container>
-                    <p *ngIf="channel.loading" class="bg-body-light animate-pulse rounded text-body-light w-32 md:w-80">loading</p>
-                    <p *ngIf="!channel.loading" class="flex-grow line-clamp-1">{{ channel.data?.description }}</p>
+                    <p *ngIf="_loading()" class="bg-body-light animate-pulse rounded text-body-light w-32 md:w-80">loading</p>
+                    <p *ngIf="!_loading()" class="flex-grow line-clamp-1">{{ _channel()?.description }}</p>
                 </ng-container>
             </div>
         </div>
 
         <!-- Toolbar -->
-        <ng-container>
-            <div class="w-full md:w-[500px] bg-body-light animate-pulse rounded h-14" *ngIf="channel.loading"></div>
+        <ng-container *ngIf="!_error()">
+            <div class="w-full md:w-[500px] bg-body-light animate-pulse rounded h-14" *ngIf="_loading()"></div>
 
-            <div class="flex items-center justify-start gap-2" *ngIf="!channel.loading">
-                <tsa-filled-button color="accent" (clicked)="openChannelEditorDialog(channel.data)">Channel bearbeiten</tsa-filled-button>
-                <tsa-filled-button color="accent" [showSpinner]="true" (clicked)="restart($event, channel.data?.id)">Neustarten</tsa-filled-button>
-                <tsa-filled-button [showSpinner]="true" (clicked)="deleteById($event, channel.data?.id)"><ng-icon name="heroTrash" size="21"></ng-icon></tsa-filled-button>
+            <div class="flex items-center justify-start gap-2" *ngIf="!_loading()">
+                <tsa-filled-button color="accent" (clicked)="openChannelEditorDialog(_channel())">Channel bearbeiten</tsa-filled-button>
+                <tsa-filled-button color="accent" [showSpinner]="true" (clicked)="restart($event, _channel()?.id)">Neustarten</tsa-filled-button>
+                <tsa-filled-button [showSpinner]="true" (clicked)="deleteById($event, _channel()?.id)"><ng-icon name="heroTrash" size="21"></ng-icon></tsa-filled-button>
             </div>
         </ng-container>
         
     </div>
 
-    <div class="w-full bg-body-surface rounded p-window">
-        <div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement *ngIf="!channel.loading && channel.data">
+    <div class="w-full bg-body-surface rounded p-window" *ngIf="!_error()">
+        <div class="w-full h-full overflow-y-auto px-window pt-window lg:p-0" cdkVirtualScrollingElement *ngIf="!_loading() && _channel()">
             <div>
                 <p class="text-base">Ordner der Playlist</p>
                 <p class="text-sm pb-4 tracking-wide opacity-70">Wenn du Dateien hinzufügst, entfernst oder aktualisierst, musst du danach den Channel ggf. neu starten.</p>
-                <p class="font-mono bg-body border border-body-lighter rounded text-font-secondary p-4">/channels/{{ channel.data?.id }}</p>
+                <p class="font-mono bg-body border border-body-lighter rounded text-font-secondary p-4">/channels/{{ _channel()?.id }}</p>
             </div>
         </div>
     </div>

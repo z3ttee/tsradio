@@ -108,6 +108,25 @@ export class ChannelService {
      * Find a channel by its id
      * @param id Id of the channel
      */
+    public async findByIdOrFail(id: string): Promise<Channel> {
+        return this.repository.findOne({ 
+            where: [
+                { id: id },
+                { slug: id }
+            ],
+            relations: {
+                artwork: true
+            }
+        }).then((channel) => {
+            if(isNull(channel)) throw new NotFoundException("Channel not found");
+            return channel;
+        })
+    }
+
+    /**
+     * Find a channel by its id
+     * @param id Id of the channel
+     */
     public async findById(id: string): Promise<Channel> {
         return this.repository.findOne({ 
             where: [

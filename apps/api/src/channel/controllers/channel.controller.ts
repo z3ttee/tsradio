@@ -29,7 +29,7 @@ export class ChannelController {
 
     @Get(":channelId")
     public async findById(@Param("channelId") channelId: string) {
-        return this.service.findById(channelId);
+        return this.service.findByIdOrFail(channelId);
     }
 
     @Get(":channelId/restart")
