@@ -1,3 +1,3 @@
 
 export { TSRAuthenticatedGateway } from "./gateway";
-export { TSRStreamCoordinatorGateway } from "./general-gateway.gateway";
+export { SDKStreamCoordinatorGateway as TSRStreamCoordinatorGateway } from "./general-gateway.gateway";

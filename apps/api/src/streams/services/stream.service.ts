@@ -55,19 +55,6 @@ export class StreamService {
                     });
                     stream.removeListener(listener.id).subscribe();
                 });
-
-                // Added channel to users history asynchronously
-                this.userService.addChannelToHistory(user.id, channelId).then((wasAdded) => {
-                    if(wasAdded) {
-                        return this.userService.findChannelHistoryByCurrentUser(user.id).then((channels) => {
-                            return this.coordinator.pushHistoryToClient(user.id, channels.items.map((c) => c.id)).catch((error: Error) => {
-                                this.logger.error(`Failed sending history update to user: ${error.message}`, error);
-                            });
-                        });
-                    }
-                }).catch((error: Error) => {
-                    this.logger.error(`Could not add channel to user's history: ${error.message}`, error);
-                });
             }).catch((error: Error) => {
                 this.logger.error(`Could not add listener to stream: ${error.message}`, error);
                 res.status(500).send();

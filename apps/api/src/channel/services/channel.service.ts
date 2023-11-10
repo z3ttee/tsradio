@@ -5,7 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CreateChannelDTO } from "../dtos/create-channel.dto";
 import { ChannelRegistry } from "./registry.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { User } from "../../user/entities/user.entity";
 import { ChannelOverview } from "../entities/channel-overview.entity";
 import { Page, Pageable, createSlug, isNull } from "@tsa/utilities";
@@ -38,11 +38,11 @@ export class ChannelService {
             },
             featured: true,
             status: true,
-            track: {
-                name: true,
-                featuredArtists: true,
-                primaryArtist: true
-            }
+            // track: {
+            //     name: true,
+            //     featuredArtists: true,
+            //     primaryArtist: true
+            // }
         }
 
         return Promise.all([
@@ -67,7 +67,7 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                track: true
+                // track: true
             },
             select: cols
         }).catch((error: Error) => {
@@ -89,7 +89,7 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                track: true
+                // track: true
             },
             select: cols
         }).catch((error: Error) => {
@@ -167,14 +167,6 @@ export class ChannelService {
             .getManyAndCount().then(([channels, total]) => Page.of(channels, total, pageable));
     }
 
-    public async findFeatured(pageable: Pageable, authentication?: User): Promise<Page<Channel>> {
-        return this.repository.createQueryBuilder("channel")
-            .limit(pageable.limit)
-            .offset(pageable.offset)
-            .where("channel.featured = :featured", { featured: true })
-            .getManyAndCount().then(([channels, total]) => Page.of(channels, total, pageable));
-    }
-
     public async createIfNotExists(dto: CreateChannelDTO): Promise<Channel> {
         return this.existsByName(dto.name).then((exists) => {
             if(exists) throw new BadRequestException("Channel with that name already exists");
@@ -202,16 +194,35 @@ export class ChannelService {
         const channel = await this.findById(id);
         if(isNull(channel)) throw new BadRequestException("Channel not found");
 
-        return this.repository.save({
-            ...channel,
-            ...dto,
-            id: id,
-            slug: channel.slug
-        }).then((channel) => {
-            this.registry.set(channel);
-            this.emitter.emit(GATEWAY_EVENT_CHANNEL_UPDATED, channel);
+        const hasNameChanged = dto.name !== channel.name;
+        // Check if the channel now got disabled and
+        // was previously enabled
+        const gotDisabled = !isNull(dto.enabled) && !dto.enabled && channel.enabled;
+
+        channel.featured = dto.featured ?? channel.featured;
+        channel.enabled = dto.enabled ?? channel.enabled;
+        channel.name = dto.name ?? channel.name;
+        channel.description = dto.description ?? channel.description;
+        channel.slug = hasNameChanged ? createSlug(channel.name) : channel.slug;
+
+        return this.repository.save(channel).then((channel) => {
+            if(gotDisabled) {
+                // TODO: Check what happens to the stream when channel gets disabled
+                // When the channel got disabled,
+                // remove the channel from all connected clients
+                this.logger.warn(`Channel '${channel.name}' got disabled by user request.`);
+                this.emitter.emit(GATEWAY_EVENT_CHANNEL_DISABLED, channel.id);
+                return channel;
+            }
+
+            if(channel.enabled) {
+                // Only register the channel, if it is enabled
+                this.registry.set(channel);
+                this.emitter.emit(GATEWAY_EVENT_CHANNEL_UPDATED, channel);
+            }
+            
             return channel;
-        });;
+        });
     }
 
     public async deleteById(id: string): Promise<boolean> {

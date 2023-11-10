@@ -10,9 +10,10 @@ import { OIDCService } from "../../authentication/services/oidc.service";
 import { HistoryService } from "../../history/services/history.service";
 import { ChannelRegistry } from "../../channel/services/registry.service";
 import { User } from "../../user/entities/user.entity";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { Channel } from "../../channel/entities/channel.entity";
 import { Page, Pageable, isNull } from "@tsa/utilities";
+import { channel } from "node:diagnostics_channel";
 
 @Injectable()
 @WebSocketGateway({ 
@@ -43,14 +44,6 @@ export class StreamerCoordinator extends AuthGateway {
         }
     }
 
-    protected onConnect(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>, user: User): Promise<void> {
-        this.userService.findChannelHistoryIds(user.id).then((ids) => {
-            this.pushListToClient(socket);
-            this.pushHistoryToClient(user.id, ids);
-        })
-        return;
-    }
-
     /**
      * Guard function that checks if the user is allowed to access
      * this gateway
@@ -70,6 +63,14 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     /**
+     * Emit channel status changed event
+     * @param channelId Id of the channel that changed status
+     */
+    public async emitStatusChanged(channelId: string, status: StreamStatus): Promise<void> {
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, channelId, status);
+    }
+
+    /**
      * Emit channel update event
      * @param channel Updated channel data
      */
@@ -85,17 +86,6 @@ export class StreamerCoordinator extends AuthGateway {
     public async emitChannelCreated(channel: Channel): Promise<void> {
         if(!channel.enabled) return;
         this.server?.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
-    }
-
-    public async pushListToClient(socket: Socket): Promise<void> {
-        const allChannels = Array.from(this.streams.values()).map((s) => s.getChannel()).filter((c) => c.enabled && c.status === StreamStatus.ONLINE);
-        socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_LIST, allChannels);
-    }
-
-    public async pushHistoryToClient(userId: string, history: string[]): Promise<void> {
-        const socket = this.getAuthenticatedSocket(userId);
-        if(isNull(socket)) throw new InternalServerErrorException("User not connected with the websocket");
-        socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, history);
     }
 
     public async startStream(channel: Channel): Promise<Stream> {
@@ -150,6 +140,13 @@ export class StreamerCoordinator extends AuthGateway {
         this.emitChannelDeleted(channelId);
     }
 
+    @OnEvent(GATEWAY_EVENT_CHANNEL_DISABLED)
+    public handleChannelDisabledEvent(channelId: string) {
+        // Currently, the disable event
+        // is treated like a delete event
+        this.handleChannelDeletedEvent(channelId);
+    }
+
     @OnEvent(GATEWAY_EVENT_CHANNEL_UPDATED)
     public handleChannelUpdatedEvent(channel: Channel) {
         this.updateChannelOfStream(channel);
@@ -187,15 +184,15 @@ export class StreamerCoordinator extends AuthGateway {
         // Subscribe to shutdown event
         stream.$onDestroyed.subscribe(() => {
             this.logger.warn(`Channel '${stream.name}' shut down`);
-            this.emitChannelDeleted(stream.id);
 
+            this.emitStatusChanged(stream.getChannel().id, StreamStatus.OFFLINE);
             this.streams.delete(stream.id);
         });
 
         // Subscribe to status changes
         stream.$status.subscribe((status) => {
             this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
-            this.emitChannelUpdated(stream.getChannel());
+            this.emitStatusChanged(stream.getChannel().id, status);
         });
 
         // Subscribe to track changes
