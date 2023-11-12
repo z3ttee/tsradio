@@ -1,5 +1,5 @@
 import { CollectionViewer, DataSource, ListRange } from "@angular/cdk/collections";
-import { BehaviorSubject, Observable, Subject, Subscription, combineLatest, distinctUntilChanged, map, switchMap, takeUntil, tap } from "rxjs";
+import { BehaviorSubject, Observable, Subject, Subscription, combineLatest, distinctUntilChanged, map, switchMap, takeUntil } from "rxjs";
 import { DatasourceItem } from "./entities/item";
 import { SDKDatasourceRequestHandlerFn } from "./entities/requestHandler";
 import { SDKPaginationManager, SDKStaticPaginationManager } from "./entities/paginator";
@@ -144,7 +144,6 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
         // Use range from viewer and build page settings
         // for api calls
         map((range) => this.buildPageable(range)),
-        tap((pageable) => console.log(pageable)),
         switchMap((pageable): Observable<[Future<Page<TData>>, Pageable]> => {
           this._isFetchingSubj.next(true);
 
@@ -177,8 +176,6 @@ export abstract class SDKBaseDatasource<TData = any> extends DataSource<Datasour
   private buildPageable(range: ListRange): Pageable {
     const start = Math.max(0, range.start);
     const size = Math.max(0, range.end - range.start);
-
-    console.log(range, start, size);
 
     return new Pageable(start, size, this._filter);
   }

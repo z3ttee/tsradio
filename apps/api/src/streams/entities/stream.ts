@@ -5,12 +5,13 @@ import { PassThrough } from "node:stream";
 import { ffprobe } from "@dropb/ffprobe";
 import { Logger } from "@nestjs/common";
 import { BehaviorSubject, Observable, Subject, catchError, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
-import { Track } from "./track";
 import path from "node:path";
 import NodeID3 from "node-id3";
 import ffprobeStatic from "ffprobe-static";
 import { Channel } from "../../channel/entities/channel.entity";
 import { isNull, randomString, toVoid } from "@tsa/utilities";
+import { Track } from "../../track";
+import { Artist } from "../../artist";
 
 ffprobe.path = ffprobeStatic.path;
 
@@ -222,6 +223,7 @@ export class Stream {
     public shutdown(): Observable<void> {
         return this.setCurrentlyStreaming(null).pipe(
             tap(() => {
+                console.log("channel shut down")
                 this.throttle?.destroy();
                 this.stream?.destroy();
                 this.setStatus(StreamStatus.OFFLINE);
@@ -314,11 +316,18 @@ export class Stream {
                 resolve(null);
             } else {
                 const artists = tags.artist?.split(",") ?? [];
+                const primaryArtistName = artists.splice(0, 1)?.[0]
+                const primaryArtist = isNull(primaryArtistName) ? null : {
+                    name: primaryArtistName
+                };
+
+                console.log(primaryArtist);
 
                 const track = new Track();
                 track.name = tags.title ?? path.basename(file);
-                track.primaryArtist = artists.splice(0, 1)?.[0] ?? undefined;
-                track.featuredArtists = artists ?? [];
+                track.album = tags.album;
+                track.primaryArtist = primaryArtist as Artist;
+                track.featuredArtists = artists?.length > 0 ? artists.join(", ") : null;
     
                 resolve(track);
             }

@@ -8,6 +8,7 @@ import { UserModule } from "../user/user.module";
 import { ChannelModule } from "../channel/channel.module";
 import { HistoryModule } from "../history/history.module";
 import { SessionsModule } from "../sessions/sessions.module";
+import { TrackModule } from "../track";
 
 @Module({
     controllers: [
@@ -23,6 +24,7 @@ import { SessionsModule } from "../sessions/sessions.module";
         ChannelModule,
         HistoryModule,
         SessionsModule,
+        TrackModule,
         JwtModule.register({})
     ]
 })

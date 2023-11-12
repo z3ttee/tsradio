@@ -9,6 +9,8 @@ import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_E
 import { User } from "../../user/entities/user.entity";
 import { ChannelOverview } from "../entities/channel-overview.entity";
 import { Page, Pageable, createSlug, isNull } from "@tsa/utilities";
+import { StreamStatus } from "../../streams/entities/stream";
+import { Track } from "../../track";
 
 @Injectable()
 export class ChannelService {
@@ -38,11 +40,13 @@ export class ChannelService {
             },
             featured: true,
             status: true,
-            // track: {
-            //     name: true,
-            //     featuredArtists: true,
-            //     primaryArtist: true
-            // }
+            track: {
+                name: true,
+                featuredArtists: true,
+                primaryArtist: {
+                    name: true
+                }
+            }
         }
 
         return Promise.all([
@@ -67,7 +71,7 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                // track: true
+                track: true
             },
             select: cols
         }).catch((error: Error) => {
@@ -89,7 +93,7 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                // track: true
+                track: true
             },
             select: cols
         }).catch((error: Error) => {
@@ -188,6 +192,34 @@ export class ChannelService {
                 });
             });
         });
+    }
+
+    /**
+     * Set the current status for a channel
+     * @param channelId Id of the channel
+     * @param status Status of the channel
+     * @returns Status information that was set to the channel
+     */
+    public async setStatus(channelId: string, status: StreamStatus): Promise<StreamStatus> {
+        const channel = await this.findById(channelId);
+        if(isNull(channel)) throw new NotFoundException("Channel not found");
+
+        channel.status = status;
+        return this.repository.save(channel).then((channel) => channel.status);
+    }
+
+    /**
+     * Set the current status for a channel
+     * @param channelId Id of the channel
+     * @param status Status of the channel
+     * @returns Status information that was set to the channel
+     */
+    public async setTrack(channelId: string, track: Track): Promise<Track> {
+        const channel = await this.findById(channelId);
+        if(isNull(channel)) throw new NotFoundException("Channel not found");
+
+        channel.track = track;
+        return this.repository.save(channel).then((channel) => channel.track);
     }
 
     public async updateById(id: string, dto: CreateChannelDTO): Promise<Channel> {

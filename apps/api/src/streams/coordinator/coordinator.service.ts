@@ -1,19 +1,18 @@
-import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { Stream, StreamStatus } from "../entities/stream";
 import { OnEvent } from "@nestjs/event-emitter";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { AuthGateway } from "../../authentication/gateway/auth-gateway";
 import { UserService } from "../../user/services/user.service";
 import { OIDCService } from "../../authentication/services/oidc.service";
 import { HistoryService } from "../../history/services/history.service";
 import { ChannelRegistry } from "../../channel/services/registry.service";
-import { User } from "../../user/entities/user.entity";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { Channel } from "../../channel/entities/channel.entity";
-import { Page, Pageable, isNull } from "@tsa/utilities";
-import { channel } from "node:diagnostics_channel";
+import { isNull } from "@tsa/utilities";
+import { ChannelService } from "../../channel/services/channel.service";
+import { TrackService } from "../../track";
 
 @Injectable()
 @WebSocketGateway({ 
@@ -33,6 +32,8 @@ export class StreamerCoordinator extends AuthGateway {
     constructor(
         userService: UserService,
         oidcService: OIDCService,
+        private readonly channelService: ChannelService,
+        private readonly trackService: TrackService,
         private readonly historyService: HistoryService,
         private readonly registry: ChannelRegistry
     ) {
@@ -79,6 +80,14 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     /**
+     * Emit channel update event
+     * @param channel Updated channel data
+     */
+    public async emitChannelTrackChanged(channel: Channel): Promise<void> {
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channel);
+    }
+
+    /**
      * Emit channel creation event.
      * The event will only be emitted, if the created channel is enabled
      * @param channel Created channel data 
@@ -117,15 +126,6 @@ export class StreamerCoordinator extends AuthGateway {
 
     public getStreamByChannelId(channelId: string) {
         return this.streams.get(channelId);
-    }
-
-    public async findActiveChannels(pageable: Pageable): Promise<Page<Channel>> {
-        const streams = Array.from(this.streams.values()).filter((s) => s.status === StreamStatus.ONLINE);
-
-        const offset = Math.min(streams.length, Math.max(0, pageable.offset));
-        const limit = Math.min(streams.length, Math.min(streams.length-offset, Math.max(1, pageable.limit)));
-
-        return Page.of(streams.slice(offset, limit).map((s) => s.getChannel()), streams.length, pageable);
     }
 
     @OnEvent(GATEWAY_EVENT_CHANNEL_CREATED)
@@ -181,27 +181,48 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     private subscribeToStreamEvents(stream: Stream): void {
+        // Subscribe to status changes
+        stream.$status.subscribe((status) => {
+            // Update status of channel in the database
+            this.channelService.setStatus(stream.id, status).then((status) => {
+                // On success, log status change to console
+                // and emit status event
+                this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
+                this.emitStatusChanged(stream.getChannel().id, status);
+            }).catch((error: Error) => {
+                // Handle error and log
+                // to console
+                this.logger.error(`Failed updating channel status in database: ${error.message}`, error.stack);
+            });
+        });
+
         // Subscribe to shutdown event
         stream.$onDestroyed.subscribe(() => {
-            this.logger.warn(`Channel '${stream.name}' shut down`);
-
-            this.emitStatusChanged(stream.getChannel().id, StreamStatus.OFFLINE);
+            // this.logger.warn(`Channel '${stream.name}' shut down`);
+            // this.emitStatusChanged(stream.getChannel().id, StreamStatus.OFFLINE);
             this.streams.delete(stream.id);
         });
 
-        // Subscribe to status changes
-        stream.$status.subscribe((status) => {
-            this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
-            this.emitStatusChanged(stream.getChannel().id, status);
-        });
-
         // Subscribe to track changes
-        stream.$currentTrack.subscribe((track) => {
-            if(isNull(track)) return;
-            this.historyService.addToHistory(stream.id, track);
+        stream.$currentTrack.subscribe(async (currentTrack) => {
+            if(isNull(currentTrack)) return;
+            this.historyService.addToHistory(stream.id, currentTrack);
+
+            const track = await this.trackService.createOrFind({
+                channelId: stream.id,
+                name: currentTrack.name,
+                album: null,
+                primaryArtistName: currentTrack.primaryArtist?.name,
+                featuredArtists: currentTrack.featuredArtists,
+            }).catch((error: Error) => {
+                this.logger.error(`Failed syncing track with database: ${error.message}`, error.stack);
+                return null;
+            });
+
+            console.log(track);
 
             this.logger.log(`Channel '${stream.name}' now playing: '${track.name}' by '${track.primaryArtist}'`);
-            this.emitChannelUpdated(stream.getChannel());
+            this.emitChannelTrackChanged(stream.getChannel());
         });
 
         // Subscribe to errors

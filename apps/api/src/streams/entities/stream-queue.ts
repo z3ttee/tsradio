@@ -1,5 +1,5 @@
-import path from "node:path";
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import path, { dirname } from "node:path";
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { globSync } from "glob";
 import { FileSystemService } from "../../filesystem/services/filesystem.service";
 import { Channel } from "../../channel/entities/channel.entity";
@@ -63,6 +63,7 @@ export class StreamQueue {
     }
 
     private persist() {
+        mkdirSync(dirname(this.file), { recursive: true });
         writeFileSync(this.file, JSON.stringify(this.queue));
     }
 

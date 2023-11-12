@@ -17,8 +17,6 @@ export const DI_TOKEN_CHANNELS: string = "__di_token_channels__";
         TypeOrmModule.forFeature([ Channel ])
     ],
     providers: [
-        ChannelService,
-        InitChannelService,
         {
             provide: DI_TOKEN_CHANNELS,
             inject: [ InitChannelService, FileSystemService ],
@@ -32,7 +30,10 @@ export const DI_TOKEN_CHANNELS: string = "__di_token_channels__";
             useFactory: (channels: Channel[], fs: FileSystemService) => {
                 return new ChannelRegistry(fs, channels);
             }
-        }
+        },
+        ChannelService,
+        InitChannelService,
+        
     ],
     exports: [
         ChannelService,
