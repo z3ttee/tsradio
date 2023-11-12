@@ -77,6 +77,7 @@ export class TrackService {
 
                 // Find track by its id
                 return this.findById(id).then((track) => {
+                    if(isNull(track)) return null;
                     // Add featured artists
                     track.featuredArtists = featuredArtists;
                     // Return saved entity

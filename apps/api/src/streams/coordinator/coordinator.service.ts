@@ -84,6 +84,11 @@ export class StreamerCoordinator extends AuthGateway {
      * @param channel Updated channel data
      */
     public async emitChannelTrackChanged(channelId: string, track: Track): Promise<void> {
+        if(isNull(track)) {
+            this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channelId, null);
+            return;
+        }
+        
         const { filename, ...trackData } = track;
         this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channelId, trackData);
     }
