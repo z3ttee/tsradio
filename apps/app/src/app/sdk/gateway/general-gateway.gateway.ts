@@ -5,7 +5,8 @@ import { Channel } from "../channel";
 import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../constants";
 import { SSOService } from "../../modules/sso/services/sso.service";
 import { environment } from "../../../environments/environment";
-import { StreamStatus, Track } from "../stream";
+import { StreamStatus } from "../stream";
+import { Track } from "../track";
 
 export interface OnChannelTrackChangedEvent {
   readonly channelId: string;

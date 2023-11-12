@@ -1,10 +1,11 @@
 import { animate, style, transition, trigger } from "@angular/animations";
 import { Platform } from "@angular/cdk/platform";
-import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
-import { Subject, combineLatest, map, takeUntil } from "rxjs";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from "@angular/core";
+import { combineLatest, map } from "rxjs";
 import { TSRStreamService } from "../../sdk/stream";
 import { isMobilePlatform } from "../../utils/helpers/isMobile";
 import { Channel } from "../../sdk/channel";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 interface PlayerInfo {
     currentChannel?: Channel;
@@ -41,24 +42,20 @@ interface PlayerInfo {
         ])
     ]
 })
-export class TSRPlayerbarComponent implements OnDestroy {
-
-    private readonly $destroy = new Subject<void>();
-
-    constructor(
-        private readonly platform: Platform,
-        private readonly streamService: TSRStreamService
-    ) {}
+export class TSRPlayerbarComponent {
+    private readonly _destroyRef = inject(DestroyRef);
+    private readonly _platform = inject(Platform);
+    private readonly _streamService = inject(TSRStreamService);
 
     public $props = combineLatest([
-        this.streamService.$currentChannel,
-        this.streamService.$isLoading,
-        this.streamService.$isPlaying,
-        this.streamService.$volume,
-        this.streamService.$isMuted
+        this._streamService.$currentChannel,
+        this._streamService.$isLoading,
+        this._streamService.$isPlaying,
+        this._streamService.$volume,
+        this._streamService.$isMuted
     ]).pipe(
         map(([currentChannel, isLoading, isPlaying, volume, isMuted]): PlayerInfo => ({
-            isMobile: isMobilePlatform(this.platform),
+            isMobile: isMobilePlatform(this._platform),
             currentChannel: currentChannel,
             isLoading: isLoading,
             isPlaying: isPlaying,
@@ -67,25 +64,20 @@ export class TSRPlayerbarComponent implements OnDestroy {
         })),
     );
 
-    public ngOnDestroy(): void {
-        this.$destroy.next();
-        this.$destroy.complete();
-    }
-
     public togglePause() {
-        this.streamService.togglePause().pipe(takeUntil(this.$destroy)).subscribe();
+        this._streamService.togglePause().pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
     }
 
     public toggleMute() {
-        this.streamService.toggleMute();
+        this._streamService.toggleMute();
     }
 
     public setVolume(volume: number) {
-        this.streamService.setVolume(volume);
+        this._streamService.setVolume(volume);
     }
 
     public forceSkip() {
-        this.streamService.forceSkip().subscribe();
+        this._streamService.forceSkip().subscribe();
     }
 
 }

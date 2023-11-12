@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, from, map, of, switchMap, tap } from "rxjs";
+import { BehaviorSubject, Observable, filter, from, map, of, switchMap, tap } from "rxjs";
 import { Channel } from "../../channel";
 import { HttpClient } from "@angular/common/http";
 import { TSRStreamCoordinatorGateway } from "../../gateway";
@@ -44,6 +44,13 @@ export class TSRStreamService {
                 // If true, push channel data
                 this._channel.next(channel);
             }
+        });
+        this.coordinator.$onChannelTrackChanged.pipe(filter((event) => event.channelId === this._channel.getValue()?.id)).subscribe((event) => {
+            const channel = this._channel.getValue();
+            if(isNull(channel)) return;
+
+            channel.currentTrack = event.track;
+            this._channel.next(channel);
         });
     }
 

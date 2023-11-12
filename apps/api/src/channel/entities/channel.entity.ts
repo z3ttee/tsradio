@@ -46,6 +46,10 @@ export class Channel {
     public status: StreamStatus;
 
     @OneToMany(() => Track, (t) => t.channel)
-    public track: Track;
+    public tracks: Track[];
+
+    @ManyToOne(() => Track, { nullable: true })
+    @JoinColumn()
+    public currentTrack?: Track;
     
 }

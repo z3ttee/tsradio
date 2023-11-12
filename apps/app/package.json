@@ -38,7 +38,6 @@
     "@angular-eslint/template-parser": "^16.2.0",
     "@angular/cli": "^16.2.9",
     "@angular/compiler-cli": "^16.2.12",
-    "@nestjs/common": "9.4.0",
     "@types/node": "^20.2.5",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.23",

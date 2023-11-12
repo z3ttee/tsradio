@@ -47,7 +47,6 @@ export class TrackService {
             const artists = await this.artistService.createOrFind({
                 name: dto.primaryArtistName
             });
-            console.log("artists:", artists);
             primaryArtist = artists[0];
         }
 

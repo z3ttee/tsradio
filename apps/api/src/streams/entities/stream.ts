@@ -4,7 +4,7 @@ import Throttle from "throttle";
 import { PassThrough } from "node:stream";
 import { ffprobe } from "@dropb/ffprobe";
 import { Logger } from "@nestjs/common";
-import { BehaviorSubject, Observable, Subject, catchError, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
+import { BehaviorSubject, Observable, Subject, catchError, debounceTime, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
 import path from "node:path";
 import NodeID3 from "node-id3";
 import ffprobeStatic from "ffprobe-static";
@@ -42,7 +42,7 @@ export class Stream {
     public readonly $onError = this._errorSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
 
     private readonly _statusSubject = new BehaviorSubject<StreamStatus>(StreamStatus.STARTING);
-    public readonly $status = this._statusSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
+    public readonly $status = this._statusSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged(), debounceTime(100));
 
     private readonly _onChannelUpdatedSubj: Subject<void> = new Subject();
     public readonly $onChannelUpdated = this._onChannelUpdatedSubj.asObservable().pipe(takeUntil(this._destroySubject));
@@ -71,7 +71,7 @@ export class Stream {
     public setChannel(val: Channel) {
         // Copy previous values to val
         val.status = this._channel?.status ?? val.status;
-        val.track = this._channel?.track ?? val.track;
+        val.currentTrack = this._channel?.currentTrack ?? val.currentTrack;
 
         this._channel = val;
         this._onChannelUpdatedSubj.next();
@@ -347,7 +347,7 @@ export class Stream {
      */
     private setTrack(track: Track): Observable<void> {
         return new Observable((subscriber) => {
-            this._channel.track = track;
+            this._channel.currentTrack = track;
             this._currentTrackSubject.next(track);
 
             subscriber.next();

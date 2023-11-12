@@ -209,10 +209,11 @@ export class StreamerCoordinator extends AuthGateway {
             if(isNull(currentTrack)) return;
             this.historyService.addToHistory(stream.id, currentTrack);
 
+            // Create or find track in database
             const track: Track | null = await this.trackService.createOrFind({
                 channelId: stream.id,
                 name: currentTrack.name,
-                album: null,
+                album: currentTrack.album ?? null,
                 primaryArtistName: currentTrack.primaryArtist?.name,
                 featuredArtistNames: currentTrack.featuredArtists?.map((a) => a.name),
                 filename: currentTrack.filename
@@ -220,6 +221,11 @@ export class StreamerCoordinator extends AuthGateway {
                 this.logger.error(`Failed syncing track with database: ${error.message}`, error.stack);
                 return null;
             });
+
+            // Update current track on channel
+            await this.channelService.setCurrentTrack(stream.id, track).catch((error: Error) => {
+                this.logger.error(`Failed updating current track on channel '${stream.name}': ${error.message}`, error.stack);
+            })
 
             this.logger.log(`Channel '${stream.name}' now playing: '${track?.name}' by '${track?.primaryArtist?.name}'`);
             this.emitChannelTrackChanged(stream.getChannel().id, track);

@@ -40,7 +40,7 @@ export class ChannelService {
             },
             featured: true,
             status: true,
-            track: {
+            currentTrack: {
                 name: true,
                 featuredArtists: true,
                 primaryArtist: {
@@ -71,7 +71,7 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                track: true
+                currentTrack: true
             },
             select: cols
         }).catch((error: Error) => {
@@ -93,7 +93,7 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                track: true
+                currentTrack: true
             },
             select: cols
         }).catch((error: Error) => {
@@ -204,8 +204,9 @@ export class ChannelService {
         const channel = await this.findById(channelId);
         if(isNull(channel)) throw new NotFoundException("Channel not found");
 
-        channel.status = status;
-        return this.repository.save(channel).then((channel) => channel.status);
+        return this.repository.update(channelId, {
+            status: status
+        }).then(() => status);
     }
 
     /**
@@ -214,12 +215,13 @@ export class ChannelService {
      * @param status Status of the channel
      * @returns Status information that was set to the channel
      */
-    public async setTrack(channelId: string, track: Track): Promise<Track> {
+    public async setCurrentTrack(channelId: string, track: Track): Promise<Track> {
         const channel = await this.findById(channelId);
         if(isNull(channel)) throw new NotFoundException("Channel not found");
 
-        channel.track = track;
-        return this.repository.save(channel).then((channel) => channel.track);
+        return this.repository.update(channelId, {
+            currentTrack: track
+        }).then(() => track);
     }
 
     public async updateById(id: string, dto: CreateChannelDTO): Promise<Channel> {
