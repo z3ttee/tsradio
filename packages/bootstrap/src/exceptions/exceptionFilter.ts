@@ -7,7 +7,7 @@ import { Response } from "express";
 
 @Catch(HttpException)
 export class HttpExceptionFilter extends BaseExceptionFilter {
-  override catch(exception: HttpException, host: ArgumentsHost): Observable<never> | void {
+  public override catch(exception: HttpException, host: ArgumentsHost): Observable<never> | void {
     const httpStatus = exception.getStatus();
 
     if (host.getType() === "rpc") {

@@ -8,7 +8,7 @@ import { Logger } from "@nestjs/common";
 const logger = new Logger("MetadataService");
 
 export function readID3Tags(file: string): Promise<Track | null> {
-    if(isNull(file)) return null;
+    if(isNull(file)) return Promise.resolve(null);
     return new Promise<Track>((resolve) => {
         const tags = NodeID3.read(file);
 

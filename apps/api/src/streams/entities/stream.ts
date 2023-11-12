@@ -5,13 +5,10 @@ import { PassThrough } from "node:stream";
 import { ffprobe } from "@dropb/ffprobe";
 import { Logger } from "@nestjs/common";
 import { BehaviorSubject, Observable, Subject, catchError, debounceTime, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
-import path from "node:path";
-import NodeID3 from "node-id3";
 import ffprobeStatic from "ffprobe-static";
 import { Channel } from "../../channel/entities/channel.entity";
 import { isNull, randomString, toVoid } from "@tsa/utilities";
 import { Track } from "../../track";
-import { Artist } from "../../artist";
 import { readID3Tags } from "../../metadata";
 
 ffprobe.path = ffprobeStatic.path;
@@ -187,23 +184,26 @@ export class Stream {
     private streamCurrentFile(): Observable<void> {
         return new Observable<void>((subscriber) => {
             const file = this._currentFile;
-            if (!file) return;
-    
-            this.getTrackBitrate(file).then((bitrate) => {
-                this.throttle = new Throttle(bitrate / 8);
-    
-                this.stream
-                    .pipe(this.throttle)
-                    .on("data", (chunk) => this.broadcast(chunk))
-                    .on("end", () => this.streamNext().subscribe())
-                    .on("error", () => this.streamNext().subscribe());
-            }).then(() => {
+            if (isNull(file)) {
                 subscriber.next();
-            }).catch((error: Error) => {
-                subscriber.error(error);
-            }).finally(() => {
                 subscriber.complete();
-            })            
+            } else {
+                this.getTrackBitrate(file).then((bitrate) => {
+                    this.throttle = new Throttle(bitrate / 8);
+        
+                    this.stream
+                        .pipe(this.throttle)
+                        .on("data", (chunk) => this.broadcast(chunk))
+                        .on("end", () => this.streamNext().subscribe())
+                        .on("error", () => this.streamNext().subscribe());
+                }).then(() => {
+                    subscriber.next();
+                }).catch((error: Error) => {
+                    subscriber.error(error);
+                }).finally(() => {
+                    subscriber.complete();
+                });         
+            }
         }).pipe(catchError((err: Error) => {
             this.publishError(err);
             return of();
@@ -214,7 +214,7 @@ export class Stream {
      * Start the stream if not already streaming
      */
     public start(): Observable<void> {
-        if(this.started) return of();
+        if(this.started) return of(null);
         return this.streamNext();
     }
 
@@ -224,7 +224,6 @@ export class Stream {
     public shutdown(): Observable<void> {
         return this.setCurrentlyStreaming(null).pipe(
             tap(() => {
-                console.log("channel shut down")
                 this.throttle?.destroy();
                 this.stream?.destroy();
                 this.setStatus(StreamStatus.OFFLINE);
