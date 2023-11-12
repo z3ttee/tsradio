@@ -79,9 +79,9 @@ FROM base AS runner
 WORKDIR /app
 
 # Don't run production as root
-RUN addgroup --system --gid 1001 nestjs
-RUN adduser --system --uid 1001 nestjs
-USER nestjs
+# RUN addgroup --system --gid 1001 nestjs
+# RUN adduser --system --uid 1001 nestjs
+# USER nestjs
 
 COPY --from=installer /app .
 COPY ./apps/api/service.json .
