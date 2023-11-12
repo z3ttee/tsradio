@@ -82,7 +82,9 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nestjs
 RUN adduser --system --uid 1001 nestjs
 USER nestjs
+
 COPY --from=installer /app .
+COPY ./apps/api/service.json .
 
 ENV PRODUCTION=true
 ENV DOCKERIZED=true
