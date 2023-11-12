@@ -83,7 +83,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: apps/api/
+          context: .
           push: true
-          tags: 
-            ${{ secrets.DOCKERHUB_USERNAME }}/tsradio:${{ needs.check_branch.outputs.tag }},${{ secrets.DOCKERHUB_USERNAME }}/tsradio:${{ needs.check_branch.outputs.tag }}-${{ needs.check_version.outputs.version }}
+          file: apps/api/Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/tsradio:${{ needs.check_branch.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/tsradio:${{ needs.check_branch.outputs.tag }}-${{ needs.check_version.outputs.version }}
