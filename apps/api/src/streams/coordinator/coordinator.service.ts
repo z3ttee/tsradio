@@ -12,7 +12,7 @@ import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_E
 import { Channel } from "../../channel/entities/channel.entity";
 import { isNull } from "@tsa/utilities";
 import { ChannelService } from "../../channel/services/channel.service";
-import { TrackService } from "../../track";
+import { Track, TrackService } from "../../track";
 
 @Injectable()
 @WebSocketGateway({ 
@@ -83,8 +83,9 @@ export class StreamerCoordinator extends AuthGateway {
      * Emit channel update event
      * @param channel Updated channel data
      */
-    public async emitChannelTrackChanged(channel: Channel): Promise<void> {
-        this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channel);
+    public async emitChannelTrackChanged(channelId: string, track: Track): Promise<void> {
+        const { filename, ...trackData } = track;
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channelId, trackData);
     }
 
     /**
@@ -208,21 +209,20 @@ export class StreamerCoordinator extends AuthGateway {
             if(isNull(currentTrack)) return;
             this.historyService.addToHistory(stream.id, currentTrack);
 
-            const track = await this.trackService.createOrFind({
+            const track: Track | null = await this.trackService.createOrFind({
                 channelId: stream.id,
                 name: currentTrack.name,
                 album: null,
                 primaryArtistName: currentTrack.primaryArtist?.name,
-                featuredArtists: currentTrack.featuredArtists,
+                featuredArtistNames: currentTrack.featuredArtists?.map((a) => a.name),
+                filename: currentTrack.filename
             }).catch((error: Error) => {
                 this.logger.error(`Failed syncing track with database: ${error.message}`, error.stack);
                 return null;
             });
 
-            console.log(track);
-
-            this.logger.log(`Channel '${stream.name}' now playing: '${track.name}' by '${track.primaryArtist}'`);
-            this.emitChannelTrackChanged(stream.getChannel());
+            this.logger.log(`Channel '${stream.name}' now playing: '${track?.name}' by '${track?.primaryArtist?.name}'`);
+            this.emitChannelTrackChanged(stream.getChannel().id, track);
         });
 
         // Subscribe to errors

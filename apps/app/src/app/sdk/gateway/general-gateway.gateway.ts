@@ -70,7 +70,7 @@ export class SDKStreamCoordinatorGateway extends TSRAuthenticatedGateway {
   }
 
   private handleChannelTrackChanged(channelId: string, track: Track) {
-    console.log(`[Websocket] Received channel track changed event`, channelId, track);
+    console.log(`[Websocket] Received channel track changed event`);
     this._onChannelTrackChangedSubj.next({ channelId, track });
   }
 

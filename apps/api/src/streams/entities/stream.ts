@@ -12,6 +12,7 @@ import { Channel } from "../../channel/entities/channel.entity";
 import { isNull, randomString, toVoid } from "@tsa/utilities";
 import { Track } from "../../track";
 import { Artist } from "../../artist";
+import { readID3Tags } from "../../metadata";
 
 ffprobe.path = ffprobeStatic.path;
 
@@ -307,36 +308,6 @@ export class Stream {
         });
     }
 
-    private async readID3Tags(file: string): Promise<Track> {
-        if(isNull(file)) return null;
-        return new Promise<Track>((resolve) => {
-            const tags = NodeID3.read(file);
-
-            if(isNull(tags)) {
-                resolve(null);
-            } else {
-                const artists = tags.artist?.split(",") ?? [];
-                const primaryArtistName = artists.splice(0, 1)?.[0]
-                const primaryArtist = isNull(primaryArtistName) ? null : {
-                    name: primaryArtistName
-                };
-
-                console.log(primaryArtist);
-
-                const track = new Track();
-                track.name = tags.title ?? path.basename(file);
-                track.album = tags.album;
-                track.primaryArtist = primaryArtist as Artist;
-                track.featuredArtists = artists?.length > 0 ? artists.join(", ") : null;
-    
-                resolve(track);
-            }
-        }).catch((error: Error) => {
-            this.logger.error(`Error whilst reading ID3 tags from file '${file}': ${error.message}`, error);
-            return null;
-        });
-    }
-
     private publishError(error: Error): void {
         this._errorSubject.next(error);
     }
@@ -358,7 +329,7 @@ export class Stream {
         return new Observable<string>((subscriber) => {
             this._currentFile = file;
 
-            subscriber.add(from(this.readID3Tags(file)).pipe(catchError((err: Error) => {
+            subscriber.add(from(readID3Tags(file)).pipe(catchError((err: Error) => {
                 this.publishError(err);
                 return of(null);
             })).pipe(

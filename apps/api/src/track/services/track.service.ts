@@ -42,29 +42,47 @@ export class TrackService {
         const featuredArtists: Artist[] = [];
         let primaryArtist: Artist | null = null;
 
+        // Create primary artist
         if(!isNull(dto.primaryArtistName)) {
-            primaryArtist = await this.artistService.createOrFind({
+            const artists = await this.artistService.createOrFind({
                 name: dto.primaryArtistName
             });
+            console.log("artists:", artists);
+            primaryArtist = artists[0];
         }
 
-        console.log(primaryArtist);
+        // Create featured artists
+        if(!isNull(dto.featuredArtistNames)) {
+            const artists = await this.artistService.createOrFind(dto.featuredArtistNames.map((name) => ({
+                name: name
+            })));
+            featuredArtists.push(...artists);
+        }
 
+        // Create new track entity
         const track = new Track();
         track.name = dto.name;
         track.album = dto.album;
-        track.featuredArtists = dto.featuredArtists;
         track.channel = { id: dto.channelId } as Channel;
         track.primaryArtist = primaryArtist;
+        track.filename = dto.filename;
 
         return this.repository.createQueryBuilder()
             .insert()
             .values(track)
-            .orUpdate(["name", "primaryArtistId",  "featuredArtists", "album", "channelId"], ["id"])
+            .orUpdate(["name", "primaryArtistId", "album", "channelId", "filename"], ["id"])
             .execute().then((insertResult) => {
+                // Handle insert result
                 if(insertResult.identifiers.length <= 0) throw new InternalServerErrorException("Failed creating track");
                 const id = insertResult.identifiers[0]?.id;
-                return this.findById(id);
+
+                // Find track by its id
+                return this.findById(id).then((track) => {
+                    // Add featured artists
+                    track.featuredArtists = featuredArtists;
+                    // Return saved entity
+                    return this.repository.save(track);
+                });
             })
     }
 
