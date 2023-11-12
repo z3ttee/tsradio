@@ -87,4 +87,4 @@ COPY --from=installer /app .
 ENV PRODUCTION=true
 ENV DOCKERIZED=true
 
-CMD node apps/api/dist/index.js
+CMD node apps/api/dist/main.js
