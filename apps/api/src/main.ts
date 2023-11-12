@@ -25,7 +25,15 @@ import { TSABootstrapper } from "@tsa/bootstrap";
 const bootstrapper = TSABootstrapper.create(AppModule as any);
 
 // Set allowed origins
-bootstrapper.allowOrigins(new Set(["*", "http://localhost:8888", "http://localhost:4200", "http://localhost:3000"]));
+bootstrapper.allowOrigins(new Set([
+    "*", 
+    "http://localhost:8888", 
+    "http://localhost:4200", 
+    "http://localhost:3000",
+    "https://radio.tsalliance.eu",
+    "https://api.tsalliance.eu",
+    "https://sso.tsalliance.eu",
+]));
 
 // Start the application by binding to port
 bootstrapper.listen(3000);
