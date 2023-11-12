@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { HomeViewComponent } from "./views/home-view/home.component";
-import { TSRArtworkComponent } from "../../components/artwork/artwork.component";
+import { TSAArtwork } from "../../components/artwork";
 
 const routes: Routes = [
     { path: "", component: HomeViewComponent }
@@ -12,7 +12,7 @@ const routes: Routes = [
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        TSRArtworkComponent
+        TSAArtwork
     ]
 })
 export class HomeModule {

@@ -1,16 +1,16 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
-import { Page, Pageable, isNull } from "@soundcore/common";
 import { Channel } from "../entities/channel.entity";
 import { CreateChannelDTO } from "../../../modules/admin/channels/dtos/create-channel.dto";
 import { environment } from "../../../../environments/environment";
 import { Future, toFuture } from "../../../utils/future";
 import { Artwork } from "../../../modules/artwork/entities/artwork.entity";
 import { ChannelOverview } from "../entities/channel-overview.entity";
+import { Page, Pageable, isNull } from "@tsa/utilities";
 
 @Injectable()
-export class TSRChannelService {
+export class SDKChannelService {
 
     constructor(
         private readonly httpClient: HttpClient
@@ -20,13 +20,13 @@ export class TSRChannelService {
         return this.httpClient.get<ChannelOverview>(`${environment.api_base_uri}/v1/channels/overview`).pipe(toFuture());    
     }
 
+    public findAll(pageable: Pageable): Observable<Future<Page<Channel>>> {
+        return this.httpClient.get<Page<Channel>>(`${environment.api_base_uri}/v1/channels${pageable.toQuery()}`).pipe(toFuture());
+    }
+
     public findById(id: string): Observable<Future<Channel>> {
         if(isNull(id)) return of(Future.notfound());
         return this.httpClient.get<Channel>(`${environment.api_base_uri}/v1/channels/${id}`).pipe(toFuture());
-    }
-
-    public findAll(pageable: Pageable): Observable<Future<Page<Channel>>> {
-        return this.httpClient.get<Page<Channel>>(`${environment.api_base_uri}/v1/channels${pageable.toQuery()}`).pipe(toFuture());
     }
 
     public createIfNotExists(dto: CreateChannelDTO): Observable<Future<Channel>> {

@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
-import { Subject, takeUntil } from "rxjs";
-import { isNull } from "@soundcore/common";
 import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { environment } from "../../../../../../environments/environment";
-import { SCSDKDatasource } from "../../../../../utils/datasource";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { SDKChannelService, SDKDatasources } from "../../../../../sdk";
+import { isNull } from "@tsa/utilities";
+import { TSASnackbars } from "../../../../../components/snackbar";
 
 @Component({
     templateUrl: "./channel.component.html",
@@ -15,18 +14,24 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 })
 export class AdminChannelIndexViewComponent {
     private readonly _destroyRef = inject(DestroyRef);
+    private readonly _channelService = inject(SDKChannelService);
+    private readonly _snackbars = inject(TSASnackbars);
 
     constructor(
         private readonly httpClient: HttpClient,
         private readonly dialog: MatDialog
     ) {}
 
-    public readonly datasource: SCSDKDatasource<Channel> = new SCSDKDatasource(this.httpClient, `${environment.api_base_uri}/v1/channels`, 4);
+    protected readonly _datasource = SDKDatasources.list((pageable) => {
+        return this._channelService.findAll(pageable);
+    });
+    protected readonly $datastream = this._datasource.connect();
 
     public openChannelEditorDialog() {
         this.dialog.open(ChannelEditorDialogComponent).afterClosed().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((result: Channel) => {
             if(!isNull(result)) {
-                this.datasource.updateOrAppendById(result.id, result);
+                // this.datasource.updateOrAppendById(result.id, result);
+                this._snackbars.message("Channel wurde erfolgreich angelegt").open();
             }
         });
     }

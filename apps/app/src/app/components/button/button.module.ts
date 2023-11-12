@@ -1,20 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { NGSFilledButtonComponent } from "./filled/filled.component";
-import { NGSStrokedButtonComponent } from "./stroked/stroked.component";
-import { NGSTextButtonComponent } from "./text/text.component";
+import { TSAFilledButtonComponent } from "./filled/filled.component";
+import { TSATextButtonComponent } from "./text/text.component";
+import { TSAStrokedButtonComponent } from "./stroked/stroked.component";
 
 @NgModule({
-    imports: [
-        CommonModule,
-        NGSFilledButtonComponent,
-        NGSStrokedButtonComponent,
-        NGSTextButtonComponent
-    ],
-    exports: [
-        NGSFilledButtonComponent,
-        NGSStrokedButtonComponent,
-        NGSTextButtonComponent
-    ]
+  imports: [CommonModule, TSAFilledButtonComponent, TSATextButtonComponent, TSAStrokedButtonComponent],
+  exports: [TSAFilledButtonComponent, TSATextButtonComponent, TSAStrokedButtonComponent]
 })
-export class NGSButtonModule {}
+export class TSAButtonModule {}

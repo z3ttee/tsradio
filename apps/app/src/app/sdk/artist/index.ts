@@ -1,0 +1,1 @@
+export { Artist } from "./entities/artist.entity";

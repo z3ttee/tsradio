@@ -1,13 +1,25 @@
-<div 
-    (click)="handleOnClick()"
-    [ngClass]="{'py-2.5 px-2': size === 'sm', 'py-4 px-8': size === 'lg', 'block w-full': full, 'bg-accent border-accent': accent, 'bg-body-lighter border-body-lighter': !accent, 'cursor-not-allowed pointer-events-none bg-opacity-70': loading}"
-    class="relative inline-block py-3 px-6 rounded-sm transition-all cursor-pointer select-none border-2 bg-opacity-10 hover:bg-opacity-30 active:bg-opacity-50 [&>div]:active:scale-95">
-    <span class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2" *ngIf="loading"><ngs-loader></ngs-loader></span>
-    <div 
-        [ngClass]="{'text-sm font-normal': size === 'sm', 'text-md': size === 'lg', 'justify-center': full, 'text-gray-300': !accent, 'opacity-0': loading}"
-        class="flex items-center justify-start text-white transition-all">
-        <ng-content select="ng-icon"></ng-content>
-        <ng-content></ng-content>
-    </div>
-</div>
+<button
+  class="btn btn-stroked relative inline-flex justify-start items-center cursor-pointer outline-none select-none rounded-sm transition-colors text-opacity-100 bg-opacity-10 border-[1.5px] border-opacity-30"
+  (click)="handleOnClick()"
+  [ngClass]="{
+    btn_loading: loading,
+    btn_disabled: disabled,
+    btn_size_full: full,
+    btn_size_sm: size === 'sm',
+    btn_size_default: size === 'default',
+    btn_size_lg: size === 'lg',
+    btn_icon: icon,
 
+    'bg-body-lighter text-font border-body-lighter': color === 'primary',
+    'bg-white text-body-dark border-white': color === 'primary_inverted',
+    'bg-accent text-accent border-accent': color === 'accent',
+    'bg-info text-info border-info': color === 'info',
+    'bg-warn text-warn border-warn': color === 'warn',
+    'bg-error text-error border-error': color === 'error',
+    'bg-success text-success border-success': color === 'success'
+  }">
+  <span class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2" *ngIf="loading"
+    ><tsa-loader [dark]="loaderDarkMode"></tsa-loader
+  ></span>
+  <div><ng-content></ng-content></div>
+</button>

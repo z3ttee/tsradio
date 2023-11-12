@@ -1,0 +1,119 @@
+/**
+* General styling
+*/
+.btn {
+  & > div {
+    display: inherit;
+    justify-items: inherit;
+    align-items: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    color: inherit;
+    max-height: 100%;
+    gap: 6px;
+
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    will-change: transform;
+
+    transform: translate3d(var(--tw-translate-x), var(--tw-translate-y), 0) rotate(var(--tw-rotate))
+      skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+
+  &:hover:not(.btn_loading):not(.btn_disabled):not(.btn-text) {
+    --tw-bg-opacity: 0.9;
+    --tw-border-opacity: 0.9;
+  }
+
+  &:active:not(.btn_loading):not(.btn_disabled) {
+    &:not(.btn-text) {
+      --tw-bg-opacity: 0.8;
+      --tw-border-opacity: 0.8;
+    }
+
+    & > div {
+      --tw-scale-x: 0.95;
+      --tw-scale-y: 0.95;
+    }
+  }
+}
+
+/**
+* Button Sizes
+*/
+.btn_size_full:not(.btn_icon) {
+  width: 100%;
+
+  & > div {
+    justify-content: center;
+    width: 100%;
+  }
+
+  &:active:not(.btn_loading):not(.btn_disabled) > div {
+    --tw-scale-x: 97%;
+    --tw-scale-y: 97%;
+  }
+}
+
+.btn_icon {
+  padding: 0 !important;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 9999px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+
+  & > div {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  &:active:not(.btn_loading):not(.btn_disabled) > div {
+    --tw-scale-x: 0.9;
+    --tw-scale-y: 0.9;
+  }
+}
+
+.btn_size_sm {
+  height: 2.25rem;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  font-size: 11px;
+  line-height: 1.1rem;
+}
+
+.btn_size_default {
+  height: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: 14px;
+  line-height: 1.5rem;
+  font-weight: 500;
+}
+
+.btn_size_lg {
+  height: 3.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-size: 18px;
+  line-height: 1.5em;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+/**
+* Button States
+*/
+.btn_loading,
+.btn_disabled {
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+.btn_loading > div {
+  opacity: 0;
+}

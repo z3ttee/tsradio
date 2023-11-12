@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { Request, Response } from "express";
 import { catchError, firstValueFrom, of, take } from "rxjs";
-import { isNull } from "@soundcore/common";
 import { StreamerCoordinator } from "../coordinator/coordinator.service";
 import { OIDCService } from "../../authentication/services/oidc.service";
 import { ChannelService } from "../../channel/services/channel.service";
@@ -9,6 +8,7 @@ import { SessionService } from "../../sessions/services/sessions.service";
 import { UserService } from "../../user/services/user.service";
 import { Session } from "../../sessions/entities/session.entity";
 import { User } from "../../user/entities/user.entity";
+import { isNull } from "@tsa/utilities";
 
 @Injectable()
 export class StreamService {
@@ -54,19 +54,6 @@ export class StreamService {
                         this.logger.error(`Failed ending session: ${error.message}`, error);
                     });
                     stream.removeListener(listener.id).subscribe();
-                });
-
-                // Added channel to users history asynchronously
-                this.userService.addChannelToHistory(user.id, channelId).then((wasAdded) => {
-                    if(wasAdded) {
-                        return this.userService.findChannelHistoryByCurrentUser(user.id).then((channels) => {
-                            return this.coordinator.pushHistoryToClient(user.id, channels.items.map((c) => c.id)).catch((error: Error) => {
-                                this.logger.error(`Failed sending history update to user: ${error.message}`, error);
-                            });
-                        });
-                    }
-                }).catch((error: Error) => {
-                    this.logger.error(`Could not add channel to user's history: ${error.message}`, error);
                 });
             }).catch((error: Error) => {
                 this.logger.error(`Could not add listener to stream: ${error.message}`, error);

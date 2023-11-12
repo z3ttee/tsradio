@@ -1,0 +1,9 @@
+<div
+  class="flex flex-1 items-center w-full bg-body-dark rounded-sm shadow-lg px-4 py-3 pointer-events-auto gap-4 text-white"
+  [ngClass]="{
+    'justify-center': !config.action,
+    'justify-start': config.action
+  }">
+  <!-- Message -->
+  <p class="text-sm line-clamp-2 pl-2 text-white" [ngClass]="{ 'flex-grow': config.action }">{{ config.message }}</p>
+</div>

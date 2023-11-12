@@ -1,4 +1,4 @@
-import { Track } from "../../streams/entities/track";
+import { Track } from "../../track";
 
 export class HistoryItem {
 

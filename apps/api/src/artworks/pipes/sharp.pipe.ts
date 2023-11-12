@@ -1,8 +1,8 @@
 import { Injectable, PipeTransform } from "@nestjs/common";
-import { randomString } from "@soundcore/common";
 import path from "node:path";
 import sharp from "sharp";
 import { FileSystemService } from "../../filesystem/services/filesystem.service";
+import { randomString } from "@tsa/utilities";
 
 @Injectable()
 export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<string>> {

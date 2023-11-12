@@ -1,4 +1,5 @@
 <tsr-page pageTitle="Channels" pageSubtitle="Verwaltung von Channels">
+
     <!-- Page hint -->
     <tsr-hint icon="heroInformationCircle">
         Das Radio besteht aus verschiedenen Channels. 
@@ -11,48 +12,46 @@
         <!-- List toolbar -->
         <div class="flex items-center justify-start w-full">
             <div class="flex-grow"></div>
-            <ngs-filled-button [accent]="true" (clicked)="openChannelEditorDialog()">Channel erstellen</ngs-filled-button>
+            <tsa-filled-button color="accent" (clicked)="openChannelEditorDialog()">Channel erstellen</tsa-filled-button>
         </div>
             
         <!-- Datasource error -->
-        <tsr-error *ngIf="(datasource.$error | async) as error" icon="heroExclamationTriangle" [error]="error" [compact]="true"></tsr-error>
+        <tsr-error *ngIf="(_datasource.$lastError | async) as error" icon="heroExclamationTriangle" [error]="error" [compact]="true"></tsr-error>
 
         <!-- Channels -->
-        <cdk-virtual-scroll-viewport [itemSize]="64">
-            <ng-container *cdkVirtualFor="let item of datasource; index as i">
-                <div [routerLink]="['./', item?.slug]" [style.height]="'64px'" class="flex flex-1 items-center justify-start gap-4 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all px-4 cursor-pointer [&>.moreBtn]:hover:opacity-100" *ngIf="item">
-                    <!-- Artwork + Channel name -->
-                    <div class="flex items-center justify-start flex-grow gap-2">
-                        <div class="h-12 w-12 rounded-sm overflow-hidden bg-body-light">
-                            <tsr-artwork [artwork]="item?.artwork"></tsr-artwork>
-                        </div>
-
-                        <div class="flex-grow">
-                            <p class="line-clamp-1">{{ item?.name }}</p>
-                            <p class="text-sm opacity-70 line-clamp-1">{{ item?.description }}</p>
-                        </div>
+        <ng-container *ngFor="let item of $datastream | async; index as i">
+            <div [routerLink]="['./', item.data?.slug]" class="flex flex-1 items-center justify-start gap-4 border border-body-lighter bg-body-light bg-opacity-0 rounded border-opacity-0 hover:border-opacity-100 hover:bg-opacity-30 active:bg-opacity-70 transition-all p-4 cursor-pointer [&>.moreBtn]:hover:opacity-100" *ngIf="item">
+                <!-- Artwork + Channel name -->
+                <div class="flex items-center justify-start flex-grow gap-2">
+                    <div class="h-12 w-12 rounded-sm overflow-hidden bg-body-light">
+                        <tsr-artwork [artwork]="item.data?.artwork"></tsr-artwork>
                     </div>
 
-                    <!-- Featured-state badge -->
-                    <div class="inline-flex justify-start items-center min-w-24 w-24">
-                        <div class="w-full h-full text-center py-1.5 px-3 text-sm bg-body-light rounded-sm" *ngIf="item?.featured">Featured</div>
-                    </div>
-
-                    <!-- Enabled-state badge -->
-                    <div class="inline-flex justify-start items-center min-w-24 w-24">
-                        <div class="w-full h-full text-center py-1.5 px-3 text-sm bg-body-light rounded-sm">{{ item?.enabled ? 'Aktiviert' : 'Deaktiviert' }}</div>
-                    </div>
-
-                    <!-- More indicator -->
-                    <div class="moreBtn inline-flex items-center justify-center min-w-8 w-8 opacity-0 transition-all">
-                        <ng-icon name="heroChevronRight" size="21" [strokeWidth]="2"></ng-icon>
+                    <div class="flex-grow">
+                        <p class="line-clamp-1">{{ item.data?.name }}</p>
+                        <p class="text-sm opacity-70 line-clamp-1">{{ item.data?.description }}</p>
                     </div>
                 </div>
-            </ng-container>
-        </cdk-virtual-scroll-viewport>
+
+                <!-- Featured-state badge -->
+                <div class="inline-flex justify-start items-center min-w-24 w-24">
+                    <div class="w-full h-full text-center py-1.5 px-3 text-sm bg-body-light rounded-sm" *ngIf="item.data?.featured">Featured</div>
+                </div>
+
+                <!-- Enabled-state badge -->
+                <div class="inline-flex justify-start items-center min-w-24 w-24">
+                    <div class="w-full h-full text-center py-1.5 px-3 text-sm bg-body-light rounded-sm">{{ item.data?.enabled ? 'Aktiviert' : 'Deaktiviert' }}</div>
+                </div>
+
+                <!-- More indicator -->
+                <div class="moreBtn inline-flex items-center justify-center min-w-8 w-8 opacity-0 transition-all">
+                    <ng-icon name="heroChevronRight" size="21" [strokeWidth]="2"></ng-icon>
+                </div>
+            </div>
+        </ng-container>
 
         <!-- Empty hint -->
-        <tsr-hint icon="heroInformationCircle" *ngIf="(datasource.$empty | async)" customTitle="Keine Einträge gefunden">
+        <tsr-hint icon="heroInformationCircle" *ngIf="(_datasource.$isEmpty | async)" customTitle="Keine Einträge gefunden">
             Bisher existieren keine Channels. Erstelle einen Channel, um Musik abzuspielen
         </tsr-hint>
     </div>

@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Session } from "../entities/session.entity";
 import { Repository } from "typeorm";
-import { isNull } from "@soundcore/common";
 import { Channel } from "../../channel/entities/channel.entity";
 import { User } from "../../user/entities/user.entity";
+import { isNull } from "@tsa/utilities";
 
 @Injectable()
 export class SessionService {

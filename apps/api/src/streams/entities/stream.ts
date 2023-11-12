@@ -2,15 +2,14 @@ import { StreamQueue } from "./stream-queue";
 import { ReadStream, createReadStream } from "node:fs";
 import Throttle from "throttle";
 import { PassThrough } from "node:stream";
-import { isNull, randomString, toVoid } from "@soundcore/common";
 import { ffprobe } from "@dropb/ffprobe";
 import { Logger } from "@nestjs/common";
-import { BehaviorSubject, Observable, Subject, catchError, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
-import { Track } from "./track";
-import path from "node:path";
-import NodeID3 from "node-id3";
+import { BehaviorSubject, Observable, Subject, catchError, debounceTime, distinctUntilChanged, from, map, of, switchMap, takeUntil, tap, throwError } from "rxjs";
 import ffprobeStatic from "ffprobe-static";
 import { Channel } from "../../channel/entities/channel.entity";
+import { isNull, randomString, toVoid } from "@tsa/utilities";
+import { Track } from "../../track";
+import { readID3Tags } from "../../metadata";
 
 ffprobe.path = ffprobeStatic.path;
 
@@ -40,7 +39,7 @@ export class Stream {
     public readonly $onError = this._errorSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
 
     private readonly _statusSubject = new BehaviorSubject<StreamStatus>(StreamStatus.STARTING);
-    public readonly $status = this._statusSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
+    public readonly $status = this._statusSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged(), debounceTime(100));
 
     private readonly _onChannelUpdatedSubj: Subject<void> = new Subject();
     public readonly $onChannelUpdated = this._onChannelUpdatedSubj.asObservable().pipe(takeUntil(this._destroySubject));
@@ -69,7 +68,7 @@ export class Stream {
     public setChannel(val: Channel) {
         // Copy previous values to val
         val.status = this._channel?.status ?? val.status;
-        val.track = this._channel?.track ?? val.track;
+        val.currentTrack = this._channel?.currentTrack ?? val.currentTrack;
 
         this._channel = val;
         this._onChannelUpdatedSubj.next();
@@ -185,23 +184,26 @@ export class Stream {
     private streamCurrentFile(): Observable<void> {
         return new Observable<void>((subscriber) => {
             const file = this._currentFile;
-            if (!file) return;
-    
-            this.getTrackBitrate(file).then((bitrate) => {
-                this.throttle = new Throttle(bitrate / 8);
-    
-                this.stream
-                    .pipe(this.throttle)
-                    .on("data", (chunk) => this.broadcast(chunk))
-                    .on("end", () => this.streamNext().subscribe())
-                    .on("error", () => this.streamNext().subscribe());
-            }).then(() => {
+            if (isNull(file)) {
                 subscriber.next();
-            }).catch((error: Error) => {
-                subscriber.error(error);
-            }).finally(() => {
                 subscriber.complete();
-            })            
+            } else {
+                this.getTrackBitrate(file).then((bitrate) => {
+                    this.throttle = new Throttle(bitrate / 8);
+        
+                    this.stream
+                        .pipe(this.throttle)
+                        .on("data", (chunk) => this.broadcast(chunk))
+                        .on("end", () => this.streamNext().subscribe())
+                        .on("error", () => this.streamNext().subscribe());
+                }).then(() => {
+                    subscriber.next();
+                }).catch((error: Error) => {
+                    subscriber.error(error);
+                }).finally(() => {
+                    subscriber.complete();
+                });         
+            }
         }).pipe(catchError((err: Error) => {
             this.publishError(err);
             return of();
@@ -212,7 +214,7 @@ export class Stream {
      * Start the stream if not already streaming
      */
     public start(): Observable<void> {
-        if(this.started) return of();
+        if(this.started) return of(null);
         return this.streamNext();
     }
 
@@ -305,29 +307,6 @@ export class Stream {
         });
     }
 
-    private async readID3Tags(file: string): Promise<Track> {
-        if(isNull(file)) return null;
-        return new Promise<Track>((resolve) => {
-            const tags = NodeID3.read(file);
-
-            if(isNull(tags)) {
-                resolve(null);
-            } else {
-                const artists = tags.artist?.split(",") ?? [];
-
-                const track = new Track();
-                track.name = tags.title ?? path.basename(file);
-                track.primaryArtist = artists.splice(0, 1)?.[0] ?? undefined;
-                track.featuredArtists = artists ?? [];
-    
-                resolve(track);
-            }
-        }).catch((error: Error) => {
-            this.logger.error(`Error whilst reading ID3 tags from file '${file}': ${error.message}`, error);
-            return null;
-        });
-    }
-
     private publishError(error: Error): void {
         this._errorSubject.next(error);
     }
@@ -349,7 +328,7 @@ export class Stream {
         return new Observable<string>((subscriber) => {
             this._currentFile = file;
 
-            subscriber.add(from(this.readID3Tags(file)).pipe(catchError((err: Error) => {
+            subscriber.add(from(readID3Tags(file)).pipe(catchError((err: Error) => {
                 this.publishError(err);
                 return of(null);
             })).pipe(
@@ -367,7 +346,7 @@ export class Stream {
      */
     private setTrack(track: Track): Observable<void> {
         return new Observable((subscriber) => {
-            this._channel.track = track;
+            this._channel.currentTrack = track;
             this._currentTrackSubject.next(track);
 
             subscriber.next();

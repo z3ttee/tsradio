@@ -1,18 +1,18 @@
-import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { Stream, StreamStatus } from "../entities/stream";
 import { OnEvent } from "@nestjs/event-emitter";
-import { Page, Pageable, isNull } from "@soundcore/common";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { AuthGateway } from "../../authentication/gateway/auth-gateway";
 import { UserService } from "../../user/services/user.service";
 import { OIDCService } from "../../authentication/services/oidc.service";
 import { HistoryService } from "../../history/services/history.service";
 import { ChannelRegistry } from "../../channel/services/registry.service";
-import { User } from "../../user/entities/user.entity";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, GATEWAY_EVENT_CHANNEL_PUSH_LIST, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { Channel } from "../../channel/entities/channel.entity";
+import { isNull } from "@tsa/utilities";
+import { ChannelService } from "../../channel/services/channel.service";
+import { Track, TrackService } from "../../track";
 
 @Injectable()
 @WebSocketGateway({ 
@@ -32,6 +32,8 @@ export class StreamerCoordinator extends AuthGateway {
     constructor(
         userService: UserService,
         oidcService: OIDCService,
+        private readonly channelService: ChannelService,
+        private readonly trackService: TrackService,
         private readonly historyService: HistoryService,
         private readonly registry: ChannelRegistry
     ) {
@@ -41,14 +43,6 @@ export class StreamerCoordinator extends AuthGateway {
         for(const channel of this.registry.values()) {
             this.startStream(channel);
         }
-    }
-
-    protected onConnect(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>, user: User): Promise<void> {
-        this.userService.findChannelHistoryIds(user.id).then((ids) => {
-            this.pushListToClient(socket);
-            this.pushHistoryToClient(user.id, ids);
-        })
-        return;
     }
 
     /**
@@ -70,11 +64,33 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     /**
+     * Emit channel status changed event
+     * @param channelId Id of the channel that changed status
+     */
+    public async emitStatusChanged(channelId: string, status: StreamStatus): Promise<void> {
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, channelId, status);
+    }
+
+    /**
      * Emit channel update event
      * @param channel Updated channel data
      */
     public async emitChannelUpdated(channel: Channel): Promise<void> {
         this.server?.emit(GATEWAY_EVENT_CHANNEL_UPDATED, channel);
+    }
+
+    /**
+     * Emit channel update event
+     * @param channel Updated channel data
+     */
+    public async emitChannelTrackChanged(channelId: string, track: Track): Promise<void> {
+        if(isNull(track)) {
+            this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channelId, null);
+            return;
+        }
+        
+        const { filename, ...trackData } = track;
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, channelId, trackData);
     }
 
     /**
@@ -85,17 +101,6 @@ export class StreamerCoordinator extends AuthGateway {
     public async emitChannelCreated(channel: Channel): Promise<void> {
         if(!channel.enabled) return;
         this.server?.emit(GATEWAY_EVENT_CHANNEL_CREATED, channel);
-    }
-
-    public async pushListToClient(socket: Socket): Promise<void> {
-        const allChannels = Array.from(this.streams.values()).map((s) => s.getChannel()).filter((c) => c.enabled && c.status === StreamStatus.ONLINE);
-        socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_LIST, allChannels);
-    }
-
-    public async pushHistoryToClient(userId: string, history: string[]): Promise<void> {
-        const socket = this.getAuthenticatedSocket(userId);
-        if(isNull(socket)) throw new InternalServerErrorException("User not connected with the websocket");
-        socket.emit(GATEWAY_EVENT_CHANNEL_PUSH_HISTORY, history);
     }
 
     public async startStream(channel: Channel): Promise<Stream> {
@@ -129,15 +134,6 @@ export class StreamerCoordinator extends AuthGateway {
         return this.streams.get(channelId);
     }
 
-    public async findActiveChannels(pageable: Pageable): Promise<Page<Channel>> {
-        const streams = Array.from(this.streams.values()).filter((s) => s.status === StreamStatus.ONLINE);
-
-        const offset = Math.min(streams.length, Math.max(0, pageable.offset));
-        const limit = Math.min(streams.length, Math.min(streams.length-offset, Math.max(1, pageable.limit)));
-
-        return Page.of(streams.slice(offset, limit).map((s) => s.getChannel()), streams.length, pageable);
-    }
-
     @OnEvent(GATEWAY_EVENT_CHANNEL_CREATED)
     public handleChannelCreatedEvent(channel: Channel) {
         this.startStream(channel);
@@ -148,6 +144,13 @@ export class StreamerCoordinator extends AuthGateway {
     public handleChannelDeletedEvent(channelId: string) {
         this.stopStream(channelId);
         this.emitChannelDeleted(channelId);
+    }
+
+    @OnEvent(GATEWAY_EVENT_CHANNEL_DISABLED)
+    public handleChannelDisabledEvent(channelId: string) {
+        // Currently, the disable event
+        // is treated like a delete event
+        this.handleChannelDeletedEvent(channelId);
     }
 
     @OnEvent(GATEWAY_EVENT_CHANNEL_UPDATED)
@@ -184,27 +187,53 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     private subscribeToStreamEvents(stream: Stream): void {
+        // Subscribe to status changes
+        stream.$status.subscribe((status) => {
+            // Update status of channel in the database
+            this.channelService.setStatus(stream.id, status).then((status) => {
+                // On success, log status change to console
+                // and emit status event
+                this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
+                this.emitStatusChanged(stream.getChannel().id, status);
+            }).catch((error: Error) => {
+                // Handle error and log
+                // to console
+                this.logger.error(`Failed updating channel status in database: ${error.message}`, error.stack);
+            });
+        });
+
         // Subscribe to shutdown event
         stream.$onDestroyed.subscribe(() => {
-            this.logger.warn(`Channel '${stream.name}' shut down`);
-            this.emitChannelDeleted(stream.id);
-
+            // this.logger.warn(`Channel '${stream.name}' shut down`);
+            // this.emitStatusChanged(stream.getChannel().id, StreamStatus.OFFLINE);
             this.streams.delete(stream.id);
         });
 
-        // Subscribe to status changes
-        stream.$status.subscribe((status) => {
-            this.logger.log(`Channel '${stream.name}' changed status to '${status.toString().toUpperCase()}'`);
-            this.emitChannelUpdated(stream.getChannel());
-        });
-
         // Subscribe to track changes
-        stream.$currentTrack.subscribe((track) => {
-            if(isNull(track)) return;
-            this.historyService.addToHistory(stream.id, track);
+        stream.$currentTrack.subscribe(async (currentTrack) => {
+            if(isNull(currentTrack)) return;
+            this.historyService.addToHistory(stream.id, currentTrack);
 
-            this.logger.log(`Channel '${stream.name}' now playing: '${track.name}' by '${track.primaryArtist}'`);
-            this.emitChannelUpdated(stream.getChannel());
+            // Create or find track in database
+            const track: Track | null = await this.trackService.createOrFind({
+                channelId: stream.id,
+                name: currentTrack.name,
+                album: currentTrack.album ?? null,
+                primaryArtistName: currentTrack.primaryArtist?.name,
+                featuredArtistNames: currentTrack.featuredArtists?.map((a) => a.name),
+                filename: currentTrack.filename
+            }).catch((error: Error) => {
+                this.logger.error(`Failed syncing track with database: ${error.message}`, error.stack);
+                return null;
+            });
+
+            // Update current track on channel
+            await this.channelService.setCurrentTrack(stream.id, track).catch((error: Error) => {
+                this.logger.error(`Failed updating current track on channel '${stream.name}': ${error.message}`, error.stack);
+            })
+
+            this.logger.log(`Channel '${stream.name}' now playing: '${track?.name}' by '${track?.primaryArtist?.name}'`);
+            this.emitChannelTrackChanged(stream.getChannel().id, track);
         });
 
         // Subscribe to errors

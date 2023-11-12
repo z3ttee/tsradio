@@ -1,10 +1,11 @@
 {
-  "name": "tsradio",
+  "name": "@tsa/tsradio",
   "private": true,
   "packageManager": "yarn@1.22.1",
   "workspaces": [
     "apps/*",
-    "configs/*"
+    "configs/*",
+    "packages/*"
   ],
   "scripts": {
     "build:all": "turbo run build --no-daemon",
