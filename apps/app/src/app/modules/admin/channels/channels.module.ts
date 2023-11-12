@@ -6,14 +6,15 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { MatDialogModule } from "@angular/material/dialog";
 import { AdminChannelInfoViewComponent } from "./views/channel-info/channel-info.component";
 import { NgIconsModule } from "@ng-icons/core";
-import { heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle } from "@ng-icons/heroicons/outline";
+import { heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle, heroArrowLeft } from "@ng-icons/heroicons/outline";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ChannelEditorDialogComponent } from "../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { TSRArtworkComponent } from "../../../components/artwork/artwork.component";
-import { NGSButtonModule } from "../../../components/button";
-import { NGSLoaderComponent } from "../../../components/loader";
+import { TSAButtonModule } from "../../../components/button";
+import { TSALoader } from "../../../components/loader";
 import { SDKChannelModule } from "../../../sdk/channel";
 import { TSRPage, TSRHint, TSRError } from "../../../components";
+import { TSASnackbar } from "../../../components/snackbar";
+import { TSAArtwork } from "../../../components/artwork";
 
 const routes: Routes = [
     { path: "", component: AdminChannelIndexViewComponent },
@@ -30,16 +31,17 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         MatDialogModule,
         ChannelEditorDialogComponent,
-        NGSLoaderComponent,
-        NGSButtonModule,
+        TSAButtonModule,
         ScrollingModule,
         MatSnackBarModule,
-        TSRArtworkComponent,
-        NgIconsModule.withIcons({ heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle }),
+        NgIconsModule.withIcons({ heroTrash, heroChevronRight, heroInformationCircle, heroExclamationTriangle, heroArrowLeft }),
         SDKChannelModule,
+        TSALoader,
         TSRPage,
         TSRHint,
-        TSRError
+        TSRError,
+        TSASnackbar,
+        TSAArtwork
     ]
 })
 export class AdminChannelsModule {}

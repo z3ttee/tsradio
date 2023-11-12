@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { Page, Pageable, isNull } from "@soundcore/common";
 import { HistoryItem } from "../entities/history-item";
 import { HistoryManager } from "./history-manager.service";
-import { Track } from "../../streams/entities/track";
+import { Page, Pageable, isNull } from "@tsa/utilities";
+import { Track } from "../../track";
 
 @Injectable()
 export class HistoryService {

@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
-import { TSRArtworkComponent } from "../artwork/artwork.component";
 import { TSREqualizerComponent } from "../equalizer/equalizer.component";
-import { NGSLoaderComponent } from "../loader";
+import { TSALoader } from "../loader";
 import { Channel } from "../../sdk/channel";
+import { TSAArtwork } from "../artwork";
 
 @Component({
     standalone: true,
@@ -12,9 +12,9 @@ import { Channel } from "../../sdk/channel";
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule,
-        TSRArtworkComponent,
+        TSAArtwork,
         TSREqualizerComponent,
-        NGSLoaderComponent
+        TSALoader
     ]
 })
 export class TSRChannelHistoricalItemComponent {

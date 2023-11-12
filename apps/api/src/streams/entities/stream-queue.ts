@@ -1,5 +1,5 @@
-import path from "node:path";
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import path, { dirname } from "node:path";
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { globSync } from "glob";
 import { FileSystemService } from "../../filesystem/services/filesystem.service";
 import { Channel } from "../../channel/entities/channel.entity";
@@ -42,8 +42,9 @@ export class StreamQueue {
         return path.join(this.directory, item);
     }
 
-    private rebuild(deleteFile: boolean = false) {
+    private rebuild(deleteFile: boolean = false, tries = 0) {
         this.isEmpty = false;
+        if(tries !== 0) return;
 
         if(deleteFile) {
             unlinkSync(this.file);
@@ -56,13 +57,23 @@ export class StreamQueue {
             this.persist();
         } else {
             // Otherwise read file   
-            const buffer = readFileSync(this.file);
-            const data: string[] = JSON.parse(buffer.toString());
-            this.queue.push(...data);
+            try {
+                const buffer = readFileSync(this.file);
+                const data: string[] = JSON.parse(buffer.toString());
+                this.queue.push(...data);
+            } catch (err) {
+                if(err instanceof Error) {
+                    console.error(`Failed decoding .queue file for channel '${this.channel.id}': ${err.message}`);
+                    console.error(`Recreating new .queue file...`);
+                    this.rebuild(true, tries++);
+                }
+            }
+            
         }
     }
 
     private persist() {
+        mkdirSync(dirname(this.file), { recursive: true });
         writeFileSync(this.file, JSON.stringify(this.queue));
     }
 

@@ -3,9 +3,9 @@ import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne,
 import { Artwork } from "../../artworks/entities/artwork.entity";
 import { User } from "../../user/entities/user.entity";
 import { Session } from "../../sessions/entities/session.entity";
-import { Track } from "../../streams/entities/track";
 import { StreamStatus } from "../../streams/entities/stream";
 import { Schedule } from "../../schedule/entities/schedule.entity";
+import { Track } from "../../track";
 
 @Entity()
 export class Channel {
@@ -45,6 +45,11 @@ export class Channel {
     @Column({ type: "enum", enum: StreamStatus, default: StreamStatus.OFFLINE })
     public status: StreamStatus;
 
-    public track: Track;
+    @OneToMany(() => Track, (t) => t.channel)
+    public tracks: Track[];
+
+    @ManyToOne(() => Track, { nullable: true })
+    @JoinColumn()
+    public currentTrack?: Track;
     
 }

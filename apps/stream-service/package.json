@@ -1,0 +1,29 @@
+{
+  "name": "stream-service",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "nodemon src/main.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ffmpeg-static": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.20",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "eslint": "^8.53.0",
+    "eslint-config-nestjs": "*",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.1",
+    "tsconfig": "*",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "^5.2.2",
+    "nodemon": "^3.0.1"
+  }
+}

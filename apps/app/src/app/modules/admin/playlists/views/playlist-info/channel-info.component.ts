@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
 import { Channel } from "../../../../../sdk/channel/entities/channel.entity";
 import { MatDialog } from "@angular/material/dialog";
 import { BehaviorSubject, Subject, combineLatest, map, switchMap, take, takeUntil } from "rxjs";
-import { isNull } from "@soundcore/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { TSRChannelService } from "../../../../../sdk/channel/services/channel.service";
+import { SDKChannelService } from "../../../../../sdk/channel";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Future } from "../../../../../utils/future";
 import { Artwork } from "../../../../artwork/entities/artwork.entity";
 import { ChannelEditorDialogComponent } from "../../../../../dialogs/channel-editor-dialog/channel-editor-dialog.component";
-import { NGSButtonEvent } from "../../../../../components/button/types";
+import { isNull } from "@tsa/utilities";
+import { TSAButtonEvent } from "../../../../../components/button";
 
 interface ChannelInfoProps {
     channel?: Future<Channel>;
@@ -27,7 +27,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
     constructor(
         private readonly activatedRoute: ActivatedRoute,
         private readonly router: Router,
-        private readonly service: TSRChannelService,
+        private readonly service: SDKChannelService,
         private readonly dialog: MatDialog,
         private readonly snackBar: MatSnackBar
     ) {}
@@ -60,7 +60,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         });
     }
 
-    public restart(event: NGSButtonEvent, id: string) {
+    public restart(event: TSAButtonEvent, id: string) {
         this.service.restart(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
             if(request.loading) return;
 
@@ -78,7 +78,7 @@ export class AdminChannelInfoViewComponent implements OnDestroy {
         });
     }
 
-    public deleteById(event: NGSButtonEvent, id: string) {
+    public deleteById(event: TSAButtonEvent, id: string) {
         this.service.deleteById(id).pipe(takeUntil(this.$destroy)).subscribe((request) => {
             if(request.loading) return;
 

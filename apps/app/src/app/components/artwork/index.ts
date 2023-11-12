@@ -1,0 +1,1 @@
+export { TSAArtworkComponent as TSAArtwork } from "./artwork.component";

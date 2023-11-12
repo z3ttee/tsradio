@@ -1,63 +1,85 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output
+} from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
-import { NGSButtonEvent, NGSButtonSize } from "../types";
+import { TSAButtonColor, TSAButtonEvent, TSAButtonSize } from "../types";
 import { CommonModule } from "@angular/common";
-import { NGSLoaderComponent } from "../../loader/loader.component";
+import { TSALoaderComponent } from "../../loader/loader.component";
 
 @Component({
-    standalone: true,
-    selector: "ngs-filled-button",
-    templateUrl: "./filled.component.html",
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        CommonModule,
-        NGSLoaderComponent,
-    ]
+  standalone: true,
+  selector: "tsa-filled-button",
+  templateUrl: "./filled.component.html",
+  styleUrls: ["../_btnstyles.scss", "./filled.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, TSALoaderComponent]
 })
-export class NGSFilledButtonComponent implements OnDestroy {
+export class TSAFilledButtonComponent implements OnDestroy {
+  private readonly $destroy: Subject<void> = new Subject();
 
-    private readonly $destroy: Subject<void> = new Subject();
+  @Input()
+  public size: TSAButtonSize = "default";
 
-    @Input()
-    public size: NGSButtonSize = "base";
+  @Input()
+  public icon = false;
 
-    @Input()
-    public full: boolean = false;
+  @Input()
+  public full = false;
 
-    @Input()
-    public accent: boolean = false;
+  @Input()
+  public disabled = false;
 
-    @Input()
-    public showSpinner: boolean = false;
+  @Input()
+  public color: TSAButtonColor = "primary";
 
-    @Output()
-    public clicked: EventEmitter<NGSButtonEvent> = new EventEmitter();
+  @Input()
+  public showSpinner = false;
 
-    public loading: boolean = false;
+  @Output()
+  public clicked: EventEmitter<TSAButtonEvent> = new EventEmitter();
 
-    constructor(private readonly cdr: ChangeDetectorRef) {}
+  public loading = false;
+  public get loaderDarkMode(): boolean {
+    return (
+      this.color === "accent" ||
+      this.color === "info" ||
+      this.color === "success" ||
+      this.color === "error" ||
+      this.color === "primary"
+    );
+  }
 
-    public ngOnDestroy(): void {
-        this.$destroy.next();
-        this.$destroy.complete();
+  constructor(private readonly cdr: ChangeDetectorRef) {}
+
+  public ngOnDestroy(): void {
+    this.$destroy.next();
+    this.$destroy.complete();
+  }
+
+  public handleOnClick(): void {
+    if (this.loading || this.disabled) return;
+
+    let subject: Subject<void> | undefined = undefined;
+
+    if (this.showSpinner) {
+      this.updateLoadiTSAtate(true);
+      subject = new Subject<void>();
+      subject.pipe(takeUntil(this.$destroy)).subscribe(() => {
+        this.updateLoadiTSAtate(false);
+      });
     }
 
-    public handleOnClick(): void {
-        let subject: Subject<void> = null;
-        if(this.showSpinner) {
-            this.updateLoadingState(true);
-            subject = new Subject<void>();
-            subject.pipe(takeUntil(this.$destroy)).subscribe(() => {
-                this.updateLoadingState(false);
-            });
-        }
+    this.clicked.next(new TSAButtonEvent(subject));
+  }
 
-        this.clicked.next(new NGSButtonEvent(subject));
-    }
-
-    private updateLoadingState(loading: boolean): void {
-        this.loading = loading;
-        this.cdr.detectChanges();
-    }
-
+  private updateLoadiTSAtate(loading: boolean): void {
+    this.loading = loading;
+    this.cdr.detectChanges();
+  }
 }

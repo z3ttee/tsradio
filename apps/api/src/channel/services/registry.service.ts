@@ -2,8 +2,8 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Channel } from "../entities/channel.entity";
 import { DI_TOKEN_CHANNELS } from "../channel.module";
 import { existsSync, mkdirSync } from "fs";
-import { Page, Pageable } from "@soundcore/common";
 import { FileSystemService } from "../../filesystem/services/filesystem.service";
+import { Page, Pageable } from "@tsa/utilities";
 
 @Injectable()
 export class ChannelRegistry {

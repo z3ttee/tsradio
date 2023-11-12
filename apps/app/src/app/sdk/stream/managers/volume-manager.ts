@@ -1,8 +1,8 @@
-import { isNull } from "@soundcore/common";
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, map, skip } from "rxjs";
 import { DEFAULT_VOLUME, LOCALSTORAGE_VOLUME_KEY } from "../../constants";
 import { Platform } from "@angular/cdk/platform";
 import { isMobilePlatform } from "../../../utils/helpers/isMobile";
+import { isNull } from "@tsa/utilities";
 
 export class VolumeManager {
     private readonly defaultVolume = DEFAULT_VOLUME/100;

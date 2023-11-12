@@ -18,23 +18,10 @@
             </div>
         </ng-container>
 
-        <!-- Last listened to -->
-        <!-- <div class="py-row" *ngIf="props.history.length > 0">
-            <p class="opacity-70 font-light pb-2 tracking-wide">Zuletzt gehört</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
-                <tsr-channel-historical 
-                    *ngFor="let channel of props.history" 
-                    [channel]="channel"
-                    [selected]="channel?.id === props.currentChannel?.id"
-                    [playing]="props.isPlaying"
-                    [loading]="props.isLoading"
-                    (select)="forcePlay(channel)">
-                </tsr-channel-historical>
-            </div>
-        </div> -->
-
+        <!-- Featured channels section -->
         <div class="w-full">
-            <ng-container *ngIf="!_channelOverview().loading; else featuredChannelsSection">
+            <!-- Loading indicator -->
+            <ng-container *ngIf="(_channelManager.$loading | async); else featuredChannelsSection">
                 <div class="mb-2 h-8 max-w-64 bg-body-light rounded animate-pulse"></div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
@@ -42,11 +29,12 @@
                 </div>
             </ng-container>
 
+            <!-- Actual featured channels list -->
             <ng-template #featuredChannelsSection> 
                 <h5 class="mb-2">Empfohlene Channels</h5>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
                     <tsr-channel-historical 
-                        *ngFor="let channel of _channelOverview().data?.featured" 
+                        *ngFor="let channel of (_channelManager.$featuredChannels | async)" 
                         [channel]="channel"
                         [selected]="channel?.id === props.currentChannel?.id"
                         [playing]="props.isPlaying"
@@ -55,43 +43,43 @@
                     </tsr-channel-historical>
                 </div>
             </ng-template>
-
-            
         </div>
 
-        <!-- <div class="py-row" *ngIf="props.channels.length > 0">
-            <h6 class="pb-2">Weitere Channels</h6>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
-                <tsr-channel-historical 
-                    *ngFor="let channel of props.channels" 
-                    [channel]="channel"
-                    [selected]="channel?.id === props.currentChannel?.id"
-                    [playing]="props.isPlaying"
-                    [loading]="props.isLoading"
-                    (select)="forcePlay(channel)">
-                </tsr-channel-historical>
-            </div>
-        </div> -->
+        <!-- Non-featured channels section -->
+        <div class="w-full">
+            <!-- Loading indicator -->
+            <ng-container *ngIf="(_channelManager.$loading | async); else nonfeaturedChannelsSection">
+                <div class="mb-2 h-8 max-w-64 bg-body-light rounded animate-pulse"></div>
 
-        <div class="grid grid-cols-3 w-full">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
+                    
+                </div>
+            </ng-container>
+
+            <!-- Actual non-featured channels list -->
+            <ng-template #nonfeaturedChannelsSection> 
+                <h5 class="mb-2">Weitere Channels</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
+                    <tsr-channel-historical 
+                        *ngFor="let channel of (_channelManager.$nonfeaturedChannels | async)" 
+                        [channel]="channel"
+                        [selected]="channel?.id === props.currentChannel?.id"
+                        [playing]="props.isPlaying"
+                        [loading]="props.isLoading"
+                        (select)="forcePlay(channel)">
+                    </tsr-channel-historical>
+                </div>
+            </ng-template>
+        </div>
+
+        <!-- <div class="grid grid-cols-3 w-full">
             <div class="w-full h-full min-h-24 bg-body-dark rounded p-6">
                 <h5>Streams einbinden</h5>
                 <p class="mt-2 text-sm">Liste aller Direktlinks zum einbinden der Streams</p>
             </div>
-        </div>
+        </div> -->
     </div>
 </ng-container>
-
-<ng-template #loadingHistory>
-    <div class="py-row pointer-events-none">
-        <p class="opacity-70 font-light mb-2 tracking-wide w-48 bg-body-light rounded-sm text-transparent text-opacity-0 animate-pulse">_</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-4">
-            <tsr-channel-historical></tsr-channel-historical>
-            <tsr-channel-historical></tsr-channel-historical>
-            <tsr-channel-historical></tsr-channel-historical>
-        </div>
-    </div>
-</ng-template>
 
 <ng-template #loadingList>
     <div class="py-row pointer-events-none">

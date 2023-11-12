@@ -1,9 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, ViewChild } from "@angular/core";
-import { isNull } from "@soundcore/common";
-import { BehaviorSubject, Observable, Subject, distinctUntilChanged, map } from "rxjs";
+import { ChangeDetectionStrategy, Component, Input, computed, signal } from "@angular/core";
 import { Artwork } from "../../modules/artwork/entities/artwork.entity";
 import { environment } from "../../../environments/environment";
+import { isNull } from "@tsa/utilities";
 
 @Component({
     standalone: true,
@@ -14,46 +13,33 @@ import { environment } from "../../../environments/environment";
         CommonModule
     ]
 })
-export class TSRArtworkComponent implements OnDestroy {
+export class TSAArtworkComponent {
 
-    private readonly _artworkIdSubj: BehaviorSubject<string> = new BehaviorSubject(null);
-    public readonly $src: Observable<string> = this._artworkIdSubj.asObservable().pipe(
-        distinctUntilChanged(), 
-        map((id) => isNull(id) ? undefined : `${this.baseUrl}${id}`), 
-    );
+    private readonly _artwork = signal<Artwork | null>(null);
+
+    protected readonly _loading = signal<boolean>(true);
+    protected readonly _errored = signal<boolean>(false);
+
+    protected readonly _imgSrc = computed(() => {
+        const artwork = this._artwork();
+        if(isNull(artwork)) return null;
+        return `${environment.api_base_uri}/v1/artworks/${artwork?.id}`;
+    });
+
 
     @Input()
     public set artwork(val: Artwork) {
-        this._artworkIdSubj.next(val?.id);
-    }
-
-    public baseUrl = `${environment.api_base_uri}/v1/artworks/`;
-
-    @ViewChild("image") public imageRef: ElementRef<HTMLImageElement>;
-
-    public isLoading = true;
-    public hasErrored = false;
-
-    private readonly $destroy: Subject<void> = new Subject();
-
-    constructor(private readonly cdr: ChangeDetectorRef) {}
-
-    public ngOnDestroy(): void {
-        this._artworkIdSubj.complete();
-        this.$destroy.next();
-        this.$destroy.complete();
+        this._artwork.set(val ?? null);
     }
 
     public onError() {
-        this.isLoading = false;
-        this.hasErrored = true;
-        this.cdr.detectChanges();
+        this._errored.set(true);
+        this._loading.set(false);
     }
 
     public onLoad() {
-        this.isLoading = false;
-        this.hasErrored = false;
-        this.cdr.detectChanges();
+        this._errored.set(false);
+        this._loading.set(false);
     }
 
 }

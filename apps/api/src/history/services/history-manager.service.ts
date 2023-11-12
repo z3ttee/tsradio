@@ -1,5 +1,5 @@
 import { HISTORY_SIZE } from "../../constants";
-import { Track } from "../../streams/entities/track";
+import { Track } from "../../track";
 import { HistoryItem } from "../entities/history-item";
 
 export class HistoryManager {

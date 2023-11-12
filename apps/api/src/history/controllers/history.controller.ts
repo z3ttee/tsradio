@@ -1,7 +1,8 @@
 import { Controller, Get, Param } from "@nestjs/common";
 import { HistoryService } from "../services/history.service";
-import { Pageable, Pagination } from "@soundcore/common";
 import { Public } from "../../authentication/decorators/public.decorator";
+import { Pagination } from "@tsa/nestjs";
+import { Pageable } from "@tsa/utilities";
 
 @Controller("history")
 export class HistoryController {

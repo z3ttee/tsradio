@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SSOModule } from './modules/sso/sso.module';
 import { HttpClientModule } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { SDKChannelModule } from './sdk';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { environment } from '../environments/environment';
       roleMapping: {
         admin: environment.admin_role,
       }
-    })
+    }),
+    SDKChannelModule
   ],
   providers: [],
   bootstrap: [

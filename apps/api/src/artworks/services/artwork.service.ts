@@ -4,10 +4,10 @@ import { Artwork } from "../entities/artwork.entity";
 import { Repository } from "typeorm";
 import { Response } from "express";
 import { access, createReadStream, unlinkSync } from "node:fs";
-import { isNull } from "@soundcore/common";
 import { ChannelService } from "../../channel/services/channel.service";
 import { FileSystemService } from "../../filesystem/services/filesystem.service";
 import { Channel } from "../../channel/entities/channel.entity";
+import { isNull } from "@tsa/utilities";
 
 @Injectable()
 export class ArtworkService {

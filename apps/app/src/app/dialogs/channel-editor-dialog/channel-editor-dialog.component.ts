@@ -5,14 +5,13 @@ import {MatInputModule} from '@angular/material/input';
 import { CommonModule } from "@angular/common";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { Observable } from "rxjs";
-import { isNull } from "@soundcore/common";
-import { NGSButtonModule } from "../../components/button";
-import { Channel, SDKChannelModule, TSRChannelService } from "../../sdk/channel";
-import { NGSButtonEvent } from "../../components/button/types";
+import { TSAButtonEvent, TSAButtonModule } from "../../components/button";
+import { Channel, SDKChannelModule, SDKChannelService } from "../../sdk/channel";
 import { Future } from "../../utils/future";
 import { TSRError } from "../../components";
 import { ApiError } from "../../utils/error/api-error";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { isNull } from "@tsa/utilities";
 
 @Component({
     standalone: true,
@@ -23,7 +22,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
         ReactiveFormsModule,
         TSRError,
         MatDialogModule,
-        NGSButtonModule,
+        TSAButtonModule,
         MatInputModule,
         MatSlideToggleModule,
         SDKChannelModule,
@@ -35,7 +34,7 @@ export class ChannelEditorDialogComponent {
     protected readonly _latestError = signal<ApiError | null>(null);
 
     constructor(
-        private readonly service: TSRChannelService,
+        private readonly service: SDKChannelService,
         private readonly builder: FormBuilder,
         private readonly dialogRef: MatDialogRef<ChannelEditorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public readonly data?: Channel
@@ -48,7 +47,7 @@ export class ChannelEditorDialogComponent {
         featured: this._fb.control<boolean>(this.data?.featured ?? false),
     });
 
-    public saveChannel(event: NGSButtonEvent) {
+    public saveChannel(event: TSAButtonEvent) {
         this._latestError.set(null);
 
         if(!this._channelForm.valid) {
