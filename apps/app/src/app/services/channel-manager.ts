@@ -19,6 +19,7 @@ export class TSAChannelManager {
      */
     private readonly _cancel = new Subject<void>();
 
+    private readonly _channelUpdateSubj = new Subject<Channel>();
     private readonly _isLoadingSubj = new BehaviorSubject<boolean>(true);
     private readonly _lastError = new BehaviorSubject<ApiError | null>(null);
     private readonly _featuredChannels = new BehaviorSubject<Channel[]>([]);
@@ -26,6 +27,7 @@ export class TSAChannelManager {
 
     private readonly _channels = new Map<string, Channel>();
 
+    public readonly $onChannelUpdate = this._channelUpdateSubj.asObservable().pipe(takeUntilDestroyed(this._destroyRef));
     /**
      * Observable that emits the current loading
      * state of the manager. This will always emit true,
@@ -109,6 +111,7 @@ export class TSAChannelManager {
 
         this._channels.set(channelId, updatedChannel);
         this.updateSubjects();
+        this._channelUpdateSubj.next(this._channels.get(channelId));
     }
 
     /**

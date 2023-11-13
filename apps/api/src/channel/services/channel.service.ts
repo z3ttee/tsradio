@@ -122,13 +122,42 @@ export class ChannelService {
      * @param id Id of the channel
      */
     public async findByIdOrFail(id: string): Promise<Channel> {
+        if(isNull(id)) throw new NotFoundException("Channel not found");
         return this.repository.findOne({ 
             where: [
                 { id: id },
                 { slug: id }
             ],
             relations: {
-                artwork: true
+                artwork: true,
+                currentTrack: {
+                    primaryArtist: true,
+                    featuredArtists: true
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                enabled: true,
+                featured: true,
+                status: true,
+                slug: true,
+                currentListeners: true,
+                currentTrack: {
+                    id: true,
+                    name: true,
+                    album: true,
+                    primaryArtist: {
+                        name: true,
+                    },
+                    featuredArtists: {
+                        name: true,
+                    }
+                },
+                artwork: {
+                    id: true
+                }
             }
         }).then((channel) => {
             if(isNull(channel)) throw new NotFoundException("Channel not found");

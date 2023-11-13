@@ -6,6 +6,8 @@ import { Channel } from "../../sdk/channel";
 import { TSAArtwork } from "../artwork";
 import { NgIconsModule, provideIcons } from "@ng-icons/core";
 import { featherHeadphones } from "@ng-icons/feather-icons";
+import { RouterModule } from "@angular/router";
+import { TSABadge } from "../badge";
 
 @Component({
     standalone: true,
@@ -17,10 +19,12 @@ import { featherHeadphones } from "@ng-icons/feather-icons";
     ],
     imports: [
         CommonModule,
+        RouterModule,
         TSAArtwork,
         TSREqualizerComponent,
         TSALoader,
-        NgIconsModule
+        NgIconsModule,
+        TSABadge
     ]
 })
 export class TSAChannelItemComponent {
@@ -56,5 +60,10 @@ export class TSAChannelItemComponent {
     @Output()
     // eslint-disable-next-line @angular-eslint/no-output-native
     public select = new EventEmitter<Channel>();
+
+    public selectItem(): void {
+        if(this.selected) return;
+        this.select.emit(this._channel());
+    }
 
 }

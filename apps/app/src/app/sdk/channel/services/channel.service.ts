@@ -24,9 +24,9 @@ export class SDKChannelService {
         return this.httpClient.get<Page<Channel>>(`${environment.api_base_uri}/v1/channels${pageable.toQuery()}`).pipe(toFuture());
     }
 
-    public findById(id: string): Observable<Future<Channel>> {
-        if(isNull(id)) return of(Future.notfound());
-        return this.httpClient.get<Channel>(`${environment.api_base_uri}/v1/channels/${id}`).pipe(toFuture());
+    public findById(idOrSlug: string): Observable<Future<Channel>> {
+        if(isNull(idOrSlug)) return of(Future.notfound());
+        return this.httpClient.get<Channel>(`${environment.api_base_uri}/v1/channels/${idOrSlug}`).pipe(toFuture());
     }
 
     public createIfNotExists(dto: CreateChannelDTO): Observable<Future<Channel>> {

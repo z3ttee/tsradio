@@ -14,6 +14,7 @@ const routes: Routes = [
   ]},
   { path: "", component: MainLayoutComponent, canActivate: [SSOGuard], children: [
     { path: "", canActivate: [SSOGuard], loadChildren: () => import("./modules/home/home.module").then((m) => m.HomeModule) },
+    { path: "c", canActivate: [SSOGuard], loadChildren: () => import("./modules/channel/channel.module").then((m) => m.TSAChannelModule) },
   ]},
 ];
 

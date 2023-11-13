@@ -1,0 +1,56 @@
+<div class="flex flex-col gap-12 px-window">
+    
+    <div class="flex flex-col gap-4 w-full">
+        <tsa-text-button [routerLink]="['/']"><ng-icon name="heroArrowLeft" size="21"></ng-icon> Zurück</tsa-text-button>
+
+        <div class="relative flex items-end justify-start w-full overflow-hidden gap-8">
+            <div class="min-w-52 w-52 aspect-square rounded-lg overflow-hidden">
+                <div *ngIf="_loading()" class="w-full h-full rounded bg-body-lighter"></div>
+                <tsa-artwork *ngIf="!_loading()" [artwork]="_channel()?.artwork" defaultSrc="/assets/img/default_channel_cover.jpg"></tsa-artwork>
+            </div>
+    
+            <div class="flex-grow overflow-hidden">
+                <div class="flex flex-col gap-6 w-full overflow-hidden">
+                    <!-- Title with description -->
+                    <div class="w-full overflow-hidden">
+                        <ng-container *ngIf="_loading()">
+                            <h3 class="w-full md:w-[80%] rounded bg-body-lighter text-body-lighter">Loading</h3>
+                            <p class="w-[80%] md:w-[60%] rounded bg-body-lighter text-body-lighter mt-1">Loading</p>
+                        </ng-container>
+                        <ng-container *ngIf="!_loading()">
+                            <h3 class="max-w-full overflow-hidden text-ellipsis break-words whitespace-nowrap" *ngIf="!_loading()">{{ _channel()?.name }}</h3>
+                            <p class="max-w-full overflow-hidden text-ellipsis break-words whitespace-nowrap text-font-secondary">{{ _channel()?.description }}</p>
+                        </ng-container>
+                    </div>
+
+                    <div class="flex items-center justify-start gap-4 w-full">
+                        <ng-container *ngIf="_loading()">
+                            <div class="h-6 w-full md:w-[60%] rounded bg-body-lighter text-body-lighter"></div>
+                        </ng-container>
+                        <ng-container *ngIf="!_loading()">
+                            <tsa-badge [title]="_listeners() + ' Zuhörer in diesem Channel.'">
+                                <ng-icon name="featherHeadphones" size="14"></ng-icon>
+                                {{ _listeners() }} Zuhörer
+                            </tsa-badge>
+                            <tsr-equalizer *ngIf="_isChannelSelected() && _isStreamPlaying()"></tsr-equalizer>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <div class="flex items-center justify-start gap-4 w-full">
+        <button class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent" (click)="togglePause()">
+            <ng-icon name="heroPlaySolid" size="28" class="ml-1" *ngIf="!_isStreamPlaying() && !_isStreamLoading()"></ng-icon>
+            <ng-icon name="heroPauseSolid" size="28" *ngIf="_isStreamPlaying() && !_isStreamLoading()"></ng-icon>
+            <tsa-loader *ngIf="_isStreamLoading()"></tsa-loader>
+        </button>
+    </div>
+
+    <div class="w-full bg-body-light border-2 border-body-lighter p-window rounded-lg">
+        // Inhalt folgt
+    </div>
+</div>

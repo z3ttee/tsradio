@@ -1,0 +1,1 @@
+export { TSABadgeComponent as TSABadge } from "./badge.component";
