@@ -25,6 +25,9 @@ export class Channel {
     @Column({ type: "boolean", default: true })
     public enabled: boolean;
 
+    @Column({ default: 0, nullable: false })
+    public currentListeners: number;
+
     @Column({ type: "boolean", default: false })
     public featured: boolean;
 

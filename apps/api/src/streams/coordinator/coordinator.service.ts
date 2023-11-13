@@ -115,12 +115,14 @@ export class StreamerCoordinator extends AuthGateway {
 
     public async startStream(channel: Channel): Promise<Stream> {
         if(!this.streams.has(channel.id)) {
-            const stream = new Stream(channel);
-            
-            this.subscribeToStreamEvents(stream);
-
-            this.streams.set(channel.id, stream);
-            stream.start().subscribe();
+            // First reset channel info in database
+            return this.channelService.updateStreamInfo(channel.id, StreamStatus.STARTING, null, 0).then(() => {
+                const stream = new Stream(channel);
+                this.subscribeToStreamEvents(stream);
+                this.streams.set(channel.id, stream);
+                stream.start().subscribe();
+                return stream;
+            });
         }
 
         return this.streams.get(channel.id);
@@ -264,6 +266,9 @@ export class StreamerCoordinator extends AuthGateway {
 
         // Subscribe to listener count updates
         stream.$listenerCount.subscribe((listenerCount) => {
+            this.channelService.setListeners(stream.id, listenerCount).catch((error: Error) => {
+                this.logger.error(`Failed updating listeners in database for channel '${stream.name}': ${error.message}`);
+            });
             this.emitChannelListenersChanged(stream.id, listenerCount);
         });
     }
