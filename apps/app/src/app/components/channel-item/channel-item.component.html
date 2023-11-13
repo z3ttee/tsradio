@@ -26,7 +26,7 @@
                     <tsr-equalizer *ngIf="selected && playing"></tsr-equalizer>
                     <tsa-loader *ngIf="selected && loading"></tsa-loader>
                     <!-- Listener count -->
-                    <div class="inline-flex items-center justify-start bg-body-lighter text-sm py-1 px-2 rounded-sm gap-2" [title]="(_channel()?.listeners ?? 0) + ' Zuhörer in diesem Channel.'">
+                    <div class="inline-flex items-center justify-start bg-body-lighter text-sm py-1 px-2 rounded-sm gap-2" [title]="(_channel()?.currentListeners ?? 0) + ' Zuhörer in diesem Channel.'">
                         {{ _listeners() }}
                         <ng-icon name="featherHeadphones" size="14"></ng-icon>
                     </div>

@@ -40,6 +40,7 @@ export class ChannelService {
             },
             featured: true,
             status: true,
+            currentListeners: true,
             currentTrack: {
                 name: true,
                 featuredArtists: {
@@ -230,6 +231,32 @@ export class ChannelService {
         return this.repository.update(channelId, {
             currentTrack: track
         }).then(() => track);
+    }
+
+    /**
+     * Set the current status for a channel
+     * @param channelId Id of the channel
+     * @param listeners Number of current listeners
+     * @returns Listener count that was set
+     */
+    public async setListeners(channelId: string, listeners: number): Promise<number> {
+        const channel = await this.findById(channelId);
+        if(isNull(channel)) throw new NotFoundException("Channel not found");
+
+        return this.repository.update(channelId, {
+            currentListeners: listeners ?? 0
+        }).then(() => listeners);
+    }
+
+    public async updateStreamInfo(channelId: string, status?: StreamStatus | null, currentTrack?: Track | null, listeners?: number | null): Promise<boolean> {
+        const channel = await this.findById(channelId);
+        if(isNull(channel)) throw new NotFoundException("Channel not found");
+
+        return this.repository.update(channel.id, {
+            status: status ?? StreamStatus.OFFLINE,
+            currentTrack: currentTrack ?? null,
+            currentListeners: listeners ?? 0
+        }).then(() => true);
     }
 
     public async updateById(id: string, dto: CreateChannelDTO): Promise<Channel> {

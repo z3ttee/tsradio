@@ -38,7 +38,7 @@ export class Stream {
     private readonly _errorSubject = new Subject<Error>();
     public readonly $onError = this._errorSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
 
-    private readonly _statusSubject = new BehaviorSubject<StreamStatus>(StreamStatus.STARTING);
+    private readonly _statusSubject = new Subject<StreamStatus>();
     public readonly $status = this._statusSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged(), debounceTime(100));
 
     private readonly _onChannelUpdatedSubj: Subject<void> = new Subject();
@@ -82,13 +82,6 @@ export class Stream {
      */
     public get started() {
         return this.stream && this.throttle && this._currentFile;
-    }
-
-    /**
-     * Get current stream status
-     */
-    public get status() {
-        return this._statusSubject.getValue();
     }
 
     public get id() {

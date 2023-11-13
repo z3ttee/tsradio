@@ -13,5 +13,5 @@ export class Channel {
     public tracks?: Track[];
     public currentTrack?: Track;
     public status?: StreamStatus;
-    public listeners?: number;
+    public currentListeners?: number;
 }

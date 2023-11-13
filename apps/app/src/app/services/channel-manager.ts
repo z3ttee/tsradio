@@ -81,7 +81,7 @@ export class TSAChannelManager {
             const channel = this.getChannelById(event.channelId);
             if(isNull(channel)) return;
             
-            channel.listeners = event.listeners ?? 0;
+            channel.currentListeners = event.listeners ?? 0;
             this.updateChannel(channel);
         });
     }

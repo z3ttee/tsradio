@@ -27,7 +27,7 @@ export class TSAChannelItemComponent {
     protected readonly _channel = signal<Channel | undefined>(undefined);
     protected readonly _listeners = computed<string>(() => {
         const channel = this._channel();
-        const listeners = channel?.listeners ?? 0;
+        const listeners = channel?.currentListeners ?? 0;
 
         if(listeners > 900) {
             return "+900";
