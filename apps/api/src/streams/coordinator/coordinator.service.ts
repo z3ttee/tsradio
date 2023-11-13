@@ -269,7 +269,6 @@ export class StreamerCoordinator extends AuthGateway {
             this.channelService.setListeners(stream.id, listenerCount).catch((error: Error) => {
                 this.logger.error(`Failed updating listeners in database for channel '${stream.name}': ${error.message}`);
             });
-            
             this.emitChannelListenersChanged(stream.id, listenerCount);
         });
     }
