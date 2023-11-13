@@ -72,8 +72,8 @@ export class TrackService {
             .orUpdate(["name", "primaryArtistId", "album", "channelId", "filename"], ["id"])
             .execute().then((insertResult) => {
                 // Handle insert result
-                if(insertResult.identifiers.length <= 0) throw new InternalServerErrorException("Failed creating track");
-                const id = insertResult.identifiers[0]?.id;
+                if(insertResult.raw.length <= 0) throw new InternalServerErrorException("Failed creating track");
+                const id = insertResult.raw[0]?.id;
 
                 // Find track by its id
                 return this.findById(id).then((track) => {

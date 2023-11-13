@@ -42,10 +42,12 @@ export class ChannelService {
             status: true,
             currentTrack: {
                 name: true,
-                featuredArtists: true,
+                featuredArtists: {
+                    name: true
+                },
                 primaryArtist: {
                     name: true
-                }
+                },
             }
         }
 
@@ -71,7 +73,10 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                currentTrack: true
+                currentTrack: {
+                    featuredArtists: true,
+                    primaryArtist: true
+                }
             },
             select: cols
         }).catch((error: Error) => {
@@ -93,7 +98,10 @@ export class ChannelService {
             },
             relations: {
                 artwork: true,
-                currentTrack: true
+                currentTrack: {
+                    featuredArtists: true,
+                    primaryArtist: true
+                }
             },
             select: cols
         }).catch((error: Error) => {
