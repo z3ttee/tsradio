@@ -1,4 +1,4 @@
-<div class="inline-block w-full h-full overflow-hidden bg-body-light" [ngClass]="{'animate-pulse': _loading()}">
+<div class="inline-block w-full h-full overflow-hidden bg-body-lighter" [ngClass]="{'animate-pulse': _loading() && _imgSrc()}">
     <img 
         *ngIf="!_errored() && _imgSrc()"
         #image 

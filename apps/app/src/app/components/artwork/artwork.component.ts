@@ -6,7 +6,7 @@ import { isNull } from "@tsa/utilities";
 
 @Component({
     standalone: true,
-    selector: "tsr-artwork",
+    selector: "tsa-artwork",
     templateUrl: "./artwork.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
@@ -22,15 +22,17 @@ export class TSAArtworkComponent {
 
     protected readonly _imgSrc = computed(() => {
         const artwork = this._artwork();
-        if(isNull(artwork)) return null;
+        if(isNull(artwork)) return this.defaultSrc ?? null;
         return `${environment.api_base_uri}/v1/artworks/${artwork?.id}`;
     });
-
 
     @Input()
     public set artwork(val: Artwork) {
         this._artwork.set(val ?? null);
     }
+
+    @Input()
+    public defaultSrc?: string;
 
     public onError() {
         this._errored.set(true);

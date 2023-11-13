@@ -1,2 +1,2 @@
 
-export { TSRChannelItemComponent } from "./channel-item.component";
+export { TSAChannelItemComponent } from "./channel-item.component";

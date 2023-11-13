@@ -10,7 +10,7 @@
                 <div (click)="artworkInput.click()" class="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-black opacity-0 bg-opacity-60 z-50 pointer-events-none cursor-pointer transition-all p-4 [&>span]:active:scale-90">
                     <span class="text-sm text-center transition-all">Artwork ändern</span>
                 </div>
-                <tsr-artwork [artwork]="props.artwork"></tsr-artwork>
+                <tsa-artwork [artwork]="props.artwork"></tsa-artwork>
 
                 <input type="file" name="artwork-upload"  id="artwork-upload" class="hidden" #artworkInput (change)="onFileSelected($event, props.channel.data?.id)">
             </div>

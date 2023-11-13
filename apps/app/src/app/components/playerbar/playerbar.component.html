@@ -8,7 +8,7 @@
         <div class="relative flex w-full items-center justify-start rounded bg-body-dark p-3 pointer-events-auto">
             <div class="flex items-center justify-start w-full md:w-1/3 gap-2">
                 <div class="min-w-14 w-14 h-14 rounded-sm overflow-hidden">
-                    <tsr-artwork [artwork]="props.currentChannel?.artwork"></tsr-artwork>
+                    <tsa-artwork [artwork]="props.currentChannel?.artwork"></tsa-artwork>
                 </div>
     
                 <div class="flex-grow" *ngIf="props.currentChannel?.currentTrack as track">

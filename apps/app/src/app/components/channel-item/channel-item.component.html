@@ -1,3 +1,34 @@
-<div class="flex items-center justify-start gap-2 w-full rounded">
+<div 
+    tabindex="0"
+    (click)="select.emit(channel)" 
+    [ngClass]="{
+        'border-opacity-70': selected, 
+        'pointer-events-auto': !!channel
+    }"
+    class="relative bg-body-surface shadow p-2 md:p-3 outline-none rounded-sm border-2 border-body-lighter border-opacity-0 transition-all pointer-events-none cursor-pointer focus:border-opacity-70 hover:border-opacity-70 [&>div]:active:scale-95">
     
+    <div class="relative flex flex-1 items-center justify-start gap-2 md:gap-4 transform-gpu will-change-transform transition-all">
+        <div class="min-w w-16 h-16 md:w-20 md:h-20 rounded-sm overflow-hidden">
+            <div class="w-full h-full bg-body-lighter" *ngIf="!channel"></div>
+            <tsa-artwork *ngIf="channel" [artwork]="channel?.artwork" defaultSrc="/assets/img/default_channel_cover.jpg"></tsa-artwork>
+        </div>
+
+        <div class="flex flex-col gap-0.5 md:gap-1.5 items-start justify-center flex-grow">
+            <div class="flex items-center justify-start w-full gap-2">
+                <p class="text-md w-full bg-body-lighter text-body-lighter rounded" *ngIf="!channel">Loading</p>
+                <p class="line-clamp-1 text-md w-full font-semi" *ngIf="channel">{{ channel?.name }}</p>
+                <tsr-equalizer *ngIf="selected && playing"></tsr-equalizer>
+                <tsa-loader *ngIf="selected && loading"></tsa-loader>
+            </div>
+            <div class="flex flex-col items-start justify-center gap-1">
+                <p class="text-sm w-52 bg-body-lighter text-body-lighter rounded" *ngIf="!channel">Loading</p>
+                <p class="line-clamp-1 text-sm" *ngIf="channel">{{ channel?.currentTrack?.name }}</p>
+                <ul class="line-clamp-1 w-full">
+                    <li class="text-sm w-32 bg-body-lighter text-body-lighter rounded" *ngIf="!channel">Loading</li>
+                    <li class="inline text-font opacity-40"><span class="text-sm pointer-events-all">{{ channel?.currentTrack?.primaryArtist?.name ?? "Unbekannter Künstler" }}</span>{{ channel?.currentTrack?.featuredArtists?.length > 0 ? ", " : "" }}</li>
+                    <li *ngFor="let artist of channel?.currentTrack?.featuredArtists; index as i" class="inline text-font opacity-40"><span class="text-sm pointer-events-all">{{ artist?.name }}</span>{{ i + 1 < channel?.currentTrack?.featuredArtists?.length ? ", " : "" }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

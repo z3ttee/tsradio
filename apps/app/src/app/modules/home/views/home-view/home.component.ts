@@ -4,8 +4,7 @@ import { combineLatest, map } from "rxjs";
 import { Channel, SDKChannelModule, SDKChannelService } from "../../../../sdk/channel";
 import { SSOUser } from "../../../sso/entities/user.entity";
 import { GatewayConnection } from "../../../../sdk/gateway/gateway";
-import { TSRChannelHistoricalItemComponent } from "../../../../components/channel-historical";
-import { TSRChannelItemComponent } from "../../../../components/channel-item";
+import { TSAChannelItemComponent } from "../../../../components/channel-item";
 import { TSRGreetingComponent } from "../../../../components/greeting";
 import { SSOService } from "../../../sso/services/sso.service";
 import { TSRStreamCoordinatorGateway } from "../../../../sdk/gateway";
@@ -31,8 +30,7 @@ interface HomeViewProps {
         SDKChannelModule,
         TSAArtwork,
         TSRGreetingComponent,
-        TSRChannelItemComponent,
-        TSRChannelHistoricalItemComponent
+        TSAChannelItemComponent,
     ]
 })
 export class HomeViewComponent {
