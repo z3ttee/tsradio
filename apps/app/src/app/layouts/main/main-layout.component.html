@@ -13,9 +13,9 @@
             <!-- Header -->
             <div class="sticky z-[1000] top-0 w-full">
                 <tsr-header>
-                    <ng-container tsr-header-nav *ngIf="props.isAdmin">
+                    <ng-container tsr-header-nav>
                         <a [routerLink]="['/']" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="text-accent">Channels</a>
-                        <a [routerLink]="['/admin']" routerLinkActive="text-accent">Admin</a>
+                        <a [routerLink]="['/admin']" routerLinkActive="text-accent"  *ngIf="props.isAdmin">Admin</a>
                     </ng-container>
                 </tsr-header>
             </div>
