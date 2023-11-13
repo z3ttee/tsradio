@@ -32,7 +32,6 @@ export class StreamService {
 
             // Find user by provided access_token
             this.userService.findOrCreateByTokenPayload(payload).then(async (user) => {
-
                 const channel = await this.channelService.findById(channelId);
                 const stream = await this.coordinator.startStream(channel);
                 const session: Session | null = await this.sessionService.create(user, channel).catch((error: Error) => {
@@ -40,7 +39,9 @@ export class StreamService {
                     return null;
                 });
     
-                const listener = await firstValueFrom(stream.createListener());
+                // Create new listener and register
+                // in stream
+                const listener = stream.addListener();
     
                 res.set({
                     "Content-Type": "audio/mp3",
@@ -53,7 +54,7 @@ export class StreamService {
                     this.sessionService.endSession(session?.id).catch((error: Error) => {
                         this.logger.error(`Failed ending session: ${error.message}`, error);
                     });
-                    stream.removeListener(listener.id).subscribe();
+                    stream.removeListener(listener.id);
                 });
             }).catch((error: Error) => {
                 this.logger.error(`Could not add listener to stream: ${error.message}`, error);

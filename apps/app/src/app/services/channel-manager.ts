@@ -68,16 +68,20 @@ export class TSAChannelManager {
         this._coordinator.$onChannelUpdated.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((channel) => {
             this.updateChannel(channel);
         });
-        // Subscribe to channel status changed events
-        // this._coordinator.$onChannelUpdated.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((channel) => {
-        //     this.updateChannel(channel);
-        // });
         // Subscribe to channel track changed events
         this._coordinator.$onChannelTrackChanged.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((event) => {
             const channel = this.getChannelById(event.channelId);
             if(isNull(channel)) return;
             
             channel.currentTrack = event.track ?? null;
+            this.updateChannel(channel);
+        });
+        // Subscribe to channel listeners changed event
+        this._coordinator.$onChannelListenersChanged.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((event) => {
+            const channel = this.getChannelById(event.channelId);
+            if(isNull(channel)) return;
+            
+            channel.listeners = event.listeners ?? 0;
             this.updateChannel(channel);
         });
     }

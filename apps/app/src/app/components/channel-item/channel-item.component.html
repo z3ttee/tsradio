@@ -1,32 +1,50 @@
 <div 
     tabindex="0"
-    (click)="select.emit(channel)" 
+    (click)="select.emit(_channel())" 
     [ngClass]="{
         'border-opacity-70': selected, 
-        'pointer-events-auto': !!channel
+        'pointer-events-auto': !!_channel()
     }"
     class="relative bg-body-surface shadow p-2 md:p-3 outline-none rounded-sm border-2 border-body-lighter border-opacity-0 transition-all pointer-events-none cursor-pointer focus:border-opacity-70 hover:border-opacity-70 [&>div]:active:scale-95">
     
-    <div class="relative flex flex-1 items-center justify-start gap-2 md:gap-4 transform-gpu will-change-transform transition-all">
-        <div class="min-w w-16 h-16 md:w-20 md:h-20 rounded-sm overflow-hidden">
-            <div class="w-full h-full bg-body-lighter" *ngIf="!channel"></div>
-            <tsa-artwork *ngIf="channel" [artwork]="channel?.artwork" defaultSrc="/assets/img/default_channel_cover.jpg"></tsa-artwork>
+    <div class="relative flex items-center justify-start gap-4 transform-gpu will-change-transform transition-all">
+        <div class="min-w-20 w-20 aspect-square md:w-24 md:min-w-24 rounded-sm overflow-hidden">
+            <div class="w-full h-full bg-body-lighter" *ngIf="!_channel()"></div>
+            <tsa-artwork *ngIf="_channel()" [artwork]="_channel()?.artwork" defaultSrc="/assets/img/default_channel_cover.jpg"></tsa-artwork>
         </div>
 
-        <div class="flex flex-col gap-0.5 md:gap-1.5 items-start justify-center flex-grow">
-            <div class="flex items-center justify-start w-full gap-2">
-                <p class="text-md w-full bg-body-lighter text-body-lighter rounded" *ngIf="!channel">Loading</p>
-                <p class="line-clamp-1 text-md w-full font-semi" *ngIf="channel">{{ channel?.name }}</p>
-                <tsr-equalizer *ngIf="selected && playing"></tsr-equalizer>
-                <tsa-loader *ngIf="selected && loading"></tsa-loader>
+        <div class="flex flex-col items-start justify-start flex-grow gap-3 overflow-hidden">
+            <div class="flex w-full items-center justify-start gap-4 md:gap-8 overflow-hidden">
+                <!-- Name of the channel -->
+                <!-- This shows a loading indicator if null -->
+                <div class="flex-grow overflow-hidden">
+                    <p class="text-md w-full font-semi bg-body-lighter text-body-lighter rounded" *ngIf="!_channel()">Loading</p>
+                    <p class="text-md w-full font-semi max-w-full overflow-hidden break-words text-ellipsis whitespace-nowrap" *ngIf="_channel()">{{ _channel()?.name }}</p>
+                </div>
+
+                <div class="inline-flex items-center justify-end gap-3" *ngIf="_channel()">
+                    <tsr-equalizer *ngIf="selected && playing"></tsr-equalizer>
+                    <tsa-loader *ngIf="selected && loading"></tsa-loader>
+                    <!-- Listener count -->
+                    <div class="inline-flex items-center justify-start bg-body-lighter text-sm py-1 px-2 rounded-sm gap-2" [title]="(_channel()?.listeners ?? 0) + ' Zuhörer in diesem Channel.'">
+                        {{ _listeners() }}
+                        <ng-icon name="featherHeadphones" size="14"></ng-icon>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-col items-start justify-center gap-1">
-                <p class="text-sm w-52 bg-body-lighter text-body-lighter rounded" *ngIf="!channel">Loading</p>
-                <p class="line-clamp-1 text-sm" *ngIf="channel">{{ channel?.currentTrack?.name }}</p>
-                <ul class="line-clamp-1 w-full">
-                    <li class="text-sm w-32 bg-body-lighter text-body-lighter rounded" *ngIf="!channel">Loading</li>
-                    <li class="inline text-font opacity-40"><span class="text-sm pointer-events-all">{{ channel?.currentTrack?.primaryArtist?.name ?? "Unbekannter Künstler" }}</span>{{ channel?.currentTrack?.featuredArtists?.length > 0 ? ", " : "" }}</li>
-                    <li *ngFor="let artist of channel?.currentTrack?.featuredArtists; index as i" class="inline text-font opacity-40"><span class="text-sm pointer-events-all">{{ artist?.name }}</span>{{ i + 1 < channel?.currentTrack?.featuredArtists?.length ? ", " : "" }}</li>
+
+            <!-- Track details -->
+            <div class="flex flex-col w-full items-start justify-start gap-1 overflow-hidden">
+                <!-- Track title -->
+                <p class="text-sm w-52 bg-body-lighter text-body-lighter rounded" *ngIf="!_channel()">Loading</p>
+                <p class="text-sm max-w-full overflow-hidden break-words text-ellipsis whitespace-nowrap" [title]="_channel()?.currentTrack?.name" *ngIf="_channel()">{{ _channel()?.currentTrack?.name }}</p>
+                <!-- Track artists -->
+                <ul class="max-w-full overflow-hidden break-words text-ellipsis whitespace-nowrap w-full text-font text-opacity-40">
+                    <li class="text-sm w-32 bg-body-lighter text-body-lighter rounded" *ngIf="!_channel()">Loading</li>
+                    <ng-container *ngIf="_channel()">
+                        <li class="inline"><span class="text-sm pointer-events-all">{{ _channel()?.currentTrack?.primaryArtist?.name ?? "Unbekannter Künstler" }}</span>{{ _channel()?.currentTrack?.featuredArtists?.length > 0 ? ", " : "" }}</li>
+                        <li *ngFor="let artist of _channel()?.currentTrack?.featuredArtists; index as i" class="inline"><span class="text-sm pointer-events-all">{{ artist?.name }}</span>{{ i + 1 < _channel()?.currentTrack?.featuredArtists?.length ? ", " : "" }}</li>
+                    </ng-container>
                 </ul>
             </div>
         </div>

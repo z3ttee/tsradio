@@ -8,7 +8,7 @@ import { UserService } from "../../user/services/user.service";
 import { OIDCService } from "../../authentication/services/oidc.service";
 import { HistoryService } from "../../history/services/history.service";
 import { ChannelRegistry } from "../../channel/services/registry.service";
-import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
+import { GATEWAY_EVENT_CHANNEL_CREATED, GATEWAY_EVENT_CHANNEL_DELETED, GATEWAY_EVENT_CHANNEL_DISABLED, GATEWAY_EVENT_CHANNEL_LISTENERS_CHANGED, GATEWAY_EVENT_CHANNEL_REQUEST_RESTART, GATEWAY_EVENT_CHANNEL_STATUS_CHANGED, GATEWAY_EVENT_CHANNEL_TRACK_CHANGED, GATEWAY_EVENT_CHANNEL_UPDATED } from "../../constants";
 import { Channel } from "../../channel/entities/channel.entity";
 import { isNull } from "@tsa/utilities";
 import { ChannelService } from "../../channel/services/channel.service";
@@ -80,8 +80,18 @@ export class StreamerCoordinator extends AuthGateway {
     }
 
     /**
-     * Emit channel update event
-     * @param channel Updated channel data
+     * Emit channel listeners changed event
+     * @param channelId Id of the channel
+     * @param listeners Number of current listeners
+     */
+    public async emitChannelListenersChanged(channelId: string, listeners: number): Promise<void> {
+        this.server?.emit(GATEWAY_EVENT_CHANNEL_LISTENERS_CHANGED, channelId, listeners);
+    }
+
+    /**
+     * Emit channel track changed event
+     * @param channelId Id of the channel
+     * @param track Instance of the new current track
      */
     public async emitChannelTrackChanged(channelId: string, track: Track): Promise<void> {
         if(isNull(track)) {
@@ -157,6 +167,12 @@ export class StreamerCoordinator extends AuthGateway {
     public handleChannelUpdatedEvent(channel: Channel) {
         this.updateChannelOfStream(channel);
         this.emitChannelUpdated(channel);
+    }
+
+    
+    @OnEvent(GATEWAY_EVENT_CHANNEL_LISTENERS_CHANGED)
+    public handleChannelListenerChanged(channelId: string, listeners: number) {
+        this.emitChannelListenersChanged(channelId, listeners);
     }
 
     @OnEvent(GATEWAY_EVENT_CHANNEL_REQUEST_RESTART)
@@ -244,6 +260,11 @@ export class StreamerCoordinator extends AuthGateway {
         // Subscribe to channel updates
         stream.$onChannelUpdated.subscribe(() => {
             this.logger.log(`Channel metadata was updated for '${stream.name}'`);
+        });
+
+        // Subscribe to listener count updates
+        stream.$listenerCount.subscribe((listenerCount) => {
+            this.emitChannelListenersChanged(stream.id, listenerCount);
         });
     }
 
