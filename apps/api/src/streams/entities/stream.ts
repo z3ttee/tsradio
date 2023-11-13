@@ -52,6 +52,9 @@ export class Stream {
     private readonly _currentTrackSubject: BehaviorSubject<Track> = new BehaviorSubject(null);
     public readonly $currentTrack = this._currentTrackSubject.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
 
+    private readonly _listenerCountSubj: BehaviorSubject<number> = new BehaviorSubject(0);
+    public readonly $listenerCount = this._listenerCountSubj.asObservable().pipe(takeUntil(this._destroySubject), distinctUntilChanged());
+
     constructor(private _channel: Channel) {
         this.$onError.pipe(takeUntil(this._destroySubject)).subscribe(() => {
             this.setStatus(StreamStatus.ERRORED);
@@ -97,46 +100,6 @@ export class Stream {
      */
     public get name() {
         return this._channel.name;
-    }
-
-    /**
-     * Create a new listener instance.
-     * This will generate an id and a passthrough 
-     * object to pipe streams.
-     * @returns Listener
-     */
-    public createListener(): Observable<Listener> {
-        return new Observable<Listener>((subscriber) => {
-            try {
-                const listener = new Listener();
-                this.listeners.set(listener.id, listener);
-                this.logger.log(`Listener connected (${this.listeners.size})`);
-                subscriber.next(listener);
-            } catch (error) {
-                subscriber.error(error);
-
-                if(error instanceof Error) {
-                    this.logger.error(`Error while adding client to stream: ${error.message}`, error);
-                }
-            } finally {
-                subscriber.complete();
-            }
-        });
-    }
-
-    /**
-     * Remove an existing listener from the stream to
-     * end the stream
-     * @param id Id of the listener object
-     */
-    public removeListener(id: string): Observable<void> {
-        return new Observable<void>((subscriber) => {
-            this.listeners.delete(id);
-            this.logger.log(`Listener disconnected (${this.listeners.size})`);
-
-            subscriber.next();
-            subscriber.complete();
-        });
     }
 
     /**
@@ -352,5 +315,43 @@ export class Stream {
             subscriber.next();
             subscriber.complete();
         });
+    }
+
+    /**
+     * Create a new listener instance.
+     * This will generate an id and a passthrough 
+     * object to pipe streams.
+     * @param listener Add an existing listener to the stream. If `null`, a new listener will be created
+     * @returns Listener
+     */
+    public addListener(listener?: Listener): Listener {
+        const _listener = listener ?? new Listener();
+
+        this.listeners.set(_listener.id, _listener);
+        this.logger.log(`Listener connected (${this.listeners.size}) to '${this.name}'`);
+        this.emitListenerCount();
+
+        return _listener;
+    }
+
+    /**
+     * Remove an existing listener from the stream to
+     * end the stream
+     * @param id Id of the listener object
+     */
+    public removeListener(listenerId: string): void {
+        this.listeners.delete(listenerId);
+        this.logger.log(`Listener disconnected (${this.listeners.size}) from '${this.name}'`);
+        this.emitListenerCount();
+    }
+
+    /**
+     * Push a new listener count value to the subject
+     * to trigger an update event for the listener
+     * count
+     */
+    private emitListenerCount(): void {
+        const listeners = this.listeners.size ?? 0;
+        this._listenerCountSubj.next(listeners);
     }
 }
