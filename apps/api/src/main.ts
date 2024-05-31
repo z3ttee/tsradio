@@ -30,9 +30,9 @@ bootstrapper.allowOrigins(new Set([
     "http://localhost:8888", 
     "http://localhost:4200", 
     "http://localhost:3000",
-    "https://radio.tsalliance.eu",
-    "https://api.tsalliance.eu",
-    "https://sso.tsalliance.eu",
+    "https://radio.zitzmann.dev",
+    "https://api.zitzmann.dev",
+    "https://sso.zitzmann.dev",
 ]));
 
 // Start the application by binding to port
