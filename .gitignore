@@ -6,7 +6,8 @@
 .rollup.cache/
 .turbo
 .next
-
+.env*
+!.env.example
 
 # Log file
 *.log
