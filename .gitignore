@@ -5,6 +5,7 @@
 .rollup/
 .rollup.cache/
 .turbo
+.next
 
 
 # Log file
