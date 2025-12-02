@@ -19,11 +19,11 @@
     "@typescript-eslint/parser": "^6.9.1",
     "eslint": "^8.53.0",
     "eslint-config-nestjs": "*",
+    "nodemon": "^3.0.1",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.1",
     "tsconfig": "*",
     "tsconfig-paths": "4.2.0",
-    "typescript": "^5.2.2",
-    "nodemon": "^3.0.1"
+    "typescript": "^5.2.2"
   }
 }

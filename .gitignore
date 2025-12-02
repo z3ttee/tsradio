@@ -8,6 +8,7 @@
 .next
 .env*
 !.env.example
+.yarn
 
 # Log file
 *.log
