@@ -12,7 +12,7 @@
 //   .withBuildInfo()
 //   .bootstrap().then((app) => {
 //     app.getUrl().then((url) => {
-//       logger.log(`TSRadio Api now listening for requests on url '${url}'.`);      
+//       logger.log(`TSRadio Api now listening for requests on url '${url}'.`);
 //     });
 //   });
 
@@ -25,15 +25,7 @@ import { TSABootstrapper } from "@tsa/bootstrap";
 const bootstrapper = TSABootstrapper.create(AppModule as any);
 
 // Set allowed origins
-bootstrapper.allowOrigins(new Set([
-    "*", 
-    "http://localhost:8888", 
-    "http://localhost:4200", 
-    "http://localhost:3000",
-    "https://radio.zitzmann.dev",
-    "https://api.zitzmann.dev",
-    "https://sso.zitzmann.dev",
-]));
+bootstrapper.allowOrigins(new Set(["*"]));
 
 // Start the application by binding to port
-bootstrapper.listen(3000);
+bootstrapper.listen(3001);
