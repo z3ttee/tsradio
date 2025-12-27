@@ -35,6 +35,11 @@ When working on any nestjs service or backend, please follow these conventions:
 - Private class members or functions should always start with "\_" in their name
 - Prefer PUT over PATCH endpoints
 
+## TypeORM
+
+- When defining entities and applying relationships, you don't need to create fields for foreign keys, as they are mapped by typeorm's relationship mapping
+- When including relations in database queries, prefer object notation for relations to include instead of array notation (`relations: ['user']` --> `relations: { user: true }`). This way you can nest included relations
+
 ## Error Handling
 
 - Always handle exceptions correctly
