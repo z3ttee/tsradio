@@ -1,10 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {
-  ShutdownSignal,
-  VERSION_NEUTRAL,
-  VersioningType,
-} from '@nestjs/common';
+import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,9 +11,7 @@ async function bootstrap() {
     defaultVersion: VERSION_NEUTRAL,
   });
 
-  app.enableShutdownHooks([ShutdownSignal.SIGINT, ShutdownSignal.SIGTERM]);
-
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 }
 
 bootstrap();
