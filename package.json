@@ -5,7 +5,8 @@
   "workspaces": [
     "apps/*",
     "configs/*",
-    "packages/*"
+    "packages/*",
+    "services/*"
   ],
   "scripts": {
     "build:all": "turbo run build --no-daemon",
