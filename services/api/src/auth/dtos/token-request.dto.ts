@@ -3,7 +3,6 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export enum GrantType {
   AUTHORIZATION_CODE = 'authorization_code',
   REFRESH_TOKEN = 'refresh_token',
-  CLIENT_CREDENTIALS = 'client_credentials',
 }
 
 export class TokenRequestDto {
@@ -21,21 +20,5 @@ export class TokenRequestDto {
 
   @IsString()
   @IsOptional()
-  public client_id?: string;
-
-  @IsString()
-  @IsOptional()
-  public client_secret?: string;
-
-  @IsString()
-  @IsOptional()
   public refresh_token?: string;
-
-  @IsString()
-  @IsOptional()
-  public code_verifier?: string;
-
-  @IsString()
-  @IsOptional()
-  public scope?: string;
 }

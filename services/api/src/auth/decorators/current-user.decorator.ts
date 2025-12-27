@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { AuthenticatedRequest } from '../guards/jwt-auth.guard';
-import { JwtPayload } from '../services/token.service';
+import type { AuthenticatedRequest } from '../guards/jwt-auth.guard';
+import type { JwtPayload } from '../services/token.service';
 
 export const CurrentUser = createParamDecorator(
   (data: keyof JwtPayload | undefined, ctx: ExecutionContext) => {

@@ -18,9 +18,6 @@ export class RefreshToken {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   public user: User;
 
-  @Column({ nullable: true })
-  public clientId: string;
-
   @Column()
   public expiresAt: Date;
 

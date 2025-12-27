@@ -6,7 +6,7 @@ This project has a monorepo structure using `turborepo`. The folder structure lo
   - webplayer/: - Frontend for webplayer features
   - cockpit/: - Frontend for managing the webradio stations
 - **services/**: - Main folder containing all backend services/apis
-  - api/: - Backend application containing CRUD endpoints for management
+  - api/: - REST API containing CRUD endpoints for management
   - dex/: - Service that manages/serves local media files for streaming
 
 # General Conventions

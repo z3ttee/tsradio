@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { TokenService, JwtPayload } from '../services/token.service';
 import { ErrorCodes } from '../../errorCodes';
 

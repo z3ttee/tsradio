@@ -10,11 +10,8 @@ import { ErrorCodes } from '../../errorCodes';
 export interface JwtPayload {
   sub: string;
   iss: string;
-  aud: string | string[];
   exp: number;
   iat: number;
-  nonce?: string;
-  // OpenID Connect claims
   name?: string;
   preferred_username?: string;
   email?: string;
@@ -50,72 +47,48 @@ export class TokenService {
     this._authCodeTtl = parseInt(process.env.AUTH_CODE_TTL || '600', 10);
   }
 
-  public generateAccessToken(
-    user: User,
-    clientId: string,
-    nonce?: string,
-  ): string {
+  public generateAccessToken(user: User): string {
     const now = Math.floor(Date.now() / 1000);
     const payload: JwtPayload = {
       sub: user.id,
       iss: this._issuer,
-      aud: clientId,
       exp: now + this._accessTokenTtl,
       iat: now,
+      name: user.displayName || user.username,
+      preferred_username: user.username,
+      email: user.email,
     };
-
-    if (nonce) {
-      payload.nonce = nonce;
-    }
-
-    payload.name = user.displayName || user.username;
-    payload.preferred_username = user.username;
-    payload.email = user.email;
 
     return this._signJwt(payload);
   }
 
-  public generateIdToken(
-    user: User,
-    clientId: string,
-    nonce?: string,
-    accessToken?: string,
-  ): string {
+  public generateIdToken(user: User, accessToken?: string): string {
     const now = Math.floor(Date.now() / 1000);
     const payload: IdTokenPayload = {
       sub: user.id,
       iss: this._issuer,
-      aud: clientId,
       exp: now + this._accessTokenTtl,
       iat: now,
       auth_time: now,
+      name: user.displayName || user.username,
+      preferred_username: user.username,
+      email: user.email,
     };
-
-    if (nonce) {
-      payload.nonce = nonce;
-    }
 
     if (accessToken) {
       payload.at_hash = this._generateAtHash(accessToken);
     }
 
-    payload.name = user.displayName || user.username;
-    payload.preferred_username = user.username;
-    payload.email = user.email;
-
     return this._signJwt(payload);
   }
 
-  public async generateRefreshToken(
-    user: User,
-    clientId: string,
-  ): Promise<string> {
+  public async generateRefreshToken(user: User): Promise<string> {
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + this._refreshTokenTtl * 1000);
 
     const refreshToken = this._refreshTokenRepository.create({
+      token,
       user,
-      clientId,
       expiresAt,
     });
 
@@ -125,12 +98,7 @@ export class TokenService {
 
   public async generateAuthorizationCode(
     user: User,
-    clientId: string,
     redirectUri: string,
-    scopes: string[],
-    codeChallenge?: string,
-    codeChallengeMethod?: string,
-    nonce?: string,
   ): Promise<string> {
     const code = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + this._authCodeTtl * 1000);
@@ -138,11 +106,7 @@ export class TokenService {
     const authCode = this._authCodeRepository.create({
       code,
       user,
-      clientId,
       redirectUri,
-      codeChallenge,
-      codeChallengeMethod,
-      nonce,
       expiresAt,
     });
 
@@ -152,13 +116,11 @@ export class TokenService {
 
   public async validateAuthorizationCode(
     code: string,
-    clientId: string,
     redirectUri: string,
-    codeVerifier?: string,
   ): Promise<AuthorizationCode> {
     const authCode = await this._authCodeRepository.findOne({
-      where: { code, clientId, redirectUri },
-      relations: ['user'],
+      where: { code, redirectUri },
+      relations: { user: true },
     });
 
     if (!authCode) {
@@ -166,27 +128,11 @@ export class TokenService {
     }
 
     if (authCode.expiresAt < new Date()) {
+      await this._authCodeRepository.delete(authCode.id);
       throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
 
-    // Verify PKCE if code challenge was provided
-    if (authCode.codeChallenge) {
-      if (!codeVerifier) {
-        throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
-      }
-
-      const isValid = this._verifyCodeChallenge(
-        codeVerifier,
-        authCode.codeChallenge,
-        authCode.codeChallengeMethod || 'plain',
-      );
-
-      if (!isValid) {
-        throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
-      }
-    }
-
-    // Mark as used
+    // Authorization codes are single-use
     await this._authCodeRepository.delete(authCode.id);
 
     return authCode;
@@ -195,7 +141,7 @@ export class TokenService {
   public async validateRefreshToken(token: string): Promise<RefreshToken> {
     const refreshToken = await this._refreshTokenRepository.findOne({
       where: { token },
-      relations: ['user'],
+      relations: { user: true },
     });
 
     if (!refreshToken) {
@@ -297,23 +243,5 @@ export class TokenService {
     const hash = crypto.createHash('sha256').update(accessToken).digest();
     const halfHash = hash.slice(0, hash.length / 2);
     return this._base64UrlEncode(halfHash);
-  }
-
-  private _verifyCodeChallenge(
-    codeVerifier: string,
-    codeChallenge: string,
-    method: string,
-  ): boolean {
-    if (method === 'plain') {
-      return codeVerifier === codeChallenge;
-    }
-
-    if (method === 'S256') {
-      const hash = crypto.createHash('sha256').update(codeVerifier).digest();
-      const computed = this._base64UrlEncode(hash);
-      return computed === codeChallenge;
-    }
-
-    return false;
   }
 }

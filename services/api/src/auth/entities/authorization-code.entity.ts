@@ -19,19 +19,7 @@ export class AuthorizationCode {
   public user: User;
 
   @Column()
-  public clientId: string;
-
-  @Column()
   public redirectUri: string;
-
-  @Column({ nullable: true })
-  public codeChallenge: string;
-
-  @Column({ nullable: true })
-  public codeChallengeMethod: string;
-
-  @Column({ nullable: true })
-  public nonce: string;
 
   @Column()
   public expiresAt: Date;
